@@ -1,0 +1,1 @@
+"""Shared Bronze-layer utilities."""

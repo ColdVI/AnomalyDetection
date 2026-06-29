@@ -1,0 +1,8 @@
+confluent-kafka
+requests
+pandas
+pyarrow
+pymavlink
+pyulog
+python-dotenv
+pytest

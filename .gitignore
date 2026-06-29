@@ -1,0 +1,17 @@
+.env
+.venv/
+venv/
+data/
+*.parquet
+*.tar
+*.tar.gz
+*.tgz
+*.bin
+*.tlog
+*.ulg
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.idea/
+.vscode/
