@@ -43,3 +43,4 @@ data/bronze/uav_attack/_input/           # UAV Attack CSV/ULog agaci
 ALFA ve UAV Attack loader'lari gercek dosya/klasor adlari gorulmeden label cikarimi
 varsaymayacaktir. Kaynak kararlari [docs/decisions.md](docs/decisions.md), Bronze metadata
 sozlesmesi [docs/bronze_schema.md](docs/bronze_schema.md) icindedir..
+no intro
