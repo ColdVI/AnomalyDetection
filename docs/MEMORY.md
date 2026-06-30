@@ -7,7 +7,7 @@
 
 ---
 
-## 1. Üst Bağlam — Staj Programı
+## 1. Üst Bağlam — Staj Programıı
 
 - **Ekip:** 3 stajyer, veri madenciliği & büyük veri alanında.
 - **Süre:** 8 hafta (1-2 ay). Hafta 1-4 = ortak proje, Hafta 5-8 = bireysel projeler.
