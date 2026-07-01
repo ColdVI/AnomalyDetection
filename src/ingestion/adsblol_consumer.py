@@ -1,19 +1,11 @@
-"""Consume adsb.lol Kafka messages: land raw JSONL, write Bronze Parquet.
+"""Consume adsb.lol Kafka messages and land raw JSONL to MinIO Bronze.
 
-See docs/PIPELINE_PLAN.md (YUSUF REHBERİ). Per ADR-003, every Bronze artifact
-lives in MinIO, not local disk, and there is no geographic filter -- every
-message worldwide is kept.
+See docs/PIPELINE_PLAN.md (YUSUF REHBERİ). Per ADR-003, Bronze = raw only.
+Every batch is written as ONE JSONL object -- no Parquet, no provenance, no
+unit conversion, no geo filter. Silver (src/silver/parse_adsblol_realtime.py)
+reads these JSONL files and produces the parsed Parquet.
 
-Two MinIO objects per flushed batch:
-  - `bronze/adsblol_realtime/_landing/states-<batch-stamp>.jsonl`: every
-    message in the batch, exactly as produced -- the true raw landing. MinIO
-    has no native "append to object" operation, so landing is batched at the
-    same cadence as the Parquet flush rather than streamed line-by-line.
-  - `bronze/adsblol_realtime/part-*.parquet`: the same batch, with standard
-    provenance columns added.
-
-No unit conversion or renaming happens here; original adsb.lol field names
-(`hex`, `lat`, `lon`, `alt_baro`, `gs`, `track`, ...) are kept as-is.
+MinIO landing path: bronze/adsblol_realtime/_landing/states-<timestamp>.jsonl
 """
 
 from __future__ import annotations
@@ -25,16 +17,13 @@ import signal
 from datetime import datetime, timezone
 from typing import Any
 
-import pandas as pd
 from confluent_kafka import Consumer
 from dotenv import load_dotenv
 
-from src.common.minio_io import ObjectStoreClient, write_bronze, write_bronze_bytes
-from src.common.provenance import add_provenance
+from src.common.minio_io import ObjectStoreClient, write_bronze_bytes
 
 logger = logging.getLogger(__name__)
 
-SOURCE_TYPE = "adsblol_rt"
 DEFAULT_TOPIC = "uav.raw.states"
 BATCH_SIZE = 500
 
@@ -54,28 +43,15 @@ def land_batch_raw(
     bucket: str | None = None,
     client: ObjectStoreClient | None = None,
 ) -> str | None:
-    """Upload the unfiltered batch as one JSONL object. Returns the s3:// URI, or
-    None if the batch is empty."""
+    """Upload the batch as one JSONL object to Bronze. Returns the s3:// URI or None."""
     if not batch:
         return None
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     object_name = f"adsblol_realtime/_landing/states-{stamp}.jsonl"
     payload = "\n".join(json.dumps(entry) for entry in batch).encode("utf-8") + b"\n"
-    return write_bronze_bytes(payload, object_name, bucket=bucket, content_type="application/x-ndjson", client=client)
-
-
-def flush_batch_to_bronze(
-    batch: list[dict[str, Any]],
-    *,
-    source_file: str,
-    client: ObjectStoreClient | None = None,
-) -> str | None:
-    """Write the whole batch as a Bronze Parquet object (no geo filter, ADR-003)."""
-    if not batch:
-        return None
-    df = pd.DataFrame(batch)
-    df = add_provenance(df, source_type=SOURCE_TYPE, source_file=source_file, schema_version="bronze_v1")
-    return write_bronze(df, "adsblol_realtime", client=client)
+    return write_bronze_bytes(
+        payload, object_name, bucket=bucket, content_type="application/x-ndjson", client=client
+    )
 
 
 def run(
@@ -103,19 +79,13 @@ def run(
     signal.signal(signal.SIGTERM, shutdown.request_stop)
 
     batch: list[dict[str, Any]] = []
-    logger.info("Consuming %s @ %s, landing + Bronze writes go to MinIO", topic_name, bootstrap)
+    logger.info("Consuming %s @ %s, writing raw JSONL to MinIO bronze", topic_name, bootstrap)
 
     def _flush() -> None:
         if not batch:
             return
-        landing_uri = land_batch_raw(batch, client=client)
-        bronze_uri = flush_batch_to_bronze(batch, source_file=topic_name, client=client)
-        logger.info(
-            "Flushed batch of %d -> landing=%s bronze=%s",
-            len(batch),
-            landing_uri,
-            bronze_uri or "(empty batch)",
-        )
+        uri = land_batch_raw(batch, client=client)
+        logger.info("Flushed %d messages -> %s", len(batch), uri)
         batch.clear()
 
     try:

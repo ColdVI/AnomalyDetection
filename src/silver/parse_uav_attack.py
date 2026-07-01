@@ -91,6 +91,8 @@ def infer_label_from_path(path: str) -> str:
         return "gps_spoofing"
     if "jam" in nearest:
         return "gps_jamming"
+    if "ping" in nearest or "dos" in nearest:
+        return "ping_dos"
     if "malicious" in nearest or "attack" in nearest:
         return "malicious_unspecified"
 
@@ -103,6 +105,8 @@ def infer_label_from_path(path: str) -> str:
         return "gps_spoofing"
     if "jam" in joined:
         return "gps_jamming"
+    if "ping" in joined or "dos" in joined:
+        return "ping_dos"
     return "unknown"
 
 
