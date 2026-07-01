@@ -1,5 +1,23 @@
 """
-parse_uav_attack.py
+parse_uav_attack.py -- UAV Attack Silver parser.
+
+Moved from `src/bronze2silverParsers/parse_uav_attack.py` per ADR-003
+(docs/PIPELINE_PLAN.md, ANIL REHBERİ): IO layer changed (download the raw zip
+from MinIO Bronze instead of a local path, write to MinIO Silver instead of a
+local parquet). One transform fix kept (not a rewrite of the rest): the
+topic-suffix regex (`TOPIC_SUFFIX_PATTERN`/`split_log_and_topic`) is proven
+broken against real files -- verified against the real 683.9 MB IEEE
+DataPort zip on 2026-07-01 (see src/processing/uav_attack_silver.py's
+docstring for the full investigation). Log-id prefixes are not uniform
+across collections (`log_12_2020-8-2-14-18-24_...` for Simulated,
+`ace-benign-log_0_2033-8-19-16-27-30_...` for Live, `001-2021-01-27-09-08-
+37-708_...` for live Ping DoS) and contain their own underscores, so the old
+lazy "last `_<word>_<n>.csv`" regex, searched left-to-right, matched the
+FIRST underscore instead of the true topic boundary. Fixed by matching each
+of the 4 known topic names this parser actually merges, anchored to the
+filename's end -- everything else (quaternion->euler, label-from-path,
+battery/gps merge) is unchanged.
+
 UAVAttackData.zip icindeki ulog2csv ciktilarini (her log icin onlarca
 per-topic CSV) log bazinda gruplar; vehicle_global_position'i omurga
 (zaman/lat/lon/alt) olarak alir, vehicle_attitude (quaternion->euler),
@@ -11,30 +29,51 @@ mikrosaniye sayacidir. Gercek UTC icin vehicle_gps_position.time_utc_usec
 kullanilir (varsa); yoksa timestamp_utc sadece o log icinde goreceli kalir.
 
 Etiket dosya yolundaki anahtar kelimelerden (benign/spoofing/jamming)
-cikarilir -- klasor derinligi onemli degil, tum path taranir.
+cikarilir -- klasor derinligi onemli degil, sadece en yakin klasor bakilir.
 
 Kullanim:
-    python parse_uav_attack.py <UAVAttackData.zip> [cikti.parquet]
+    python -m src.silver.parse_uav_attack [--bronze-object uav_attack/UAVAttackData.zip] [--local-out silver/uav_attack.parquet]
 """
+
+from __future__ import annotations
+
+import logging
 import re
-import sys
 import zipfile
 from collections import defaultdict
+from io import BytesIO
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-TOPIC_SUFFIX_PATTERN = re.compile(r"_([a-z0-9_]+?)_(\d+)\.csv$", re.IGNORECASE)
+from src.common.minio_io import (
+    ObjectStoreClient,
+    download_raw_bytes,
+    get_minio_client,
+    list_layer_objects,
+    write_silver,
+)
+from src.common.provenance import add_provenance
+
+logger = logging.getLogger(__name__)
+
+SOURCE_TYPE = "uav_attack"
+
+# Fix (verified against real data 2026-07-01): match each known topic name exactly,
+# anchored to the filename's end, instead of a generic lazy "last _<word>_<n>.csv" regex
+# (which mis-split on the first underscore for non-uniform log_id prefixes).
+_KNOWN_TOPICS = ("vehicle_global_position", "vehicle_attitude", "battery_status", "vehicle_gps_position")
+_TOPIC_PATTERNS = {topic: re.compile(rf"_{re.escape(topic)}_(\d+)\.csv$", re.IGNORECASE) for topic in _KNOWN_TOPICS}
 
 
 def split_log_and_topic(filename: str):
     name = Path(filename).name
-    m = TOPIC_SUFFIX_PATTERN.search(name)
-    if not m:
-        return None, None
-    log_id = name[: m.start()]
-    return log_id, m.group(1)
+    for topic, pattern in _TOPIC_PATTERNS.items():
+        m = pattern.search(name)
+        if m:
+            return name[: m.start()], topic
+    return None, None
 
 
 def infer_label_from_path(path: str) -> str:
@@ -146,8 +185,9 @@ def parse_log(zf, log_id: str, label: str, files_for_log: list):
     return base
 
 
-def main(zip_path: str, out_path: str):
-    with zipfile.ZipFile(zip_path) as zf:
+def parse_zip_bytes(data: bytes) -> pd.DataFrame:
+    """Parse an in-memory UAVAttackData.zip into the flat Silver table."""
+    with zipfile.ZipFile(BytesIO(data)) as zf:
         all_names = [n for n in zf.namelist() if n.lower().endswith(".csv")]
 
         by_folder = defaultdict(list)
@@ -167,30 +207,70 @@ def main(zip_path: str, out_path: str):
                     if df is not None and len(df):
                         results.append(df)
                         utc_flag = "gercek-UTC" if df["timestamp_is_real_utc"].iloc[0] else "GORECELI"
-                        print(f"  [{folder}] {log_id}: {len(df)} satir, label={label}, zaman={utc_flag}")
+                        logger.info("  [%s] %s: %d satir, label=%s, zaman=%s", folder, log_id, len(df), label, utc_flag)
                     else:
-                        print(f"  [{folder}] {log_id}: vehicle_global_position bulunamadi, atlandi")
-                except Exception as e:
-                    print(f"  [{folder}] {log_id}: HATA {e}")
+                        logger.warning("  [%s] %s: vehicle_global_position bulunamadi, atlandi", folder, log_id)
+                except Exception:
+                    logger.exception("  [%s] %s: HATA", folder, log_id)
 
         if not results:
-            print("Hicbir log parse edilemedi.")
-            return
+            logger.error("Hicbir log parse edilemedi.")
+            return pd.DataFrame()
 
         full = pd.concat(results, ignore_index=True)
-        Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-        full.to_parquet(out_path, index=False)
-        print(f"\nYazildi: {out_path}")
-        print(f"  Toplam satir: {len(full)}")
-        print(f"  Toplam log: {total_logs}  |  parse edilen: {full['source_id'].nunique()}")
-        print(full["label"].value_counts())
-        print(f"\n  Gercek UTC zamanli log sayisi: {full.groupby('source_id')['timestamp_is_real_utc'].first().sum()}")
+        logger.info(
+            "Toplam satir: %d, toplam log: %d, parse edilen: %d",
+            len(full), total_logs, full["source_id"].nunique(),
+        )
+        return full
+
+
+def _find_bronze_zip(client: ObjectStoreClient) -> str | None:
+    candidates = [n for n in list_layer_objects(client, "bronze", SOURCE_TYPE) if n.lower().endswith(".zip")]
+    if not candidates:
+        return None
+    if len(candidates) > 1:
+        logger.warning("Multiple UAV Attack zips found under bronze/uav_attack/, using the first: %s", candidates)
+    return candidates[0]
+
+
+def build_uav_attack_silver(client: ObjectStoreClient, *, bronze_object: str | None = None) -> pd.DataFrame:
+    """Download the UAV Attack zip from Bronze and parse it into the UAV Attack Silver table."""
+    bronze_object = bronze_object or _find_bronze_zip(client)
+    if bronze_object is None:
+        logger.warning("No UAV Attack zip found under bronze/uav_attack/")
+        return pd.DataFrame()
+
+    data = download_raw_bytes(client, bronze_object)
+    df = parse_zip_bytes(data)
+    if df.empty:
+        return df
+    return add_provenance(df, source_type=SOURCE_TYPE, source_file=bronze_object)
+
+
+def main() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="UAV Attack Bronze zip -> Silver")
+    parser.add_argument("--bronze-object", default=None, help="e.g. uav_attack/UAVAttackData.zip; auto-detected if omitted")
+    parser.add_argument("--local-out", default=None, help="Optional local Parquet path")
+    args = parser.parse_args()
+
+    client = get_minio_client()
+    silver = build_uav_attack_silver(client, bronze_object=args.bronze_object)
+    if silver.empty:
+        logger.error("Nothing to write: UAV Attack Silver is empty")
+        return
+
+    uri = write_silver(silver, SOURCE_TYPE, client=client)
+    logger.info("Wrote UAV Attack Silver -> %s", uri)
+
+    if args.local_out:
+        Path(args.local_out).parent.mkdir(parents=True, exist_ok=True)
+        silver.to_parquet(args.local_out, index=False)
+        logger.info("Local copy written: %s", args.local_out)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Kullanim: python parse_uav_attack.py <UAVAttackData.zip> [cikti.parquet]")
-        sys.exit(1)
-    zip_path = sys.argv[1]
-    out = sys.argv[2] if len(sys.argv) > 2 else "silver/uav_attack.parquet"
-    main(zip_path, out)
+    logging.basicConfig(level=logging.INFO)
+    main()

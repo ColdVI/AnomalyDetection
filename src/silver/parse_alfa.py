@@ -1,5 +1,13 @@
 """
-parse_alfa.py
+parse_alfa.py -- ALFA Silver parser.
+
+Moved from `src/bronze2silverParsers/parse_alfa.py` per ADR-003
+(docs/PIPELINE_PLAN.md, ANIL REHBERİ): the transform logic below
+(`infer_fault_from_seq_name`, `find_col`, `parse_sequence`, `EXTRA_TOPICS`) is
+UNCHANGED from that file -- only the IO layer changed, from a local zip path
++ local parquet output to downloading the raw zip from MinIO Bronze
+(`bronze/alfa/*.zip`) and writing the result to MinIO Silver.
+
 ALFA processed.zip icindeki her sequence klasorunu (carbonZ_...) bulur,
 o klasordeki tum per-topic CSV'leri zaman ekseninde (merge_asof) birlestirir,
 failure_status-*.csv dosyalarindan etiket (label) uretir.
@@ -8,18 +16,32 @@ Klasor adi = sequence_id (ALFA'da dosya adi formati: <klasor_adi>-<topic>.csv
 oldugu icin ek regex'e gerek yok).
 
 Kullanim:
-    python parse_alfa.py <processed.zip yolu> [cikti.parquet]
-
-Ornek:
-    python parse_alfa.py alfa_nested_extracted/processed.zip silver/alfa_processed.parquet
+    python -m src.silver.parse_alfa [--bronze-object alfa/processed.zip] [--local-out silver/alfa.parquet]
 """
-import sys
+
+from __future__ import annotations
+
+import logging
 import zipfile
 from collections import defaultdict
+from io import BytesIO
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+from src.common.minio_io import (
+    ObjectStoreClient,
+    download_raw_bytes,
+    get_minio_client,
+    list_layer_objects,
+    write_silver,
+)
+from src.common.provenance import add_provenance
+
+logger = logging.getLogger(__name__)
+
+SOURCE_TYPE = "alfa"
 
 
 def infer_fault_from_seq_name(seq_name: str) -> str:
@@ -155,15 +177,16 @@ def parse_sequence(zf: zipfile.ZipFile, seq_name: str, files_by_seq: dict):
     return out
 
 
-def main(zip_path: str, out_path: str):
-    with zipfile.ZipFile(zip_path) as zf:
+def parse_zip_bytes(data: bytes) -> pd.DataFrame:
+    """Parse an in-memory ALFA processed.zip into the flat Silver table."""
+    with zipfile.ZipFile(BytesIO(data)) as zf:
         names = [n for n in zf.namelist() if n.lower().endswith(".csv")]
         files_by_seq = defaultdict(list)
         for n in names:
             seq = Path(n).parent.name
             files_by_seq[seq].append(n)
 
-        print(f"{len(files_by_seq)} sequence bulundu")
+        logger.info("%d sequence bulundu", len(files_by_seq))
 
         results = []
         for i, seq_name in enumerate(sorted(files_by_seq)):
@@ -172,29 +195,67 @@ def main(zip_path: str, out_path: str):
                 if df is not None and len(df):
                     results.append(df)
                     counts = df["label"].value_counts().to_dict()
-                    print(f"  [{i + 1}/{len(files_by_seq)}] {seq_name}: {len(df)} satir, {counts}")
+                    logger.info("  [%d/%d] %s: %d satir, %s", i + 1, len(files_by_seq), seq_name, len(df), counts)
                 else:
-                    print(f"  [{i + 1}/{len(files_by_seq)}] {seq_name}: konum bulunamadi, atlandi")
-            except Exception as e:
-                print(f"  [{i + 1}/{len(files_by_seq)}] {seq_name}: HATA {e}")
+                    logger.warning("  [%d/%d] %s: konum bulunamadi, atlandi", i + 1, len(files_by_seq), seq_name)
+            except Exception:
+                logger.exception("  [%d/%d] %s: HATA", i + 1, len(files_by_seq), seq_name)
 
         if not results:
-            print("Hicbir sequence parse edilemedi.")
-            return
+            logger.error("Hicbir sequence parse edilemedi.")
+            return pd.DataFrame()
 
         full = pd.concat(results, ignore_index=True)
-        Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-        full.to_parquet(out_path, index=False)
-        print(f"\nYazildi: {out_path}")
-        print(f"  Toplam satir: {len(full)}")
-        print(f"  Sequence sayisi: {full['source_id'].nunique()}")
-        print(full["label"].value_counts())
+        logger.info("Toplam satir: %d, sequence sayisi: %d", len(full), full["source_id"].nunique())
+        return full
+
+
+def _find_bronze_zip(client: ObjectStoreClient) -> str | None:
+    candidates = [n for n in list_layer_objects(client, "bronze", SOURCE_TYPE) if n.lower().endswith(".zip")]
+    if not candidates:
+        return None
+    if len(candidates) > 1:
+        logger.warning("Multiple ALFA zips found under bronze/alfa/, using the first: %s", candidates)
+    return candidates[0]
+
+
+def build_alfa_silver(client: ObjectStoreClient, *, bronze_object: str | None = None) -> pd.DataFrame:
+    """Download the ALFA zip from Bronze and parse it into the ALFA Silver table."""
+    bronze_object = bronze_object or _find_bronze_zip(client)
+    if bronze_object is None:
+        logger.warning("No ALFA zip found under bronze/alfa/")
+        return pd.DataFrame()
+
+    data = download_raw_bytes(client, bronze_object)
+    df = parse_zip_bytes(data)
+    if df.empty:
+        return df
+    return add_provenance(df, source_type=SOURCE_TYPE, source_file=bronze_object)
+
+
+def main() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="ALFA Bronze zip -> Silver")
+    parser.add_argument("--bronze-object", default=None, help="e.g. alfa/processed.zip; auto-detected if omitted")
+    parser.add_argument("--local-out", default=None, help="Optional local Parquet path")
+    args = parser.parse_args()
+
+    client = get_minio_client()
+    silver = build_alfa_silver(client, bronze_object=args.bronze_object)
+    if silver.empty:
+        logger.error("Nothing to write: ALFA Silver is empty")
+        return
+
+    uri = write_silver(silver, SOURCE_TYPE, client=client)
+    logger.info("Wrote ALFA Silver -> %s", uri)
+
+    if args.local_out:
+        Path(args.local_out).parent.mkdir(parents=True, exist_ok=True)
+        silver.to_parquet(args.local_out, index=False)
+        logger.info("Local copy written: %s", args.local_out)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Kullanim: python parse_alfa.py <processed.zip> [cikti.parquet]")
-        sys.exit(1)
-    zip_path = sys.argv[1]
-    out = sys.argv[2] if len(sys.argv) > 2 else "silver/alfa_processed.parquet"
-    main(zip_path, out)
+    logging.basicConfig(level=logging.INFO)
+    main()
