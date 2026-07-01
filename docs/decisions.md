@@ -95,6 +95,34 @@ Gerçek veriyle doğrulanmış sonuçlar (`scripts/run_alfa_local.py`,
 "Ping DoS" senaryoları (79.646 satırın 29.200'ü, %37) `label="unknown"` çıkıyor. Detay ve
 tek satırlık düzeltme önerisi: `docs/AGENTS.md` "BİLİNEN SORUN" bölümü.
 
+## ADR-005: Gold yazıldı — `src/gold/unify.py`, 7+3 ortak şema
+
+- Durum: Kabul edildi
+- Tarih: 2026-07-01
+- ADR-003'ü tamamlar (Gold kısmı).
+
+ADR-003/`docs/PIPELINE_PLAN.md` Gold'u "ekibin Silver review'undan sonra" olarak
+gated etmişti. Kullanıcı bu review'u beklemeden Gold'un şimdi yazılmasını istedi; bu ADR
+bunu ve mevcut kapsamını kaydediyor.
+
+`src/gold/unify.py`, planın verdiği tabloyla birebir aynı `COLUMN_MAPS` dict'ini kullanıyor:
+her kaynak (`adsblol_hist`, `adsblol_rt`, `alfa`, `uav_attack`) için 7 ortak kolona
+(`timestamp_utc`, `lat`, `lon`, `altitude_m`, `velocity_mps`, `heading_deg`,
+`vertical_rate_mps`) + 3 metadata kolonuna (`source_type`, `source_id`, `label`) eşleme.
+Yeni bir kaynak eklemek tek satırlık bir `COLUMN_MAPS` girdisi. `adsblol_hist`/`adsblol_rt`
+için Silver henüz yazılmadığından (Metehan/Yusuf'un işi), bu iki kaynağın eşlemesi tanımlı
+ama `read_layer` boş dönünce sessizce atlanıyor — hata değil, uyarı log'u.
+
+Gerçek veriyle doğrulandı (`scripts/run_gold_local.py`, ALFA `processed.zip` + gerçek
+`UAVAttackData.zip`, `FakeMinioClient` ile): **99.885 satır** (ALFA 20.239 + UAV Attack
+79.646), tam olarak 10 kolon (7+3).
+
+**BİLİNEN EKSİK (bilerek düzeltilmedi, review'da görülsün diye kaydedildi):** `velocity_mps`
+her iki kaynak için de tamamen null çıkıyor — ALFA'da plan'ın önerdiği `velocity_measured`
+kolonu gerçek veride hiç oluşmuyor (`nav_info-velocity` topic'i eşleşmiyor), UAV Attack'te
+ise plan'ın "hesapla" dediği ham hız alanı (`vel_n`/`vel_e`/`vel_d`) Silver'da hiç yok. Bu,
+Gold'un değil ilgili Silver parser'ların kapsamı; detay `docs/AGENTS.md` "Gold — durum".
+
 ## ADR-004 (referans/gelecek): Bronze'un üstünde daha zengin bir Silver denemesi
 
 - Durum: Kabul edildi (bireysel referans kapsamda; aktif pipeline DEĞİL — bkz. ADR-003)

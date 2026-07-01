@@ -9,11 +9,17 @@ anomali tespiti literatürü temelinde).
 ## Şu an neredeyiz?
 **Mimari ADR-003 ile değişti (2026-07-01, `docs/PIPELINE_PLAN.md`).** Artık "sadece Bronze"
 değiliz — Bronze=raw upload, Silver=parse/etiket/provenance her kaynak için bağımsız
-aktif. Gold (tüm kaynakları 7+3 ortak kolona hizalama) hâlâ ekip-geneli ve **ekibin Silver
-review'undan sonra** başlıyor — buna henüz başlanmadı.
+aktif. **Gold da yazıldı** (`src/gold/unify.py`, ADR-005, 2026-07-01): şu an sadece `alfa` ve
+`uav_attack` Silver'ları mevcut olduğu için Gold onlarla çalışıyor; `adsblol_hist`/
+`adsblol_rt` için kolon eşlemesi tabloda hazır (`COLUMN_MAPS`), Metehan'ın/Yusuf'un Silver
+parser'ları `src/silver/`'a taşınınca hiçbir kod değişikliği gerekmeden otomatik dahil
+olacaklar (eksik kaynak sessizce atlanıyor, hata vermiyor).
+
+> **Not:** Plan "Silver review tamamlanmadan Gold'a başlanmaz" diyordu — bu adım kullanıcının
+> açık isteğiyle (review beklenmeden) şimdi yazıldı. Ekip review'unda bunu göz önünde bulundurun.
 
 Detaylı plan ve her kişinin adım adım rehberi: `docs/PIPELINE_PLAN.md` (her session'dan
-önce oku). Mimari kararlar: `docs/decisions.md` (ADR-001..004).
+önce oku). Mimari kararlar: `docs/decisions.md` (ADR-001..005).
 
 ## Ekip ve sorumluluklar (docs/PIPELINE_PLAN.md)
 | Kişi | Veri kaynağı | Bronze | Silver |
@@ -29,7 +35,7 @@ Herkes kendi bölümünü bağımsız yürütür. Gold'da hepsi birleşecek (hen
 |---|---|---|
 | **Bronze** | Ham dosyayı MinIO'ya olduğu gibi yükler (`write_bronze_bytes`) | Parse, unit dönüşümü, filtre, provenance |
 | **Silver** | Kaynak-özel parse + unit dönüşümü + etiket + provenance (`add_provenance`, varsayılan `schema_version="silver_v1"`) | Kaynakları birleştirme |
-| **Gold** | Tüm kaynakları 7+3 ortak kolona hizalar (henüz yazılmadı) | Kaynak-özel kolon üretme |
+| **Gold** | Tüm kaynakları 7+3 ortak kolona hizalar (`src/gold/unify.py`) | Kaynak-özel kolon üretme |
 
 **Coğrafi filtre YOK** — Türkiye bbox dahil hiçbir geo-filtre pipeline seviyesinde
 uygulanmaz (`src/common/bbox.py` silindi); tüm dünya verisi saklanır, filtreleme
@@ -49,6 +55,28 @@ analiz/notebook aşamasında yapılır.
   (bkz. ADR-004, `docs/silver_schema.md`). Silinmedi çünkü Silver şeması ileride
   zenginleştirilmek istenirse (ör. `mavctrl/path_dev`, IMU, GPS-spoofing groundtruth
   residual feature'ları) buradaki merge_asof mantığı hazır referans.
+
+## Gold (`src/gold/unify.py`) — durum
+7 ortak kolon (`timestamp_utc, lat, lon, altitude_m, velocity_mps, heading_deg,
+vertical_rate_mps`) + 3 metadata kolonu (`source_type, source_id, label`) — `COLUMN_MAPS`
+dict'inde her kaynak için bir satır (plan'ın Gold tablosuyla birebir). Eksik/henüz
+yazılmamış bir kaynağın Silver'ı `read_layer` boş dönerse o kaynak sessizce atlanır
+(hata değil, uyarı log'u).
+
+Gerçek veriyle doğrulandı (`scripts/run_gold_local.py`, 2026-07-01, ALFA `processed.zip` +
+gerçek `UAVAttackData.zip`, `FakeMinioClient` ile, Docker'sız): **99.885 satır** (ALFA
+20.239 + UAV Attack 79.646), 10 kolon.
+
+**BİLİNEN EKSİK — `velocity_mps` her iki kaynakta da tamamen null:**
+- ALFA: plan `velocity_measured` kolonunu öneriyor ama gerçek `processed.zip`'te
+  `nav_info-velocity` topic'i hiç eşleşmiyor — `parse_alfa.py`'nin çıktısında bu kolon hiç
+  oluşmuyor (20.239 satırın tamamı için yok).
+- UAV Attack: plan "hesapla" diyor ama `parse_uav_attack.py` şu an hiç ham hız alanı
+  (`vel_n`/`vel_e`/`vel_d`) taşımıyor, hesaplanacak bir kaynak yok.
+
+Uydurmak yerine `None` bırakıldı (`src/gold/unify.py`'deki `COLUMN_MAPS["alfa"]["velocity_mps"]`
+yorumuna bkz.). Düzeltmek için Silver parser'lara yeni ham kolon eklemek gerekir — bu Gold'un
+değil Silver'ın (Anıl'ın) kapsamı; bilerek şimdi yapılmadı, review'da görülsün diye kaydedildi.
 
 ## BİLİNEN SORUN (henüz düzeltilmedi) — UAV Attack "Ping DoS" etiketi kayboluyor
 `src/silver/parse_uav_attack.py`'deki `infer_label_from_path` (eski `parse_uav_attack.py`'den
