@@ -1,4 +1,4 @@
-# AGENTS.md — Proje Bağlamı (her Codex session'ı bunu okumalı)
+# AGENTS.md — Proje Bağlamı (her Codex/Claude Code session'ı bunu okumalı)
 
 ## Bu proje ne?
 8 haftalık İHA (UAV) veri mühendisliği internship projesi. 3 stajyer, Hafta 1-4 ortak
@@ -7,9 +7,66 @@ bireysel projesi: **UAV anomali tespiti** (Isolation Forest, Autoencoder — eti
 anomali tespiti literatürü temelinde).
 
 ## Şu an neredeyiz?
-**Sadece Bronze fazındayız.** Silver ve Gold'a geçilmeyecek — üç stajyer Bronze'u birlikte
-review edip onaylamadan Silver'a dokunulmayacak. Bu repo'da Silver/Gold kod istenmedikçe
-yazılmamalı.
+**Mimari ADR-003 ile değişti (2026-07-01, `docs/PIPELINE_PLAN.md`).** Artık "sadece Bronze"
+değiliz — Bronze=raw upload, Silver=parse/etiket/provenance her kaynak için bağımsız
+aktif. Gold (tüm kaynakları 7+3 ortak kolona hizalama) hâlâ ekip-geneli ve **ekibin Silver
+review'undan sonra** başlıyor — buna henüz başlanmadı.
+
+Detaylı plan ve her kişinin adım adım rehberi: `docs/PIPELINE_PLAN.md` (her session'dan
+önce oku). Mimari kararlar: `docs/decisions.md` (ADR-001..004).
+
+## Ekip ve sorumluluklar (docs/PIPELINE_PLAN.md)
+| Kişi | Veri kaynağı | Bronze | Silver |
+|---|---|---|---|
+| Metehan | adsb.lol historical (tar) | `src/ingestion/adsblol_historical_loader.py` | `src/silver/parse_adsblol_historical.py` (taşınacak) |
+| Yusuf | adsb.lol realtime (Kafka) | `src/ingestion/adsblol_producer.py` + `adsblol_consumer.py` | `src/silver/parse_adsblol_realtime.py` (henüz yok) |
+| **Anıl** | **ALFA + UAV Attack** | `src/ingestion/upload_raw.py` | `src/silver/parse_alfa.py` + `parse_uav_attack.py` |
+
+Herkes kendi bölümünü bağımsız yürütür. Gold'da hepsi birleşecek (henüz yok).
+
+## Katman kuralları
+| Katman | Ne yapar | Ne YAPMAZ |
+|---|---|---|
+| **Bronze** | Ham dosyayı MinIO'ya olduğu gibi yükler (`write_bronze_bytes`) | Parse, unit dönüşümü, filtre, provenance |
+| **Silver** | Kaynak-özel parse + unit dönüşümü + etiket + provenance (`add_provenance`, varsayılan `schema_version="silver_v1"`) | Kaynakları birleştirme |
+| **Gold** | Tüm kaynakları 7+3 ortak kolona hizalar (henüz yazılmadı) | Kaynak-özel kolon üretme |
+
+**Coğrafi filtre YOK** — Türkiye bbox dahil hiçbir geo-filtre pipeline seviyesinde
+uygulanmaz (`src/common/bbox.py` silindi); tüm dünya verisi saklanır, filtreleme
+analiz/notebook aşamasında yapılır.
+
+## Anıl'ın bölümü (ALFA + UAV Attack) — durum
+- `src/ingestion/upload_raw.py`: ham `.zip`'i (ALFA `processed.zip`, UAV Attack
+  `UAVAttackData.zip`) değiştirmeden `bronze/<source>/<dosya adı>` altına yükler.
+- `src/silver/parse_alfa.py`, `parse_uav_attack.py`: Bronze'daki zip'i indirir, parse eder
+  (transform mantığı eski `src/bronze2silverParsers/parse_alfa.py`/`parse_uav_attack.py`'den
+  DEĞİŞMEDEN taşındı — tek istisna: UAV Attack'in log_id/topic regex'i gerçek dosyalarda
+  kanıtlanmış şekilde kırıktı, düzeltildi, bkz. ADR-003), `write_silver` ile Silver'a yazar.
+  Gerçek veriyle doğrulandı: `scripts/run_alfa_local.py` / `scripts/run_uav_attack_local.py`
+  (Docker/MinIO gerektirmeden, `FakeMinioClient` ile).
+- `src/processing/alfa_silver.py`/`uav_attack_silver.py`/`gold.py`: ADR-003'ten ÖNCEKİ,
+  daha geniş bir Silver denemesi — artık aktif pipeline değil, referans olarak duruyor
+  (bkz. ADR-004, `docs/silver_schema.md`). Silinmedi çünkü Silver şeması ileride
+  zenginleştirilmek istenirse (ör. `mavctrl/path_dev`, IMU, GPS-spoofing groundtruth
+  residual feature'ları) buradaki merge_asof mantığı hazır referans.
+
+## BİLİNEN SORUN (henüz düzeltilmedi) — UAV Attack "Ping DoS" etiketi kayboluyor
+`src/silver/parse_uav_attack.py`'deki `infer_label_from_path` (eski `parse_uav_attack.py`'den
+DEĞİŞMEDEN taşındı) en yakın klasör adında `benign`/`normal`/`spoof`/`jam`/`malicious`/`attack`
+kelimelerini arıyor — ama **"ping" veya "dos" aramıyor**. Gerçek `UAVAttackData.zip`'te klasör
+adı literal olarak `"Ping DoS"`, bu yüzden o senaryoların TAMAMI `label="unknown"` çıkıyor.
+
+Gerçek veriyle doğrulanmış etki (`scripts/run_uav_attack_local.py`, 2026-07-01): 79.646
+satırın **29.200'ü (%37)** — yani her Ping DoS log'un tamamı — yanlışlıkla `unknown`
+etiketli. `label` dağılımı: `unknown`=29.200, `benign`=25.071, `gps_spoofing`=24.269,
+`gps_jamming`=1.106.
+
+Bilerek düzeltilmedi: UAV Attack log_id/topic regex hatasının aksine (bu ADR-003'te
+düzeltildi çünkü önceden araştırılıp kanıtlanmıştı), bu spesifik konuda ekiple/kullanıcıyla
+önceden konuşulmamıştı — "taşı, transform mantığını değiştirme" kuralını aşmamak için
+bırakıldı. Düzeltme tek satırlık: `infer_label_from_path`'te `nearest`/`joined` kontrollerine
+`if "ping" in nearest or "dos" in nearest: return "ping_dos"` eklemek yeterli. Kim
+düzeltirse (Anıl veya review'da fark eden başka biri), bu notu silsin.
 
 ## Mimari sapma — bilerek yapıldı
 Resmî ders planı OpenSky API + generic MAVLink diyordu. Bu proje yerine şunları kullanıyor:
@@ -19,28 +76,23 @@ Resmî ders planı OpenSky API + generic MAVLink diyordu. Bu proje yerine şunla
 
 Gerekçe `docs/decisions.md`'de. Bunu sorgulama, kabul edilmiş bir karar.
 
-## Bronze'un altın kuralı
-Ham veriyi olduğu gibi indir. Unit dönüşümü, koordinat ölçekleme, kolon harmonizasyonu YAPMA
-— bunlar Silver'ın işi. Bronze'da sadece: indir, provenance kolonu ekle, (adsb kaynakları için)
-Türkiye bbox filtrele. Detaylı faz planı: `docs/bronze_implementasyon_plani.md` (bu dosyayı
-her fazdan önce oku).
-
 ## KRİTİK — gerçek veri yoksa dur, üretme
-ALFA ve UAV Attack dosya adlandırma konvansiyonları standardize değil. Eğer
-`data/bronze/<source>/_input/` altında gerçek dosya yoksa:
-- Sahte/hayali bir dosya adı formatı varsayıp kod yazma.
-- Loader fonksiyonunu, gerçek bir örnek dosya geldiğinde kolayca ayarlanabilecek şekilde
-  yaz, ama format-çıkarma mantığını (`split("_")[0]` gibi) ASCII varsayımla sabitleme.
-- Bunun yerine: ilgili klasöre 1 örnek dosya koyulmasını iste, ya da mevcut dosyaları
-  `view`/`ls` ile incele ve gerçek adlandırmayı kodda yorum olarak belgele.
+ALFA ve UAV Attack dosya adlandırma konvansiyonları standardize değil. Gerçek dosya
+yoksa sahte/hayali bir format varsayıp kod yazma; mevcut dosyaları incele ve gerçek
+adlandırmayı kodda belgele. Bu proje boyunca birden fazla kez, "muhtemelen doğru" bir
+regex/pattern gerçek veriyle test edilince kırık çıktı (bkz. ADR-003 — UAV Attack'in
+log_id/topic regex'i) — her zaman gerçek veriyle doğrula.
 
 ## Ortak araçlar (tekrar yazma, kullan)
-`src/common/provenance.py`, `src/common/bbox.py`, `src/common/io.py` — Faz 1'de yazıldı.
-Her loader bunları import etmeli. Provenance kolonları: `_source_type`, `_ingest_ts_utc`,
+`src/common/provenance.py`, `src/common/minio_io.py` (eski adı `io.py`), `src/common/fakes.py`
+(`FakeMinioClient`, testler ve `scripts/`'teki yerel doğrulama script'leri için). Her
+parser/loader bunları import etmeli. Provenance kolonları: `_source_type`, `_ingest_ts_utc`,
 `_source_file`, `_schema_version`.
 
 ## Ekip / review akışı
-Kod tek kişi tarafından Codex ile yazılıyor ama üç stajyer birlikte review edecek. Bu yüzden:
-- Commit mesajları açık olsun (`feat(alfa): processed CSV loader + provenance`).
-- Her faz kendi PR'ı olsun, tek mega-commit yapma.
-- README ve `docs/bronze_schema.md` her loader eklendiğinde güncellensin.
+Kod tek kişi tarafından Claude Code/Codex ile yazılıyor ama üç stajyer birlikte review
+edecek. Bu yüzden:
+- Commit mesajları açık olsun (`feat(silver): ALFA parser MinIO'ya taşındı`).
+- Her faz kendi commit'i/PR'ı olsun, tek mega-commit yapma.
+- README ve şema dokümantasyonu (`docs/bronze_schema.md`/`docs/silver_schema.md`, ileride
+  `docs/schema.md`'ye birleşecek) her parser eklendiğinde güncellensin.
