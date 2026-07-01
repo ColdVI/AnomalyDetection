@@ -42,15 +42,36 @@ def parse_aircraft(ac: dict):
     icao = ac.get("hex", "").strip().lower()
     if not icao:
         return None
+
+    # ONEMLI: adsb.lol her mesajda "gs" (ground speed) alanini
+    # gondermiyor -- bazen pozisyon guncellemesi gelir ama hiz verisi
+    # o an mevcut degildir (zayif sinyal, MLAT-only fix vb). Eskiden
+    # "gs" eksikse 0 m/s YAZIYORDUK, bu sahte bir dususu grafige
+    # yansitiyordu. Simdi eksikse None birakiyoruz -- tuketici bu
+    # deger None ise InfluxDB'ye hic yazmayacak, gercek bir bosluk
+    # olusacak, sahte sifir degil.
+    raw_gs = ac.get("gs")
+    velocity = round(float(raw_gs) * 0.5144, 1) if raw_gs is not None else None
+
+    raw_baro_rate = ac.get("baro_rate")
+    vertical_rate = (round(float(raw_baro_rate) * 0.00508, 2)
+                     if raw_baro_rate is not None else None)
+
+    # ONEMLI: ayni sekilde "track" (yon) eksikse sahte 0 (kuzey) YAZMIYORUZ.
+    # Bu ozellikle harita uzerindeki ucak ikonu rotasyonunu etkiliyor --
+    # yon bilinmiyorsa ikon yanlislikla "kuzeye bakiyor" gibi gorunmemeli.
+    raw_track = ac.get("track")
+    track = float(raw_track) if raw_track is not None else None
+
     return {
         "icao24": icao,
-        "callsign": ac.get("flight", "").strip(),
+        "callsign": (ac.get("flight") or "").strip(),
         "lat": round(float(lat), 6),
         "lon": round(float(lon), 6),
         "alt": round(float(alt) * 0.3048, 1),
-        "velocity": round(float(ac.get("gs", 0) or 0) * 0.5144, 1),
-        "track": float(ac.get("track", 0) or 0),
-        "vertical_rate": round(float(ac.get("baro_rate", 0) or 0) * 0.00508, 2),
+        "velocity": velocity,
+        "track": track,
+        "vertical_rate": vertical_rate,
         "category": ac.get("category", ""),
         "source": "adsblol",
         "ts": datetime.now(timezone.utc).isoformat(),

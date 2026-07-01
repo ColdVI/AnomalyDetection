@@ -25,7 +25,8 @@ import redis
 import requests
 import uvicorn
 import dash
-from dash import Dash, dcc, html, Output, Input, State
+import dash_leaflet as dl
+from dash import Dash, dcc, html, Output, Input, State, ALL
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from influxdb_client import InfluxDBClient
@@ -97,7 +98,22 @@ def get_history(icao24: str, hours: int = 24):
         if tables.empty:
             return []
         tables = tables.sort_values("_time")
-        return json.loads(tables[["_time", "lat", "lon", "alt", "velocity"]].to_json(orient="records"))
+        # ONEMLI: date_format="iso" tek basina yetmeyebilir -- influxdb_client
+        # bazen "_time" kolonunu object dtype (duz Python datetime) olarak
+        # donduruyor, bu durumda pandas'in date_format parametresi devreye
+        # girmiyor. Kolonu JSON'a cevirmeden ONCE acikca ISO string'e
+        # ceviriyoruz, boylece hicbir belirsizlik kalmiyor.
+        tables["_time"] = pd.to_datetime(tables["_time"], utc=True) \
+                             .dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        # ONEMLI: bir ucak icin secilen aralikta HIC velocity verisi
+        # yoksa (her poll'da eksikmis), pivot sonucunda "velocity" kolonu
+        # tamamen olusmayabiliyor -- once eksikse ekleyip NaN ile
+        # dolduruyoruz, yoksa asagidaki satir KeyError verirdi.
+        for col in ["lat", "lon", "alt", "velocity"]:
+            if col not in tables.columns:
+                tables[col] = None
+        return json.loads(tables[["_time", "lat", "lon", "alt", "velocity"]]
+                          .to_json(orient="records"))
     except Exception as e:
         return {"error": str(e)}
 
@@ -129,6 +145,9 @@ def traffic_stats(hours: int = 24):
             return []
         grouped = tables.groupby("_time")["icao24"].nunique().reset_index()
         grouped.columns = ["time", "unique_aircraft"]
+        # Ayni dtype-bagimsiz ISO string donusumu (bkz. get_history() notu)
+        grouped["time"] = pd.to_datetime(grouped["time"], utc=True) \
+                             .dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         return json.loads(grouped.to_json(orient="records"))
     except Exception as e:
         return {"error": str(e)}
@@ -158,9 +177,18 @@ app_dash.layout = html.Div(style={"backgroundColor": "#07070e", "fontFamily": "s
     html.Div(style={"display": "flex", "gap": "8px", "padding": "0 8px"}, children=[
         html.Div(style={**P, "flex": "2"}, children=[
             html.H4("Canlı Konum (Redis)", style={"color": "#90e0ef", "marginTop": 0}),
-            dcc.Graph(id="map", style={"height": "420px"},
-                      config={"scrollZoom": True, "displayModeBar": False},
-                      clickData=None),
+            dl.Map(
+                id="map",
+                center=[39.0, 35.0], zoom=5,
+                style={"height": "420px", "width": "100%", "borderRadius": "6px"},
+                children=[
+                    dl.TileLayer(
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        attribution="© OpenStreetMap"
+                    ),
+                    dl.LayerGroup(id="aircraft-layer"),
+                ],
+            ),
         ]),
         html.Div(style={**P, "flex": "1", "minWidth": "260px"}, children=[
             html.H4("Model Alarmları", style={"color": "#e63946", "marginTop": 0}),
@@ -200,8 +228,31 @@ app_dash.layout = html.Div(style={"backgroundColor": "#07070e", "fontFamily": "s
 ])
 
 
+def _airplane_icon(heading: float, color: str) -> dict:
+    """Ucus yonune (heading, 0-360 derece, kuzeyden saat yonunde) gore
+    CSS ile dondurulmus SVG ucak ikonu. Ikon 0 derecede kuzeye (yukari)
+    bakacak sekilde cizildigi icin heading degeri dogrudan rotate()
+    aciysa kullanilabiliyor, ekstra offset gerekmiyor.
+
+    ONEMLI: bu dict, dl.DivMarker'in "iconOptions" parametresine veriliyor
+    (dl.Marker + icon dict DEGIL -- o kombinasyon calismiyor, marker hic
+    render olmuyordu). DivMarker, HTML/CSS tabanli ikonlar icin ayri,
+    ozel bir bilesen."""
+    svg = f'''
+    <div style="transform: rotate({heading}deg); transform-origin: center;
+                width: 22px; height: 22px;">
+      <svg width="22" height="22" viewBox="0 0 24 24">
+        <path d="M12 1 L15 13 L23 18 L15 16 L15 20.5 L18.5 22.5 L12 21
+                 L5.5 22.5 L9 20.5 L9 16 L1 18 L9 13 Z"
+              fill="{color}" stroke="#07070e" stroke-width="0.5"/>
+      </svg>
+    </div>
+    '''
+    return {"html": svg, "className": "", "iconSize": [22, 22], "iconAnchor": [11, 11]}
+
+
 @app_dash.callback(
-    [Output("map", "figure"), Output("status", "children"),
+    [Output("aircraft-layer", "children"), Output("status", "children"),
      Output("aircraft-select", "options"), Output("alerts", "children")],
     Input("tick", "n_intervals")
 )
@@ -215,27 +266,24 @@ def update_map(n):
     except Exception:
         alerts = []
 
-    lats = [f.get("lat", 39) for f in flights]
-    lons = [f.get("lon", 35) for f in flights]
-    labels = [f.get("icao24", "") for f in flights]
-
     alert_icaos = {a.get("icao24") for a in alerts}
-    colors = ["#e63946" if f.get("icao24") in alert_icaos else "#00b4d8" for f in flights]
 
-    fig = go.Figure(go.Scattermapbox(
-        lat=lats, lon=lons, mode="markers", text=labels,
-        customdata=labels,
-        hovertext=[f"{f.get('icao24','')} | {f.get('callsign','').strip() or '—'} | "
-                   f"alt={f.get('alt',0):.0f}m | {f.get('velocity',0):.0f}m/s" for f in flights],
-        hoverinfo="text",
-        marker=dict(size=8, color=colors, opacity=0.85),
-    ))
-    fig.update_layout(
-        mapbox=dict(style="open-street-map", center=dict(lat=39.0, lon=35.0), zoom=5),
-        margin=dict(r=0, t=0, l=0, b=0),
-        paper_bgcolor="#0f0f19", font=dict(color="#c8d0e0"),
-        uirevision="constant",
-    )
+    markers = []
+    for f in flights:
+        icao = f.get("icao24", "")
+        color = "#e63946" if icao in alert_icaos else "#00b4d8"
+        markers.append(dl.DivMarker(
+            position=[f.get("lat", 39), f.get("lon", 35)],
+            iconOptions=_airplane_icon(f.get("track") or 0, color),
+            id={"type": "aircraft-marker", "index": icao},
+            children=[
+                dl.Tooltip(
+                    f"{icao} | {f.get('callsign','').strip() or '—'} | "
+                    f"alt={f.get('alt',0):.0f}m | "
+                    f"{f.get('velocity') if f.get('velocity') is not None else 0:.0f}m/s"
+                ),
+            ],
+        ))
 
     ts = datetime.now().strftime("%H:%M:%S")
     status = f"{ts} | {len(flights)} aktif uçuş | {len(alerts)} alarm"
@@ -249,21 +297,22 @@ def update_map(n):
     ) for a in alerts] or [html.Div("Model henüz alarm üretmedi",
                                      style={"color": "#666", "fontSize": "13px"})]
 
-    return fig, status, options, alert_divs
+    return markers, status, options, alert_divs
 
 
 @app_dash.callback(
     Output("aircraft-select", "value"),
-    Input("map", "clickData"),
+    Input({"type": "aircraft-marker", "index": ALL}, "n_clicks"),
     prevent_initial_call=True
 )
-def select_from_map_click(click_data):
-    if not click_data or "points" not in click_data or not click_data["points"]:
+def select_from_marker_click(n_clicks_list):
+    ctx = dash.callback_context
+    if not ctx.triggered or not ctx.triggered[0]["value"]:
         return dash.no_update
-    icao24 = click_data["points"][0].get("customdata")
-    if not icao24:
-        return dash.no_update
-    return icao24
+    triggered_id_str = ctx.triggered[0]["prop_id"].rsplit(".", 1)[0]
+    triggered_id = json.loads(triggered_id_str)
+    icao24 = triggered_id.get("index")
+    return icao24 if icao24 else dash.no_update
 
 
 @app_dash.callback(
@@ -295,9 +344,10 @@ def update_live_panel(n, icao24):
         ("Enlem", f"{match.get('lat', 0):.4f}°"),
         ("Boylam", f"{match.get('lon', 0):.4f}°"),
         ("İrtifa", f"{match.get('alt', 0):.0f} m"),
-        ("Hız", f"{match.get('velocity', 0):.0f} m/s"),
-        ("Yön", f"{match.get('track', 0):.0f}°"),
-        ("Dikey Hız", f"{match.get('vertical_rate', 0):+.1f} m/s"),
+        ("Hız", f"{match.get('velocity'):.0f} m/s" if match.get('velocity') is not None else "—"),
+        ("Yön", f"{match.get('track'):.0f}°" if match.get('track') is not None else "—"),
+        ("Dikey Hız", f"{match.get('vertical_rate'):+.1f} m/s"
+                      if match.get('vertical_rate') is not None else "—"),
         ("Kategori", match.get("category", "") or "—"),
         ("Son Güncelleme", ts_display),
     ]
@@ -318,9 +368,10 @@ def update_live_panel(n, icao24):
 
 @app_dash.callback(
     Output("history-chart", "figure"),
-    [Input("aircraft-select", "value"), Input("hours-slider", "value")]
+    [Input("tick", "n_intervals"), Input("aircraft-select", "value"),
+     Input("hours-slider", "value")]
 )
-def update_history(icao24, hours):
+def update_history(n, icao24, hours):
     fig = go.Figure()
     fig.update_layout(paper_bgcolor="#0f0f19", plot_bgcolor="#0f0f19",
                       font=dict(color="#c8d0e0"), margin=dict(t=20, b=20))

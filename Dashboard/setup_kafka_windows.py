@@ -180,11 +180,36 @@ def start_zookeeper():
     sys.exit(1)
 
 
+def clear_stale_broker_registration():
+    """Kafka broker'i force-kill ile (stop_all.bat -> Stop-Process -Force)
+    kapattigimizda, Zookeeper'a 'kapaniyorum' diyecek firsati olmuyor.
+    Zookeeper bazen bu eski ephemeral /brokers/ids/0 kaydini hemen
+    temizlemiyor, yeni broker acilmaya calisinca NodeExistsException ile
+    patliyor. Baslatmadan once bu eski kaydi proaktif olarak siliyoruz --
+    kayit zaten yoksa (normal/temiz durum) bu komut zararsizca basarisiz
+    olur, goz ardi ediyoruz."""
+    shell_bat = KAFKA_DIR / "bin" / "windows" / "zookeeper-shell.bat"
+    if not shell_bat.exists():
+        return
+    try:
+        subprocess.run(
+            [str(shell_bat), "localhost:2181"],
+            input="deleteall /brokers/ids/0\n",
+            capture_output=True, text=True, timeout=15,
+            cwd=str(KAFKA_DIR), env=build_env(_JAVA_HOME),
+        )
+    except Exception:
+        pass  # temizlenecek bir sey yoksa veya baglanti sorunu olursa gec
+
+
 def start_kafka():
     print("\n=== 4) Kafka broker baslatiliyor ===")
     if port_open("localhost", 9092):
         print("Kafka zaten calisiyor (port 9092).")
         return
+
+    print("Eski broker kaydi (varsa) temizleniyor...")
+    clear_stale_broker_registration()
 
     bat = KAFKA_DIR / "bin" / "windows" / "kafka-server-start.bat"
     cfg = KAFKA_DIR / "config" / "server.properties"

@@ -89,17 +89,27 @@ def main():
                 rdb.set(f"iha:state:{icao}", json.dumps(data), ex=REDIS_TTL_SEC)
                 rdb.sadd("iha:active_flights", icao)
 
-                write_api.write(bucket=INFLUX_BUCKET, record=(
+                point = (
                     Point("flights")
                     .tag("icao24", icao)
                     .field("lat", data.get("lat", 0.0))
                     .field("lon", data.get("lon", 0.0))
                     .field("alt", data.get("alt", 0.0))
-                    .field("velocity", data.get("velocity", 0.0))
-                    .field("track", data.get("track", 0.0))
-                    .field("vertical_rate", data.get("vertical_rate", 0.0))
                     .time(datetime.now(timezone.utc))
-                ))
+                )
+                # ONEMLI: velocity/vertical_rate/track icin data.get(..., 0.0)
+                # KULLANMIYORUZ -- deger gercekten None ise (adsb.lol o
+                # anki mesajda gondermemis) alani hic yazmiyoruz, InfluxDB
+                # o noktada dogal bir bosluk birakiyor. Aksi halde grafikte
+                # gercek olmayan sahte "sifira dusus" gorunuyordu.
+                if data.get("velocity") is not None:
+                    point = point.field("velocity", data["velocity"])
+                if data.get("vertical_rate") is not None:
+                    point = point.field("vertical_rate", data["vertical_rate"])
+                if data.get("track") is not None:
+                    point = point.field("track", data["track"])
+
+                write_api.write(bucket=INFLUX_BUCKET, record=point)
                 stats["flights"] += 1
 
             elif topic == ALERTS_TOPIC:
