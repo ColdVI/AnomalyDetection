@@ -139,6 +139,13 @@ def _trace_rows_in_turkey(aircraft: dict[str, Any], member_name: str) -> list[di
         )
         if isinstance(row.get("aircraft_dict"), dict):
             row["aircraft_dict"] = json.dumps(row["aircraft_dict"])
+        # alt_baro can be the sentinel string "ground" -- Parquet can't store
+        # mixed int/str in one column. Preserve the info via on_ground flag.
+        if row.get("alt_baro") == "ground":
+            row["on_ground"] = True
+            row["alt_baro"] = None
+        else:
+            row["on_ground"] = False
         rows.append(row)
     return rows
 
