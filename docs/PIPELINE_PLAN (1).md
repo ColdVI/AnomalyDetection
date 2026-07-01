@@ -14,6 +14,18 @@ Bronze (ham, dokunulmaz)          Silver (kaynak-başına parse)       Gold (ort
 │ MinIO bronze/        │     │ + provenance               │     │ tüm kaynaklar    │
 │ Hiçbir dönüşüm yok  │     │ MinIO silver/              │     │ MinIO gold/      │
 └──────────────────────┘     └────────────────────────────┘     └──────────────────┘
+                                     ▲
+                              ┌──────┴───────┐
+                              │ Özel parser  │  Her kaynak için
+                              │ (adsb, alfa, │  domain-specific
+                              │  uav_attack) │  dönüşümler
+                              ├──────────────┤
+                              │ Generic      │  Yeni dataset'ler
+                              │ parser       │  için otomatik
+                              │ (format      │  CSV/JSON/zip →
+                              │  algıla →    │  Parquet çevirici
+                              │  parquet)    │
+                              └──────────────┘
 ```
 
 ### Katman kuralları
@@ -102,12 +114,13 @@ src/
 │   ├── adsblol_producer.py   # (Yusuf) adsb.lol API → Kafka
 │   └── adsblol_consumer.py   # (Yusuf) Kafka → ham JSONL → MinIO bronze
 ├── silver/               # === SILVER ===
+│   ├── parse_generic.py             # (ortak) Format algıla → Parquet (yeni dataset'ler için)
 │   ├── parse_adsblol_historical.py  # (Metehan)
 │   ├── parse_adsblol_realtime.py    # (Yusuf)
 │   ├── parse_alfa.py                # (Anıl)
 │   └── parse_uav_attack.py          # (Anıl)
 └── gold/                 # === GOLD (sonra) ===
-    └── unify.py          # 4 Silver → 7 ortak kolon
+    └── unify.py          # N Silver → 7 ortak kolon
 ```
 
 ### Docker (docker-compose.yml)
@@ -420,35 +433,159 @@ _source_type, _ingest_ts_utc, _source_file, _schema_version
 ---
 
 # ══════════════════════════════════════════════════════════
+# ORTAK — Generic Parser (yeni veri setleri için otomatik)
+# ══════════════════════════════════════════════════════════
+
+## Neden gerekli
+
+Proje şu an 4 veri kaynağı kullanıyor. Ancak ileride yeni bir dataset (örn. SurveilDrone-Net23,
+başka bir İHA log seti, farklı bir ADS-B kaynağı) eklenebilir. Her seferinde sıfırdan parser
+yazmak yerine, Bronze'daki ham dosyayı otomatik algılayıp Parquet'e çeviren bir generic
+converter olmalı. Özel parser'lar (unit dönüşümü, etiket çıkarımı gibi domain-specific işler)
+bu generic çıktının üstüne opsiyonel olarak eklenir.
+
+## `src/silver/parse_generic.py`
+
+### Format algılama
+
+Dosya uzantısına ve içeriğine bakarak otomatik okuma:
+
+| Format | Algılama | Okuma yöntemi |
+|---|---|---|
+| `.csv` | uzantı | `pd.read_csv()` |
+| `.tsv` | uzantı | `pd.read_csv(sep='\t')` |
+| `.json` | uzantı + `[` veya `{` ile başlıyor | `pd.read_json()` / `json.loads` |
+| `.jsonl` / `.ndjson` | uzantı veya satır-bazlı JSON | `pd.read_json(lines=True)` |
+| `.parquet` | uzantı | `pd.read_parquet()` (zaten Parquet, sadece provenance ekle) |
+| `.xlsx` / `.xls` | uzantı | `pd.read_excel()` |
+| `.zip` | uzantı | Aç, içindeki dosyaları tekrar algıla (recursive) |
+| `.tar` / `.tar.gz` | uzantı | Aç, içindeki dosyaları tekrar algıla (recursive) |
+| `.bin` / `.tlog` | uzantı | `pymavlink` ile parse (opsiyonel, kurulu değilse atla) |
+
+### CLI kullanımı
+
+```bash
+# Tek dosya
+python -m src.silver.parse_generic \
+    --input bronze/yeni_dataset/data.csv \
+    --source yeni_dataset \
+    --output silver/yeni_dataset/
+
+# Klasör (içindeki tüm dosyaları recursive algıla)
+python -m src.silver.parse_generic \
+    --input bronze/yeni_dataset/ \
+    --source yeni_dataset
+
+# MinIO'dan doğrudan (bronze bucket'tan oku, silver'a yaz)
+python -m src.silver.parse_generic \
+    --bronze-prefix yeni_dataset/ \
+    --source yeni_dataset
+```
+
+### Ne yapar, ne yapmaz
+
+**Yapar:**
+- Format algılayıp DataFrame'e okur.
+- Arşiv dosyalarının (zip/tar) içine girer, her dosyayı ayrı ayrı okur.
+- Tüm orijinal kolonları korur (rename/drop yok).
+- Provenance ekler (`_source_type`, `_ingest_ts_utc`, `_source_file`, `_schema_version`).
+- Snappy Parquet olarak MinIO silver'a yazar.
+- Birden fazla dosyadan gelen DataFrame'leri aynı Parquet'e `concat` eder (opsiyonel: her
+  dosya ayrı part da olabilir).
+
+**Yapmaz:**
+- Unit dönüşümü (feet→metre vb.) — domain-specific, custom parser'ın işi.
+- Etiket çıkarımı — domain-specific.
+- Gold şemasına hizalama — Gold'un işi.
+- Kolon silme/rename — orijinal kalır.
+
+### Akış
+
+```
+Bronze'daki ham dosya
+    │
+    ▼
+Format algıla → pd.read_*()
+    │
+    ▼
+add_provenance(source_type=<verilen>, source_file=<orijinal dosya adı>)
+    │
+    ▼
+write_silver(df, source_type) → MinIO silver/<source>/part-*.parquet
+```
+
+### Yeni dataset ekleme senaryosu (generic ile)
+
+Diyelim ki `SurveilDrone-Net23` eklenmek isteniyor:
+
+```bash
+# 1. Ham dosyayı bronze'a yükle
+python -m src.ingestion.upload_raw --source surveildrone --input ~/Downloads/surveildrone.csv
+
+# 2. Generic parser ile Silver'a çevir (otomatik CSV algılama)
+python -m src.silver.parse_generic --bronze-prefix surveildrone/ --source surveildrone
+
+# 3. Sonuç: silver/surveildrone/part-*.parquet (tüm orijinal kolonlar + provenance)
+```
+
+Eğer domain-specific işlem gerekirse (unit dönüşümü, etiket vb.), generic çıktının üstüne
+`src/silver/parse_surveildrone.py` yazılır — generic parser'ın ürettiği Parquet'i okuyup
+ek dönüşümler yapar. Gerekmezse generic yeterlidir.
+
+### Gold'a bağlanma
+
+Yeni dataset Gold'a dahil edilecekse `src/gold/unify.py`'deki kolon eşleme tablosuna bir satır
+eklenir:
+
+```python
+COLUMN_MAPS["surveildrone"] = {
+    "timestamp_utc": "timestamp",    # surveildrone'un zaman kolonu
+    "lat": "latitude",               # surveildrone'un enlem kolonu
+    "lon": "longitude",
+    "altitude_m": "altitude",
+    "velocity_mps": "speed",
+    "heading_deg": "heading",
+    "vertical_rate_mps": None,       # yoksa null
+    "source_type": "surveildrone",
+    "source_id": "drone_id",
+    "label": "anomaly_label",
+}
+```
+
+Bu kadar — yeni parser yazmaya gerek yok, sadece kolon eşlemesi.
+
+---
+
+# ══════════════════════════════════════════════════════════
 # ORTAK — Gold (hep birlikte, Silver review'dan sonra)
 # ══════════════════════════════════════════════════════════
 
 > Silver review tamamlanmadan Gold'a başlanmaz.
 
-## Gold: 4 kaynağı 7+3 kolona hizala
+## Gold: N kaynağı 7+3 kolona hizala
 
 `src/gold/unify.py`:
 
-1. MinIO'dan 4 Silver Parquet setini oku.
-2. Her kaynak için kolon eşlemesi:
+1. MinIO'dan tüm Silver Parquet setlerini oku (mevcut 4 + ileride eklenenler).
+2. Her kaynak için kolon eşlemesi (dict tabanlı, yeni kaynak = yeni satır):
 
-| Gold kolonu | adsblol_hist | adsblol_rt | alfa | uav_attack |
-|---|---|---|---|---|
-| `timestamp_utc` | `timestamp_utc` | `timestamp_utc` | `timestamp_utc` | `timestamp_utc` |
-| `lat` | `lat` | `lat` | `lat` | `lat` |
-| `lon` | `lon` | `lon` | `lon` | `lon` |
-| `altitude_m` | `alt` | `alt` | `alt` | `alt` |
-| `velocity_mps` | `ground_speed_ms` | `ground_speed_ms` | `velocity_measured` | hesapla |
-| `heading_deg` | `track_deg` | `track_deg` | `yaw_measured` | `yaw_deg` |
-| `vertical_rate_mps` | `vertical_rate_ms` | `vertical_rate_ms` | null | null |
-| `source_type` | `source_type` | `source_type` | `source_type` | `source_type` |
-| `source_id` | `source_id` | `source_id` | `source_id` | `source_id` |
-| `label` | null | null | `label` | `label` |
+| Gold kolonu | adsblol_hist | adsblol_rt | alfa | uav_attack | **yeni_dataset** |
+|---|---|---|---|---|---|
+| `timestamp_utc` | `timestamp_utc` | `timestamp_utc` | `timestamp_utc` | `timestamp_utc` | eşleme ekle |
+| `lat` | `lat` | `lat` | `lat` | `lat` | eşleme ekle |
+| `lon` | `lon` | `lon` | `lon` | `lon` | eşleme ekle |
+| `altitude_m` | `alt` | `alt` | `alt` | `alt` | eşleme ekle |
+| `velocity_mps` | `ground_speed_ms` | `ground_speed_ms` | `velocity_measured` | hesapla | eşleme ekle |
+| `heading_deg` | `track_deg` | `track_deg` | `yaw_measured` | `yaw_deg` | eşleme ekle |
+| `vertical_rate_mps` | `vertical_rate_ms` | `vertical_rate_ms` | null | null | eşleme ekle |
+| `source_type` | `source_type` | `source_type` | `source_type` | `source_type` | otomatik |
+| `source_id` | `source_id` | `source_id` | `source_id` | `source_id` | eşleme ekle |
+| `label` | null | null | `label` | `label` | eşleme ekle |
 
 3. `pd.concat()` ile birleştir, `gold/unified/` altına yaz.
 
-> **İleride yeni veri seti eklenirse:** Silver parser'ı yazılır + Gold kolon eşleme tablosuna
-> bir satır eklenir. Pipeline genişleyebilir.
+> **Yeni veri seti eklemek:** (1) Bronze'a ham dosya yükle, (2) `parse_generic` ile Silver'a
+> çevir (veya custom parser yaz), (3) Gold kolon eşleme tablosuna bir satır ekle. Bitti.
 
 ---
 
@@ -465,6 +602,7 @@ make minio-init            # bronze + silver bucket oluştur
 make bronze-upload-adsb    # tar'ları MinIO bronze'a yükle
 make bronze-upload-alfa    # ALFA zip'i MinIO bronze'a yükle
 make bronze-upload-attack  # UAV Attack zip'i MinIO bronze'a yükle
+make bronze-upload SRC=yeni_dataset INPUT=path/to/file  # herhangi bir ham dosya
 make bronze-rt-producer    # adsb.lol → Kafka (canlı)
 make bronze-rt-consumer    # Kafka → ham JSONL → MinIO bronze (canlı)
 
@@ -473,9 +611,10 @@ make silver-adsb-hist      # bronze tar → silver parquet
 make silver-adsb-rt        # bronze jsonl → silver parquet
 make silver-alfa           # bronze alfa zip → silver parquet
 make silver-attack         # bronze uav zip → silver parquet
+make silver-generic SRC=yeni_dataset  # generic: bronze'daki herhangi bir dosyayı silver parquet'e
 
 # Gold
-make gold                  # 4 silver → unified gold parquet
+make gold                  # tüm silver → unified gold parquet
 ```
 
 ---
@@ -517,7 +656,7 @@ make gold                  # 4 silver → unified gold parquet
 ## `docs/decisions.md`'ye eklenecek ADR
 
 ```markdown
-## ADR-003: Bronze = raw; parse/provenance Silver'da; coğrafi filtre yok
+## ADR-003: Bronze = raw; parse/provenance Silver'da; coğrafi filtre yok; generic parser
 
 - Durum: Kabul edildi
 - Tarih: 2026-07-01
@@ -526,9 +665,18 @@ make gold                  # 4 silver → unified gold parquet
 Bronze katmanı ham dosyaları (orijinal .tar/.zip ve realtime ham .jsonl) MinIO'da
 değiştirmeden saklar. Parquet dönüşümü, unit dönüşümü, etiket çıkarımı ve provenance
 kolonları Silver katmanına taşındı. Coğrafi filtre (Türkiye bbox veya başka) pipeline
-seviyesinde uygulanmaz; analiz/notebook aşamasında yapılır. Gold katmanı 4 kaynağı
-7 ortak kolona (timestamp, lat, lon, altitude, velocity, heading, vertical_rate) +
-3 metadata kolonuna (source_type, source_id, label) hizalar.
+seviyesinde uygulanmaz; analiz/notebook aşamasında yapılır.
+
+Silver'da iki tür parser var: (1) kaynak-özel parser'lar (adsb, alfa, uav_attack) —
+domain-specific unit dönüşümü ve etiket çıkarımı yapar; (2) generic parser — dosya
+formatını otomatik algılayıp (CSV, JSON, JSONL, zip/tar içindekiler dahil) Parquet'e
+çevirir, sadece provenance ekler, domain-specific dönüşüm yapmaz. Yeni bir veri seti
+eklemek için generic parser yeterlidir; özel dönüşüm gerekirse üstüne custom parser
+yazılır.
+
+Gold katmanı tüm kaynakları 7 ortak kolona (timestamp, lat, lon, altitude, velocity,
+heading, vertical_rate) + 3 metadata kolonuna (source_type, source_id, label) hizalar.
+Yeni veri seti eklemek için Gold'a sadece bir kolon eşleme satırı eklenir.
 
 Sorumluluklar: adsb historical → Metehan, adsb realtime → Yusuf, ALFA + UAV Attack → Anıl.
 ```
