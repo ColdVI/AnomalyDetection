@@ -13,3 +13,7 @@ plotly==5.22.0
 pydeck==0.9.1
 requests==2.32.3
 python-dotenv==1.0.1
+pytest==8.2.2
+openpyxl==3.1.2
+# optional: pymavlink (MAVLink .bin/.tlog support in parse_generic.py)
+# optional: scipy (MATLAB .mat support in parse_generic.py)
