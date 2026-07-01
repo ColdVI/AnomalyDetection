@@ -1,6 +1,6 @@
 """Bronze loader for adsb.lol historical `globe_history` tar releases.
 
-Phase 2 of docs/bronze_implementasyon_plani.md.
+See docs/PIPELINE_PLAN.md (METEHAN REHBERİ).
 
 Each daily release is a tar archive (optionally split into .tar.aa/.tar.ab
 parts) containing one gzip-compressed JSON file per aircraft under
@@ -15,11 +15,11 @@ parts) containing one gzip-compressed JSON file per aircraft under
 docs/.../adsblo_data_format_reference for the full empirically-validated
 field list).
 
-Bronze rule: no unit conversion, no renaming of original values. We only
-(a) resolve each point's absolute epoch time from the base timestamp + the
-per-point offset -- without this the row is unusable, this is not a unit
-conversion, just offset resolution -- and (b) keep only points inside the
-Turkey bbox. Everything else is passed through as-is. The nested
+Bronze rule (ADR-003, docs/PIPELINE_PLAN.md): no unit conversion, no renaming
+of original values, no geographic filter -- every point worldwide is kept,
+not just Turkey. We only resolve each point's absolute epoch time from the
+base timestamp + the per-point offset; without this the row is unusable,
+this is not a unit conversion, just offset resolution. The nested
 `aircraft_dict` (sparse per-point extra fields) is kept as a JSON string
 column rather than being flattened/decoded, since flattening + harmonizing
 is Silver's job.
@@ -37,8 +37,7 @@ from typing import Any, BinaryIO
 
 import pandas as pd
 
-from src.common.bbox import in_turkey
-from src.common.io import ObjectStoreClient, write_bronze
+from src.common.minio_io import ObjectStoreClient, write_bronze
 from src.common.provenance import add_provenance
 
 logger = logging.getLogger(__name__)
@@ -110,7 +109,7 @@ def _read_member_json(tar: tarfile.TarFile, member: tarfile.TarInfo) -> dict[str
             return None
 
 
-def _trace_rows_in_turkey(aircraft: dict[str, Any], member_name: str) -> list[dict[str, Any]]:
+def _trace_rows(aircraft: dict[str, Any], member_name: str) -> list[dict[str, Any]]:
     icao = aircraft.get("icao")
     base_timestamp = aircraft.get("timestamp")
     trace = aircraft.get("trace") or []
@@ -124,9 +123,6 @@ def _trace_rows_in_turkey(aircraft: dict[str, Any], member_name: str) -> list[di
     for point in trace:
         if len(point) < 8:
             continue  # malformed / pre-2022 truncated row, not enough fields to use
-        lat, lon = point[1], point[2]
-        if not in_turkey(lat, lon):
-            continue
 
         padded = list(point) + [None] * (len(_TRACE_COLUMNS) - len(point))
         row: dict[str, Any] = {"icao": icao, "file_timestamp": base_timestamp}
@@ -149,18 +145,18 @@ def _trace_rows_in_turkey(aircraft: dict[str, Any], member_name: str) -> list[di
     return rows
 
 
-def extract_turkey(
+def extract_all(
     tar_path: str | Path,
     *,
     client: ObjectStoreClient | None = None,
     flush_every: int = 2000,
 ) -> list[str]:
-    """Stream a (merged) historical tar, keep Turkey-bbox trace points, write Bronze.
+    """Stream a (merged) historical tar, keep every worldwide trace point, write Bronze.
 
     Processes the archive lazily (tarfile member-by-member) so a 3GB+ daily
-    release doesn't need to be fully extracted to disk first. Returns the
-    list of `s3://bronze/...` URIs written to MinIO (may be empty if nothing
-    in the archive touched the Turkey bbox).
+    release doesn't need to be fully extracted to disk first. No geographic
+    filter (ADR-003): every point survives, not just a Turkey bbox. Returns
+    the list of `s3://bronze/...` URIs written to MinIO.
     """
     tar_path = Path(tar_path)
     tar_date = _infer_tar_date(tar_path)
@@ -189,10 +185,10 @@ def extract_turkey(
             aircraft = _read_member_json(tar, member)
             if aircraft is None:
                 continue
-            buffer.extend(_trace_rows_in_turkey(aircraft, member.name))
+            buffer.extend(_trace_rows(aircraft, member.name))
             aircraft_seen += 1
             if aircraft_seen % flush_every == 0:
-                logger.info("Processed %d aircraft from %s, %d Turkey rows buffered", aircraft_seen, tar_path.name, len(buffer))
+                logger.info("Processed %d aircraft from %s, %d rows buffered", aircraft_seen, tar_path.name, len(buffer))
                 _flush()
 
     _flush()
@@ -203,7 +199,7 @@ def extract_turkey(
 def main() -> None:
     import argparse
 
-    parser = argparse.ArgumentParser(description="adsb.lol historical -> Bronze (Turkey bbox)")
+    parser = argparse.ArgumentParser(description="adsb.lol historical -> Bronze (worldwide, no geo filter)")
     parser.add_argument(
         "--input",
         default="data/bronze/adsblol_historical/_input",
@@ -225,7 +221,7 @@ def main() -> None:
         return
 
     for tar_path in candidates:
-        extract_turkey(tar_path)
+        extract_all(tar_path)
 
 
 if __name__ == "__main__":

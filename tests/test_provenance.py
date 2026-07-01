@@ -13,7 +13,7 @@ def test_add_provenance_preserves_source_data_without_mutating_input():
     assert result.loc[0, "raw_name"] == "unchanged"
     assert result.loc[0, "_source_type"] == "alfa"
     assert result.loc[0, "_source_file"] == "flight/example.csv"
-    assert result.loc[0, "_schema_version"] == "bronze_v1"
+    assert result.loc[0, "_schema_version"] == "silver_v1"
     assert result.loc[0, "_ingest_ts_utc"].endswith("Z")
     assert all(column in result.columns for column in PROVENANCE_COLUMNS)
 

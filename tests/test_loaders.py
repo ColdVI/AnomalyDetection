@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from src.ingestion.adsblol_historical_loader import extract_turkey, merge_tar_parts
+from src.ingestion.adsblol_historical_loader import extract_all, merge_tar_parts
 
 
 def _make_aircraft_member(icao: str, base_ts: int, trace: list[list]) -> bytes:
@@ -23,8 +23,8 @@ def _make_aircraft_member(icao: str, base_ts: int, trace: list[list]) -> bytes:
 
 def _write_fake_tar(tar_path: Path) -> None:
     base_ts = 1750000000
-    # One aircraft entirely inside the Turkey bbox (lat 36-42, lon 26-45).
-    inside = _make_aircraft_member(
+    # One aircraft over Turkey.
+    turkey = _make_aircraft_member(
         "tc0001",
         base_ts,
         trace=[
@@ -32,13 +32,15 @@ def _write_fake_tar(tar_path: Path) -> None:
             [10, 39.1, 35.1, 35000, 450.0, 91.0, 2, 0, {"flight": "THY123  "}, "adsb_icao", 35100, 0, 420, 1.0],
         ],
     )
-    # One aircraft entirely outside (e.g. over the Atlantic).
-    outside = _make_aircraft_member(
+    # One aircraft elsewhere in the world (e.g. over the Atlantic) -- no geo filter (ADR-003),
+    # this must survive too.
+    elsewhere = _make_aircraft_member(
         "ab0002",
         base_ts,
         trace=[[0, 51.0, -10.0, 30000, 400.0, 270.0, 0, 0, None]],
     )
-    # One aircraft with a "ground" altitude and a None lat (should be dropped safely).
+    # One aircraft with a "ground" altitude and a None lat/lon -- kept as-is (Bronze doesn't
+    # drop rows for null coordinates; that's Silver's call).
     edge_case = _make_aircraft_member(
         "tc0003",
         base_ts,
@@ -46,27 +48,28 @@ def _write_fake_tar(tar_path: Path) -> None:
     )
 
     with tarfile.open(tar_path, "w") as tar:
-        for icao, blob in [("tc0001", inside), ("ab0002", outside), ("tc0003", edge_case)]:
+        for icao, blob in [("tc0001", turkey), ("ab0002", elsewhere), ("tc0003", edge_case)]:
             data = io.BytesIO(blob)
             info = tarfile.TarInfo(name=f"traces/{icao[:2]}/trace_full_{icao}.json")
             info.size = len(blob)
             tar.addfile(info, data)
 
 
-def test_extract_turkey_keeps_only_in_bbox_points(tmp_path, fake_minio_client):
+def test_extract_all_keeps_every_point_worldwide(tmp_path, fake_minio_client):
     tar_path = tmp_path / "v2026.06.15-planes-readsb-prod-0.tar"
     _write_fake_tar(tar_path)
-    written = extract_turkey(tar_path, client=fake_minio_client, flush_every=100)
+    written = extract_all(tar_path, client=fake_minio_client, flush_every=100)
 
     assert len(written) == 1
     bucket, object_name = written[0].removeprefix("s3://").split("/", 1)
     df = pd.read_parquet(io.BytesIO(fake_minio_client.buckets[bucket][object_name]))
 
-    # Only the two in-bbox points from tc0001 should survive.
-    assert set(df["icao"]) == {"tc0001"}
-    assert len(df) == 2
-    assert df["timestamp_epoch_s"].tolist() == [1750000000, 1750000010]
-    assert df.loc[df["trace_seconds_after_timestamp"] == 10, "aircraft_dict"].iloc[0] == json.dumps(
+    # No geo filter (ADR-003): all three aircraft's points survive, not just Turkey's.
+    assert set(df["icao"]) == {"tc0001", "ab0002", "tc0003"}
+    assert len(df) == 4
+    tc0001_rows = df[df["icao"] == "tc0001"].sort_values("trace_seconds_after_timestamp")
+    assert tc0001_rows["timestamp_epoch_s"].tolist() == [1750000000, 1750000010]
+    assert tc0001_rows.loc[tc0001_rows["trace_seconds_after_timestamp"] == 10, "aircraft_dict"].iloc[0] == json.dumps(
         {"flight": "THY123  "}
     )
 
@@ -75,16 +78,17 @@ def test_extract_turkey_keeps_only_in_bbox_points(tmp_path, fake_minio_client):
     assert (df["_source_type"] == "adsblol_hist").all()
 
 
-def test_extract_turkey_returns_empty_when_nothing_in_bbox(tmp_path, fake_minio_client):
+def test_extract_all_returns_empty_for_aircraft_missing_icao_or_timestamp(tmp_path, fake_minio_client):
     tar_path = tmp_path / "v2026.06.16-planes-readsb-prod-0.tar"
+    payload = {"trace": [[0, 51.0, -10.0, 30000, 400.0, 270.0, 0, 0, None]]}  # no icao/timestamp
+    blob = gzip.compress(json.dumps(payload).encode("utf-8"))
     with tarfile.open(tar_path, "w") as tar:
-        blob = _make_aircraft_member("ab0002", 1750000000, trace=[[0, 51.0, -10.0, 30000, 400.0, 270.0, 0, 0, None]])
         data = io.BytesIO(blob)
         info = tarfile.TarInfo(name="traces/ab/trace_full_ab0002.json")
         info.size = len(blob)
         tar.addfile(info, data)
 
-    written = extract_turkey(tar_path, client=fake_minio_client)
+    written = extract_all(tar_path, client=fake_minio_client)
     assert written == []
 
 

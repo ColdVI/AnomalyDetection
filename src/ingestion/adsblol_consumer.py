@@ -1,18 +1,16 @@
-"""Consume adsb.lol Kafka messages: land raw JSONL, write filtered Bronze Parquet.
+"""Consume adsb.lol Kafka messages: land raw JSONL, write Bronze Parquet.
 
-Phase 3 of docs/bronze_implementasyon_plani.md, updated per ADR-002: every
-Bronze artifact lives in MinIO, not local disk.
+See docs/PIPELINE_PLAN.md (YUSUF REHBERİ). Per ADR-003, every Bronze artifact
+lives in MinIO, not local disk, and there is no geographic filter -- every
+message worldwide is kept.
 
 Two MinIO objects per flushed batch:
   - `bronze/adsblol_realtime/_landing/states-<batch-stamp>.jsonl`: every
-    message in the batch, completely unfiltered, exactly as produced -- the
-    true raw landing. MinIO has no native "append to object" operation, so
-    landing is batched at the same cadence as the Parquet flush rather than
-    streamed line-by-line.
-  - `bronze/adsblol_realtime/part-*.parquet`: only the entries whose lat/lon
-    fall inside the Turkey bbox, with standard provenance columns. This is
-    where the Bronze "Turkey bbox filter for adsb sources" rule is actually
-    applied for the realtime path (the producer does not filter).
+    message in the batch, exactly as produced -- the true raw landing. MinIO
+    has no native "append to object" operation, so landing is batched at the
+    same cadence as the Parquet flush rather than streamed line-by-line.
+  - `bronze/adsblol_realtime/part-*.parquet`: the same batch, with standard
+    provenance columns added.
 
 No unit conversion or renaming happens here; original adsb.lol field names
 (`hex`, `lat`, `lon`, `alt_baro`, `gs`, `track`, ...) are kept as-is.
@@ -31,8 +29,7 @@ import pandas as pd
 from confluent_kafka import Consumer
 from dotenv import load_dotenv
 
-from src.common.bbox import in_turkey
-from src.common.io import ObjectStoreClient, write_bronze, write_bronze_bytes
+from src.common.minio_io import ObjectStoreClient, write_bronze, write_bronze_bytes
 from src.common.provenance import add_provenance
 
 logger = logging.getLogger(__name__)
@@ -49,11 +46,6 @@ class _ShutdownFlag:
     def request_stop(self, signum: int, _frame: Any) -> None:
         logger.info("Received signal %s, will stop after draining the buffer", signum)
         self.stop = True
-
-
-def turkey_rows(batch: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Pure filtering helper, kept separate from I/O so it's easy to unit test."""
-    return [entry for entry in batch if in_turkey(entry.get("lat"), entry.get("lon"))]
 
 
 def land_batch_raw(
@@ -78,11 +70,10 @@ def flush_batch_to_bronze(
     source_file: str,
     client: ObjectStoreClient | None = None,
 ) -> str | None:
-    """Write only the Turkey-bbox rows as a Bronze Parquet object."""
-    rows = turkey_rows(batch)
-    if not rows:
+    """Write the whole batch as a Bronze Parquet object (no geo filter, ADR-003)."""
+    if not batch:
         return None
-    df = pd.DataFrame(rows)
+    df = pd.DataFrame(batch)
     df = add_provenance(df, source_type=SOURCE_TYPE, source_file=source_file, schema_version="bronze_v1")
     return write_bronze(df, "adsblol_realtime", client=client)
 
@@ -123,7 +114,7 @@ def run(
             "Flushed batch of %d -> landing=%s bronze=%s",
             len(batch),
             landing_uri,
-            bronze_uri or "(no Turkey rows)",
+            bronze_uri or "(empty batch)",
         )
         batch.clear()
 

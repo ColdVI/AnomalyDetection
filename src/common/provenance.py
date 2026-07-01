@@ -1,4 +1,10 @@
-"""Helpers for attaching immutable Bronze provenance metadata."""
+"""Helpers for attaching immutable provenance metadata.
+
+Per ADR-003 (docs/PIPELINE_PLAN.md), provenance is now attached in Silver, not Bronze
+(Bronze holds untouched raw files) -- hence the "silver_v1" default. Callers that still
+attach provenance at Bronze time (pre-ADR-003 call sites) pass `schema_version="bronze_v1"`
+explicitly.
+"""
 
 from __future__ import annotations
 
@@ -18,9 +24,9 @@ def add_provenance(
     df: pd.DataFrame,
     source_type: str,
     source_file: str,
-    schema_version: str = "bronze_v1",
+    schema_version: str = "silver_v1",
 ) -> pd.DataFrame:
-    """Return a copy with standard Bronze provenance; never mutate ``df``."""
+    """Return a copy with standard provenance columns; never mutate ``df``."""
     if not isinstance(df, pd.DataFrame):
         raise TypeError("df must be a pandas DataFrame")
     if not isinstance(source_type, str) or not source_type:
