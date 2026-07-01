@@ -90,10 +90,8 @@ Gerçek veriyle doğrulanmış sonuçlar (`scripts/run_alfa_local.py`,
   `001-2021-01-27-09-08-37-708_...`) topic'i YANLIŞ (ilk alt çizgiden) bölüyordu; düzeltilmiş
   haliyle doğrulandı.
 
-**BİLİNEN SORUN (bilerek düzeltilmedi, review'da görülsün diye kaydedildi):**
-`infer_label_from_path` "ping"/"dos" kelimelerini tanımıyor, bu yüzden gerçek veride tüm
-"Ping DoS" senaryoları (79.646 satırın 29.200'ü, %37) `label="unknown"` çıkıyor. Detay ve
-tek satırlık düzeltme önerisi: `docs/AGENTS.md` "BİLİNEN SORUN" bölümü.
+**ÇÖZÜLDÜ (2026-07-01):** `infer_label_from_path`'e `"ping"`/`"dos"` kontrolü eklendi —
+artık tüm Ping DoS satırları `label="ping_dos"` olarak doğru etiketleniyor.
 
 ## ADR-005: Gold yazıldı — `src/gold/unify.py`, 7+3 ortak şema
 

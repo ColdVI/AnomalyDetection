@@ -24,8 +24,8 @@ Detaylı plan ve her kişinin adım adım rehberi: `docs/PIPELINE_PLAN.md` (her 
 ## Ekip ve sorumluluklar (docs/PIPELINE_PLAN.md)
 | Kişi | Veri kaynağı | Bronze | Silver |
 |---|---|---|---|
-| Metehan | adsb.lol historical (tar) | `src/ingestion/adsblol_historical_loader.py` | `src/silver/parse_adsblol_historical.py` (taşınacak) |
-| Yusuf | adsb.lol realtime (Kafka) | `src/ingestion/adsblol_producer.py` + `adsblol_consumer.py` | `src/silver/parse_adsblol_realtime.py` (henüz yok) |
+| Metehan | adsb.lol historical (tar) | `src/ingestion/upload_raw.py --source adsblol_historical` | `src/silver/parse_adsblol_historical.py` |
+| Yusuf | adsb.lol realtime (Kafka) | `src/ingestion/adsblol_producer.py` + `adsblol_consumer.py` | `src/silver/parse_adsblol_realtime.py` |
 | **Anıl** | **ALFA + UAV Attack** | `src/ingestion/upload_raw.py` | `src/silver/parse_alfa.py` + `parse_uav_attack.py` |
 
 Herkes kendi bölümünü bağımsız yürütür. Gold'da hepsi birleşecek (henüz yok).
@@ -78,23 +78,10 @@ Uydurmak yerine `None` bırakıldı (`src/gold/unify.py`'deki `COLUMN_MAPS["alfa
 yorumuna bkz.). Düzeltmek için Silver parser'lara yeni ham kolon eklemek gerekir — bu Gold'un
 değil Silver'ın (Anıl'ın) kapsamı; bilerek şimdi yapılmadı, review'da görülsün diye kaydedildi.
 
-## BİLİNEN SORUN (henüz düzeltilmedi) — UAV Attack "Ping DoS" etiketi kayboluyor
-`src/silver/parse_uav_attack.py`'deki `infer_label_from_path` (eski `parse_uav_attack.py`'den
-DEĞİŞMEDEN taşındı) en yakın klasör adında `benign`/`normal`/`spoof`/`jam`/`malicious`/`attack`
-kelimelerini arıyor — ama **"ping" veya "dos" aramıyor**. Gerçek `UAVAttackData.zip`'te klasör
-adı literal olarak `"Ping DoS"`, bu yüzden o senaryoların TAMAMI `label="unknown"` çıkıyor.
-
-Gerçek veriyle doğrulanmış etki (`scripts/run_uav_attack_local.py`, 2026-07-01): 79.646
-satırın **29.200'ü (%37)** — yani her Ping DoS log'un tamamı — yanlışlıkla `unknown`
-etiketli. `label` dağılımı: `unknown`=29.200, `benign`=25.071, `gps_spoofing`=24.269,
-`gps_jamming`=1.106.
-
-Bilerek düzeltilmedi: UAV Attack log_id/topic regex hatasının aksine (bu ADR-003'te
-düzeltildi çünkü önceden araştırılıp kanıtlanmıştı), bu spesifik konuda ekiple/kullanıcıyla
-önceden konuşulmamıştı — "taşı, transform mantığını değiştirme" kuralını aşmamak için
-bırakıldı. Düzeltme tek satırlık: `infer_label_from_path`'te `nearest`/`joined` kontrollerine
-`if "ping" in nearest or "dos" in nearest: return "ping_dos"` eklemek yeterli. Kim
-düzeltirse (Anıl veya review'da fark eden başka biri), bu notu silsin.
+## ÇÖZÜLDÜ — UAV Attack "Ping DoS" etiketi (2026-07-01)
+`src/silver/parse_uav_attack.py`'deki `infer_label_from_path`'e `"ping"`/`"dos"` kontrolü
+eklendi. Daha önce 79.646 satırın 29.200'ü (%37) yanlışlıkla `label="unknown"` çıkıyordu;
+artık `label="ping_dos"` olarak doğru etiketleniyor. Bkz. `docs/decisions.md` ADR-003.
 
 ## Mimari sapma — bilerek yapıldı
 Resmî ders planı OpenSky API + generic MAVLink diyordu. Bu proje yerine şunları kullanıyor:
