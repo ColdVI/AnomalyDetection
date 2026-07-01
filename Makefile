@@ -1,4 +1,4 @@
-.PHONY: up down test bronze-hist bronze-rt-producer bronze-rt-consumer bronze-alfa bronze-attack minio-init silver-alfa silver-attack
+.PHONY: up down test bronze-hist bronze-rt-producer bronze-rt-consumer bronze-alfa bronze-attack minio-init silver-alfa silver-attack gold
 
 up:
 	docker compose up -d
@@ -10,7 +10,7 @@ test:
 	python -m pytest
 
 minio-init:
-	python -c "from src.common.minio_io import get_minio_client, ensure_bucket, DEFAULT_BUCKET; import os; from dotenv import load_dotenv; load_dotenv(); ensure_bucket(get_minio_client(), os.getenv('MINIO_BRONZE_BUCKET', DEFAULT_BUCKET)); ensure_bucket(get_minio_client(), os.getenv('MINIO_SILVER_BUCKET', 'silver')); print('buckets ready')"
+	python -c "from src.common.minio_io import get_minio_client, ensure_bucket, DEFAULT_BUCKET; import os; from dotenv import load_dotenv; load_dotenv(); client = get_minio_client(); ensure_bucket(client, os.getenv('MINIO_BRONZE_BUCKET', DEFAULT_BUCKET)); ensure_bucket(client, os.getenv('MINIO_SILVER_BUCKET', 'silver')); ensure_bucket(client, os.getenv('MINIO_GOLD_BUCKET', 'gold')); print('buckets ready')"
 
 bronze-hist:
 	python -m src.ingestion.adsblol_historical_loader
@@ -32,3 +32,6 @@ silver-alfa:
 
 silver-attack:
 	python -m src.silver.parse_uav_attack
+
+gold:
+	python -m src.gold.unify
