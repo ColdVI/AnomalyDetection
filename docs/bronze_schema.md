@@ -12,3 +12,6 @@ Kaynak kolonlari ve degerleri degistirilmeden korunur.
 Tablosal ciktilar Snappy Parquet'tir. Realtime adsb.lol payload'lari ayrica ham JSONL
 olarak `_landing/` altinda tutulur. ALFA/UAV Attack etiket kolonlari incelenen gercek
 arsiv yapilarina gore loader fazinda burada belgelenecektir.
+
+Tüm Bronze nesneleri yerel diske değil, doğrudan MinIO'ya (`bronze` bucket) yazılır;
+bkz. ADR-002.
