@@ -20,6 +20,7 @@ from typing import Protocol
 from uuid import uuid4
 
 import pandas as pd
+from dotenv import load_dotenv
 from minio import Minio
 
 _SAFE_COMPONENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.=-]*$")
@@ -65,8 +66,22 @@ def _validate_component(value: str, name: str) -> str:
     return value
 
 
-def get_minio_client() -> Minio:
-    """Build a Minio client from MINIO_* env vars (see .env.example)."""
+def get_minio_client() -> ObjectStoreClient:
+    """Build an object-store client from env vars (see .env.example).
+
+    `STORAGE_BACKEND=local` (default: `minio`) returns a disk-backed client
+    (`src.common.local_store.LocalObjectStoreClient`, rooted at `LOCAL_STORAGE_DIR`)
+    instead of connecting to a real MinIO server -- for running the pipeline before
+    docker-compose (Kafka/MinIO) is set up. Same call sites, same `ObjectStoreClient`
+    surface either way.
+    """
+    load_dotenv()
+    backend = os.getenv("STORAGE_BACKEND", "minio").strip().lower()
+    if backend == "local":
+        from src.common.local_store import LocalObjectStoreClient
+
+        return LocalObjectStoreClient(os.getenv("LOCAL_STORAGE_DIR", "data/objectstore"))
+
     endpoint = os.getenv("MINIO_ENDPOINT", "localhost:9000")
     access_key = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
     secret_key = os.getenv("MINIO_SECRET_KEY", "minioadmin")
