@@ -37,7 +37,7 @@ from src.common.provenance import add_provenance
 
 logger = logging.getLogger(__name__)
 
-SOURCE_TYPE = "adsblol_hist"
+SOURCE_TYPE = "adsblol_historical"
 
 TRACE_COLS = [
     "t_offset", "lat", "lon", "alt_raw", "gs", "track", "flags", "vrate",
@@ -135,7 +135,7 @@ def _parse_tar_fileobj(
         batch = add_provenance(
             batch, source_type=SOURCE_TYPE, source_file=tar_name, schema_version="silver_v1"
         )
-        uri = write_silver(batch, "adsblol_historical", client=client)
+        uri = write_silver(batch, SOURCE_TYPE, client=client)
         uris.append(uri)
         total_rows += len(batch)
         logger.info("Silver part %05d: %d rows (total %d so far)", part_num, len(batch), total_rows)

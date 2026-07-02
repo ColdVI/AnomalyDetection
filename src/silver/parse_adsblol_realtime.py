@@ -37,7 +37,7 @@ from src.common.provenance import add_provenance
 
 logger = logging.getLogger(__name__)
 
-SOURCE_TYPE = "adsblol_rt"
+SOURCE_TYPE = "adsblol_realtime"
 _LANDING_PREFIX = "adsblol_realtime/_landing/"
 _TS_RE = re.compile(r"states-(\d{8}T\d{6})")
 
@@ -158,7 +158,7 @@ def run(
         df = add_provenance(
             df, source_type=SOURCE_TYPE, source_file=obj_name, schema_version="silver_v1"
         )
-        uri = write_silver(df, "adsblol_realtime", client=client)
+        uri = write_silver(df, SOURCE_TYPE, client=client)
         all_uris.append(uri)
         logger.info("Parsed %s -> %d rows -> %s", obj_name, len(df), uri)
 
