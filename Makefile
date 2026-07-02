@@ -1,6 +1,8 @@
 .PHONY: up down test minio-init \
 	bronze-upload-adsb-hist bronze-rt-producer bronze-rt-consumer bronze-alfa bronze-attack \
-	silver-adsb-hist silver-adsb-rt silver-alfa silver-attack silver-generic gold
+	bronze-uav-sead \
+	silver-adsb-hist silver-adsb-rt silver-alfa silver-attack silver-uav-sead silver-generic gold \
+	ml-features
 
 up:
 	docker compose up -d
@@ -44,5 +46,14 @@ silver-attack:
 silver-generic:
 	python -m src.silver.parse_generic --source $(SRC) --bronze-prefix $(SRC)/
 
+bronze-uav-sead:
+	python -m src.ingestion.uav_sead_downloader
+
+silver-uav-sead:
+	python -m src.silver.parse_uav_sead
+
 gold:
 	python -m src.gold.unify
+
+ml-features:
+	python -m src.ml.build_features
