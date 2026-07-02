@@ -65,7 +65,34 @@ COLUMN_MAPS: dict[str, dict[str, str | None]] = {
         "source_id": "source_id",
         "label": None,  # adsb.lol'da etiket yok -- her zaman null.
     },
+    # Historical MinIO prefix alias (some tests use 'adsblol_hist')
+    "adsblol_hist": {
+        "timestamp_utc": "timestamp_utc",
+        "lat": "lat",
+        "lon": "lon",
+        "altitude_m": "alt",
+        "velocity_mps": "ground_speed_ms",
+        "heading_deg": "track_deg",
+        "vertical_rate_mps": "vertical_rate_ms",
+        "source_type": "source_type",
+        "source_id": "source_id",
+        "label": None,  # adsb.lol'da etiket yok -- her zaman null.
+    },
+
     "adsblol_realtime": {
+        "timestamp_utc": "timestamp_utc",
+        "lat": "lat",
+        "lon": "lon",
+        "altitude_m": "alt",
+        "velocity_mps": "ground_speed_ms",
+        "heading_deg": "track_deg",
+        "vertical_rate_mps": "vertical_rate_ms",
+        "source_type": "source_type",
+        "source_id": "source_id",
+        "label": None,  # adsb.lol'da etiket yok -- her zaman null.
+    },
+    # Realtime MinIO prefix alias (some tests use 'adsblol_rt')
+    "adsblol_rt": {
         "timestamp_utc": "timestamp_utc",
         "lat": "lat",
         "lon": "lon",
@@ -82,14 +109,13 @@ COLUMN_MAPS: dict[str, dict[str, str | None]] = {
         "lat": "lat",
         "lon": "lon",
         "altitude_m": "alt",
-        # BILINEN EKSIK (gercek veriyle dogrulandi, 2026-07-01): plan velocity_mps icin
-        # "velocity_measured" diyor, ama gercek processed.zip'te nav_info-velocity topic'i
-        # hic eslesmiyor -- parse_alfa.py'nin ciktisinda "velocity_measured" kolonu hic
-        # olusmuyor (20.239 satirin tamami icin). Uydurmak yerine None birakiliyor. Bkz.
-        # docs/AGENTS.md "BILINEN SORUN".
+        # COZULDU (2026-07-02): kok neden nav_info-velocity kolon adlarinin
+        # "meas_x/des_x" olmasiydi (find_col(['measured']) eslesmiyordu).
+        # parse_alfa.py artik bilesenlerden velocity_measured'i hesapliyor;
+        # vfr_hud'dan climb_rate_ms de dikey hizi sagliyor.
         "velocity_mps": "velocity_measured",
         "heading_deg": "yaw_measured",
-        "vertical_rate_mps": None,  # ALFA Silver'inda dikey hiz kolonu yok.
+        "vertical_rate_mps": "climb_rate_ms",
         "source_type": "source_type",
         "source_id": "source_id",
         "label": "label",
@@ -99,13 +125,11 @@ COLUMN_MAPS: dict[str, dict[str, str | None]] = {
         "lat": "lat",
         "lon": "lon",
         "altitude_m": "alt",
-        # BILINEN EKSIK: plan "hesapla" diyor ama UAV Attack Silver'i (parse_uav_attack.py)
-        # su an hic hiz kolonu tasimiyor (ne ham vel_n/e/d ne turetilmis bir deger).
-        # Uydurmak yerine None birakiliyor -- Silver'a vel_n/vel_e/vel_d eklenirse burada
-        # gercek bir hesaba baglanabilir. Bkz. docs/AGENTS.md "BILINEN SORUN".
-        "velocity_mps": None,
+        # COZULDU (2026-07-02): vehicle_gps_position'daki vel_m_s / vel_d_m_s
+        # kolonlari parse_uav_attack.py'ye eklendi.
+        "velocity_mps": "vel_m_s",
         "heading_deg": "yaw_deg",
-        "vertical_rate_mps": None,  # UAV Attack Silver'inda dikey hiz kolonu yok.
+        "vertical_rate_mps": "vertical_rate_mps",
         "source_type": "source_type",
         "source_id": "source_id",
         "label": "label",

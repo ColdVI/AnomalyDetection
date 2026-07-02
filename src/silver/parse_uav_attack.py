@@ -167,12 +167,19 @@ def parse_log(zf, log_id: str, label: str, files_for_log: list):
     base = merge_topic(base, zf, files_for_log, log_id, "battery_status",
                         ["voltage_v", "remaining", "current_a"])
 
+    # vel_* kolonlari gercek zip'te dogrulandi (2026-07-02): vehicle_gps_position
+    # vel_m_s + NED bilesenlerini tasiyor -- Gold velocity_mps/vertical_rate_mps
+    # boslugunu kapatir; cog_rad/fix_type spoofing feature'lari icin.
     base = merge_topic(
         base, zf, files_for_log, log_id, "vehicle_gps_position",
         ["jamming_indicator", "noise_per_ms", "hdop", "vdop",
-         "satellites_used", "s_variance_m_s", "eph", "epv", "time_utc_usec"],
+         "satellites_used", "s_variance_m_s", "eph", "epv", "time_utc_usec",
+         "vel_m_s", "vel_n_m_s", "vel_e_m_s", "vel_d_m_s", "cog_rad", "fix_type"],
         rename={"eph": "raw_gps_eph", "epv": "raw_gps_epv"},
     )
+    if "vel_d_m_s" in base.columns:
+        # NED: d asagi-pozitif; dikey hiz yukari-pozitif olarak raporlanir.
+        base["vertical_rate_mps"] = -base["vel_d_m_s"]
 
     base["source_type"] = "uav_attack"
     base["source_id"] = log_id

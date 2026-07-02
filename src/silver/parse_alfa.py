@@ -76,8 +76,46 @@ def read_csv_member(zf: zipfile.ZipFile, name: str) -> pd.DataFrame:
         return pd.read_csv(f)
 
 
-EXTRA_TOPICS = ["nav_info-roll", "nav_info-pitch", "nav_info-airspeed",
-                "nav_info-velocity", "nav_info-yaw"]
+# measured/commanded ciftleri tasiyan topic'ler (find_col ile kolon bulunur).
+# NOT: nav_info-velocity bu listede DEGIL -- gercek CSV'de kolon adlari
+# "field.meas_x"/"field.des_x" oldugu icin find_col(['measured']) hic eslesmiyordu
+# (velocity_mps'in bos kalmasinin kok nedeni, 2026-07-02'de gercek zip'le dogrulandi).
+# Asagidaki FIXED_COL_TOPICS'te dogru kolon adlariyla ele aliniyor.
+EXTRA_TOPICS = ["nav_info-roll", "nav_info-pitch", "nav_info-airspeed", "nav_info-yaw"]
+
+# Sabit kolon adlariyla merge edilen topic'ler: {topic_suffix: {csv_col: silver_col}}.
+# nav_info-errors ve path_dev otopilotun KENDI hesapladigi hata sinyalleri --
+# feature engineering'de "hazir residual" olarak birinci sinif girdiler
+# (docs/PIPELINE_PLAN, FableChat karari: Katman-1 residual'lar).
+# vfr_hud throttle/groundspeed/climb tasir: enerji tutarliligi ve Gold
+# velocity_mps/vertical_rate_mps boslugunu kapatir.
+FIXED_COL_TOPICS: dict[str, dict[str, str]] = {
+    "nav_info-errors": {
+        "field.alt_error": "alt_error",
+        "field.aspd_error": "aspd_error",
+        "field.xtrack_error": "xtrack_error",
+        "field.wp_dist": "wp_dist",
+    },
+    "mavctrl-path_dev": {
+        "field.x": "path_dev_x",
+        "field.y": "path_dev_y",
+        "field.z": "path_dev_z",
+    },
+    "vfr_hud": {
+        "field.airspeed": "hud_airspeed_ms",
+        "field.groundspeed": "ground_speed_ms",
+        "field.throttle": "throttle",
+        "field.climb": "climb_rate_ms",
+    },
+    "nav_info-velocity": {
+        "field.meas_x": "vel_meas_x",
+        "field.meas_y": "vel_meas_y",
+        "field.meas_z": "vel_meas_z",
+        "field.des_x": "vel_des_x",
+        "field.des_y": "vel_des_y",
+        "field.des_z": "vel_des_z",
+    },
+}
 
 
 def parse_sequence(zf: zipfile.ZipFile, seq_name: str, files_by_seq: dict):
@@ -145,6 +183,33 @@ def parse_sequence(zf: zipfile.ZipFile, seq_name: str, files_by_seq: dict):
         out = pd.merge_asof(out.sort_values("ts_ns"), extra_small,
                              on="ts_ns", direction="nearest",
                              tolerance=500_000_000)  # 0.5 sn (ns)
+
+    for topic_key, col_map in FIXED_COL_TOPICS.items():
+        match = next((t for t in topic_files if t == topic_key or t.endswith(topic_key)), None)
+        if match is None:
+            continue
+        try:
+            extra = read_csv_member(zf, topic_files[match])
+        except Exception:
+            continue
+        if "%time" not in extra.columns:
+            continue
+        extra = extra.rename(columns={"%time": "ts_ns"}).sort_values("ts_ns")
+        cols_present = {src: dst for src, dst in col_map.items() if src in extra.columns}
+        if not cols_present:
+            continue
+        extra_small = extra[["ts_ns"] + list(cols_present)].rename(columns=cols_present)
+        out = pd.merge_asof(out.sort_values("ts_ns"), extra_small,
+                             on="ts_ns", direction="nearest",
+                             tolerance=500_000_000)  # 0.5 sn (ns)
+
+    # nav_info-velocity bilesenlerinden hiz buyuklugu: Gold velocity_mps buradan beslenir.
+    if all(c in out.columns for c in ["vel_meas_x", "vel_meas_y", "vel_meas_z"]):
+        out["velocity_measured"] = np.sqrt(
+            out["vel_meas_x"] ** 2 + out["vel_meas_y"] ** 2 + out["vel_meas_z"] ** 2)
+    if all(c in out.columns for c in ["vel_des_x", "vel_des_y", "vel_des_z"]):
+        out["velocity_commanded"] = np.sqrt(
+            out["vel_des_x"] ** 2 + out["vel_des_y"] ** 2 + out["vel_des_z"] ** 2)
 
     fault_default = infer_fault_from_seq_name(seq_name)
     out["label"] = fault_default

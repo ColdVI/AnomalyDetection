@@ -67,16 +67,16 @@ Gerçek veriyle doğrulandı (`scripts/run_gold_local.py`, 2026-07-01, ALFA `pro
 gerçek `UAVAttackData.zip`, `FakeMinioClient` ile, Docker'sız): **99.885 satır** (ALFA
 20.239 + UAV Attack 79.646), 10 kolon.
 
-**BİLİNEN EKSİK — `velocity_mps` her iki kaynakta da tamamen null:**
-- ALFA: plan `velocity_measured` kolonunu öneriyor ama gerçek `processed.zip`'te
-  `nav_info-velocity` topic'i hiç eşleşmiyor — `parse_alfa.py`'nin çıktısında bu kolon hiç
-  oluşmuyor (20.239 satırın tamamı için yok).
-- UAV Attack: plan "hesapla" diyor ama `parse_uav_attack.py` şu an hiç ham hız alanı
-  (`vel_n`/`vel_e`/`vel_d`) taşımıyor, hesaplanacak bir kaynak yok.
-
-Uydurmak yerine `None` bırakıldı (`src/gold/unify.py`'deki `COLUMN_MAPS["alfa"]["velocity_mps"]`
-yorumuna bkz.). Düzeltmek için Silver parser'lara yeni ham kolon eklemek gerekir — bu Gold'un
-değil Silver'ın (Anıl'ın) kapsamı; bilerek şimdi yapılmadı, review'da görülsün diye kaydedildi.
+**ÇÖZÜLDÜ (2026-07-02) — `velocity_mps` artık dolu (null oranı %100 → %9.3):**
+- ALFA kök nedeni: `nav_info-velocity` topic'i gerçek zip'te VAR ama kolon adları
+  `field.meas_x`/`field.des_x` — `find_col(["measured"])` eşleşmiyordu. `parse_alfa.py`
+  artık bileşenlerden `velocity_measured`/`velocity_commanded` büyüklüğünü hesaplıyor;
+  ayrıca `nav_info-errors` (alt/aspd/xtrack_error), `mavctrl-path_dev` ve `vfr_hud`
+  (throttle, groundspeed, climb) kolonları da Silver'a eklendi.
+- UAV Attack: `vehicle_gps_position` gerçekte `vel_m_s`/`vel_n_m_s`/`vel_e_m_s`/`vel_d_m_s`/
+  `cog_rad`/`fix_type` taşıyormuş — `parse_uav_attack.py`'ye eklendi;
+  `vertical_rate_mps = -vel_d_m_s` Silver'da türetiliyor.
+- Gold `COLUMN_MAPS` her iki kaynak için gerçek kolonlara bağlandı.
 
 ## ÇÖZÜLDÜ — UAV Attack "Ping DoS" etiketi (2026-07-01)
 `src/silver/parse_uav_attack.py`'deki `infer_label_from_path`'e `"ping"`/`"dos"` kontrolü
