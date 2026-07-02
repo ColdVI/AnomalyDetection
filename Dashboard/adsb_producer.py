@@ -73,6 +73,8 @@ def parse_aircraft(ac: dict):
         "track": track,
         "vertical_rate": vertical_rate,
         "category": ac.get("category", ""),
+        "squawk": ac.get("squawk", ""),
+        "emergency": ac.get("emergency", "none"),
         "source": "adsblol",
         "ts": datetime.now(timezone.utc).isoformat(),
     }
