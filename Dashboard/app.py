@@ -17,7 +17,7 @@ import json
 import threading
 import time
 from datetime import datetime, timedelta, timezone
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo, available_timezones
 from pathlib import Path
 
 import pandas as pd
@@ -32,31 +32,196 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from influxdb_client import InfluxDBClient
 
-TR_TZ = ZoneInfo("Europe/Istanbul")  # Turkiye UTC+3, DST yok (2016'dan beri sabit)
+def _resolve_tz(offset_str):
+    """Ayarlardan gelen UTC ofsetini (orn. '3', '-5') sabit-ofsetli bir
+    timezone nesnesine cevirir. Gecersiz/bos deger gelirse (ilk yukleme,
+    hata vb.) guvenli varsayilana (Turkiye, UTC+3) duser."""
+    try:
+        return timezone(timedelta(hours=int(offset_str)))
+    except Exception:
+        return timezone(timedelta(hours=3))
+
 
 # ADS-B/Mode-S emitter kategori kodlari (standart, ilk harf sinif, rakam alt tip)
+# Dil destegi icin TR/EN ayri sozlukler -- CATEGORY_LABELS[lang][kod] seklinde kullanilir.
 CATEGORY_LABELS = {
-    "A0": "Bilinmiyor", "A1": "Hafif uçak", "A2": "Küçük uçak",
-    "A3": "Büyük uçak", "A4": "Büyük uçak (yüksek vorteks)", "A5": "Ağır uçak",
-    "A6": "Yüksek performans", "A7": "Helikopter",
-    "B0": "Bilinmiyor", "B1": "Planör", "B2": "Balon/Zeplin",
-    "B3": "Paraşütçü", "B4": "Ultralight/Yamaç paraşütü",
-    "B6": "İHA/Drone", "B7": "Uzay aracı",
-    "C0": "Bilinmiyor", "C1": "Yer taşıtı (acil)", "C2": "Yer taşıtı (servis)",
-    "C3": "Sabit engel", "C4": "Engel kümesi", "C5": "Hat engeli",
+    "tr": {
+        "A0": "Bilinmiyor", "A1": "Hafif uçak", "A2": "Küçük uçak",
+        "A3": "Büyük uçak", "A4": "Büyük uçak (yüksek vorteks)", "A5": "Ağır uçak",
+        "A6": "Yüksek performans", "A7": "Helikopter",
+        "B0": "Bilinmiyor", "B1": "Planör", "B2": "Balon/Zeplin",
+        "B3": "Paraşütçü", "B4": "Ultralight/Yamaç paraşütü",
+        "B6": "İHA/Drone", "B7": "Uzay aracı",
+        "C0": "Bilinmiyor", "C1": "Yer taşıtı (acil)", "C2": "Yer taşıtı (servis)",
+        "C3": "Sabit engel", "C4": "Engel kümesi", "C5": "Hat engeli",
+    },
+    "en": {
+        "A0": "Unknown", "A1": "Light aircraft", "A2": "Small aircraft",
+        "A3": "Large aircraft", "A4": "Large aircraft (high vortex)", "A5": "Heavy aircraft",
+        "A6": "High performance", "A7": "Helicopter",
+        "B0": "Unknown", "B1": "Glider", "B2": "Balloon/Airship",
+        "B3": "Parachutist", "B4": "Ultralight/Paraglider",
+        "B6": "UAV/Drone", "B7": "Spacecraft",
+        "C0": "Unknown", "C1": "Ground vehicle (emergency)", "C2": "Ground vehicle (service)",
+        "C3": "Fixed obstacle", "C4": "Cluster obstacle", "C5": "Line obstacle",
+    },
 }
 
 # ADS-B acil durum kodlari (Mode S emergency/priority status)
 EMERGENCY_LABELS = {
-    "none": None,  # normal durum, gosterme
-    "general": "GENEL ACİL DURUM",
-    "lifeguard": "SAĞLIK ACİL DURUMU",
-    "minfuel": "YAKIT KRİTİK",
-    "nordo": "RADYO ARIZASI",
-    "unlawful": "KAÇIRMA (HİJACK)",
-    "downed": "DÜŞTÜ/İNİŞ ZORUNLU",
-    "reserved": "REZERVE KOD",
+    "tr": {
+        "none": None,  # normal durum, gosterme
+        "general": "GENEL ACİL DURUM",
+        "lifeguard": "SAĞLIK ACİL DURUMU",
+        "minfuel": "YAKIT KRİTİK",
+        "nordo": "RADYO ARIZASI",
+        "unlawful": "KAÇIRMA (HİJACK)",
+        "downed": "DÜŞTÜ/İNİŞ ZORUNLU",
+        "reserved": "REZERVE KOD",
+    },
+    "en": {
+        "none": None,
+        "general": "GENERAL EMERGENCY",
+        "lifeguard": "MEDICAL EMERGENCY",
+        "minfuel": "FUEL CRITICAL",
+        "nordo": "RADIO FAILURE",
+        "unlawful": "HIJACKING",
+        "downed": "DOWNED / FORCED LANDING",
+        "reserved": "RESERVED CODE",
+    },
 }
+
+DEFAULT_LANGUAGE = "tr"
+
+# Arayuzdeki tum sabit/dinamik metinler -- TEXTS[lang]["anahtar"] seklinde
+# kullanilir. Yeni bir dil eklemek icin buraya ucuncu bir blok (orn. "de")
+# eklemek yeterli, kodun geri kalani degismeden calisir.
+TEXTS = {
+    "tr": {
+        "settings_title": "Ayarlar",
+        "trace_hours_label": "Rota izi (saat)",
+        "timezone_label": "Saat dilimi (UTC farkı)",
+        "language_label": "Dil",
+        "aircraft_info_title": "Uçak Bilgisi",
+        "history_panel_title": "Geçmiş (son 24 saat)",
+        "click_aircraft": "Haritada bir uçağa tıklayın.",
+        "no_signal": "{icao} şu anda sinyal göndermiyor (kapsama alanından çıkmış olabilir).",
+        "no_callsign": "Çağrı kodu yok, rota sorgulanamıyor.",
+        "route_not_found": "'{callsign}' için rota bilgisi bulunamadı (adsbdb.com veritabanında yok).",
+        "aircraft_info_not_found": "Uçak tipi/tescil bilgisi bulunamadı.",
+        "no_details": "Detay yok",
+        "registration": "Tescil",
+        "field_icao": "ICAO24",
+        "field_callsign": "Çağrı Kodu",
+        "field_lat": "Enlem",
+        "field_lon": "Boylam",
+        "field_alt": "İrtifa",
+        "field_speed": "Hız",
+        "field_track": "Yön",
+        "field_vspeed": "Dikey Hız",
+        "field_category": "Kategori",
+        "field_squawk": "Squawk",
+        "field_last_update": "Son Güncelleme",
+        "emergency_squawk": "ACİL DURUM SQUAWK: {squawk}",
+        "status_bar": "{ts} | {n} aktif uçuş | {a} alarm",
+        "history_alt_label": "İrtifa (m)",
+        "history_speed_label": "Hız (m/s)",
+        "no_data": "Veri bulunamadı",
+        "tooltip_alt": "İrtifa",
+        "tooltip_speed": "Hız",
+        "tooltip_track": "Yön",
+        "tooltip_vspeed": "Dikey",
+        "tz_default_suffix": " (Türkiye)",
+        "filter_civil_label": "Sivil",
+        "filter_military_label": "Askeri",
+        "field_military": "Askeri mi",
+        "military_yes": "Evet",
+        "military_no": "Hayır",
+        "tooltip_military_tag": "Askeri",
+        "map_style_label": "Harita Türü",
+        "map_style_street": "Sokak",
+        "map_style_satellite": "Uydu",
+    },
+    "en": {
+        "settings_title": "Settings",
+        "trace_hours_label": "Track trail (hours)",
+        "timezone_label": "Time zone (UTC offset)",
+        "language_label": "Language",
+        "aircraft_info_title": "Aircraft Info",
+        "history_panel_title": "History (last 24h)",
+        "click_aircraft": "Click an aircraft on the map.",
+        "no_signal": "{icao} is not currently transmitting (may have left coverage area).",
+        "no_callsign": "No callsign, route lookup unavailable.",
+        "route_not_found": "No route found for '{callsign}' (not in the adsbdb.com database).",
+        "aircraft_info_not_found": "No aircraft type/registration info found.",
+        "no_details": "No details",
+        "registration": "Registration",
+        "field_icao": "ICAO24",
+        "field_callsign": "Callsign",
+        "field_lat": "Latitude",
+        "field_lon": "Longitude",
+        "field_alt": "Altitude",
+        "field_speed": "Speed",
+        "field_track": "Heading",
+        "field_vspeed": "Vertical Speed",
+        "field_category": "Category",
+        "field_squawk": "Squawk",
+        "field_last_update": "Last Update",
+        "emergency_squawk": "EMERGENCY SQUAWK: {squawk}",
+        "status_bar": "{ts} | {n} active flights | {a} alerts",
+        "history_alt_label": "Altitude (m)",
+        "history_speed_label": "Speed (m/s)",
+        "no_data": "No data found",
+        "tooltip_alt": "Alt",
+        "tooltip_speed": "Speed",
+        "tooltip_track": "Heading",
+        "tooltip_vspeed": "V/S",
+        "tz_default_suffix": " (Turkey)",
+        "filter_civil_label": "Civilian",
+        "filter_military_label": "Military",
+        "field_military": "Military",
+        "military_yes": "Yes",
+        "military_no": "No",
+        "tooltip_military_tag": "Military",
+        "map_style_label": "Map Style",
+        "map_style_street": "Street",
+        "map_style_satellite": "Satellite",
+    },
+}
+
+# Harita katmani secenekleri -- ayarlardan degistirilebilir. "street"
+# varsayilan (mevcut OpenStreetMap katmani, davranis degismiyor).
+#
+# GECMIS: Once Esri World Imagery denendi (server.arcgisonline.com) --
+# kullanicinin agindan gri ekran cikti, AYNI sorun adsb.lol'un KENDI Esri
+# katmaninda da gorulduyu icin bu bizim kodumuzdaki bir hata degildi
+# (URL, leaflet-providers'daki kanonik Esri adresiyle birebir ayniydi).
+# Google Satellite'e gecildi ama O DA gri cikti -- bu sefer GERCEK bir kod
+# hatasiydi: iki katman arasinda "subdomains" degerini de (street icin
+# a/b/c, google icin mt0-mt3) dinamik degistirmeye calisiyorduk, ama
+# react-leaflet/dash-leaflet TileLayer'da sadece "url" prop'u calisma
+# zamaninda guvenilir sekilde uygulaniyor (Leaflet'in setUrl() metoduyla);
+# "subdomains" ise SADECE ILK YUKLEMEDE okunuyor, sonradan degisse de
+# Leaflet tarafinda yeniden uygulanmiyor. Sonuc: "Uydu"ya gecilince URL
+# degisiyordu ama subdomain hala ilk yuklemedeki 'a/b/c' kaliyordu --
+# "a.google.com/vt/..." gibi GECERSIZ adreslere istek atiliyordu (Google'in
+# gercek subdomain'leri mt0-mt3), hepsi basarisiz oluyordu -> gri ekran.
+#
+# COZUM: "{s}" sablonunu tamamen kaldirip SABIT tek bir subdomain
+# kullanmaya gecildi -- boylece dinamik "subdomains" prop'una hic ihtiyac
+# kalmiyor, bu hata sinifi kokten ortadan kalkiyor (paralel-istek
+# optimizasyonu kaybediliyor ama bizim trafik hacmimizde onemsiz).
+TILE_LAYERS = {
+    "street": {
+        "url": "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "attribution": "© OpenStreetMap",
+    },
+    "satellite": {
+        "url": "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+        "attribution": "Map data © Google",
+    },
+}
+DEFAULT_MAP_STYLE = "street"
 
 TOKEN_FILE = Path("influx_token.txt")
 INFLUX_HOST = "http://localhost:8086"
@@ -296,6 +461,97 @@ app_dash.index_string = '''
                 overflow: hidden;
                 background-color: #07070e;
             }
+            /* Leaflet'in varsayilan tooltip'i beyaz kutu/siyah yazi --
+               koyu temaya uydurmak icin gecersiz kiliyoruz. */
+            .leaflet-tooltip {
+                background-color: #161625 !important;
+                border: 1px solid #2a2a4a !important;
+                color: #c8d0e0 !important;
+                border-radius: 8px !important;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
+                padding: 8px 10px !important;
+            }
+            .leaflet-tooltip-top:before   { border-top-color: #2a2a4a !important; }
+            .leaflet-tooltip-bottom:before{ border-bottom-color: #2a2a4a !important; }
+            .leaflet-tooltip-left:before  { border-left-color: #2a2a4a !important; }
+            .leaflet-tooltip-right:before { border-right-color: #2a2a4a !important; }
+
+            /* Tarayicinin kendi (native) sayi giris +/- oklarini gizliyoruz --
+               bunlarin tiklaninca "siyahta takili kalma" sorunu vardi, artik
+               yerlerine kendi html.Button'larimizi (trace-hours-minus/plus)
+               kullaniyoruz, native oklara gerek yok. */
+            input[type=number]::-webkit-inner-spin-button,
+            input[type=number]::-webkit-outer-spin-button {
+                -webkit-appearance: none !important;
+                appearance: none !important;
+                margin: 0 !important;
+            }
+            input[type=number] {
+                -moz-appearance: textfield !important;
+                appearance: textfield !important;
+            }
+
+            /* Saat dilimi secimi: dcc.Dropdown eski react-select tabanli,
+               varsayilan beyaz/acik tema kullaniyor. Kapali kutu, acik
+               menu ve secenek satirlarinin HEPSINI ayri ayri koyu temaya
+               ceviriyoruz -- daha once sadece disaridaki kutu (.Select-control)
+               denenmisti, acilan menu (.Select-menu-outer / secenekler)
+               beyaz kalmisti, bu yuzden burada eksiksiz kapsiyoruz. */
+            .dark-dropdown .Select-control,
+            .dark-dropdown.is-open .Select-control,
+            .dark-dropdown.is-focused .Select-control,
+            .dark-dropdown.is-focused:not(.is-open) .Select-control {
+                background-color: #161625 !important;
+                border: 1px solid #2a2a4a !important;
+                border-radius: 6px !important;
+                color: #c8d0e0 !important;
+                box-shadow: none !important;
+            }
+            .dark-dropdown .Select-value-label,
+            .dark-dropdown .Select-placeholder,
+            .dark-dropdown .Select-input > input {
+                color: #c8d0e0 !important;
+            }
+            .dark-dropdown .Select-arrow {
+                border-color: #c8d0e0 transparent transparent !important;
+            }
+            .dark-dropdown .Select-menu-outer {
+                background-color: #161625 !important;
+                border: 1px solid #2a2a4a !important;
+                border-radius: 6px !important;
+                z-index: 1500 !important;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.6) !important;
+            }
+            .dark-dropdown .Select-menu {
+                background-color: #161625 !important;
+            }
+            .dark-dropdown .Select-option {
+                background-color: #161625 !important;
+                color: #c8d0e0 !important;
+            }
+            .dark-dropdown .Select-option.is-focused {
+                background-color: #22224a !important;
+                color: #ffffff !important;
+            }
+            .dark-dropdown .Select-option.is-selected {
+                background-color: #00b4d8 !important;
+                color: #07070e !important;
+            }
+            /* Dash Dropdown buyuk listelerde react-virtualized-select
+               kullanabiliyor, o zaman secenekler yukaridaki .Select-option
+               yerine bu siniflarla geliyor -- ikisini de kapsiyoruz. */
+            .dark-dropdown .VirtualizedSelectOption {
+                background-color: #161625 !important;
+                color: #c8d0e0 !important;
+            }
+            .dark-dropdown .VirtualizedSelectFocusedOption {
+                background-color: #22224a !important;
+                color: #ffffff !important;
+            }
+            .dark-dropdown .VirtualizedSelectSelectedOption {
+                background-color: #00b4d8 !important;
+                color: #07070e !important;
+            }
         </style>
     </head>
     <body>
@@ -328,6 +584,64 @@ HISTORY_PANEL_BASE = {
     "transition": "transform 0.3s ease",
     "zIndex": 800, "padding": "12px",
 }
+SETTINGS_PANEL_BASE = {
+    "position": "absolute", "top": "60px", "right": "12px",
+    "width": "230px",
+    "backgroundColor": "rgba(15,15,25,0.97)",
+    "border": "1px solid #2a2a4a",
+    "borderRadius": "10px",
+    "boxShadow": "0 8px 24px rgba(0,0,0,0.5)",
+    "padding": "14px", "zIndex": 900,
+}
+
+DEFAULT_TRACE_HOURS = 2
+DEFAULT_TIMEZONE = 3  # UTC+3, Turkiye -- dropdown "value" olarak int kullanilir
+
+STEPPER_BTN_STYLE = {
+    "width": "28px", "height": "28px", "borderRadius": "5px",
+    "border": "1px solid #2a2a4a", "backgroundColor": "#161625",
+    "color": "#c8d0e0", "fontSize": "16px", "cursor": "pointer",
+    "display": "flex", "alignItems": "center", "justifyContent": "center",
+    "padding": 0, "lineHeight": "1", "flexShrink": 0,
+}
+
+# Dil secim butonlari (TR/EN) -- iki durumlu (aktif/pasif) stil, hangisinin
+# secili oldugu update_language_buttons callback'inde belirleniyor.
+LANG_BTN_BASE_STYLE = {
+    "flex": "1", "padding": "6px 0", "borderRadius": "5px",
+    "border": "1px solid #2a2a4a", "fontSize": "12px", "fontWeight": "600",
+    "cursor": "pointer", "letterSpacing": "0.5px",
+}
+LANG_BTN_ACTIVE_STYLE = {**LANG_BTN_BASE_STYLE,
+    "backgroundColor": "#00b4d8", "color": "#07070e", "border": "1px solid #00b4d8"}
+LANG_BTN_INACTIVE_STYLE = {**LANG_BTN_BASE_STYLE,
+    "backgroundColor": "#161625", "color": "#888"}
+
+# Askeri ucaklari haritada ayirt etmek icin ayri bir renk -- alarm kirmizisi
+# (#e63946) ve varsayilan sivil rengiyle (#00b4d8) karismasin diye hakiki/
+# zeytin yesili secildi. Oncelik sirasi: alarm > askeri > sivil (bkz.
+# update_map, bir ucak hem alarmli hem askeri olabilir, alarm once gelir).
+DEFAULT_AIRCRAFT_COLOR = "#00b4d8"
+MILITARY_COLOR = "#8a9a5b"
+ALERT_COLOR = "#e63946"
+
+# Sol-ust askeri/sivil filtre butonlari -- haritanin kendi zoom (+/-)
+# kontrolu de sol-ustte oldugu icin (Leaflet varsayilani, ~10px kenar
+# bosluklu, iki dugme ~52px yukseklik), bu butonlar bilerek onun ALTINA
+# (top: 72px) yerlestiriliyor, ustune degil -- cakismalari onlemek icin.
+FILTER_BTN_BASE_STYLE = {
+    "width": "92px", "padding": "6px 8px", "borderRadius": "6px",
+    "fontSize": "11px", "fontWeight": "600", "cursor": "pointer",
+    "textAlign": "center", "letterSpacing": "0.3px",
+}
+FILTER_BTN_CIVIL_ACTIVE_STYLE = {**FILTER_BTN_BASE_STYLE,
+    "backgroundColor": DEFAULT_AIRCRAFT_COLOR, "color": "#07070e",
+    "border": f"1px solid {DEFAULT_AIRCRAFT_COLOR}"}
+FILTER_BTN_MILITARY_ACTIVE_STYLE = {**FILTER_BTN_BASE_STYLE,
+    "backgroundColor": MILITARY_COLOR, "color": "#07070e",
+    "border": f"1px solid {MILITARY_COLOR}"}
+FILTER_BTN_INACTIVE_STYLE = {**FILTER_BTN_BASE_STYLE,
+    "backgroundColor": "#161625", "color": "#888", "border": "1px solid #2a2a4a"}
 
 app_dash.layout = html.Div(id="app-root", style={
     "position": "fixed", "top": 0, "left": 0, "right": 0, "bottom": 0,
@@ -345,13 +659,32 @@ app_dash.layout = html.Div(id="app-root", style={
         style={"width": "100%", "height": "100%"},
         children=[
             dl.TileLayer(
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                attribution="© OpenStreetMap"
+                id="base-tile-layer",
+                url=TILE_LAYERS[DEFAULT_MAP_STYLE]["url"],
+                attribution=TILE_LAYERS[DEFAULT_MAP_STYLE]["attribution"],
             ),
             dl.LayerGroup(id="flight-path-layer"),
             dl.LayerGroup(id="aircraft-layer"),
         ],
     ),
+
+    # ------------------------------- Askeri/Sivil filtre butonlari (overlay) --
+    # Leaflet'in kendi zoom (+/-) kontrolu sol-ustte durur (~10px kenar
+    # boslugu, ~26-30px genislik, iki dugme ~52px yukseklik). Bu butonlari
+    # ONUN SAGINA, ayni ust hizaya (top: 12px) koyuyoruz -- zoom kontrolunun
+    # genisligi kadar (~46px) icerden baslatarak cakismalari onluyoruz.
+    html.Div(id="type-filter-controls", style={
+        "position": "absolute", "top": "12px", "left": "48px",
+        "display": "flex", "flexDirection": "column", "gap": "6px",
+        "zIndex": 700,
+    }, children=[
+        html.Button("Sivil", id="filter-civil-btn", n_clicks=0,
+                   style=FILTER_BTN_CIVIL_ACTIVE_STYLE),
+        html.Button("Askeri", id="filter-military-btn", n_clicks=0,
+                   style=FILTER_BTN_MILITARY_ACTIVE_STYLE),
+    ]),
+    dcc.Store(id="show-civil", data=True),
+    dcc.Store(id="show-military", data=True),
 
     # ------------------------------------------- Durum cubugu (overlay) --
     html.Div(id="status", style={
@@ -363,25 +696,108 @@ app_dash.layout = html.Div(id="app-root", style={
         "pointerEvents": "none",  # altindaki haritayi engellemesin
     }),
 
-    # ------------------------------------------- Alarm paneli (overlay) --
-    html.Div(id="alerts-overlay", style={
+    # ------------------------------------------- Ayarlar butonu (overlay) --
+    html.Button("⚙", id="settings-btn", n_clicks=0, style={
         "position": "absolute", "top": "12px", "right": "12px",
-        "width": "260px", "maxHeight": "220px", "overflowY": "auto",
-        "backgroundColor": "rgba(15,15,25,0.92)",
-        "borderRadius": "8px", "padding": "10px", "zIndex": 500,
-    }, children=[
-        html.H4("Model Alarmları", style={"color": "#e63946", "margin": "0 0 8px 0",
-                                           "fontSize": "13px"}),
-        html.Div(id="alerts"),
+        "width": "40px", "height": "40px", "borderRadius": "50%",
+        "backgroundColor": "#000000", "border": "1px solid #2a2a4a",
+        "color": "#c8d0e0", "fontSize": "18px", "cursor": "pointer", "zIndex": 900,
+    }),
+
+    # ------------------------------------------- Ayarlar paneli (overlay) --
+    html.Div(id="settings-panel", style={**SETTINGS_PANEL_BASE, "display": "none"},
+             children=[
+        html.Div(style={"display": "flex", "justifyContent": "space-between",
+                        "alignItems": "center", "marginBottom": "12px"}, children=[
+            html.H4("Ayarlar", id="settings-title",
+                    style={"margin": 0, "fontSize": "14px", "color": "#00b4d8"}),
+            html.Button("×", id="close-settings-btn", n_clicks=0, style={
+                "background": "none", "border": "none", "color": "#888",
+                "fontSize": "20px", "cursor": "pointer", "lineHeight": "1",
+                "padding": "0 4px",
+            }),
+        ]),
+        html.Div(style={"marginBottom": "14px"}, children=[
+            html.Label("Rota izi (saat)", id="trace-hours-label",
+                       style={"fontSize": "12px", "color": "#888",
+                              "display": "block", "marginBottom": "5px"}),
+            html.Div(style={"display": "flex", "alignItems": "center", "gap": "6px"},
+                    children=[
+                html.Button("−", id="trace-hours-minus", n_clicks=0, style=STEPPER_BTN_STYLE),
+                # ONEMLI: type="text" (type="number" DEGIL) -- number input'un
+                # tarayici-native +/- spinner oklari CSS ile guvenilir sekilde
+                # gizlenemiyordu (bazi tarayicilarda hala gorunuyor, kendi
+                # butonlarimizla yan yana "2 cift +/-" gibi gorunuyordu, ustelik
+                # native olan daha yavas tepki veriyordu). type="text" +
+                # inputMode="numeric" ile native spinner hic olusmuyor,
+                # tek kontrol kendi -/+ butonlarimiz oluyor. Deger dogrulama
+                # (sayi mi, 1-24 araliginda mi) Python tarafinda yapiliyor.
+                dcc.Input(id="trace-hours-input", type="text", inputMode="numeric",
+                         value=str(DEFAULT_TRACE_HOURS), style={
+                    "flex": "1", "textAlign": "center", "padding": "6px 4px",
+                    "borderRadius": "5px", "border": "1px solid #2a2a4a",
+                    "backgroundColor": "#161625", "color": "#c8d0e0",
+                    "boxSizing": "border-box",
+                }),
+                html.Button("+", id="trace-hours-plus", n_clicks=0, style=STEPPER_BTN_STYLE),
+            ]),
+        ]),
+        html.Div(style={"marginBottom": "14px"}, children=[
+            html.Label("Saat dilimi (UTC farkı)", id="timezone-label",
+                       style={"fontSize": "12px", "color": "#888",
+                              "display": "block", "marginBottom": "6px"}),
+            # ONEMLI: dcc.Slider yerine dcc.Dropdown -- kullanici listeden
+            # secim istedi. Onceki denemede dropdown'un arka plani beyaz
+            # kalmisti çünkü sadece disaridaki kutu (.Select-control)
+            # stillendirilmisti; simdi acilan menu ve secenekler de dahil
+            # tum react-select siniflari "dark-dropdown" CSS'iyle kapsaniyor
+            # (bkz. index_string). clearable=False -- saat dilimi hep bir
+            # deger tasimali, bos birakilamaz.
+            dcc.Dropdown(
+                id="timezone-dropdown",
+                options=[],  # update_timezone_options callback'i dolduruyor (dil'e gore etiket)
+                value=DEFAULT_TIMEZONE,
+                clearable=False, searchable=False,
+                className="dark-dropdown",
+            ),
+        ]),
+        html.Div(style={"marginBottom": "14px"}, children=[
+            html.Label("Harita Türü", id="map-style-label",
+                       style={"fontSize": "12px", "color": "#888",
+                              "display": "block", "marginBottom": "6px"}),
+            html.Div(style={"display": "flex", "gap": "6px"}, children=[
+                html.Button("Sokak", id="map-style-street-btn", n_clicks=0,
+                           style=LANG_BTN_ACTIVE_STYLE),
+                html.Button("Uydu", id="map-style-satellite-btn", n_clicks=0,
+                           style=LANG_BTN_INACTIVE_STYLE),
+            ]),
+        ]),
+        html.Div(children=[
+            html.Label("Dil", id="language-label",
+                       style={"fontSize": "12px", "color": "#888",
+                              "display": "block", "marginBottom": "6px"}),
+            html.Div(style={"display": "flex", "gap": "6px"}, children=[
+                html.Button("TR", id="language-tr-btn", n_clicks=0,
+                           style=LANG_BTN_ACTIVE_STYLE),
+                html.Button("EN", id="language-en-btn", n_clicks=0,
+                           style=LANG_BTN_INACTIVE_STYLE),
+            ]),
+        ]),
     ]),
+
+    dcc.Store(id="settings-open", data=False),
+    dcc.Store(id="trace-hours-setting", data=DEFAULT_TRACE_HOURS),
+    dcc.Store(id="timezone-setting", data=DEFAULT_TIMEZONE),
+    dcc.Store(id="language-setting", data=DEFAULT_LANGUAGE),
+    dcc.Store(id="map-style-setting", data=DEFAULT_MAP_STYLE),
 
     # ---------------------------------- Sol kayan panel (varsayilan gizli) --
     html.Div(id="left-panel", style={**LEFT_PANEL_BASE, "transform": "translateX(-100%)"},
              children=[
         html.Div(style={"display": "flex", "justifyContent": "space-between",
                         "alignItems": "center", "marginBottom": "12px"}, children=[
-            html.H3("Uçak Bilgisi", style={"color": "#00b4d8", "margin": 0,
-                                            "fontSize": "18px"}),
+            html.H3("Uçak Bilgisi", id="aircraft-info-title",
+                    style={"color": "#00b4d8", "margin": 0, "fontSize": "18px"}),
             html.Button("×", id="close-panel-btn", n_clicks=0, style={
                 "background": "none", "border": "none", "color": "#888",
                 "fontSize": "26px", "cursor": "pointer", "lineHeight": "1",
@@ -396,8 +812,8 @@ app_dash.layout = html.Div(id="app-root", style={
     # --------------------------- Sag-alt gecmis paneli (varsayilan gizli) --
     html.Div(id="history-panel", style={**HISTORY_PANEL_BASE, "transform": "translateY(100%)"},
              children=[
-        html.H4("Geçmiş (son 24 saat)", style={"color": "#90e0ef", "marginTop": 0,
-                                                 "fontSize": "13px"}),
+        html.H4("Geçmiş (son 24 saat)", id="history-panel-title",
+                style={"color": "#90e0ef", "marginTop": 0, "fontSize": "13px"}),
         dcc.Graph(id="history-chart", style={"height": "200px"},
                   config={"displayModeBar": False}),
     ]),
@@ -428,11 +844,15 @@ def _airplane_icon(heading: float, color: str) -> dict:
 
 
 @app_dash.callback(
-    [Output("aircraft-layer", "children"), Output("status", "children"),
-     Output("alerts", "children")],
-    Input("tick", "n_intervals")
+    [Output("aircraft-layer", "children"), Output("status", "children")],
+    [Input("tick", "n_intervals"), Input("timezone-setting", "data"),
+     Input("language-setting", "data"), Input("show-civil", "data"),
+     Input("show-military", "data")]
 )
-def update_map(n):
+def update_map(n, tz_name, lang, show_civil, show_military):
+    tz = _resolve_tz(tz_name)
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
+    cat_labels = CATEGORY_LABELS.get(lang, CATEGORY_LABELS[DEFAULT_LANGUAGE])
     try:
         flights = requests.get("http://localhost:8000/api/flights", timeout=3).json()
     except Exception:
@@ -442,37 +862,78 @@ def update_map(n):
     except Exception:
         alerts = []
 
+    # Alarm listesi artik ayri bir panelde gosterilmiyor (yerine ayarlar
+    # butonu koyuldu) -- ama kirmizi marker renklendirmesi icin
+    # alert_icaos hala gerekli, o yuzden fetch etmeye devam ediyoruz.
     alert_icaos = {a.get("icao24") for a in alerts}
+
+    # ONEMLI: askeri/sivil filtre sol-ust butonlarindan geliyor. Ikisi de
+    # acikken (varsayilan) davranis eskisiyle birebir ayni -- hicbir ucak
+    # elenmiyor. Biri kapatilinca o gruptaki ucaklar hem haritadan hem de
+    # asagidaki "aktif ucus" sayacindan (status bar) dusuyor, cunku sayac
+    # goruntulenen/secilebilir ucaklari yansitmali.
+    def _passes_filter(f):
+        is_mil = bool(f.get("is_military"))
+        return (show_military if is_mil else show_civil)
+
+    flights = [f for f in flights if _passes_filter(f)]
 
     markers = []
     for f in flights:
         icao = f.get("icao24", "")
-        color = "#e63946" if icao in alert_icaos else "#00b4d8"
+        is_military = bool(f.get("is_military"))
+        if icao in alert_icaos:
+            color = ALERT_COLOR
+        elif is_military:
+            color = MILITARY_COLOR
+        else:
+            color = DEFAULT_AIRCRAFT_COLOR
+        callsign = f.get("callsign", "").strip()
+        category_label = cat_labels.get(f.get("category", ""), None)
+        subtitle_parts = [icao.upper()]
+        if category_label:
+            subtitle_parts.append(category_label)
+        if is_military:
+            subtitle_parts.append(t["tooltip_military_tag"])
+        subtitle = "  ·  ".join(subtitle_parts)
+
         markers.append(dl.DivMarker(
             position=[f.get("lat", 39), f.get("lon", 35)],
             iconOptions=_airplane_icon(f.get("track") or 0, color),
             id={"type": "aircraft-marker", "index": icao},
             children=[
-                dl.Tooltip(
-                    f"{icao} | {f.get('callsign','').strip() or '—'} | "
-                    f"alt={f.get('alt',0):.0f}m | "
-                    f"{f.get('velocity') if f.get('velocity') is not None else 0:.0f}m/s"
-                ),
+                dl.Tooltip(html.Div(style={"minWidth": "150px"}, children=[
+                    html.Div(callsign or icao.upper(), style={
+                        "fontSize": "14px", "fontWeight": "700",
+                        "color": color, "marginBottom": "1px",
+                    }),
+                    html.Div(subtitle,
+                             style={"fontSize": "10px", "color": "#888",
+                                    "marginBottom": "6px"}),
+                    html.Div(style={
+                        "display": "grid", "gridTemplateColumns": "1fr 1fr",
+                        "gap": "3px 12px", "fontSize": "11px",
+                    }, children=[
+                        html.Div([html.Span(t["tooltip_alt"] + " ", style={"color": "#666"}),
+                                  html.Span(f"{f.get('alt', 0):.0f} m")]),
+                        html.Div([html.Span(t["tooltip_speed"] + " ", style={"color": "#666"}),
+                                  html.Span(f"{f.get('velocity'):.0f} m/s"
+                                            if f.get('velocity') is not None else "—")]),
+                        html.Div([html.Span(t["tooltip_track"] + " ", style={"color": "#666"}),
+                                  html.Span(f"{f.get('track'):.0f}°"
+                                            if f.get('track') is not None else "—")]),
+                        html.Div([html.Span(t["tooltip_vspeed"] + " ", style={"color": "#666"}),
+                                  html.Span(f"{f.get('vertical_rate'):+.1f} m/s"
+                                            if f.get('vertical_rate') is not None else "—")]),
+                    ]),
+                ]), direction="top", offset=[0, -14]),
             ],
         ))
 
-    ts = datetime.now(TR_TZ).strftime("%H:%M:%S")
-    status = f"{ts} | {len(flights)} aktif uçuş | {len(alerts)} alarm"
+    ts = datetime.now(tz).strftime("%H:%M:%S")
+    status = t["status_bar"].format(ts=ts, n=len(flights), a=len(alerts))
 
-    alert_divs = [html.Div(
-        f"🔴 {a.get('icao24','?')}  {a.get('alert_type','anomali')}",
-        style={"color": "#e63946", "padding": "5px 8px",
-               "borderLeft": "3px solid #e63946",
-               "marginBottom": "4px", "fontSize": "13px"}
-    ) for a in alerts] or [html.Div("Model henüz alarm üretmedi",
-                                     style={"color": "#666", "fontSize": "13px"})]
-
-    return markers, status, alert_divs
+    return markers, status
 
 
 @app_dash.callback(
@@ -521,18 +982,255 @@ def toggle_panels(icao24):
 
 
 @app_dash.callback(
-    Output("flight-path-layer", "children"),
-    [Input("tick", "n_intervals"), Input("aircraft-select", "data")]
+    Output("settings-open", "data"),
+    [Input("settings-btn", "n_clicks"), Input("close-settings-btn", "n_clicks")],
+    State("settings-open", "data"),
+    prevent_initial_call=True,
 )
-def update_flight_path(n, icao24):
-    """Secili ucagin son 1 saatlik konum gecmisini haritada cizgi olarak
-    cizer. Mevcut /api/history endpoint'ini aynen kullaniyor (lat/lon zaten
+def toggle_settings_open(gear_clicks, close_clicks, is_open):
+    """Disli butonuna tiklaninca ac/kapa (toggle), panel icindeki x
+    butonuna tiklaninca kesin kapat -- ayni Output'u iki farkli butondan
+    yonetmek icin (sol paneldeki kapatma mantigiyla ayni desen)."""
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+    trigger = ctx.triggered[0]["prop_id"]
+    if trigger == "close-settings-btn.n_clicks":
+        return False
+    if trigger == "settings-btn.n_clicks":
+        return not is_open
+    return dash.no_update
+
+
+@app_dash.callback(
+    Output("settings-panel", "style"),
+    Input("settings-open", "data"),
+)
+def show_settings_panel(is_open):
+    style = dict(SETTINGS_PANEL_BASE)
+    style["display"] = "block" if is_open else "none"
+    return style
+
+
+@app_dash.callback(
+    Output("trace-hours-input", "value"),
+    [Input("trace-hours-minus", "n_clicks"), Input("trace-hours-plus", "n_clicks")],
+    State("trace-hours-input", "value"),
+    prevent_initial_call=True,
+)
+def step_trace_hours(minus_clicks, plus_clicks, current):
+    """Kendi +/- butonlarimiz -- tek kontrol bu, native tarayici spinner'i
+    input type="text" oldugu icin hic olusmuyor (eskiden type="number"
+    ile hem native ok hem bu butonlar birlikte gorunuyordu, "2 cift +/-"
+    izlenimi veriyordu, native olan da daha yavas tepki veriyordu).
+    Bu callback sadece input'un GORUNEN degerini (string) degistiriyor;
+    Store'a yazma islemini update_trace_hours_setting halleder."""
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+    trigger = ctx.triggered[0]["prop_id"]
+    try:
+        current_val = int(current)
+    except (TypeError, ValueError):
+        current_val = DEFAULT_TRACE_HOURS
+    if trigger == "trace-hours-minus.n_clicks":
+        return str(max(1, current_val - 1))
+    if trigger == "trace-hours-plus.n_clicks":
+        return str(min(24, current_val + 1))
+    return dash.no_update
+
+
+@app_dash.callback(
+    Output("trace-hours-setting", "data"),
+    Input("trace-hours-input", "value"),
+    prevent_initial_call=True,
+)
+def update_trace_hours_setting(value):
+    # value artik string (type="text") -- gecerli bir tam sayi degilse
+    # (kullanici elle harf/bos deger girdiyse) Store'u bozmadan yok sayiyoruz.
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return dash.no_update
+    if parsed < 1 or parsed > 24:
+        return dash.no_update
+    return parsed
+
+
+@app_dash.callback(
+    Output("timezone-setting", "data"),
+    Input("timezone-dropdown", "value"),
+    prevent_initial_call=True,
+)
+def update_timezone_setting(value):
+    # ONEMLI: "if not value" DEGIL -- UTC+0 secildiginde value=0 olur ve
+    # Python'da 0 falsy'dir, eski kod bu durumda guncellemeyi sessizce
+    # reddediyordu (UTC+0 hicbir zaman secilemiyordu). None kontrolu dogru.
+    if value is None:
+        return dash.no_update
+    return value
+
+
+@app_dash.callback(
+    Output("timezone-dropdown", "options"),
+    Input("language-setting", "data"),
+)
+def update_timezone_options(lang):
+    """Saat dilimi listesinin etiketlerini secili dile gore uretir --
+    deger (UTC ofseti, int) hep ayni kalir, sadece gorunen metin degisir."""
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
+    options = []
+    for h in range(-12, 15):
+        label = f"UTC{h:+d}"
+        if h == DEFAULT_TIMEZONE:
+            label += t["tz_default_suffix"]
+        options.append({"label": label, "value": h})
+    return options
+
+
+@app_dash.callback(
+    Output("language-setting", "data"),
+    [Input("language-tr-btn", "n_clicks"), Input("language-en-btn", "n_clicks")],
+    prevent_initial_call=True,
+)
+def update_language_setting(tr_clicks, en_clicks):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+    trigger = ctx.triggered[0]["prop_id"]
+    if trigger == "language-tr-btn.n_clicks":
+        return "tr"
+    if trigger == "language-en-btn.n_clicks":
+        return "en"
+    return dash.no_update
+
+
+@app_dash.callback(
+    [Output("language-tr-btn", "style"), Output("language-en-btn", "style")],
+    Input("language-setting", "data"),
+)
+def update_language_buttons(lang):
+    if lang == "en":
+        return LANG_BTN_INACTIVE_STYLE, LANG_BTN_ACTIVE_STYLE
+    return LANG_BTN_ACTIVE_STYLE, LANG_BTN_INACTIVE_STYLE
+
+
+@app_dash.callback(
+    Output("map-style-setting", "data"),
+    [Input("map-style-street-btn", "n_clicks"), Input("map-style-satellite-btn", "n_clicks")],
+    prevent_initial_call=True,
+)
+def update_map_style_setting(street_clicks, satellite_clicks):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+    trigger = ctx.triggered[0]["prop_id"]
+    if trigger == "map-style-street-btn.n_clicks":
+        return "street"
+    if trigger == "map-style-satellite-btn.n_clicks":
+        return "satellite"
+    return dash.no_update
+
+
+@app_dash.callback(
+    [Output("map-style-street-btn", "style"), Output("map-style-satellite-btn", "style")],
+    Input("map-style-setting", "data"),
+)
+def update_map_style_buttons(style):
+    if style == "satellite":
+        return LANG_BTN_INACTIVE_STYLE, LANG_BTN_ACTIVE_STYLE
+    return LANG_BTN_ACTIVE_STYLE, LANG_BTN_INACTIVE_STYLE
+
+
+@app_dash.callback(
+    [Output("base-tile-layer", "url"), Output("base-tile-layer", "attribution")],
+    Input("map-style-setting", "data"),
+)
+def update_base_tile_layer(style):
+    """Harita altligini degistirir -- varsayilan "street" (mevcut
+    OpenStreetMap katmani, davranis eskisiyle ayni), "satellite" secilirse
+    Google Satellite tile'larina geciliyor (API anahtari gerekmiyor).
+    ONEMLI: her iki katman da SABIT tek subdomain'li URL kullaniyor (bkz.
+    TILE_LAYERS yorumu) -- boylece burada sadece "url" degisiyor, ki bu
+    react-leaflet'in guvenilir sekilde calisma zamaninda uyguladigi tek
+    TileLayer prop'u (Leaflet setUrl() ile)."""
+    layer = TILE_LAYERS.get(style, TILE_LAYERS[DEFAULT_MAP_STYLE])
+    return layer["url"], layer["attribution"]
+
+
+@app_dash.callback(
+    [Output("settings-title", "children"), Output("trace-hours-label", "children"),
+     Output("timezone-label", "children"), Output("language-label", "children"),
+     Output("aircraft-info-title", "children"), Output("history-panel-title", "children"),
+     Output("filter-civil-btn", "children"), Output("filter-military-btn", "children"),
+     Output("map-style-label", "children"), Output("map-style-street-btn", "children"),
+     Output("map-style-satellite-btn", "children")],
+    Input("language-setting", "data"),
+)
+def update_static_texts(lang):
+    """Sabit basliklari/etiketleri secili dile gore gunceller. Diger tum
+    dinamik metinler (panel icerikleri, tooltip, grafik) kendi
+    callback'lerinde language-setting'i dogrudan Input olarak aliyor."""
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
+    return (t["settings_title"], t["trace_hours_label"], t["timezone_label"],
+            t["language_label"], t["aircraft_info_title"], t["history_panel_title"],
+            t["filter_civil_label"], t["filter_military_label"],
+            t["map_style_label"], t["map_style_street"], t["map_style_satellite"])
+
+
+@app_dash.callback(
+    Output("show-civil", "data"),
+    Input("filter-civil-btn", "n_clicks"),
+    State("show-civil", "data"),
+    prevent_initial_call=True,
+)
+def toggle_show_civil(n_clicks, current):
+    return not current
+
+
+@app_dash.callback(
+    Output("show-military", "data"),
+    Input("filter-military-btn", "n_clicks"),
+    State("show-military", "data"),
+    prevent_initial_call=True,
+)
+def toggle_show_military(n_clicks, current):
+    return not current
+
+
+@app_dash.callback(
+    Output("filter-civil-btn", "style"),
+    Input("show-civil", "data"),
+)
+def style_civil_filter_btn(visible):
+    # Aktif (gorunuyor) -- sivil rengiyle dolu; pasif (gizli) -- soluk gri.
+    return FILTER_BTN_CIVIL_ACTIVE_STYLE if visible else FILTER_BTN_INACTIVE_STYLE
+
+
+@app_dash.callback(
+    Output("filter-military-btn", "style"),
+    Input("show-military", "data"),
+)
+def style_military_filter_btn(visible):
+    return FILTER_BTN_MILITARY_ACTIVE_STYLE if visible else FILTER_BTN_INACTIVE_STYLE
+
+
+@app_dash.callback(
+    Output("flight-path-layer", "children"),
+    [Input("tick", "n_intervals"), Input("aircraft-select", "data"),
+     Input("trace-hours-setting", "data")]
+)
+def update_flight_path(n, icao24, trace_hours):
+    """Secili ucagin son N saatlik konum gecmisini haritada cizgi olarak
+    cizer (N, ayarlar panelinden degistirilebilir, varsayilan 2 saat).
+    Mevcut /api/history endpoint'ini aynen kullaniyor (lat/lon zaten
     donuyordu), backend'e hic dokunmadan calisir."""
     if not icao24:
         return []
+    hours = trace_hours or DEFAULT_TRACE_HOURS
     try:
         data = requests.get(f"http://localhost:8000/api/history/{icao24}",
-                            params={"hours": 1}, timeout=5).json()
+                            params={"hours": hours}, timeout=5).json()
     except Exception:
         data = []
     if not data or isinstance(data, dict):
@@ -549,13 +1247,14 @@ def update_flight_path(n, icao24):
 
 @app_dash.callback(
     Output("route-info", "children"),
-    Input("aircraft-select", "data"),
+    [Input("aircraft-select", "data"), Input("language-setting", "data")],
 )
-def update_route_info(icao24):
-    """Kalkis/varis bilgisi. SADECE secim degistiginde calisir (tick'e
-    bagli degil) -- rota veritabani nadiren degistigi icin her 15 saniyede
-    tekrar sorgulamaya gerek yok, hem dis API'yi hem Redis'i gereksiz
-    yormayalim."""
+def update_route_info(icao24, lang):
+    """Kalkis/varis bilgisi. SADECE secim veya dil degistiginde calisir
+    (tick'e bagli degil) -- rota veritabani nadiren degistigi icin her
+    15 saniyede tekrar sorgulamaya gerek yok, hem dis API'yi hem Redis'i
+    gereksiz yormayalim."""
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
     if not icao24:
         return None
 
@@ -567,7 +1266,7 @@ def update_route_info(icao24):
     callsign = (match.get("callsign") or "").strip() if match else ""
 
     if not callsign:
-        return html.Div("Çağrı kodu yok, rota sorgulanamıyor.",
+        return html.Div(t["no_callsign"],
                         style={"color": "#666", "fontSize": "12px"})
 
     try:
@@ -577,8 +1276,7 @@ def update_route_info(icao24):
         route = {"found": False}
 
     if not route.get("found"):
-        return html.Div(f"'{callsign}' için rota bilgisi bulunamadı "
-                        f"(adsbdb.com veritabanında yok).",
+        return html.Div(t["route_not_found"].format(callsign=callsign),
                         style={"color": "#666", "fontSize": "12px"})
 
     origin = f"{route.get('origin_city','?')} ({route.get('origin_iata','—')})"
@@ -601,12 +1299,13 @@ def update_route_info(icao24):
 
 @app_dash.callback(
     Output("aircraft-info", "children"),
-    Input("aircraft-select", "data"),
+    [Input("aircraft-select", "data"), Input("language-setting", "data")],
 )
-def update_aircraft_info(icao24):
-    """Ucak tipi/uretici/tescil/sahip bilgisi. SADECE secim degistiginde
-    calisir -- icao24 hex sabit oldugu icin ekstra flights sorgusuna
-    gerek yok, dogrudan yeni endpoint'e sorulur."""
+def update_aircraft_info(icao24, lang):
+    """Ucak tipi/uretici/tescil/sahip bilgisi. SADECE secim veya dil
+    degistiginde calisir -- icao24 hex sabit oldugu icin ekstra flights
+    sorgusuna gerek yok, dogrudan yeni endpoint'e sorulur."""
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
     if not icao24:
         return None
 
@@ -617,14 +1316,14 @@ def update_aircraft_info(icao24):
         info = {"found": False}
 
     if not info.get("found"):
-        return html.Div("Uçak tipi/tescil bilgisi bulunamadı.",
+        return html.Div(t["aircraft_info_not_found"],
                         style={"color": "#666", "fontSize": "12px"})
 
     rows = []
     if info.get("manufacturer") or info.get("type"):
         rows.append(f"{info.get('manufacturer','')} {info.get('type','')}".strip())
     if info.get("registration"):
-        rows.append(f"Tescil: {info['registration']}")
+        rows.append(f"{t['registration']}: {info['registration']}")
     if info.get("owner"):
         owner_line = info["owner"]
         if info.get("owner_country"):
@@ -638,7 +1337,7 @@ def update_aircraft_info(icao24):
                                   "marginBottom": "3px",
                                   "fontWeight": "500" if i == 0 else "400"})
             for i, row in enumerate(rows)
-        ] if rows else [html.Div("Detay yok", style={"color": "#666"})])
+        ] if rows else [html.Div(t["no_details"], style={"color": "#666"})])
     ]
 
     if info.get("photo_thumb"):
@@ -651,11 +1350,17 @@ def update_aircraft_info(icao24):
 
 @app_dash.callback(
     Output("live-aircraft-panel", "children"),
-    [Input("tick", "n_intervals"), Input("aircraft-select", "data")]
+    [Input("tick", "n_intervals"), Input("aircraft-select", "data"),
+     Input("timezone-setting", "data"), Input("language-setting", "data")]
 )
-def update_live_panel(n, icao24):
+def update_live_panel(n, icao24, tz_name, lang):
+    tz = _resolve_tz(tz_name)
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
+    cat_labels = CATEGORY_LABELS.get(lang, CATEGORY_LABELS[DEFAULT_LANGUAGE])
+    emg_labels = EMERGENCY_LABELS.get(lang, EMERGENCY_LABELS[DEFAULT_LANGUAGE])
+
     if not icao24:
-        return html.Div("Haritada bir uçağa tıklayın.",
+        return html.Div(t["click_aircraft"],
                         style={"color": "#666", "fontSize": "13px"})
 
     try:
@@ -665,40 +1370,40 @@ def update_live_panel(n, icao24):
 
     match = next((f for f in flights if f.get("icao24") == icao24), None)
     if not match:
-        return html.Div(f"{icao24} şu anda sinyal göndermiyor "
-                        f"(kapsama alanından çıkmış olabilir).",
+        return html.Div(t["no_signal"].format(icao=icao24),
                         style={"color": "#e63946", "fontSize": "13px"})
 
     ts_raw = match.get("ts", "")
     if ts_raw:
         try:
             ts_dt = datetime.fromisoformat(ts_raw.replace("Z", "+00:00"))
-            ts_display = ts_dt.astimezone(TR_TZ).strftime("%H:%M:%S")
+            ts_display = ts_dt.astimezone(tz).strftime("%H:%M:%S")
         except Exception:
             ts_display = ts_raw[:19].replace("T", " ")
     else:
         ts_display = "—"
 
     raw_category = match.get("category", "") or ""
-    category_label = CATEGORY_LABELS.get(raw_category, raw_category or "—")
+    category_label = cat_labels.get(raw_category, raw_category or "—")
 
     squawk = match.get("squawk", "") or "—"
     emergency_code = match.get("emergency", "none")
-    emergency_label = EMERGENCY_LABELS.get(emergency_code)
+    emergency_label = emg_labels.get(emergency_code)
 
     fields = [
-        ("ICAO24", match.get("icao24", "").upper()),
-        ("Çağrı Kodu", match.get("callsign", "").strip() or "—"),
-        ("Enlem", f"{match.get('lat', 0):.4f}°"),
-        ("Boylam", f"{match.get('lon', 0):.4f}°"),
-        ("İrtifa", f"{match.get('alt', 0):.0f} m"),
-        ("Hız", f"{match.get('velocity'):.0f} m/s" if match.get('velocity') is not None else "—"),
-        ("Yön", f"{match.get('track'):.0f}°" if match.get('track') is not None else "—"),
-        ("Dikey Hız", f"{match.get('vertical_rate'):+.1f} m/s"
+        (t["field_icao"], match.get("icao24", "").upper()),
+        (t["field_callsign"], match.get("callsign", "").strip() or "—"),
+        (t["field_lat"], f"{match.get('lat', 0):.4f}°"),
+        (t["field_lon"], f"{match.get('lon', 0):.4f}°"),
+        (t["field_alt"], f"{match.get('alt', 0):.0f} m"),
+        (t["field_speed"], f"{match.get('velocity'):.0f} m/s" if match.get('velocity') is not None else "—"),
+        (t["field_track"], f"{match.get('track'):.0f}°" if match.get('track') is not None else "—"),
+        (t["field_vspeed"], f"{match.get('vertical_rate'):+.1f} m/s"
                       if match.get('vertical_rate') is not None else "—"),
-        ("Kategori", category_label),
-        ("Squawk", squawk),
-        ("Son Güncelleme", ts_display),
+        (t["field_category"], category_label),
+        (t["field_squawk"], squawk),
+        (t["field_military"], t["military_yes"] if match.get("is_military") else t["military_no"]),
+        (t["field_last_update"], ts_display),
     ]
 
     grid = html.Div(style={
@@ -719,7 +1424,7 @@ def update_live_panel(n, icao24):
     # Acil durum varsa (squawk 7500/7600/7700 veya emergency alani "none"
     # degilse) belirgin kirmizi bir uyari banner'i gosteriyoruz.
     if emergency_label or squawk in ("7500", "7600", "7700"):
-        warning_text = emergency_label or f"ACİL DURUM SQUAWK: {squawk}"
+        warning_text = emergency_label or t["emergency_squawk"].format(squawk=squawk)
         children.insert(0, html.Div(f"⚠ {warning_text}", style={
             "background": "#e63946", "color": "#fff", "padding": "8px 10px",
             "borderRadius": "6px", "marginBottom": "8px",
@@ -731,11 +1436,15 @@ def update_live_panel(n, icao24):
 
 @app_dash.callback(
     Output("history-chart", "figure"),
-    [Input("tick", "n_intervals"), Input("aircraft-select", "data")]
+    [Input("tick", "n_intervals"), Input("aircraft-select", "data"),
+     Input("timezone-setting", "data"), Input("language-setting", "data")]
 )
-def update_history(n, icao24):
-    HOURS_DEFAULT = 24  # sabit -- kaydirici kaldirildi, sonra geri eklenebilir
+def update_history(n, icao24, tz_name, lang):
+    HOURS_DEFAULT = 24  # sabit -- bu grafik "rota izi" ayarindan bagimsiz,
+                        # her zaman son 24 saati gosterir
 
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
+    tz = _resolve_tz(tz_name)
     fig = go.Figure()
     fig.update_layout(paper_bgcolor="#0f0f19", plot_bgcolor="#0f0f19",
                       font=dict(color="#c8d0e0", size=10),
@@ -751,21 +1460,21 @@ def update_history(n, icao24):
         data = []
 
     if not data or isinstance(data, dict):
-        fig.add_annotation(text="Veri bulunamadı", showarrow=False,
+        fig.add_annotation(text=t["no_data"], showarrow=False,
                            font=dict(color="#666"))
         return fig
 
     df = pd.DataFrame(data)
-    df["_time"] = pd.to_datetime(df["_time"]).dt.tz_convert(TR_TZ)
+    df["_time"] = pd.to_datetime(df["_time"]).dt.tz_convert(tz)
 
-    fig.add_trace(go.Scatter(x=df["_time"], y=df["alt"], name="İrtifa (m)",
+    fig.add_trace(go.Scatter(x=df["_time"], y=df["alt"], name=t["history_alt_label"],
                              line=dict(color="#00b4d8", width=1.5), yaxis="y1"))
-    fig.add_trace(go.Scatter(x=df["_time"], y=df["velocity"], name="Hız (m/s)",
+    fig.add_trace(go.Scatter(x=df["_time"], y=df["velocity"], name=t["history_speed_label"],
                              line=dict(color="#f77f00", width=1.5), yaxis="y2"))
 
     fig.update_layout(
-        yaxis=dict(title="İrtifa (m)", side="left"),
-        yaxis2=dict(title="Hız (m/s)", side="right", overlaying="y"),
+        yaxis=dict(title=t["history_alt_label"], side="left"),
+        yaxis2=dict(title=t["history_speed_label"], side="right", overlaying="y"),
         legend=dict(orientation="h", font=dict(size=9), y=1.15),
     )
     return fig

@@ -63,6 +63,17 @@ def parse_aircraft(ac: dict):
     raw_track = ac.get("track")
     track = float(raw_track) if raw_track is not None else None
 
+    # ASKERI/SIVIL AYRIMI: adsb.lol, ADSBExchange/readsb ile ayni "dbFlags"
+    # bit alanini kullaniyor -- 1. bit (dbFlags & 1) askeri ucak demek
+    # (topluluk tarafindan tutulan bir veritabanina dayanir, orn. bilinen
+    # askeri ICAO hex araliklari/kayitlari). Alan gelmezse (KeyError/None/
+    # beklenmeyen tip) guvenli varsayilan olarak False -- "bilinmiyor"u
+    # "askeri" gibi gostermek istemiyoruz, sivil sayilir.
+    try:
+        is_military = bool(int(ac.get("dbFlags", 0) or 0) & 1)
+    except (TypeError, ValueError):
+        is_military = False
+
     return {
         "icao24": icao,
         "callsign": (ac.get("flight") or "").strip(),
@@ -75,6 +86,7 @@ def parse_aircraft(ac: dict):
         "category": ac.get("category", ""),
         "squawk": ac.get("squawk", ""),
         "emergency": ac.get("emergency", "none"),
+        "is_military": is_military,
         "source": "adsblol",
         "ts": datetime.now(timezone.utc).isoformat(),
     }

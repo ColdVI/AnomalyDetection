@@ -29,6 +29,7 @@ bağımsız, kendi hızında okursun. Aynı mesajı ikimiz de görürüz, biri d
   "track": 271.3,
   "vertical_rate": 0.0,
   "category": "A3",
+  "is_military": false,
   "source": "adsblol",
   "ts": "2026-07-01T12:34:56.789012+00:00"
 }
@@ -44,6 +45,7 @@ bağımsız, kendi hızında okursun. Aynı mesajı ikimiz de görürüz, biri d
 | `track` | float | Derece, 0-360 (kuzeyden saat yönünde) |
 | `vertical_rate` | float | m/s, pozitif=tırmanış |
 | `category` | string | Emitter kategorisi (A0-D7, ADS-B standardı) |
+| `is_military` | bool | adsb.lol'ün `dbFlags` bit alanının 1. biti (`dbFlags & 1`) — topluluk veritabanına dayanır, %100 kapsama garantisi yok, alan gelmezse `false` |
 | `source` | string | Sabit `"adsblol"` |
 | `ts` | string | ISO 8601, UTC |
 
