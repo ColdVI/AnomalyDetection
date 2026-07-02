@@ -18,13 +18,20 @@ if that source has no such field (filled with NaN/None rather than guessed).
 
 from __future__ import annotations
 
+import io
 import logging
 import os
 from pathlib import Path
 
 import pandas as pd
 
-from src.common.minio_io import ObjectStoreClient, get_minio_client, read_layer, write_gold
+from src.common.minio_io import (
+    ObjectStoreClient,
+    get_minio_client,
+    list_layer_objects,
+    read_parquet_object,
+    write_gold,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -44,8 +51,9 @@ GOLD_COLUMNS = [
 ]
 
 # docs/PIPELINE_PLAN (1).md, "Gold ortak sema (7 temel kolon + metadata)" tablosu.
+# Keys must match the MinIO Silver prefix (= first arg of write_silver() call in each parser).
 COLUMN_MAPS: dict[str, dict[str, str | None]] = {
-    "adsblol_hist": {
+    "adsblol_historical": {
         "timestamp_utc": "timestamp_utc",
         "lat": "lat",
         "lon": "lon",
@@ -57,7 +65,7 @@ COLUMN_MAPS: dict[str, dict[str, str | None]] = {
         "source_id": "source_id",
         "label": None,  # adsb.lol'da etiket yok -- her zaman null.
     },
-    "adsblol_rt": {
+    "adsblol_realtime": {
         "timestamp_utc": "timestamp_utc",
         "lat": "lat",
         "lon": "lon",
@@ -116,13 +124,58 @@ def _apply_column_map(df: pd.DataFrame, mapping: dict[str, str | None]) -> pd.Da
     return out
 
 
+def stream_unify(
+    client: ObjectStoreClient,
+    *,
+    silver_bucket: str | None = None,
+    source_types: tuple[str, ...] = tuple(COLUMN_MAPS),
+    gold_bucket: str | None = None,
+) -> int:
+    """Stream each Silver Parquet file through the 7+3 column map and write one Gold
+    Parquet per input file. Returns the total number of rows written.
+
+    Uses file-by-file streaming so large datasets (>64M rows) don't exhaust RAM.
+    """
+    s_bucket = silver_bucket or os.getenv("MINIO_SILVER_BUCKET", "silver")
+    total_rows = 0
+    total_parts = 0
+
+    for source_type in source_types:
+        mapping = COLUMN_MAPS.get(source_type)
+        if mapping is None:
+            raise ValueError(f"No Gold column mapping registered for source_type={source_type!r}")
+
+        object_names = list_layer_objects(client, s_bucket, source_type)
+        if not object_names:
+            logger.warning("No Silver data for source_type=%s -- skipping", source_type)
+            continue
+
+        logger.info("Gold: streaming %d Silver part(s) for source_type=%s", len(object_names), source_type)
+        for obj_name in object_names:
+            df = read_parquet_object(client, s_bucket, obj_name)
+            aligned = _apply_column_map(df, mapping)
+            write_gold(aligned, GOLD_NAME, client=client, bucket=gold_bucket)
+            total_rows += len(aligned)
+            total_parts += 1
+
+        logger.info("Gold: source_type=%s done -- %d parts written so far", source_type, total_parts)
+
+    logger.info("Gold %s complete: %d total rows in %d parts", GOLD_NAME, total_rows, total_parts)
+    return total_rows
+
+
 def unify(
     client: ObjectStoreClient,
     *,
     silver_bucket: str | None = None,
     source_types: tuple[str, ...] = tuple(COLUMN_MAPS),
 ) -> pd.DataFrame:
-    """Read each source's Silver table and align it to the 7+3 Gold schema, then UNION."""
+    """Read each source's Silver table and align it to the 7+3 Gold schema, then UNION.
+
+    WARNING: loads all Silver into RAM. For large datasets use stream_unify() instead.
+    """
+    from src.common.minio_io import read_layer
+
     bucket = silver_bucket or os.getenv("MINIO_SILVER_BUCKET", "silver")
 
     frames = []
@@ -156,27 +209,32 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(description="Silver -> Gold (7+3 common-column unify)")
-    parser.add_argument("--local-out", default=None, help="Optional local Parquet path")
-    parser.add_argument("--local-out-csv", default=None, help="Optional local CSV path")
+    parser.add_argument("--local-out", default=None, help="Optional local Parquet path (small datasets only)")
+    parser.add_argument("--local-out-csv", default=None, help="Optional local CSV path (small datasets only)")
     args = parser.parse_args()
 
     client = get_minio_client()
-    gold = unify(client)
-    if gold.empty:
-        logger.error("Nothing to write: Gold is empty (did any Silver step run?)")
-        return
 
-    uri = write_gold(gold, GOLD_NAME, client=client)
-    logger.info("Wrote Gold -> %s", uri)
-
-    if args.local_out:
-        Path(args.local_out).parent.mkdir(parents=True, exist_ok=True)
-        gold.to_parquet(args.local_out, index=False)
-        logger.info("Local copy written: %s", args.local_out)
-    if args.local_out_csv:
-        Path(args.local_out_csv).parent.mkdir(parents=True, exist_ok=True)
-        gold.to_csv(args.local_out_csv, index=False)
-        logger.info("Local CSV copy written: %s", args.local_out_csv)
+    if args.local_out or args.local_out_csv:
+        # In-memory path: only for small datasets.
+        gold = unify(client)
+        if gold.empty:
+            logger.error("Nothing to write: Gold is empty (did any Silver step run?)")
+            return
+        uri = write_gold(gold, GOLD_NAME, client=client)
+        logger.info("Wrote Gold -> %s", uri)
+        if args.local_out:
+            Path(args.local_out).parent.mkdir(parents=True, exist_ok=True)
+            gold.to_parquet(args.local_out, index=False)
+            logger.info("Local copy written: %s", args.local_out)
+        if args.local_out_csv:
+            Path(args.local_out_csv).parent.mkdir(parents=True, exist_ok=True)
+            gold.to_csv(args.local_out_csv, index=False)
+            logger.info("Local CSV copy written: %s", args.local_out_csv)
+    else:
+        total = stream_unify(client)
+        if total == 0:
+            logger.error("Nothing written: Gold is empty (did any Silver step run?)")
 
 
 if __name__ == "__main__":

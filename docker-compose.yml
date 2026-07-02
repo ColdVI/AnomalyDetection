@@ -21,16 +21,32 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  influxdb:
+    image: influxdb:2.7
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: admin12345
+      DOCKER_INFLUXDB_INIT_ORG: iha-org
+      DOCKER_INFLUXDB_INIT_BUCKET: adsb-history
+      DOCKER_INFLUXDB_INIT_RETENTION: 168h
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: iha-influx-token-docker
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+
   minio:
-    # NOTE: pinned to `latest` because I can't verify a specific tag exists
-    # without network access to Docker Hub from this sandbox. Before relying
-    # on this long-term, pin to an actual release you've pulled successfully,
-    # e.g. `minio/minio:RELEASE.<date>` from https://hub.docker.com/r/minio/minio/tags.
     image: minio/minio:latest
     command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"   # S3 API -- this is what MINIO_ENDPOINT points at
-      - "9001:9001"   # Web console (http://localhost:9001)
+      - "9000:9000"
+      - "9001:9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
@@ -44,3 +60,4 @@ services:
 
 volumes:
   minio_data:
+  influxdb_data:
