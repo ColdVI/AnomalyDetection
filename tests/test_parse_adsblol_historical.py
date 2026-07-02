@@ -60,7 +60,7 @@ def test_parse_trace_bytes_source_fields():
     raw = gzip.compress(json.dumps(SAMPLE_AIRCRAFT).encode())
     df = parse_trace_bytes(raw)
 
-    assert (df["source_type"] == "adsblol_hist").all()
+    assert (df["source_type"] == "adsblol_historical").all()
     assert (df["source_id"] == "abc123").all()
     assert (df["registration"] == "TC-ABC").all()
     assert (df["label"].isna()).all()
@@ -87,7 +87,7 @@ def test_parse_tar_fileobj_writes_silver(fake_minio_client: FakeMinioClient):
     stored = list(fake_minio_client.buckets["silver"].values())[0]
     df = pd.read_parquet(io.BytesIO(stored))
     assert "_source_type" in df.columns
-    assert (df["_source_type"] == "adsblol_hist").all()
+    assert (df["_source_type"] == "adsblol_historical").all()
     assert (df["_source_file"] == "test.tar").all()
 
 

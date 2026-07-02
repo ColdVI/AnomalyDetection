@@ -53,7 +53,7 @@ GROUND_AC = {
 def test_parse_ac_record_unit_conversions():
     rec = _parse_ac_record(SAMPLE_AC, batch_ts=1_700_000_000.0)
 
-    assert rec["source_type"] == "adsblol_rt"
+    assert rec["source_type"] == "adsblol_realtime"
     assert rec["source_id"] == "4b1234"
     assert rec["on_ground"] is False
     assert rec["alt"] == pytest.approx(35000 * 0.3048, abs=0.2)
@@ -87,7 +87,7 @@ def test_parse_jsonl_bytes():
 
     assert len(df) == 2
     assert set(df["source_id"]) == {"4b1234", "4bffff"}
-    assert (df["source_type"] == "adsblol_rt").all()
+    assert (df["source_type"] == "adsblol_realtime").all()
 
 
 def test_run_writes_silver(fake_minio_client: FakeMinioClient):
@@ -108,4 +108,4 @@ def test_run_writes_silver(fake_minio_client: FakeMinioClient):
     df = pd.read_parquet(io.BytesIO(stored))
     assert len(df) == 2
     assert "_source_type" in df.columns
-    assert (df["_source_type"] == "adsblol_rt").all()
+    assert (df["_source_type"] == "adsblol_realtime").all()
