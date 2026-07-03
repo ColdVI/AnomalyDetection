@@ -84,3 +84,79 @@ def test_scaler_fit_on_train_only_and_constant_column_safe():
     scaled = apply_scaler_params(test, params)
     assert scaled["a"].iloc[0] == 0.0  # medyan merkezli
     assert scaled["a"].notna().all()  # NaN train medyaniyla impute edildi
+
+
+def _session_flights_df():
+    rows = []
+    # 4 temiz-normal oturum (2'ser ucus), 1 karisik oturum (1 normal + 1 anomalili)
+    for d in ["2018-01-01", "2018-01-02", "2018-01-03", "2018-01-04"]:
+        for h in ["10_00_00", "11_00_00"]:
+            rows += [{"source_id": f"{d}/{h}", "label": "normal"}] * 3
+    rows += [{"source_id": "2018-02-01/09_00_00", "label": "normal"}] * 3
+    rows += [{"source_id": "2018-02-01/09_30_00", "label": "altitude_anomaly"}] * 3
+    return pd.DataFrame(rows)
+
+
+def test_session_split_keeps_sessions_together_and_quarantines_tainted():
+    from src.ml.data.splits import make_group_split, flight_label_table, session_of
+
+    flights = flight_label_table(_session_flights_df())
+    split = make_group_split(flights, seed=0, n_val=2, n_test_normal=2, by_session=True)
+    assert_no_flight_overlap(split)
+    # ayni oturumun ucuslari ayni tarafta olmali
+    side = {}
+    for part in ["train", "val", "test"]:
+        for f in split[part]:
+            s = session_of(f)
+            assert side.get(s, part) == part, f"oturum {s} iki tarafa dustu"
+            side[s] = part
+    # anomalili oturumun normali train/val'de OLMAMALI
+    assert "2018-02-01/09_00_00" not in split["train"]
+    assert "2018-02-01/09_00_00" not in split["val"]
+    assert "2018-02-01/09_00_00" in split["test_normal"]
+
+
+def test_session_split_deterministic_and_train_normal_only():
+    from src.ml.data.splits import make_group_split, flight_label_table
+
+    flights = flight_label_table(_session_flights_df())
+    a = make_group_split(flights, seed=1, by_session=True)
+    b = make_group_split(flights, seed=1, by_session=True)
+    assert a == b
+    labels = flights.set_index("source_id")["flight_label"]
+    assert all(labels[f] == "normal" for f in a["train"])
+
+
+def test_session_lofo_never_keeps_sibling_flight_in_train():
+    from src.ml.data.splits import flight_label_table, make_lofo_splits, session_of
+
+    flights = flight_label_table(_session_flights_df())
+    folds = make_lofo_splits(flights, by_session=True)
+    assert folds
+    for fold in folds:
+        held = fold["held_out_session"]
+        assert all(session_of(f) == held for f in fold["val"])
+        assert all(session_of(f) != held for f in fold["train"])
+
+
+def test_blind_anomaly_holdout_is_fixed_across_seeds_and_session_disjoint():
+    from src.ml.data.splits import flight_label_table, make_group_split, session_of
+
+    rows = []
+    for i in range(8):
+        rows += [{"source_id": f"normal-{i}/flight", "label": "normal"}] * 2
+    for i in range(6):
+        # Her anomaly oturumunda bir normal kardes de var; final secilirse ikisi
+        # birlikte blind holdout'a gitmeli.
+        rows += [{"source_id": f"anom-{i}/normal", "label": "normal"}] * 2
+        rows += [{"source_id": f"anom-{i}/fault", "label": "altitude_anomaly"}] * 2
+    flights = flight_label_table(pd.DataFrame(rows))
+    a = make_group_split(flights, seed=0, by_session=True,
+                         final_holdout_fraction=0.34)
+    b = make_group_split(flights, seed=4, by_session=True,
+                         final_holdout_fraction=0.34)
+    assert a["final_holdout_anomalous"] == b["final_holdout_anomalous"]
+    assert a["final_holdout_anomalous"]
+    final_sessions = {session_of(f) for f in a["final_holdout"]}
+    assert not final_sessions & {session_of(f) for f in a["train"] + a["val"] + a["test"]}
+    assert_no_flight_overlap(a)

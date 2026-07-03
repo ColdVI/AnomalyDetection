@@ -1,7 +1,7 @@
 .env
 .venv/
 venv/
-data/
+/data/
 *.parquet
 *.tar
 *.tar.gz
@@ -12,6 +12,8 @@ data/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.pytest_claude_review/
+.tmp_pdf_reader/
 .ipynb_checkpoints/
 .idea/
 .vscode/
