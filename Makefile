@@ -1,8 +1,9 @@
 .PHONY: up up-storage up-streaming down test minio-init \
 	bronze-upload-adsb-hist bronze-rt-producer bronze-rt-consumer bronze-alfa bronze-attack \
 	bronze-uav-sead \
+	silver-uav-sead-local ml7-candidate \
 	silver-adsb-hist silver-adsb-rt silver-alfa silver-attack silver-uav-sead silver-generic gold \
-	ml-features adsb-watch process-tars
+	ml-features ml6-evaluate ml6-package adsb-watch process-tars
 
 # MinIO only — use for Silver parsing / Gold unify (saves ~2GB RAM vs full stack)
 up-storage:
@@ -60,11 +61,29 @@ bronze-uav-sead:
 silver-uav-sead:
 	python -m src.silver.parse_uav_sead
 
+silver-uav-sead-local:
+	python -m src.silver.parse_uav_sead --local-bronze-dir data/objectstore/bronze/uav_sead
+
 gold:
 	python -m src.gold.unify
 
 ml-features:
 	python -m src.ml.build_features
+
+ml6-evaluate: ml-features
+	python -m scripts.run_ml6_remeasure
+	python -m scripts.run_ml6_ablation
+	python -m scripts.run_ml6_thresholds
+	python -m scripts.run_ml6_events
+	python -m scripts.run_ml6_alarm_policy
+
+ml7-candidate: ml-features
+	python -m scripts.package_ml7_candidate
+	python -m scripts.run_ml6_alarm_policy --model-dir artifacts/models/uav_sead/ml7_candidate_iforest --run-name ml7_alarm_policy
+
+ml6-package:
+	python -m scripts.package_ml6_iforest
+	python -m scripts.package_ml6_lstm
 
 adsb-watch:
 	python -m src.ingestion.adsb_watcher
