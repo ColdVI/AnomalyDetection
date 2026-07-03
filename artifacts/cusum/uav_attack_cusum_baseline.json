@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "fit_policy": "split_00 normal-train only; fixed during inference",
+  "columns": {
+    "gps_speed_residual": {
+      "center": 0.06530353305736014,
+      "sigma": 0.04893631948306057,
+      "k": 0.024468159741530285
+    },
+    "hdop": {
+      "center": 0.0,
+      "sigma": 0.1293584237867265,
+      "k": 0.06467921189336324
+    },
+    "noise_per_ms": {
+      "center": 0.0,
+      "sigma": 16.810860409011266,
+      "k": 8.405430204505633
+    }
+  }
+}

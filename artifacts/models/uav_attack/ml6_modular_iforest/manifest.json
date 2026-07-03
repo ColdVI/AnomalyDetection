@@ -1,0 +1,27 @@
+{
+  "artifact_schema_version": 1,
+  "model_type": "modular_isolation_forest",
+  "created_utc": "2026-07-03T11:59:08.379681+00:00",
+  "source": "uav_attack",
+  "model_version": "ml6_modular_iforest",
+  "feature_version": "causal_cusum_v1",
+  "split_id": "split_00",
+  "train_flights": [
+    "ace-benign-log_0_2033-8-19-16-27-30",
+    "log_12_2020-8-2-14-18-24",
+    "log_6_2020-8-1-21-26-31",
+    "log_8_2020-8-2-14-56-47"
+  ],
+  "validation_flights": [
+    "log_2_2020-8-2-19-54-17"
+  ],
+  "blind_holdout_used": false,
+  "files": {
+    "models/nav_butunlugu.joblib": "eea5e4162aeff4f048a8ce0a3c7903e2fb21bd5de39c3118354b1a995502754c",
+    "models/sinyal_kalitesi.joblib": "7bcca4838d4ae2556cc1f3355d4dfef19be5dadbc14c75c45e820311ee97c38a",
+    "models/veri_kalitesi.joblib": "a223decb9a70133cd7db5e51d36d3c5d597287bc51e06cc67c0fe6329e74a1a1",
+    "calibration.json": "f69b96b582e25ccd6f8f819593f8c1ae673ea68241f5825b3545f8a4c4177114",
+    "scaler.json": "c1464f7235c0435bb561ff25565ca817733e3b7be4e7cd455b5d577f13c6f613",
+    "cusum_baseline.json": "d8f716cb78532b17bdb7b89d6ef35ff663037409143e8aa9026c55b8a0133f77"
+  }
+}

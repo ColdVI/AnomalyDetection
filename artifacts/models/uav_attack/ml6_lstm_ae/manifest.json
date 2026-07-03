@@ -1,0 +1,55 @@
+{
+  "artifact_schema_version": 1,
+  "model_type": "lstm_autoencoder",
+  "created_utc": "2026-07-03T11:35:17.352793+00:00",
+  "source": "uav_attack",
+  "model_version": "ml6_lstm_ae",
+  "feature_version": "causal_features_v1",
+  "split_id": "split_00",
+  "feature_columns": [
+    "gps_step_m",
+    "log_gps_speed",
+    "gps_accel_mps2",
+    "vertical_rate_calc",
+    "gps_speed_residual",
+    "vertical_rate_residual",
+    "course_change_deg",
+    "gps_frozen_count",
+    "jamming_indicator",
+    "noise_per_ms",
+    "hdop",
+    "vdop",
+    "satellites_used",
+    "s_variance_m_s",
+    "eph",
+    "epv",
+    "roll_rate",
+    "pitch_rate",
+    "yaw_rate",
+    "attitude_missing",
+    "num_missing_groups",
+    "attitude_stale_s"
+  ],
+  "window": 50,
+  "stride": 5,
+  "max_gap_s": 2.0,
+  "training": {
+    "best_val_loss": 1563.267578125,
+    "epochs": 6
+  },
+  "train_flights": [
+    "ace-benign-log_0_2033-8-19-16-27-30",
+    "log_12_2020-8-2-14-18-24",
+    "log_6_2020-8-1-21-26-31",
+    "log_8_2020-8-2-14-56-47"
+  ],
+  "validation_flights": [
+    "log_2_2020-8-2-19-54-17"
+  ],
+  "blind_holdout_used": false,
+  "files": {
+    "model.pt": "d1d86d6b27de56dd58e47aab297b81b8d32ad221ba8eac306e1dd295494054e0",
+    "scaler.json": "c1464f7235c0435bb561ff25565ca817733e3b7be4e7cd455b5d577f13c6f613",
+    "calibration.json": "11ee90fc9c01b97c05e25d8beff39cc65e070aeba043db3761b814ed1adc3c45"
+  }
+}
