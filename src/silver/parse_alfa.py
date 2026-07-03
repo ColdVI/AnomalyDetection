@@ -279,6 +279,10 @@ def _find_bronze_zip(client: ObjectStoreClient) -> str | None:
     candidates = [n for n in list_layer_objects(client, "bronze", SOURCE_TYPE) if n.lower().endswith(".zip")]
     if not candidates:
         return None
+    # processed.zip is the parseable archive; ALFA.zip is a wrapper containing sub-zips
+    preferred = [n for n in candidates if Path(n).name.lower() == "processed.zip"]
+    if preferred:
+        return preferred[0]
     if len(candidates) > 1:
         logger.warning("Multiple ALFA zips found under bronze/alfa/, using the first: %s", candidates)
     return candidates[0]

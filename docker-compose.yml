@@ -1,12 +1,18 @@
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
+    profiles: ["streaming"]
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    deploy:
+      resources:
+        limits:
+          memory: 512m
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
+    profiles: ["streaming"]
     depends_on:
       - zookeeper
     ports:
@@ -20,14 +26,24 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    deploy:
+      resources:
+        limits:
+          memory: 1g
 
   redis:
     image: redis:7-alpine
+    profiles: ["streaming"]
     ports:
       - "6379:6379"
+    deploy:
+      resources:
+        limits:
+          memory: 256m
 
   influxdb:
     image: influxdb:2.7
+    profiles: ["streaming"]
     ports:
       - "8086:8086"
     environment:
@@ -40,6 +56,10 @@ services:
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: iha-influx-token-docker
     volumes:
       - influxdb_data:/var/lib/influxdb2
+    deploy:
+      resources:
+        limits:
+          memory: 1g
 
   minio:
     image: minio/minio:latest
@@ -57,6 +77,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 1g
 
 volumes:
   minio_data:

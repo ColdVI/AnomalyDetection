@@ -41,6 +41,7 @@ class FakeMinioClient:
     def __init__(self) -> None:
         self.buckets: dict[str, dict[str, bytes]] = {}
         self.put_calls: list[tuple[str, str, str]] = []  # (bucket, object_name, content_type)
+        self.lifecycle_calls: list[dict] = []  # {bucket, prefix, days}
 
     def bucket_exists(self, bucket_name: str) -> bool:
         return bucket_name in self.buckets
@@ -66,3 +67,9 @@ class FakeMinioClient:
         if prefix:
             names = [n for n in names if n.startswith(prefix)]
         return [_FakeObject(n) for n in sorted(names)]
+
+    def set_bucket_lifecycle(self, bucket_name: str, config) -> None:
+        for rule in config.rules:
+            prefix = rule.rule_filter.prefix if rule.rule_filter else None
+            days = rule.expiration.days if rule.expiration else None
+            self.lifecycle_calls.append({"bucket": bucket_name, "prefix": prefix, "days": days})

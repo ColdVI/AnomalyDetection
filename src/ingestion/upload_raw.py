@@ -51,12 +51,27 @@ def upload_raw_file(
     *,
     client: ObjectStoreClient | None = None,
 ) -> str:
-    """Upload `input_path`'s bytes unchanged to `bronze/<source>/<input_path.name>`."""
+    """Upload `input_path` unchanged to `bronze/<source>/<input_path.name>`.
+
+    Streams the file rather than loading it fully into RAM so large tars (>1 GB)
+    don't exhaust memory.
+    """
+    from src.common.minio_io import ensure_bucket, get_minio_client as _get
+    import os
+
     input_path = Path(input_path)
-    data = input_path.read_bytes()
+    size = input_path.stat().st_size
     object_name = f"{source}/{input_path.name}"
-    uri = write_bronze_bytes(data, object_name, client=client)
-    logger.info("Uploaded %s (%d bytes) -> %s", input_path, len(data), uri)
+    resolved_client = client or _get()
+    bucket = os.getenv("MINIO_BRONZE_BUCKET", "bronze")
+    ensure_bucket(resolved_client, bucket)
+    with input_path.open("rb") as fh:
+        resolved_client.put_object(
+            bucket, object_name, fh, length=size,
+            content_type="application/octet-stream",
+        )
+    uri = f"s3://{bucket}/{object_name}"
+    logger.info("Uploaded %s (%d bytes) -> %s", input_path, size, uri)
     return uri
 
 

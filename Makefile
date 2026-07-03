@@ -1,20 +1,28 @@
-.PHONY: up down test minio-init \
+.PHONY: up up-storage up-streaming down test minio-init \
 	bronze-upload-adsb-hist bronze-rt-producer bronze-rt-consumer bronze-alfa bronze-attack \
 	bronze-uav-sead \
 	silver-adsb-hist silver-adsb-rt silver-alfa silver-attack silver-uav-sead silver-generic gold \
-	ml-features
+	ml-features adsb-watch process-tars
+
+# MinIO only — use for Silver parsing / Gold unify (saves ~2GB RAM vs full stack)
+up-storage:
+	docker compose up -d minio
+
+# All services — use for realtime pipeline (Kafka + Redis + InfluxDB + MinIO)
+up-streaming:
+	docker compose --profile streaming up -d
 
 up:
-	docker compose up -d
+	docker compose --profile streaming up -d
 
 down:
-	docker compose down
+	docker compose --profile streaming down
 
 test:
 	python -m pytest
 
 minio-init:
-	python -c "from src.common.minio_io import get_minio_client, ensure_bucket, DEFAULT_BUCKET; import os; from dotenv import load_dotenv; load_dotenv(); client = get_minio_client(); ensure_bucket(client, os.getenv('MINIO_BRONZE_BUCKET', DEFAULT_BUCKET)); ensure_bucket(client, os.getenv('MINIO_SILVER_BUCKET', 'silver')); ensure_bucket(client, os.getenv('MINIO_GOLD_BUCKET', 'gold')); print('buckets ready')"
+	python -c "from src.common.minio_io import get_minio_client, ensure_bucket, apply_realtime_retention, DEFAULT_BUCKET; import os; from dotenv import load_dotenv; load_dotenv(); client = get_minio_client(); ensure_bucket(client, os.getenv('MINIO_BRONZE_BUCKET', DEFAULT_BUCKET)); ensure_bucket(client, os.getenv('MINIO_SILVER_BUCKET', 'silver')); ensure_bucket(client, os.getenv('MINIO_GOLD_BUCKET', 'gold')); apply_realtime_retention(client); print('buckets ready + realtime retention set')"
 
 bronze-upload-adsb-hist:
 	python -m src.ingestion.upload_raw --source adsblol_historical --input $(INPUT)
@@ -57,3 +65,9 @@ gold:
 
 ml-features:
 	python -m src.ml.build_features
+
+adsb-watch:
+	python -m src.ingestion.adsb_watcher
+
+process-tars:
+	python scripts/process_tars_sequential.py

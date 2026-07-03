@@ -141,3 +141,39 @@ geliyor. `src/silver/parse_alfa.py`/`parse_uav_attack.py`'nin şu anki dar kolon
 IMU, battery, GPS-spoofing groundtruth residual feature'ları gerekirse), bu dosyalardaki
 zaten-doğrulanmış geniş merge_asof mantığı zenginleştirme için hazır referans olarak
 duruyor. Detay: `docs/silver_schema.md` (bu da referans, aktif değil).
+
+## ADR-006: ML katmanında iki ayrı Gold çıktısı — kasıtlı tasarım
+
+- Durum: Kabul edildi
+- Tarih: 2026-07-03
+
+Pipeline'da Gold iki farklı yoldan üretilir ve bu bir hata değil, bilinçli bir karardır:
+
+1. **`src/gold/unify.py`** → MinIO `gold/unified/` prefix'i. 7 ortak kolon + 3 metadata
+   (10 kolon toplam). Her kaynağı aynı daraltılmış şemaya hizalar; görselleştirme,
+   dashboard, "bütün veri bir arada" sorgular için optimum.
+
+2. **`src/ml/build_features.py`** → `data/gold/ml_features/`. Silver'ı doğrudan okur,
+   ham feature'lar üretir (pencere istatistikleri, ölçekleme, vb.); kaynak-özgü kolonlar
+   (ör. `jamming_indicator`, `squawk`, `roll_deg`) burada korunur. Gold'un daraltılmış
+   şemasından daha zengindir.
+
+**Neden iki yol?** `unify.py` ML için çok az kolon tutar; `build_features.py` ise ML
+için çok fazla kaynak-spesifik bilgi taşır ve görselleştirme için kullanışsızdır. Her yol
+kendi sorumluluğunu optimize eder; biri diğerinin yerine geçmez.
+
+## ADR-007: Gerçek zamanlı veri — tek yerine iki ayrı Kafka consumer'ı
+
+- Durum: Kabul edildi
+- Tarih: 2026-07-03
+
+Mimari diyagram tek bir consumer'ın aynı anda Redis + InfluxDB + MinIO'ya yazdığını
+gösteriyordu (3 sink, 1 consumer). Uygulamada **iki ayrı consumer** tercih edildi:
+
+- `src/ingestion/adsblol_consumer.py` — `group.id = dashboard-consumer`; Redis + InfluxDB
+- `Dashboard/minio_archiver.py` — `group.id = minio-archiver`; MinIO Bronze
+
+**Neden?** Separation of Concerns: arşivleyici çöktüğünde dashboard etkilenmiyor;
+arşivleyici bağımsız ölçeklenebilir; her consumer kendi offset'ini yönetiyor.
+Her iki consumer da aynı Kafka topic'i `adsb.flights`'ı bağımsız okuyor — Kafka'nın
+consumer group modeli buna tasarım gereği izin veriyor, veri kaybı yok.

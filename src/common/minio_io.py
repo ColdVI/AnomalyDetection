@@ -251,6 +251,33 @@ def read_parquet_object(client: ObjectStoreClient, bucket: str, object_name: str
         response.release_conn()
 
 
+def apply_realtime_retention(
+    client: ObjectStoreClient,
+    bucket: str | None = None,
+    prefix: str = "adsblol_realtime/_landing/",
+    days: int = 7,
+) -> None:
+    """Set a MinIO ILM lifecycle rule that expires objects after `days` days.
+
+    Only applied to `prefix` -- never to historical, alfa, uav_attack, or
+    uav_sead prefixes, which hold static datasets that must not be auto-deleted.
+    """
+    from minio.lifecycleconfig import Expiration, Filter, LifecycleConfig, Rule
+
+    resolved_bucket = bucket or os.getenv("MINIO_BRONZE_BUCKET", DEFAULT_BUCKET)
+    cfg = LifecycleConfig(
+        [
+            Rule(
+                "Enabled",
+                rule_filter=Filter(prefix=prefix),
+                rule_id="rt-retention",
+                expiration=Expiration(days=days),
+            )
+        ]
+    )
+    client.set_bucket_lifecycle(resolved_bucket, cfg)
+
+
 def read_layer(client: ObjectStoreClient, bucket: str, source_type: str) -> pd.DataFrame:
     """Read and concatenate every `<source_type>/` object in `bucket` into one DataFrame.
 

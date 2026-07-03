@@ -134,6 +134,19 @@ COLUMN_MAPS: dict[str, dict[str, str | None]] = {
         "source_id": "source_id",
         "label": "label",
     },
+    # UAV-SEAD: ayni PX4 uORB semantigi -- uav_attack ile birebir ayni eslesme.
+    "uav_sead": {
+        "timestamp_utc": "timestamp_utc",
+        "lat": "lat",
+        "lon": "lon",
+        "altitude_m": "alt",
+        "velocity_mps": "vel_m_s",
+        "heading_deg": "yaw_deg",
+        "vertical_rate_mps": "vertical_rate_mps",
+        "source_type": "source_type",
+        "source_id": "source_id",
+        "label": "label",
+    },
 }
 
 
