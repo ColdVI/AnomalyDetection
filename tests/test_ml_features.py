@@ -7,6 +7,7 @@ from src.ml.features.temporal import (
     angular_error_deg,
     consecutive_unchanged,
     cusum,
+    fit_cusum_baselines,
     haversine_m,
     rate_per_s,
     rolling_stats,
@@ -59,6 +60,23 @@ def test_cusum_accumulates_persistent_shift_not_noise():
     cs_noise = cusum(noise)
     cs_shift = cusum(shifted)
     assert cs_shift["cusum_pos"].iloc[-1] > 10 * max(cs_noise["cusum_pos"].iloc[-1], 1e-9)
+
+
+def test_cusum_is_prefix_invariant_when_future_anomaly_is_appended():
+    prefix = pd.Series([0.0, 0.1, -0.1, 0.2, 0.1, 0.0, -0.1, 0.15])
+    with_future = pd.concat([prefix, pd.Series([20.0, 25.0, 30.0])], ignore_index=True)
+    kwargs = {"center": 0.0, "k": 0.05}
+    expected = cusum(prefix, **kwargs)
+    actual_prefix = cusum(with_future, **kwargs).iloc[:len(prefix)]
+    pd.testing.assert_frame_equal(expected.reset_index(drop=True), actual_prefix.reset_index(drop=True))
+
+
+def test_cusum_baseline_is_fit_only_from_supplied_train_rows():
+    train = pd.DataFrame({"residual": [-1.0, 0.0, 1.0]})
+    params = fit_cusum_baselines(train, ["residual"])
+    assert params["columns"]["residual"]["center"] == 0.0
+    # Test/anomaly degerleri fonksiyona verilmedigi icin artifact bunlardan etkilenemez.
+    assert params["fit_policy"].startswith("split_00 normal-train")
 
 
 def test_consecutive_unchanged_counts_freeze():

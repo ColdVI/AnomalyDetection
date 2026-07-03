@@ -30,6 +30,7 @@ from src.ml.features.temporal import (
     angular_error_deg,
     consecutive_unchanged,
     cusum,
+    cusum_kwargs,
     ewma_deviation,
     haversine_m,
     rate_per_s,
@@ -47,9 +48,10 @@ WIN_5S = 20
 
 # Kimlik/degerlendirme kolonlari -- modele ASLA verilmez.
 ID_COLUMNS = ["source_id", "label", "t_rel_s"]
+CUSUM_SOURCE_COLUMNS = ["roll_error", "pitch_error", "alt_error", "xtrack_error"]
 
 
-def _flight_features(g: pd.DataFrame) -> pd.DataFrame:
+def _flight_features(g: pd.DataFrame, *, cusum_baselines: dict | None = None) -> pd.DataFrame:
     """Tek bir ucusun (source_id) feature'larini hesaplar. g zaman-siralidir."""
     out = pd.DataFrame(index=g.index)
     t_s = g["ts_ns"].astype(float) / 1e9
@@ -134,7 +136,7 @@ def _flight_features(g: pd.DataFrame) -> pd.DataFrame:
     # --- K3: CUSUM (yavas/isrararli sapma dedektoru) ---
     for col in ["roll_error", "pitch_error", "alt_error", "xtrack_error"]:
         if col in out.columns:
-            cs = cusum(out[col])
+            cs = cusum(out[col], **cusum_kwargs(cusum_baselines, col))
             out[f"{col}_cusum_pos"] = cs["cusum_pos"]
             out[f"{col}_cusum_neg"] = cs["cusum_neg"]
 
@@ -158,11 +160,11 @@ def _flight_features(g: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def build_alfa_features(silver: pd.DataFrame) -> pd.DataFrame:
+def build_alfa_features(silver: pd.DataFrame, *, cusum_baselines: dict | None = None) -> pd.DataFrame:
     """ALFA Silver -> feature tablosu. Ucus basina bagimsiz hesap, sonra UNION."""
     frames = []
     for source_id, g in silver.sort_values("ts_ns").groupby("source_id", sort=False):
-        feats = _flight_features(g.reset_index(drop=True))
+        feats = _flight_features(g.reset_index(drop=True), cusum_baselines=cusum_baselines)
         feats["source_id"] = source_id
         feats["label"] = g["label"].reset_index(drop=True)
         frames.append(feats)

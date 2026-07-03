@@ -32,6 +32,7 @@ import pandas as pd
 from src.ml.features.temporal import (
     consecutive_unchanged,
     cusum,
+    cusum_kwargs,
     haversine_m,
     rate_per_s,
     rolling_stats,
@@ -45,6 +46,11 @@ WIN_1S = 5
 WIN_5S = 25
 
 ID_COLUMNS = ["source_id", "label", "t_rel_s"]
+CUSUM_SOURCE_COLUMNS = [
+    "gps_speed_residual", "hdop", "noise_per_ms",
+    "pos_test_ratio", "vel_test_ratio", "hgt_test_ratio",
+    "alt_baro_residual", "alt_local_residual", "attitude_error_mag",
+]
 
 _GPS_HEALTH_COLS = ["eph", "epv", "raw_gps_eph", "raw_gps_epv", "hdop", "vdop",
                     "satellites_used", "s_variance_m_s", "jamming_indicator", "noise_per_ms"]
@@ -52,7 +58,20 @@ _ATTITUDE_COLS = ["roll_deg", "pitch_deg", "yaw_deg"]
 _BATTERY_COLS = ["voltage_v", "remaining", "current_a"]
 
 
-def _flight_features(g: pd.DataFrame, time_col: str) -> pd.DataFrame:
+def _center_on_first_valid(series: pd.Series) -> pd.Series:
+    """Farkli datum'lardaki iki sensor residual'ini ilk ortak olcume gore merkezle."""
+    finite = series[np.isfinite(series)]
+    if finite.empty:
+        return series.astype(float)
+    return series.astype(float) - float(finite.iloc[0])
+
+
+def _flag_bit_count(series: pd.Series) -> pd.Series:
+    return series.fillna(0).astype(np.int64).map(lambda value: int(value).bit_count())
+
+
+def _flight_features(g: pd.DataFrame, time_col: str, *,
+                     cusum_baselines: dict | None = None) -> pd.DataFrame:
     out = pd.DataFrame(index=g.index)
     t_s = g[time_col].astype(float) / 1e6  # PX4 timestamp: us -> s
     out["t_rel_s"] = t_s - t_s.iloc[0]
@@ -85,6 +104,20 @@ def _flight_features(g: pd.DataFrame, time_col: str) -> pd.DataFrame:
     out["vertical_rate_calc"] = rate_per_s(g["alt"], t_s)
     out["dist_from_start_m"] = dist_start
 
+    # ML-7: ayni fiziksel irtifanin bagimsiz kaynaklari. Mutlak datum'lar
+    # farkli olabilecegi icin ilk ortak olcum sifir kabul edilir; sonraki
+    # ayrisma anomaly sinyalidir ve gelecek ornege bakmaz.
+    if "baro_alt_m" in g.columns:
+        out["baro_alt_m"] = g["baro_alt_m"]
+        out["alt_baro_residual"] = _center_on_first_valid(g["alt"] - g["baro_alt_m"])
+    if "local_alt_m" in g.columns:
+        out["local_alt_m"] = g["local_alt_m"]
+        out["alt_local_residual"] = _center_on_first_valid(g["alt"] - g["local_alt_m"])
+    if "local_vertical_rate_mps" in g.columns:
+        out["local_vertical_rate_mps"] = g["local_vertical_rate_mps"]
+        out["vertical_rate_local_residual"] = (
+            out["vertical_rate_calc"] - g["local_vertical_rate_mps"]).abs()
+
     # Analytical redundancy: konumdan hesaplanan hiz ile receiver'in kendi
     # bildirdigi hiz tutarli mi? Kaba spoofing'de konum sicrar ama vel_m_s sicramaz.
     if "vel_m_s" in g.columns:
@@ -101,6 +134,34 @@ def _flight_features(g: pd.DataFrame, time_col: str) -> pd.DataFrame:
         if c in g.columns:
             out[c] = g[c]
             out[f"{c.replace('_deg','')}_rate"] = rate_per_s(g[c], t_s, angular=(c == "yaw_deg"))
+
+    # Komut-gerceklesen cevap residual'lari mechanical fault icin dogrudan
+    # kontrol teorisi sinyalidir. Setpoint'ler ULog'da rad/rad-s tutulur.
+    attitude_errors = []
+    for axis in ["roll", "pitch", "yaw"]:
+        sp_col, measured = f"{axis}_sp_rad", f"{axis}_deg"
+        if sp_col in g.columns and measured in g.columns:
+            sp_deg = np.degrees(g[sp_col].astype(float))
+            error = pd.Series(wrap_angle_deg(g[measured] - sp_deg), index=g.index)
+            out[f"{axis}_setpoint_error"] = error.abs()
+            attitude_errors.append(out[f"{axis}_setpoint_error"])
+        rate_sp, actual_rate = f"{axis}_rate_sp_rad_s", f"{axis}_rate"
+        if rate_sp in g.columns and actual_rate in out.columns:
+            out[f"{axis}_rate_error"] = (
+                out[actual_rate] - np.degrees(g[rate_sp].astype(float))).abs()
+    if attitude_errors:
+        out["attitude_error_mag"] = np.sqrt(sum(error ** 2 for error in attitude_errors))
+
+    actuator_cols = [c for c in ["actuator_roll_cmd", "actuator_pitch_cmd",
+                                 "actuator_yaw_cmd"] if c in g.columns]
+    if actuator_cols:
+        for col in actuator_cols + (["actuator_thrust_cmd"]
+                                    if "actuator_thrust_cmd" in g.columns else []):
+            out[col] = g[col]
+        out["actuator_effort"] = np.sqrt(
+            sum(g[col].astype(float) ** 2 for col in actuator_cols))
+        if "attitude_error_mag" in out.columns:
+            out["control_strain"] = out["actuator_effort"] * out["attitude_error_mag"]
 
     # --- K2: GPS sagligi + delta'lar ---
     for c in _GPS_HEALTH_COLS:
@@ -136,8 +197,51 @@ def _flight_features(g: pd.DataFrame, time_col: str) -> pd.DataFrame:
             src = g[col]
         else:
             continue
-        cs = cusum(src)
+        cs = cusum(src, **cusum_kwargs(cusum_baselines, col))
         out[f"{col}_cusum_pos"] = cs["cusum_pos"]
+
+    # --- H13: EKF tutarlilik sinyalleri (yalnizca SEAD Silver'inda var) ---
+    # estimator_status test oranlari PX4'un kendi innovation-check'i: 1'in ustu
+    # "olcum, tahminle tutarsiz" demek. Hazir-residual ilkesinin PX4 karsiligi.
+    _EKF_COLS = ["vel_test_ratio", "pos_test_ratio", "hgt_test_ratio", "mag_test_ratio",
+                 "tas_test_ratio", "hagl_test_ratio", "beta_test_ratio",
+                 "ekf_vel_innov_mag", "ekf_pos_innov_mag", "heading_innov"]
+    for c in _EKF_COLS:
+        if c in g.columns:
+            out[c] = g[c]
+    for c in ["pos_test_ratio", "vel_test_ratio", "hgt_test_ratio"]:
+        if c in g.columns:
+            out = pd.concat([out, rolling_stats(g[c], WIN_5S, f"{c}_5s", stats=("max", "mean"))], axis=1)
+            out[f"{c}_cusum_pos"] = cusum(
+                g[c], **cusum_kwargs(cusum_baselines, c))["cusum_pos"]
+
+    # Test ratio, EKF olcumu reddettiginde ters sinyal verebilir. Bitmask
+    # bayraklari reddi/fault'u dogrudan temsil eder; ordinal ham maskeyi modele
+    # vermek yerine active + bit-count semantigi kullanilir.
+    for c in ["innovation_check_flags", "gps_check_fail_flags", "filter_fault_flags",
+              "timeout_flags"]:
+        if c in g.columns:
+            out[f"{c}_active"] = g[c].fillna(0).ne(0).astype(int)
+            out[f"{c}_bit_count"] = _flag_bit_count(g[c])
+    for c in ["pre_flt_fail", "pos_horiz_accuracy", "pos_vert_accuracy",
+              "vibe[0]", "vibe[1]", "vibe[2]"]:
+        if c in g.columns:
+            out[c.replace("[", "_").replace("]", "")] = g[c]
+    for c in ["local_xy_reset_counter", "local_z_reset_counter",
+              "local_vxy_reset_counter", "local_vz_reset_counter"]:
+        if c in g.columns:
+            out[f"{c}_delta"] = g[c].astype(float).diff().clip(lower=0)
+    for c in ["local_xy_valid", "local_z_valid", "local_v_xy_valid", "local_v_z_valid"]:
+        if c in g.columns:
+            out[c] = g[c].astype(float)
+
+    for col in ["alt_baro_residual", "alt_local_residual", "attitude_error_mag"]:
+        if col in out.columns:
+            out = pd.concat([
+                out, rolling_stats(out[col], WIN_5S, f"{col}_5s", stats=("max", "rms"))
+            ], axis=1)
+            out[f"{col}_cusum_pos"] = cusum(
+                out[col], **cusum_kwargs(cusum_baselines, col))["cusum_pos"]
 
     # --- K3/K4: donma + missingness ---
     if has_latlon:
@@ -163,7 +267,9 @@ def _flight_features(g: pd.DataFrame, time_col: str) -> pd.DataFrame:
     speed_src = g["vel_m_s"] if "vel_m_s" in g.columns else out["gps_speed_calc_mps"]
     out["is_moving"] = (speed_src.astype(float).fillna(0) > 1.0).astype(int)
 
-    return out
+    # Cok sayida feature insert'i sonrasi bloklari birlestir; 349 SEAD ucusunun
+    # ikinci gecisinde pandas fragmentation maliyetini buyutmesin.
+    return out.copy()
 
 
 # Missingness feature'lari: ablation Model B'de dusurulecek kolonlar.
@@ -171,11 +277,13 @@ MISSINGNESS_COLUMNS = ["attitude_missing", "battery_missing", "gps_health_missin
                        "num_missing_groups", "attitude_stale_count", "attitude_stale_s"]
 
 
-def build_px4_features(silver: pd.DataFrame, *, time_col: str = "timestamp") -> pd.DataFrame:
+def build_px4_features(silver: pd.DataFrame, *, time_col: str = "timestamp",
+                       cusum_baselines: dict | None = None) -> pd.DataFrame:
     """PX4-tabanli Silver (UAV Attack veya UAV-SEAD) -> feature tablosu."""
     frames = []
     for source_id, g in silver.sort_values(time_col).groupby("source_id", sort=False):
-        feats = _flight_features(g.reset_index(drop=True), time_col)
+        feats = _flight_features(
+            g.reset_index(drop=True), time_col, cusum_baselines=cusum_baselines)
         feats["source_id"] = source_id
         feats["label"] = g["label"].reset_index(drop=True)
         frames.append(feats)
@@ -184,8 +292,10 @@ def build_px4_features(silver: pd.DataFrame, *, time_col: str = "timestamp") -> 
     return out
 
 
-def build_uav_attack_features(silver: pd.DataFrame) -> pd.DataFrame:
-    return build_px4_features(silver, time_col="timestamp")
+def build_uav_attack_features(silver: pd.DataFrame, *,
+                              cusum_baselines: dict | None = None) -> pd.DataFrame:
+    return build_px4_features(
+        silver, time_col="timestamp", cusum_baselines=cusum_baselines)
 
 
 def feature_columns(df: pd.DataFrame, *, include_missingness: bool = True) -> list[str]:

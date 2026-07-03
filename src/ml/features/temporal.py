@@ -17,6 +17,9 @@ Kaynak kararlar (docs/PIPELINE_PLAN + FableChat/LastChat tartismasi):
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -78,27 +81,76 @@ def rolling_stats(series: pd.Series, window_rows: int, prefix: str,
     return out
 
 
-def cusum(series: pd.Series, *, k: float | None = None) -> pd.DataFrame:
+def cusum(series: pd.Series, *, center: float = 0.0, k: float = 0.0) -> pd.DataFrame:
     """Iki yonlu CUSUM: residual'in isrararli pozitif/negatif kaymasini biriktirir.
 
     S+_t = max(0, S+_{t-1} + x_t - k),  S-_t = max(0, S-_{t-1} - x_t - k)
 
-    k (allowance/slack) verilmezse ucus-ici medyan mutlak sapmadan turetilir
-    (0.5 * MAD-tabanli sigma) -- kucuk gurultu birikmez, kalici sapma birikir.
+    ``center`` ve ``k`` yalnizca normal TRAIN verisinden onceden ogrenilmis,
+    ucus boyunca sabit parametrelerdir. Fonksiyon mevcut ucusun gelecekteki
+    orneklerinden istatistik hesaplamaz; bu nedenle prefix-invariant ve canli
+    kullanimla uyumludur.
+
+    Standart kullanim ``fit_cusum_baselines`` ile parametreleri ogrenip burada
+    vermektir. Varsayilan center=0/k=0 da nedenseldir ve yalnizca test/kucuk
+    yardimci kullanimlar icindir.
     NaN'lar 0 katkiyla gecilir (birikimi sifirlamaz, sismirmez).
     """
     x = series.astype(float)
-    if k is None:
-        mad = (x - x.median()).abs().median()
-        sigma = 1.4826 * mad if mad > 0 else (x.std() or 0.0)
-        k = 0.5 * float(sigma if np.isfinite(sigma) else 0.0)
-    vals = x.fillna(0.0).to_numpy()
+    center = float(center) if np.isfinite(center) else 0.0
+    k = max(0.0, float(k) if np.isfinite(k) else 0.0)
+    # Eksik residual sifir katki yapar: baseline'dan sapma yokmus gibi ilerler.
+    vals = (x - center).where(x.notna(), 0.0).to_numpy()
     pos = np.zeros(len(vals))
     neg = np.zeros(len(vals))
     for i in range(1, len(vals)):
         pos[i] = max(0.0, pos[i - 1] + vals[i] - k)
         neg[i] = max(0.0, neg[i - 1] - vals[i] - k)
     return pd.DataFrame({"cusum_pos": pos, "cusum_neg": neg}, index=series.index)
+
+
+def fit_cusum_baselines(train_features: pd.DataFrame,
+                        feature_cols: list[str]) -> dict:
+    """CUSUM center/slack parametrelerini yalnizca normal train'de ogren.
+
+    Merkez medyan, robust sigma ``1.4826 * MAD`` ve slack ``0.5 * sigma``dir.
+    Parametreler ucus bazinda degil train-populasyonu bazinda sabittir; test
+    ucusunun sonundaki bir anomaly gecmisteki CUSUM'u degistiremez.
+    """
+    columns: dict[str, dict[str, float]] = {}
+    for col in feature_cols:
+        if col not in train_features.columns:
+            continue
+        x = train_features[col].astype(float).replace([np.inf, -np.inf], np.nan).dropna()
+        if x.empty:
+            center = sigma = 0.0
+        else:
+            center = float(x.median())
+            mad = float((x - center).abs().median())
+            sigma = 1.4826 * mad
+            if not np.isfinite(sigma) or sigma <= 0.0:
+                std = float(x.std(ddof=0))
+                sigma = std if np.isfinite(std) and std > 0.0 else 0.0
+        columns[col] = {"center": center, "sigma": sigma, "k": 0.5 * sigma}
+    return {
+        "version": 1,
+        "fit_policy": "split_00 normal-train only; fixed during inference",
+        "columns": columns,
+    }
+
+
+def cusum_kwargs(params: dict | None, col: str) -> dict[str, float]:
+    """Kayitli baseline'dan ``cusum`` keyword'lerini guvenli sekilde al."""
+    if not params:
+        return {"center": 0.0, "k": 0.0}
+    p = params.get("columns", {}).get(col, {})
+    return {"center": float(p.get("center", 0.0)), "k": float(p.get("k", 0.0))}
+
+
+def write_cusum_baselines(params: dict, path: str | Path) -> None:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(params, indent=2), encoding="utf-8")
 
 
 def consecutive_unchanged(series: pd.Series) -> pd.Series:
@@ -128,7 +180,9 @@ def spectral_band_energy(series: pd.Series, window_rows: int, *, low_bin: int = 
         win = x[start : i + 1]
         if len(win) < 4:
             continue
-        win = np.where(np.isfinite(win), win, np.nanmean(win) if np.isfinite(np.nanmean(win)) else 0.0)
+        finite = win[np.isfinite(win)]
+        fill = float(finite.mean()) if len(finite) else 0.0
+        win = np.where(np.isfinite(win), win, fill)
         spec = np.abs(np.fft.rfft(win - win.mean())) ** 2
         out[i] = float(spec[low_bin:].sum())
     return pd.Series(out, index=series.index)
