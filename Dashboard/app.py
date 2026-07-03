@@ -141,6 +141,9 @@ TEXTS = {
         "map_style_label": "Harita Türü",
         "map_style_street": "Sokak",
         "map_style_satellite": "Uydu",
+        "region_label": "Bölge",
+        "region_turkey": "Türkiye",
+        "region_world": "Dünya",
     },
     "en": {
         "settings_title": "Settings",
@@ -186,6 +189,9 @@ TEXTS = {
         "map_style_label": "Map Style",
         "map_style_street": "Street",
         "map_style_satellite": "Satellite",
+        "region_label": "Region",
+        "region_turkey": "Turkey",
+        "region_world": "World",
     },
 }
 
@@ -243,14 +249,23 @@ _rpool = redis.ConnectionPool(host="localhost", port=6379, db=0,
 _influx = InfluxDBClient(url=INFLUX_HOST, token=INFLUX_TOKEN, org=INFLUX_ORG)
 _query_api = _influx.query_api()
 
+# Dash ayarlar panelinin "Bolge" (Turkiye/Dunya) secimini yazdigi,
+# adsb_producer.py'nin okudugu kontrol anahtari.
+REGION_KEY = "iha:settings:region"
+
 
 def _get_flights():
     r = redis.Redis(connection_pool=_rpool)
-    out = []
-    for icao in r.smembers("iha:active_flights"):
-        raw = r.get(f"iha:state:{icao}")
-        if raw:
-            out.append(json.loads(raw))
+    icaos = list(r.smembers("iha:active_flights"))
+    if not icaos:
+        return []
+    # ONEMLI: "Dunya" modunda binlerce ucak olabilir -- N adet ayri ayri
+    # r.get() cagirmak (N round-trip) o olcekte ciddi yavasliga yol acardi.
+    # Tek bir MGET ile hepsini bir seferde cekiyoruz (2 round-trip toplam:
+    # SMEMBERS + MGET). TTL'i gecmis/silinmis key'ler icin MGET None doner,
+    # onlari filtreliyoruz.
+    raws = r.mget([f"iha:state:{icao}" for icao in icaos])
+    out = [json.loads(raw) for raw in raws if raw]
     return sorted(out, key=lambda x: x.get("icao24", ""))
 
 
@@ -718,6 +733,17 @@ app_dash.layout = html.Div(id="app-root", style={
             }),
         ]),
         html.Div(style={"marginBottom": "14px"}, children=[
+            html.Label("Bölge", id="region-label",
+                       style={"fontSize": "12px", "color": "#888",
+                              "display": "block", "marginBottom": "6px"}),
+            html.Div(style={"display": "flex", "gap": "6px"}, children=[
+                html.Button("Türkiye", id="region-turkey-btn", n_clicks=0,
+                           style=LANG_BTN_ACTIVE_STYLE),
+                html.Button("Dünya", id="region-world-btn", n_clicks=0,
+                           style=LANG_BTN_INACTIVE_STYLE),
+            ]),
+        ]),
+        html.Div(style={"marginBottom": "14px"}, children=[
             html.Label("Rota izi (saat)", id="trace-hours-label",
                        style={"fontSize": "12px", "color": "#888",
                               "display": "block", "marginBottom": "5px"}),
@@ -790,6 +816,7 @@ app_dash.layout = html.Div(id="app-root", style={
     dcc.Store(id="timezone-setting", data=DEFAULT_TIMEZONE),
     dcc.Store(id="language-setting", data=DEFAULT_LANGUAGE),
     dcc.Store(id="map-style-setting", data=DEFAULT_MAP_STYLE),
+    dcc.Store(id="region-setting", data="turkey"),
 
     # ---------------------------------- Sol kayan panel (varsayilan gizli) --
     html.Div(id="left-panel", style={**LEFT_PANEL_BASE, "transform": "translateX(-100%)"},
@@ -1133,6 +1160,44 @@ def update_map_style_setting(street_clicks, satellite_clicks):
 
 
 @app_dash.callback(
+    Output("region-setting", "data"),
+    [Input("region-turkey-btn", "n_clicks"), Input("region-world-btn", "n_clicks")],
+    prevent_initial_call=True,
+)
+def update_region_setting(turkey_clicks, world_clicks):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+    trigger = ctx.triggered[0]["prop_id"]
+    if trigger == "region-turkey-btn.n_clicks":
+        return "turkey"
+    if trigger == "region-world-btn.n_clicks":
+        return "world"
+    return dash.no_update
+
+
+@app_dash.callback(
+    [Output("region-turkey-btn", "style"), Output("region-world-btn", "style")],
+    Input("region-setting", "data"),
+)
+def update_region_buttons(region):
+    """Buton gorsel durumunu gunceller VE ayni anda Redis'e yazar --
+    adsb_producer.py AYRI, bagimsiz bir process oldugu icin Dash'in kendi
+    state'ine degil, ikisinin ORTAK erisebildigi Redis'e yazmamiz lazim.
+    Producer her poll dongusunde (varsayilan 15sn) bu anahtari okuyup
+    yaricapini ona gore secer (bkz. adsb_producer.py get_region_mode())."""
+    try:
+        r = redis.Redis(connection_pool=_rpool)
+        r.set(REGION_KEY, region if region in ("turkey", "world") else "turkey")
+    except Exception:
+        pass  # Redis gecici erisilemezse sessizce gec -- producer zaten
+              # kendi tarafinda "turkey" varsayilanina duser, kritik degil
+    if region == "world":
+        return LANG_BTN_INACTIVE_STYLE, LANG_BTN_ACTIVE_STYLE
+    return LANG_BTN_ACTIVE_STYLE, LANG_BTN_INACTIVE_STYLE
+
+
+@app_dash.callback(
     [Output("map-style-street-btn", "style"), Output("map-style-satellite-btn", "style")],
     Input("map-style-setting", "data"),
 )
@@ -1164,7 +1229,8 @@ def update_base_tile_layer(style):
      Output("aircraft-info-title", "children"), Output("history-panel-title", "children"),
      Output("filter-civil-btn", "children"), Output("filter-military-btn", "children"),
      Output("map-style-label", "children"), Output("map-style-street-btn", "children"),
-     Output("map-style-satellite-btn", "children")],
+     Output("map-style-satellite-btn", "children"), Output("region-label", "children"),
+     Output("region-turkey-btn", "children"), Output("region-world-btn", "children")],
     Input("language-setting", "data"),
 )
 def update_static_texts(lang):
@@ -1175,7 +1241,8 @@ def update_static_texts(lang):
     return (t["settings_title"], t["trace_hours_label"], t["timezone_label"],
             t["language_label"], t["aircraft_info_title"], t["history_panel_title"],
             t["filter_civil_label"], t["filter_military_label"],
-            t["map_style_label"], t["map_style_street"], t["map_style_satellite"])
+            t["map_style_label"], t["map_style_street"], t["map_style_satellite"],
+            t["region_label"], t["region_turkey"], t["region_world"])
 
 
 @app_dash.callback(

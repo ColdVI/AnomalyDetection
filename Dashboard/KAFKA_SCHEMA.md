@@ -6,6 +6,12 @@ dokunmana gerek yok, ben de senin koduna dokunmam.
 
 Bağlantı: `bootstrap.servers = localhost:9092`
 
+**NOT (hacim değişebilir):** Dashboard'un Ayarlar panelinden "Bölge" Türkiye/Dünya
+arasında değiştirilebiliyor. "Dünya" seçiliyken `adsb_producer.py` çok daha büyük bir
+yarıçapla sorgu yapıyor — bu topic'e düşen mesaj sayısı birkaç yüzden binlere çıkabilir.
+Kendi consumer'ını yazarken bunu hesaba kat (özellikle MinIO arşivleyici ve model
+consumer'ı için) — throughput/batch boyutu varsayımların bu duruma göre değişebilir.
+
 ---
 
 ## 1. `adsb.flights`

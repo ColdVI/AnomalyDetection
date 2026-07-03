@@ -5,6 +5,10 @@ gibi hicbir depoyu bilmez -- o is tuketicilerin (consumer) sorumlulugunda.
 Bu ayrim sayesinde ekip arkadaslari kendi consumer'larini bu script'e
 hic dokunmadan yazabilir.
 
+ISTISNA: Redis'e KUCUK bir kontrol amaciyla bagliyoruz -- Dash ayarlar
+panelindeki "Bolge" (Turkiye/Dunya) secimini okumak icin. Bu, veri
+YAZMIYOR (hala sadece tuketicilerin isi), sadece bir ayari OKUYOR.
+
 Kullanim:
     python adsb_producer.py [--interval 15] [--lat 39] [--lon 35] [--radius 500]
 """
@@ -13,11 +17,43 @@ import json
 import time
 from datetime import datetime, timezone
 
+import redis
 import requests
 from confluent_kafka import Producer
 
 BOOTSTRAP = "localhost:9092"
 TOPIC = "adsb.flights"
+
+# Dash ayarlar panelinin yazdigi, bizim okudugumuz kontrol anahtari.
+REGION_KEY = "iha:settings:region"
+
+# BOLGE: Turkiye modunda --radius (varsayilan 500nm) kullanilir. Dunya
+# modunda AYNI merkez noktadan (--lat/--lon) cok daha buyuk bir yaricap
+# istiyoruz. Herhangi bir noktadan Dunya uzerindeki EN UZAK nokta (tam
+# karsi/antipodal nokta) ~10.800 deniz mili -- bu degeri asan bir yaricap
+# matematiksel olarak "tum dunya" istemis oluyor, merkezi degistirmeye
+# gerek yok.
+#
+# ONEMLI BELIRSIZLIK: adsb.lol'un "dist" parametresi icin resmi/dokumante
+# edilmis bir ust siniri yok (API dokumantasyonu net degil), bu deger de
+# canli test EDILEMEDI. Ilk calistirmada asagidaki "N ucus -> Kafka"
+# satirina bak: binlerce/on binlerce ucus goruyorsan calisiyor demektir.
+# Hala yuzlerle sinirliysa, adsb.lol daha kucuk bir ust sinir uyguluyor
+# demektir -- o zaman farkli bir veri kaynagina (orn. OpenSky Network'un
+# states/all uc noktasi) gecmemiz gerekir.
+WORLD_RADIUS_NM = 12000
+
+
+def get_region_mode(rdb) -> str:
+    """Dash ayarlar panelinden yazilan bolge tercihini okur. Redis'e
+    erisilemezse (henuz baslamadi, gecici kesinti vb.) GUVENLI VARSAYILAN
+    olarak "turkey" doner -- yani bir sorun oldugunda sessizce dunya
+    moduna GECMIYORUZ, bilinen/stabil davranista kaliyoruz."""
+    try:
+        mode = rdb.get(REGION_KEY)
+        return mode if mode in ("turkey", "world") else "turkey"
+    except Exception:
+        return "turkey"
 
 
 def fetch_adsblol(lat: float, lon: float, radius_nm: int):
@@ -106,17 +142,34 @@ def main():
     args = ap.parse_args()
 
     producer = Producer({"bootstrap.servers": BOOTSTRAP})
+    # decode_responses=True + protocol=2 -- projede Redis icin kullanilan
+    # standart baglanti sekli (bkz. dashboard_consumer.py, Redis 5.0.14
+    # portable surumu RESP3/HELLO komutunu bilmiyor).
+    rdb = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True,
+                      protocol=2)
     print(f"Kafka producer hazir (topic={TOPIC})")
     print(f"Polling: merkez=({args.lat},{args.lon}) yaricap={args.radius}nm "
           f"araligi={args.interval}sn")
+    print("Bolge ayari Redis'ten okunuyor -- Dash Ayarlar panelinden "
+          "Turkiye/Dunya arasinda gecis yapilabilir.")
     print("Durdurmak icin Ctrl+C\n")
 
     stats = {"cycles": 0, "total": 0}
+    current_mode = None  # ilk cycle'da mutlaka bir kez log basmak icin
 
     try:
         while True:
             t0 = time.time()
-            raw = fetch_adsblol(args.lat, args.lon, args.radius)
+
+            mode = get_region_mode(rdb)
+            if mode != current_mode:
+                radius_desc = (f"{args.radius}nm (Turkiye)" if mode == "turkey"
+                               else f"{WORLD_RADIUS_NM}nm (Dunya)")
+                print(f"[bolge] '{mode}' moduna geçildi -- yaricap={radius_desc}")
+                current_mode = mode
+            radius = args.radius if mode == "turkey" else WORLD_RADIUS_NM
+
+            raw = fetch_adsblol(args.lat, args.lon, radius)
 
             if raw:
                 n = 0
@@ -136,7 +189,7 @@ def main():
                 stats["total"] += n
                 print(f"[{datetime.now().strftime('%H:%M:%S')}] "
                       f"{n} ucus -> Kafka (cycle={stats['cycles']}, "
-                      f"toplam={stats['total']})")
+                      f"toplam={stats['total']}, bolge={mode})")
             else:
                 print(f"[{datetime.now().strftime('%H:%M:%S')}] veri alinamadi")
 
