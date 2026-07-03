@@ -106,6 +106,153 @@ kısa pencere (2 sn) varyantı denenmeli.
 - **Detection time rekabetçi:** rehberlik modülü AvgDT **3.7 s**, MaxDT **68.1 s** (34/36 uçuşta alarm).
 - Modüler mimari `predicted_category` (baskın modül) ile ücretsiz açıklanabilirlik veriyor.
 
+## ML-2 sonuçları (2026-07-02, `notebooks/03_autoencoder_lstm_ae_egitim.ipynb`)
+
+Uçuş-ROC (5 seed ort.): **ALFA** IF-füzyon 0.833 > LSTM-AE 0.731 > Dense AE 0.622;
+**UAV Attack** LSTM-AE/Dense AE 0.677 > IF-füzyon 0.600.
+
+- **H9 — LSTM-AE ALFA'da IF-füzyonu geçemedi:** ~10 dk normal veriyle sequence modeli beklendiği gibi
+  veri-aç; literatür deseniyle tutarlı (MSAD: iyi feature + basit yöntem çoğu zaman kazanır). Zamansal
+  bağlam yine de Dense AE'ye karşı +0.11 ROC katkı verdi.
+- **Pozitif — UAV tip bazında sıçrama:** LSTM-AE spoofing tespiti **1.00** (IF 0.70), jamming **1.00**,
+  ping_dos **0.53** (IF 0.37 — zamansal bağlam DoS'un kısmi zamanlama imzasını yakalıyor, H3 ile tutarlı).
+- **H10 — max-pencere uçuş skoru yanlış alarm üretiyor:** normal uçuş yanlış alarmı 0.5-0.8 (1-2 normal
+  test uçuşunda 0/1 salınımı). Yüzlerce pencerenin maksimumu alınınca P(en az biri > Q99) doğal olarak
+  yüksek. ML-3: uçuş skoru = eşik-üstü pencere ORANI veya pencere-P99; POT'un q'su pencere sayısına göre
+  Bonferroni benzeri ayarlanmalı.
+- **H11 — pencere-ROC < 0.5 aynı etiket semantiği sorunu:** saldırı uçuşunun TÜM pencereleri anomali
+  sayılıyor (H1'in pencere versiyonu); pencere-düzeyi metrik ancak zaman-aralıklı etiketle (UAV-SEAD
+  `ranges` alanı!) adil olur — SEAD'in aralık etiketleri bunun için kullanılacak.
+- POT ≈ Q99 çıktı (val penceresi bol olduğu için ikisi de kararlı); POT'un asıl değeri az-örnekli
+  uçuş-düzeyi eşiklerde (H2) — ML-3'te uçuş skorlarına uygulanacak.
+
+## ML-3 sonuçları (2026-07-02, `notebooks/04_ablation_enjeksiyon_usad.ipynb`)
+
+**Ablation (IF-füzyon, 5 seed uçuş-ROC):**
+- ALFA: sadece-rehberlik **0.864** > tam füzyon 0.833 > airspeed'siz 0.808 ≫ sadece-kontrol 0.511.
+  → **B1:** kontrol_tepki modülü ALFA'da gürültü katıyor; varsayılan dedektör "rehberlik-yalnız" olmalı.
+  → Airspeed katkısı küçük ama pozitif; artifact bağımlılığı düşük (ablation kaygısı büyük ölçüde temizlendi).
+- UAV: tam 0.600 > sadece-nav 0.554 > missingness'siz 0.423. ping_dos tespiti missingness'ten
+  bağımsız çıktı (0.37 = 0.37) → DoS tespitindeki pay "availability imzası" değil; ama genel ROC'a
+  missingness katkısı büyük → raporda ikisi ayrı cümlelerle verilmeli.
+
+**Sentetik enjeksiyon (temiz split_00 modeliyle, val+test-normal uçuşlara):**
+- ALFA: drift(alt) **0.75 tespit, 0.28 s gecikme** (CUSUM'un var oluş amacı — doğrulandı),
+  noise(roll) 0.75/7.2 s; bias(pitch) 0.25, freeze(roll) 0.25 → **B2:** adım-tipi/donma arızaları
+  mevcut feature setiyle zayıf; frozen-count/varyans-çöküşü feature'ları modüllere alınmalı.
+- UAV: **hiçbir enjeksiyon uçuş-düzeyi alarm veremedi (0.0)** → **H12:** 2 m/s stealthy ramp
+  `gps_speed_residual`i ancak normal-val maksimumu kadar oynatıyor (2 m/s ≈ val sınırı);
+  şiddet taraması (2→20 m/s) yapılmadan "stealthy spoofing yakalanamıyor" da "yakalanıyor" da denemez.
+  Dropout enjeksiyonu SITL normallerindeki doğal %13 attitude eksikliğinin gölgesinde kaldı.
+
+**H10 kararı — hipotez reddedildi:** eşik-üstü-oran skoru max'tan KÖTÜ (ALFA ROC 0.742→0.417).
+İmza az sayıda pencerede yaşadığı için oran-tabanlı skor sinyali seyreltiyor. Uçuş skoru **max kalır**;
+yanlış alarm sorunu eşik tarafında (POT uçuş-düzeyi, LOFO) çözülecek.
+
+**SEAD kalibre transfer — tezin ana doğrulaması:** UAV modeli + SEAD-normalleriyle kalibre eşik:
+uçuş-ROC **0.375 → 0.783**, normal yanlış alarm **1.00 → 0.33**, global_position tespiti **1.00**.
+→ Proje iddiasının deneysel kanıtı: **feature semantiği + model platformlar arası taşınır, eşik platforma aittir.**
+
+**USAD:** ALFA 0.450, UAV 0.531 — LSTM-AE'nin altında. Az-veri rejiminde adversarial eğitim
+kararsız (beklenen). Karar: sequence modeli olarak **LSTM-AE kalır**; USAD ML-4'e taşınmaz.
+
+## ML-4 sonuçları — veri büyütme (2026-07-03, `notebooks/05_veri_buyutme_yeniden_olcum.ipynb`)
+
+Veri: ALFA 47→**54 uçuş / 10→15 normal** (raw rosbag'lerden `parse_alfa_rosbag.py` ile +5 normal,
++2 engine_fault; 8 eksik bag'in envanteri `scripts/inventory_alfa_raw.py`); UAV-SEAD 60→**179 uçuş /
+59 normal** (skip-existing indirme; 1 uçuş HF deposunda 404).
+
+- **H9 ÇÖZÜLDÜ — turun ana kazanımı:** ALFA LSTM-AE uçuş-ROC **0.731 → 0.918 ± 0.104**.
+  Normal veri +%50 artınca sequence modeli IF-füzyonu (0.832) net geçti. "LSTM-AE'nin geri kalması
+  veri azlığındandı" hipotezi deneysel olarak doğrulandı; ALFA'nın varsayılan modeli artık LSTM-AE.
+- **B3 (yeni):** IF-füzyon yeni veriyle iyileşmedi, seed-std'si arttı (0.172→0.283). Neden: rosbag
+  normallerinin 2'si nav_info'suz (rehberlik feature'ları imputed) — val'e düştükleri seed'lerde eşik
+  bozuluyor. Ders: heterojen normal havuzda IF eşiği kırılgan, LSTM-AE dayanıklı.
+- **H11 ölçüldü — SEAD ranges ile ilk adil satır-ROC:** naive 0.563 → adil **0.474**. Yani mevcut
+  (UAV-Attack-tasarımlı) modül feature'ları SEAD'in state-estimation anomalilerini satır düzeyinde
+  YAKALAMIYOR (yazı-tura civarı). Uçuş-düzeyi SEAD kendi-tespiti de ~0 (bölüm 5).
+  → **H13 (yeni):** SEAD anomali aileleri için kaynak-uygun feature seti gerekiyor (EKF innovation,
+  local-position tutarlılığı, baro/GPS irtifa farkı) — SEAD şimdilik yalnızca *eşik kalibrasyonu ve
+  normal-havuz zenginleştirme* işlevi görüyor, kendi anomalilerinin dedektörü değil.
+- **Çapraz-platform havuz:** UAV+SEAD normalleriyle eğitim: SEAD-test ROC 0.617→0.671,
+  tespit@1 0.23→0.37, FA 0.00. (ML-3'ün 0.783'üyle doğrudan kıyas yanlış: test seti 40→120 anomalili
+  uçuşa büyüdü — daha zor ve daha temsili bir sınav.)
+- **POT uçuş-düzeyi:** SEAD kendi-tespiti zaten ~0 olduğundan POT-vs-valmax kıyası bilgi vermedi
+  (her iki eşikte de tespit≈0) — POT değerlendirmesi anlamlı sinyali olan ALFA/UAV'de tekrarlanmalı.
+
+## ML-5 sonuçları — SEAD büyütme + oturum-split + EKF feature'ları (2026-07-03, `notebooks/06_sead_ekf_oturum_split.ipynb`)
+
+Veri: SEAD 179 → **349 uçuş / 199 normal** (doğala yakın dağılım, %57 normal; ExtPos 60).
+Split artık **oturum-bazlı** (`session_of`: tarih klasörü; aynı günün uçuşları tek tarafta,
+anomalili oturumların normalleri train/val'den karantinaya) — train-test oturum kesişimi 0.
+
+- **H13 kısmen ÇÖZÜLDÜ ama beklenmedik yoldan:** adil (ranges) satır-ROC **0.474 → 0.799**
+  — iyileşmeyi sağlayan EKF feature'ları DEĞİL, veri büyütme + oturum-temiz train seti oldu
+  (eski 3 modül yeni veriyle 0.799; +EKF füzyonu 0.781'e düşürüyor).
+- **H14 (yeni) — EKF test-ratio'ları ters sinyal veriyor:** yalnız-EKF modülü satır-ROC **0.354**
+  (0.5 altı). Muhtemel mekanizma: anomali sırasında EKF ölçümü REDDEDİYOR → reddedilen ölçüm
+  innovation üretmiyor → test ratio düşük kalıyor → anomali "temiz" görünüyor. PX4 hazır-residual'ı
+  ancak ölçüm-reddi sayaçlarıyla (innovation_check_flags, reject counters) birlikte anlamlı olur.
+  **Karar:** EKF modülü varsayılan füzyona ALINMADI; kolonlar Silver'da duruyor (ileriki iş).
+- **Oturum-split kararlılığı:** SEAD uçuş-ROC 0.696 ± **0.012** (ML-4'te ±0.212 idi) —
+  seed-varyansının ana kaynağı oturum-içi benzerlik sızıntısıymış; kapandı.
+- Tip bazında tespit@1 (+EKF, split_00): external_position **0.82**, global_position **0.70**,
+  mechanical 0.43, altitude 0.27 → altitude/mechanical için feature işi devam ediyor.
+- **POT ilk kez değer gösterdi:** 199-normalli rejimde POT tespit 0.43 / FA 0.225 vs
+  val-max 0.40 / 0.238, iki metrikte de daha düşük std — uçuş-düzeyi eşikte varsayılan POT olur.
+
+## ML-6 metodoloji düzeltmesi (2026-07-03, `notebooks/07_ml6_causal_degerlendirme.ipynb`)
+
+ML-1..5 denetiminde uçuş-içi CUSUM slack'inin bütün uçuşun MAD'inden hesaplandığı ve gelecekteki
+anomali eklenince geçmiş CUSUM değerlerinin değiştiği doğrulandı. CUSUM artık yalnız `split_00`
+normal-train popülasyonundan öğrenilen sabit center/k ile hesaplanır; parametreler
+`artifacts/cusum/` altında saklanır ve prefix-invariance testiyle korunur.
+
+- **Eski CUSUM iddiası geri çekildi:** `alt_error_cusum_pos` tek-feature uçuş ROC'u causal yeniden
+  ölçümde **0.878 → 0.611** oldu. En güçlü tek ALFA sinyali artık `xtrack_error` (**0.751**).
+  Causal modular IF: ALFA **0.824 ± 0.229**, UAV Attack **0.608 ± 0.220**. LSTM-AE girişlerinde
+  CUSUM bulunmadığından önceki LSTM-AE sonucu bu düzeltmeden doğrudan etkilenmez.
+- **Blind holdout:** SEAD anomaly oturumlarının sabit %30'u ayrıldı; güncel manifestte 40 anomalili
+  + aynı oturumlardan 36 normal uçuş final holdout'tur. Beş development seed'i bu 76 uçuşu görmez.
+  ALFA/UAV Attack kıt anomaly nedeniyle açıkça `development-only` işaretlenir.
+- **Session-aware LOSO:** SEAD LOFO yerine leave-one-session-out kullanır; aynı oturumun kardeş
+  uçuşları validation ve train'e bölünmez.
+- **2x2 ablation (blind holdout hariç):** 179/flight ROC 0.574±0.130; 179/session 0.602±0.044;
+  349/flight 0.674±0.065; 349/session **0.678±0.013**. Veri büyütme seviye performansını,
+  session split özellikle seed kararlılığını artırdı.
+- **POT düzeltmesi:** EKF'siz varsayılan modüllerde POT tespit 0.293 / FA 0.114; val-max tespit
+  0.373 / FA 0.171. POT FA'yı azaltırken tespiti de düşürdüğü için otomatik varsayılan değildir;
+  operasyonel alarm bütçesine göre seçilecektir.
+- **Event/K-of-N ilk ölçümünün nüansı:** 165 development eventi üzerinde raporlanan 1-of-1 overlap
+  recall 0.594 / 279.2 FA-saat; 2-of-3 0.576 / 138.9; 3-of-5 0.570 / 108.7 idi. Sonraki alarm
+  denetiminde bu recall'ın event başlamadan önce açık kalmış alarmı da başarı saydığı görüldü; aşağıdaki
+  ML-7 başlangıcı bu metriği yeni-alarm başlangıcı (onset) olarak düzeltti.
+- **Artifact:** modular IF joblib modelleri ve LSTM-AE checkpoint'leri; feature listeleri, scaler,
+  CUSUM baseline, threshold ve checksum'lu manifestlerle `artifacts/models/<source>/` altında paketlenir.
+
+## ML-7 başlangıcı — operasyonel alarm denetimi ve fiziksel residual v2 (2026-07-03)
+
+Alarm metriği artık yalnız event aralığında üretilen **yeni bildirim başlangıcını** tespit sayar. Eventten
+önce başlamış ve event içine taşmış alarm ayrıca `preexisting_alarm_events` olarak raporlanır. Bu daha
+katı ama canlı kullanım açısından doğru tanımla base modelin 1-of-1 onset recall'ı **0.224** (overlap
+0.594), 2-of-3 **0.200**, 3-of-5 **0.194** oldu; 3-of-5'te 62 event önceden açık alarm nedeniyle eski
+metrikte başarı görünüyordu.
+
+Development üzerinde iki operasyonel bütçe tarandı: kritik bildirim için ≤2 FA/saat ve ≥0.30 recall;
+advisory için ≤12 FA/saat ve ≥0.50 recall. Bunlar şimdilik ürün varsayımıdır. Base modelde en iyi bütçeli
+adaylar sırasıyla **0.030 recall / 1.55 FA-saat** ve **0.164 / 7.16** verdi; ikisi de asgari faydayı
+karşılamadığı için policy artifact açıkça `development_rejected` yazıldı ve final holdout açılmadı.
+
+Ardından ham ULog'lardan global-local-baro irtifa residual'ları, attitude/rate setpoint hataları,
+actuator effort/control strain ve EKF innovation/gps/fault rejection bitmask feature'ları üretildi.
+V2 aday modüller bütçeli kritik recall'ı **0.091**'e, advisory recall'ı **0.182**'ye yükseltti; fakat
+Altitude **0.024**, Global Position **0.070**, Mechanical **0.029** seviyesinde kaldı. Sonuç: eşik ve
+persistence optimizasyonu tek başına yeterli değildir; sıradaki model işi anomaly-onset odaklı
+forecasting/sequence residual (TCN/GRU veya hafif GRU-AE) ve oturum-başı nedensel adaptasyondur.
+
+Kör SEAD holdout ancak bu model development bütçesini karşılayıp feature/model/policy hash'leri
+dondurulduktan sonra **bir kez** açılacaktır.
+
 ## ML-2/ML-3'e devredilen iş listesi
 
 | # | İş | Adres |
