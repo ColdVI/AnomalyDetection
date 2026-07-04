@@ -6,17 +6,18 @@ dokunmana gerek yok, ben de senin koduna dokunmam.
 
 Bağlantı: `bootstrap.servers = localhost:9092`
 
-**NOT (hacim değişebilir):** Dashboard'un Ayarlar panelinden "Bölge" Türkiye/Dünya
-arasında değiştirilebiliyor. "Dünya" seçiliyken `adsb_producer.py` çok daha büyük bir
-yarıçapla sorgu yapıyor — bu topic'e düşen mesaj sayısı birkaç yüzden binlere çıkabilir.
-Kendi consumer'ını yazarken bunu hesaba kat (özellikle MinIO arşivleyici ve model
-consumer'ı için) — throughput/batch boyutu varsayımların bu duruma göre değişebilir.
+**NOT (kalıcı olarak yüksek hacim):** `adsb_producer.py` artık her zaman DÜNYA
+çapında sorgu yapıyor (bölge seçimi kaldırıldı) — bu topic'e düşen mesaj sayısı
+cycle başına birkaç bin ile on binler arasında olabilir (sabit, sürekli). Kendi
+consumer'ını yazarken bunu hesaba kat (özellikle MinIO arşivleyici ve model
+consumer'ı için) — throughput/batch boyutu varsayımların buna göre olmalı.
 
 ---
 
 ## 1. `adsb.flights`
 
-**Kim yazıyor:** `adsb_producer.py` (ben) — adsb.lol'den 15 saniyede bir çekip yazıyor.
+**Kim yazıyor:** `adsb_producer.py` (ben) — adsb.lol'den dünya çapında çekip yazıyor
+(hedef aralık 15sn, ama gerçek cycle süresi veri hacmine göre daha uzun olabilir).
 **Kim okuyabilir:** herkes — kendi `group.id`'ni verirsen benim dashboard consumer'ımdan
 bağımsız, kendi hızında okursun. Aynı mesajı ikimiz de görürüz, biri diğerini bloklamaz.
 
@@ -37,6 +38,7 @@ bağımsız, kendi hızında okursun. Aynı mesajı ikimiz de görürüz, biri d
   "category": "A3",
   "is_military": false,
   "source": "adsblol",
+  "ttl_hint": 174,
   "ts": "2026-07-01T12:34:56.789012+00:00"
 }
 ```
@@ -50,9 +52,10 @@ bağımsız, kendi hızında okursun. Aynı mesajı ikimiz de görürüz, biri d
 | `velocity` | float | m/s (ground speed) |
 | `track` | float | Derece, 0-360 (kuzeyden saat yönünde) |
 | `vertical_rate` | float | m/s, pozitif=tırmanış |
-| `category` | string | Emitter kategorisi (A0-D7, ADS-B standardı) |
-| `is_military` | bool | adsb.lol'ün `dbFlags` bit alanının 1. biti (`dbFlags & 1`) — topluluk veritabanına dayanır, %100 kapsama garantisi yok, alan gelmezse `false` |
-| `source` | string | Sabit `"adsblol"` |
+| `category` | string | Emitter kategorisi (A0-D7, ADS-B standardı). OpenSky kaynağında hep boş |
+| `is_military` | bool | adsb.lol'ün `dbFlags` bit alanının 1. biti (`dbFlags & 1`) — topluluk veritabanına dayanır, %100 kapsama garantisi yok, alan gelmezse `false`. OpenSky kaynağında hep `false` |
+| `source` | string | `"adsblol"` veya `"opensky"` — hangi kaynaktan geldiği |
+| `ttl_hint` | int | Saniye cinsinden önerilen Redis TTL'i — producer'ın **o çalışma için** ölçtüğü gerçek döngü süresinin ~3 katı (kaynak/hız değişse bile Redis'te veri, bir sonraki tazeleme gelmeden ÖNCE düşmesin diye). Kendi consumer'ını yazarsan bunu kullan, sabit bir sayı varsayma |
 | `ts` | string | ISO 8601, UTC |
 
 **Model consumer'ın için öneri:** `group.id="anomaly-model"` kullan, `auto.offset.reset="latest"`

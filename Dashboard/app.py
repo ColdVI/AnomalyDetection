@@ -14,6 +14,7 @@ Kullanim:
 Sonra tarayicida: http://localhost:8050
 """
 import json
+import math
 import threading
 import time
 from datetime import datetime, timedelta, timezone
@@ -27,7 +28,9 @@ import requests
 import uvicorn
 import dash
 import dash_leaflet as dl
-from dash import Dash, dcc, html, Output, Input, State, ALL
+import dash_leaflet.express as dlx
+from dash_extensions.javascript import assign
+from dash import Dash, dcc, html, Output, Input, State
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from influxdb_client import InfluxDBClient
@@ -141,9 +144,7 @@ TEXTS = {
         "map_style_label": "Harita Türü",
         "map_style_street": "Sokak",
         "map_style_satellite": "Uydu",
-        "region_label": "Bölge",
-        "region_turkey": "Türkiye",
-        "region_world": "Dünya",
+        "route_uncertain": "⚠ Rota güncel olmayabilir (uçak farklı bir yöne gidiyor)",
     },
     "en": {
         "settings_title": "Settings",
@@ -189,9 +190,7 @@ TEXTS = {
         "map_style_label": "Map Style",
         "map_style_street": "Street",
         "map_style_satellite": "Satellite",
-        "region_label": "Region",
-        "region_turkey": "Turkey",
-        "region_world": "World",
+        "route_uncertain": "⚠ Route may be outdated (aircraft heading a different way)",
     },
 }
 
@@ -249,10 +248,6 @@ _rpool = redis.ConnectionPool(host="localhost", port=6379, db=0,
 _influx = InfluxDBClient(url=INFLUX_HOST, token=INFLUX_TOKEN, org=INFLUX_ORG)
 _query_api = _influx.query_api()
 
-# Dash ayarlar panelinin "Bolge" (Turkiye/Dunya) secimini yazdigi,
-# adsb_producer.py'nin okudugu kontrol anahtari.
-REGION_KEY = "iha:settings:region"
-
 
 def _get_flights():
     r = redis.Redis(connection_pool=_rpool)
@@ -285,7 +280,23 @@ def get_route(callsign: str):
     """adsb.lol/ADS-B protokolu kalkis/varis tasimiyor -- adsbdb.com'un
     ucretsiz, topluluk tarafindan tutulan callsign->rota veritabanini
     kullaniyoruz. Rota nadiren degistigi icin Redis'te 12 saat cache'liyoruz,
-    her secimde dis API'ye vurmayalim."""
+    her secimde dis API'ye vurmayalim.
+
+    === DENENIP VAZGECILEN: adsb.lol'un KENDI routeset API'si ===
+    adsb.lol'un kendi web sitesinin kullandigi
+    "https://api.adsb.lol/api/0/routeset" (tar1090 projesinin resmi
+    dokumantasyonunda dogrulanmis) denendi -- kullanici WZZ43 testinde
+    adsbdb.com YANLIS, adsb.lol'un SITESI DOGRU rota gosterdigi icin bu
+    umut vericiydi. Ama 6 farkli istek varyasyonu (POST'ta 5 farkli govde
+    sekli + duz GET) HEPSI ayni sonucu verdi: HTTP 201, Content-Type
+    text/html, TAMAMEN BOS govde -- istek ICERIGINDEN BAGIMSIZ olarak
+    AYNI cevap gelmesi, bunun bizim istek formatimizla ilgili olmadigini,
+    muhtemelen bir CDN/guvenlik katmaninin (API anahtari yok, tarayici
+    gibi gorunmuyoruz, veya endpoint'in kendisi degisti/kullanimdan
+    kalkti) bu istekleri sessizce engelledigini gosteriyor -- format
+    tahmin ederek asilamayacak bir sinir. adsbdb.com'a geri donuldu.
+    === /DENENIP VAZGECILEN ===
+    """
     callsign = callsign.strip().upper()
     if not callsign:
         return {"found": False}
@@ -311,9 +322,13 @@ def get_route(callsign: str):
                     "origin_name": origin.get("name"),
                     "origin_iata": origin.get("iata_code"),
                     "origin_city": origin.get("municipality"),
+                    "origin_lat": origin.get("latitude"),
+                    "origin_lon": origin.get("longitude"),
                     "dest_name": dest.get("name"),
                     "dest_iata": dest.get("iata_code"),
                     "dest_city": dest.get("municipality"),
+                    "dest_lat": dest.get("latitude"),
+                    "dest_lon": dest.get("longitude"),
                 }
     except Exception:
         pass  # bulunamadi/erisilemedi -- found:False donuyoruz, cache'lemiyoruz
@@ -456,6 +471,73 @@ print("FastAPI hazir (port 8000)")
 # --------------------------------------------------------------------- Dash --
 
 app_dash = Dash(__name__, title="ADS-B Local Dashboard")
+
+# --------------------------------------------------------------------------
+# UCAK KATMANI RENDER MANTIGI -- artik CLIENT-SIDE (JavaScript)
+#
+# ONEMLI MIMARI DEGISIKLIK: eskiden her ucak icin Python'da bir dl.DivMarker
+# + ic ice Div'li dl.Tooltip nesnesi INSA EDILIYOR, tumu JSON'a cevrilip
+# tarayiciya gonderiliyordu. "Dunya" modunda (5.000-11.000+ ucak) bu, hem
+# Python tarafinda hem tarayicinin React/Leaflet reconciliation'inda
+# donmaya yol aciyordu (bkz. proje sohbet gecmisi) -- CPU hizindan bagimsiz,
+# mimari bir sinir (tek JS thread'inde on binlerce DOM elemani senkron
+# insa etmek). Flightradar24 ve adsb.lol'un kendi haritalari da AYNI
+# nedenle boyle calismiyor.
+#
+# COZUM: dl.GeoJSON(cluster=True) -- veri hafif GeoJSON olarak gidiyor
+# (Python'da ic ice component AGACI yok, duz sozluk listesi), gercek
+# marker/tooltip olusturma islemi supercluster (hizli JS kutuphanesi) +
+# asagidaki iki KUCUK JS fonksiyonuyla TARAYICIDA yapiliyor. Uzaktan
+# bakildiginda (dunya zoom'u) binlerce nokta birkaç yuz "cluster balonu"na
+# indirgeniyor -- sadece o an ekranda gorunecek kadar gercek marker olusuyor.
+#
+# ONEMLI: bu iki isim (_POINT_TO_LAYER_JS / _ON_EACH_FEATURE_JS) asagidaki
+# app_dash.layout icinde KULLANILIYOR -- Python modul seviyesinde yukaridan
+# asagiya calistigi icin layout'tan ONCE tanimlanmis olmalari sart.
+
+# Ucak SVG ikonunu (yon rotasyonlu) client-side olusturan fonksiyon.
+# Eski Python-tarafi _airplane_icon() ile BIREBIR AYNI SVG/CSS -- sadece
+# JS'e tasindi, gorsel sonuc degismiyor. Cluster'lar (feature.properties
+# icao24 tasimayan sentetik gruplar) buraya hic ugramiyor, supercluster
+# onlari kendi varsayilan balon ikonuyla ayrica render ediyor.
+_POINT_TO_LAYER_JS = assign("""
+function(feature, latlng, context){
+    const p = feature.properties;
+    const heading = p.track || 0;
+    const color = p.color || '#00b4d8';
+    const html = '<div style="transform: rotate(' + heading + 'deg); ' +
+        'transform-origin: center; width: 22px; height: 22px;">' +
+        '<svg width="22" height="22" viewBox="0 0 24 24">' +
+        '<path d="M12 1 L15 13 L23 18 L15 16 L15 20.5 L18.5 22.5 L12 21 ' +
+        'L5.5 22.5 L9 20.5 L9 16 L1 18 L9 13 Z" fill="' + color + '" ' +
+        'stroke="#07070e" stroke-width="0.5"/></svg></div>';
+    const icon = L.divIcon({html: html, className: '', iconSize: [22, 22], iconAnchor: [11, 11]});
+    return L.marker(latlng, {icon: icon});
+}
+""")
+
+# Tooltip'i client-side baglayan fonksiyon -- Python'daki eski ic ice
+# Div grid'iyle AYNI icerik, duz HTML string olarak. Tum metinler
+# (etiketler, formatlanmis degerler) update_map icinde Python'da onceden
+# hazirlanip feature.properties'e konuyor -- JS sadece bunlari yerlestiriyor,
+# ceviri/formatlama mantigi burada TEKRARLANMIYOR.
+_ON_EACH_FEATURE_JS = assign("""
+function(feature, layer, context){
+    const p = feature.properties;
+    if(!p.icao24){ return; }  // cluster balonu -- ucak degil, tooltip yok
+    const html = '<div style="min-width:150px">' +
+        '<div style="font-size:14px; font-weight:700; color:' + p.color +
+        '; margin-bottom:1px;">' + p.callsign + '</div>' +
+        '<div style="font-size:10px; color:#888; margin-bottom:6px;">' + p.subtitle + '</div>' +
+        '<div style="display:grid; grid-template-columns:1fr 1fr; gap:3px 12px; font-size:11px;">' +
+        '<div><span style="color:#666">' + p.lbl_alt + ' </span><span>' + p.alt_text + '</span></div>' +
+        '<div><span style="color:#666">' + p.lbl_speed + ' </span><span>' + p.speed_text + '</span></div>' +
+        '<div><span style="color:#666">' + p.lbl_track + ' </span><span>' + p.track_text + '</span></div>' +
+        '<div><span style="color:#666">' + p.lbl_vspeed + ' </span><span>' + p.vspeed_text + '</span></div>' +
+        '</div></div>';
+    layer.bindTooltip(html, {direction: 'top', offset: [0, -14]});
+}
+""")
 
 # Tarayicinin varsayilan <body> kenar bosluguyla (genelde 8px) koyu tema
 # etrafinda beyaz cerceve olusuyordu -- Dash'in index sablonunu gecersiz
@@ -609,7 +691,7 @@ SETTINGS_PANEL_BASE = {
     "padding": "14px", "zIndex": 900,
 }
 
-DEFAULT_TRACE_HOURS = 2
+DEFAULT_TRACE_HOURS = 6
 DEFAULT_TIMEZONE = 3  # UTC+3, Turkiye -- dropdown "value" olarak int kullanilir
 
 STEPPER_BTN_STYLE = {
@@ -679,7 +761,25 @@ app_dash.layout = html.Div(id="app-root", style={
                 attribution=TILE_LAYERS[DEFAULT_MAP_STYLE]["attribution"],
             ),
             dl.LayerGroup(id="flight-path-layer"),
-            dl.LayerGroup(id="aircraft-layer"),
+            # Secili ucagin kalkis-varis havalimanlari arasindaki referans
+            # cizgisi -- flight-path-layer'dan (GERCEK izlenen yol) ayri,
+            # cunku bu "kus ucusu" bir referans, gercek rota degil.
+            dl.LayerGroup(id="route-line-layer"),
+            # ONEMLI: eskiden dl.LayerGroup + N adet dl.DivMarker cocugu idi.
+            # Simdi TEK bir dl.GeoJSON, cluster=True ile -- render supercluster
+            # (JS) + _POINT_TO_LAYER_JS/_ON_EACH_FEATURE_JS tarafindan
+            # CLIENT-SIDE yapiliyor (bkz. yukaridaki yorum blogu). update_map
+            # callback'i artik Python component agaci degil, duz GeoJSON
+            # sozlugu donduruyor (Output("aircraft-geojson", "data")).
+            dl.GeoJSON(
+                id="aircraft-geojson",
+                data=dlx.dicts_to_geojson([]),
+                cluster=True,
+                superClusterOptions={"radius": 80, "maxZoom": 14},
+                zoomToBoundsOnClick=True,
+                pointToLayer=_POINT_TO_LAYER_JS,
+                onEachFeature=_ON_EACH_FEATURE_JS,
+            ),
         ],
     ),
 
@@ -731,17 +831,6 @@ app_dash.layout = html.Div(id="app-root", style={
                 "fontSize": "20px", "cursor": "pointer", "lineHeight": "1",
                 "padding": "0 4px",
             }),
-        ]),
-        html.Div(style={"marginBottom": "14px"}, children=[
-            html.Label("Bölge", id="region-label",
-                       style={"fontSize": "12px", "color": "#888",
-                              "display": "block", "marginBottom": "6px"}),
-            html.Div(style={"display": "flex", "gap": "6px"}, children=[
-                html.Button("Türkiye", id="region-turkey-btn", n_clicks=0,
-                           style=LANG_BTN_ACTIVE_STYLE),
-                html.Button("Dünya", id="region-world-btn", n_clicks=0,
-                           style=LANG_BTN_INACTIVE_STYLE),
-            ]),
         ]),
         html.Div(style={"marginBottom": "14px"}, children=[
             html.Label("Rota izi (saat)", id="trace-hours-label",
@@ -816,7 +905,6 @@ app_dash.layout = html.Div(id="app-root", style={
     dcc.Store(id="timezone-setting", data=DEFAULT_TIMEZONE),
     dcc.Store(id="language-setting", data=DEFAULT_LANGUAGE),
     dcc.Store(id="map-style-setting", data=DEFAULT_MAP_STYLE),
-    dcc.Store(id="region-setting", data="turkey"),
 
     # ---------------------------------- Sol kayan panel (varsayilan gizli) --
     html.Div(id="left-panel", style={**LEFT_PANEL_BASE, "transform": "translateX(-100%)"},
@@ -847,31 +935,8 @@ app_dash.layout = html.Div(id="app-root", style={
 ])
 
 
-def _airplane_icon(heading: float, color: str) -> dict:
-    """Ucus yonune (heading, 0-360 derece, kuzeyden saat yonunde) gore
-    CSS ile dondurulmus SVG ucak ikonu. Ikon 0 derecede kuzeye (yukari)
-    bakacak sekilde cizildigi icin heading degeri dogrudan rotate()
-    aciysa kullanilabiliyor, ekstra offset gerekmiyor.
-
-    ONEMLI: bu dict, dl.DivMarker'in "iconOptions" parametresine veriliyor
-    (dl.Marker + icon dict DEGIL -- o kombinasyon calismiyor, marker hic
-    render olmuyordu). DivMarker, HTML/CSS tabanli ikonlar icin ayri,
-    ozel bir bilesen."""
-    svg = f'''
-    <div style="transform: rotate({heading}deg); transform-origin: center;
-                width: 22px; height: 22px;">
-      <svg width="22" height="22" viewBox="0 0 24 24">
-        <path d="M12 1 L15 13 L23 18 L15 16 L15 20.5 L18.5 22.5 L12 21
-                 L5.5 22.5 L9 20.5 L9 16 L1 18 L9 13 Z"
-              fill="{color}" stroke="#07070e" stroke-width="0.5"/>
-      </svg>
-    </div>
-    '''
-    return {"html": svg, "className": "", "iconSize": [22, 22], "iconAnchor": [11, 11]}
-
-
 @app_dash.callback(
-    [Output("aircraft-layer", "children"), Output("status", "children")],
+    [Output("aircraft-geojson", "data"), Output("status", "children")],
     [Input("tick", "n_intervals"), Input("timezone-setting", "data"),
      Input("language-setting", "data"), Input("show-civil", "data"),
      Input("show-military", "data")]
@@ -905,7 +970,11 @@ def update_map(n, tz_name, lang, show_civil, show_military):
 
     flights = [f for f in flights if _passes_filter(f)]
 
-    markers = []
+    # Her ucak icin GOSTERIME HAZIR (formatlanmis) degerleri Python'da
+    # hesaplayip duz bir sozluge koyuyoruz -- ceviri (t[...]) ve sayi
+    # formatlama SADECE burada yapiliyor, JS tarafinda (_POINT_TO_LAYER_JS /
+    # _ON_EACH_FEATURE_JS) tekrarlanmiyor, JS sadece bu degerleri yerlestiriyor.
+    points = []
     for f in flights:
         icao = f.get("icao24", "")
         is_military = bool(f.get("is_military"))
@@ -924,56 +993,51 @@ def update_map(n, tz_name, lang, show_civil, show_military):
             subtitle_parts.append(t["tooltip_military_tag"])
         subtitle = "  ·  ".join(subtitle_parts)
 
-        markers.append(dl.DivMarker(
-            position=[f.get("lat", 39), f.get("lon", 35)],
-            iconOptions=_airplane_icon(f.get("track") or 0, color),
-            id={"type": "aircraft-marker", "index": icao},
-            children=[
-                dl.Tooltip(html.Div(style={"minWidth": "150px"}, children=[
-                    html.Div(callsign or icao.upper(), style={
-                        "fontSize": "14px", "fontWeight": "700",
-                        "color": color, "marginBottom": "1px",
-                    }),
-                    html.Div(subtitle,
-                             style={"fontSize": "10px", "color": "#888",
-                                    "marginBottom": "6px"}),
-                    html.Div(style={
-                        "display": "grid", "gridTemplateColumns": "1fr 1fr",
-                        "gap": "3px 12px", "fontSize": "11px",
-                    }, children=[
-                        html.Div([html.Span(t["tooltip_alt"] + " ", style={"color": "#666"}),
-                                  html.Span(f"{f.get('alt', 0):.0f} m")]),
-                        html.Div([html.Span(t["tooltip_speed"] + " ", style={"color": "#666"}),
-                                  html.Span(f"{f.get('velocity'):.0f} m/s"
-                                            if f.get('velocity') is not None else "—")]),
-                        html.Div([html.Span(t["tooltip_track"] + " ", style={"color": "#666"}),
-                                  html.Span(f"{f.get('track'):.0f}°"
-                                            if f.get('track') is not None else "—")]),
-                        html.Div([html.Span(t["tooltip_vspeed"] + " ", style={"color": "#666"}),
-                                  html.Span(f"{f.get('vertical_rate'):+.1f} m/s"
-                                            if f.get('vertical_rate') is not None else "—")]),
-                    ]),
-                ]), direction="top", offset=[0, -14]),
-            ],
+        points.append(dict(
+            lat=f.get("lat", 39), lon=f.get("lon", 35),
+            icao24=icao,
+            callsign=callsign or icao.upper(),
+            color=color,
+            track=f.get("track") or 0,
+            subtitle=subtitle,
+            alt_text=f"{f.get('alt', 0):.0f} m",
+            speed_text=(f"{f.get('velocity'):.0f} m/s"
+                       if f.get('velocity') is not None else "—"),
+            track_text=(f"{f.get('track'):.0f}°"
+                       if f.get('track') is not None else "—"),
+            vspeed_text=(f"{f.get('vertical_rate'):+.1f} m/s"
+                        if f.get('vertical_rate') is not None else "—"),
+            lbl_alt=t["tooltip_alt"], lbl_speed=t["tooltip_speed"],
+            lbl_track=t["tooltip_track"], lbl_vspeed=t["tooltip_vspeed"],
         ))
+
+    geojson_data = dlx.dicts_to_geojson(points)
 
     ts = datetime.now(tz).strftime("%H:%M:%S")
     status = t["status_bar"].format(ts=ts, n=len(flights), a=len(alerts))
 
-    return markers, status
+    return geojson_data, status
 
 
 @app_dash.callback(
     Output("aircraft-select", "data"),
-    [Input({"type": "aircraft-marker", "index": ALL}, "n_clicks"),
-     Input("close-panel-btn", "n_clicks")],
+    [Input("aircraft-geojson", "n_clicks"), Input("close-panel-btn", "n_clicks")],
+    State("aircraft-geojson", "clickData"),
     prevent_initial_call=True
 )
-def select_or_close(marker_clicks, close_clicks):
+def select_or_close(geojson_clicks, close_clicks, feature):
     """Ucak marker'ina tiklaninca secim ayarlar, kapatma (x) butonuna
     tiklaninca secimi temizler -- ikisi de ayni Output'u (aircraft-select)
     yazdigi icin tek callback'te birlestirildi (Dash coklu-callback ayni
-    Output kisitini boyle asiyoruz, allow_duplicate'a gerek kalmadan)."""
+    Output kisitini boyle asiyoruz, allow_duplicate'a gerek kalmadan).
+
+    ONEMLI: eskiden pattern-matching marker id'leri (ALL) dinleniyordu,
+    artik TEK bir dl.GeoJSON bileseninin n_clicks/clickData ciftini
+    kullaniyoruz -- clickData, tiklanan GeoJSON feature'ini (properties
+    dahil) iceriyor. Cluster balonuna tiklanirsa feature'da "icao24"
+    property'si OLMAZ (supercluster'in sentetik grup feature'i) -- bu
+    durumda secim degistirmiyoruz, zoomToBoundsOnClick zaten kendiliginden
+    o kumeye yakinlastiriyor."""
     ctx = dash.callback_context
     if not ctx.triggered:
         return dash.no_update
@@ -982,11 +1046,9 @@ def select_or_close(marker_clicks, close_clicks):
     if trigger_prop_id == "close-panel-btn.n_clicks":
         return None
 
-    if not ctx.triggered[0]["value"]:
+    if not feature:
         return dash.no_update
-    triggered_id_str = trigger_prop_id.rsplit(".", 1)[0]
-    triggered_id = json.loads(triggered_id_str)
-    icao24 = triggered_id.get("index")
+    icao24 = (feature.get("properties") or {}).get("icao24")
     return icao24 if icao24 else dash.no_update
 
 
@@ -1160,44 +1222,6 @@ def update_map_style_setting(street_clicks, satellite_clicks):
 
 
 @app_dash.callback(
-    Output("region-setting", "data"),
-    [Input("region-turkey-btn", "n_clicks"), Input("region-world-btn", "n_clicks")],
-    prevent_initial_call=True,
-)
-def update_region_setting(turkey_clicks, world_clicks):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return dash.no_update
-    trigger = ctx.triggered[0]["prop_id"]
-    if trigger == "region-turkey-btn.n_clicks":
-        return "turkey"
-    if trigger == "region-world-btn.n_clicks":
-        return "world"
-    return dash.no_update
-
-
-@app_dash.callback(
-    [Output("region-turkey-btn", "style"), Output("region-world-btn", "style")],
-    Input("region-setting", "data"),
-)
-def update_region_buttons(region):
-    """Buton gorsel durumunu gunceller VE ayni anda Redis'e yazar --
-    adsb_producer.py AYRI, bagimsiz bir process oldugu icin Dash'in kendi
-    state'ine degil, ikisinin ORTAK erisebildigi Redis'e yazmamiz lazim.
-    Producer her poll dongusunde (varsayilan 15sn) bu anahtari okuyup
-    yaricapini ona gore secer (bkz. adsb_producer.py get_region_mode())."""
-    try:
-        r = redis.Redis(connection_pool=_rpool)
-        r.set(REGION_KEY, region if region in ("turkey", "world") else "turkey")
-    except Exception:
-        pass  # Redis gecici erisilemezse sessizce gec -- producer zaten
-              # kendi tarafinda "turkey" varsayilanina duser, kritik degil
-    if region == "world":
-        return LANG_BTN_INACTIVE_STYLE, LANG_BTN_ACTIVE_STYLE
-    return LANG_BTN_ACTIVE_STYLE, LANG_BTN_INACTIVE_STYLE
-
-
-@app_dash.callback(
     [Output("map-style-street-btn", "style"), Output("map-style-satellite-btn", "style")],
     Input("map-style-setting", "data"),
 )
@@ -1229,8 +1253,7 @@ def update_base_tile_layer(style):
      Output("aircraft-info-title", "children"), Output("history-panel-title", "children"),
      Output("filter-civil-btn", "children"), Output("filter-military-btn", "children"),
      Output("map-style-label", "children"), Output("map-style-street-btn", "children"),
-     Output("map-style-satellite-btn", "children"), Output("region-label", "children"),
-     Output("region-turkey-btn", "children"), Output("region-world-btn", "children")],
+     Output("map-style-satellite-btn", "children")],
     Input("language-setting", "data"),
 )
 def update_static_texts(lang):
@@ -1241,8 +1264,7 @@ def update_static_texts(lang):
     return (t["settings_title"], t["trace_hours_label"], t["timezone_label"],
             t["language_label"], t["aircraft_info_title"], t["history_panel_title"],
             t["filter_civil_label"], t["filter_military_label"],
-            t["map_style_label"], t["map_style_street"], t["map_style_satellite"],
-            t["region_label"], t["region_turkey"], t["region_world"])
+            t["map_style_label"], t["map_style_street"], t["map_style_satellite"])
 
 
 @app_dash.callback(
@@ -1312,6 +1334,165 @@ def update_flight_path(n, icao24, trace_hours):
                         weight=3, opacity=0.6)]
 
 
+def _bearing_deg(lat1, lon1, lat2, lon2):
+    """(lat1,lon1)'den (lat2,lon2)'ye buyuk daire uzerindeki BASLANGIC
+    yonu (derece, 0-360, kuzeyden saat yonunde). Rota tutarlilik
+    kontrolu icin kullanilir -- bkz. _route_is_plausible()."""
+    lat1r, lat2r = math.radians(lat1), math.radians(lat2)
+    dlon = math.radians(lon2 - lon1)
+    x = math.sin(dlon) * math.cos(lat2r)
+    y = math.cos(lat1r) * math.sin(lat2r) - math.sin(lat1r) * math.cos(lat2r) * math.cos(dlon)
+    return (math.degrees(math.atan2(x, y)) + 360) % 360
+
+
+def _route_is_plausible(ac_lat, ac_lon, ac_track, dest_lat, dest_lon, threshold_deg=90):
+    """adsbdb.com'un cagri kodu -> rota eslemesi GERCEK ZAMANLI degil --
+    STATIK/gecmise dayali. Bazi hava yollari (orn. Wizz Air) ayni ucus
+    numarasini farkli gunlerde FARKLI sehir ciftleri icin yeniden
+    kullaniyor -- bu durumda adsbdb eski/yanlis bir rota donebiliyor
+    (orn. WZZ43: gercekte Krakow->Stavanger ama adsbdb Londra->Budapeste
+    diyor).
+
+    UCAGIN GERCEK ANLIK YONUYLE (track) BASIT BIR TUTARLILIK KONTROLU:
+    ucagin su anki konumundan iddia edilen varisa olan yon ile ucagin
+    GERCEKTEN ucmakta oldugu yon (track) arasindaki fark threshold_deg'i
+    (varsayilan 90) asarsa, rota SUPHELI sayilir -- WZZ43 orneginde bu
+    fark 180 derece cikiyordu (tam ters yon).
+
+    ONEMLI: bu KUSURSUZ bir dogrulama DEGIL, sadece bir HEURISTIK --
+    kalkistan hemen sonraki yon degisiklikleri (SID prosedurleri),
+    holding pattern'ler veya rotadan gecici sapmalar YANLIS ALARM
+    verebilir. Ama acik yon celiskilerini (WZZ43 gibi tam ters yon)
+    yakalamakta etkili."""
+    if ac_track is None:
+        return True  # yon bilinmiyorsa kontrol edemeyiz, varsayilan: guven
+    expected_bearing = _bearing_deg(ac_lat, ac_lon, dest_lat, dest_lon)
+    diff = abs((expected_bearing - ac_track + 180) % 360 - 180)
+    return diff <= threshold_deg
+
+
+def _great_circle_points(lat1, lon1, lat2, lon2, n=64):
+    """Iki nokta arasindaki BUYUK DAIRE (great circle) yayi uzerinde n+1
+    ara nokta uretir -- Ed Williams'in "Aviation Formulary"sindeki
+    standart kure-uzeri enterpolasyon formulu (havacilikta yaygin
+    kullanilir). Duz cizgiden farki: uzun menzilli ucuslarda gercek
+    ucus rotasina (great circle, en kisa mesafe) cok daha yakin bir
+    gorsel verir -- orn. NYC->Londra rotasinin neden Gronland'a yakin
+    kuzeyden kavis yaptigini gosterir.
+
+    ONEMLI: 180. meridyeni (tarih degistirme hatti) gecen rotalarda
+    (orn. Tokyo->Los Angeles gibi Pasifik ucuslari) ardisik noktalarin
+    boylami -180/+180 SINIRINDA ANI SICRAMA yapabilir (orn. 179->-179) --
+    bu, Leaflet'te haritanin YANLIS tarafina cizilen uzun, hatali bir
+    cizgiye yol acar. "Unwrap" ile SUREKLILIK sagliyoruz -- boylam
+    -180/180 araligina sikistirilmiyor, gerekirse 360'in katlariyla
+    kaydiriliyor (Leaflet, araligin disindaki boylam degerlerini de
+    doğru sekilde projekte eder)."""
+    lat1r, lon1r = math.radians(lat1), math.radians(lon1)
+    lat2r, lon2r = math.radians(lat2), math.radians(lon2)
+
+    dlat = lat2r - lat1r
+    dlon = lon2r - lon1r
+    a = math.sin(dlat / 2) ** 2 + math.cos(lat1r) * math.cos(lat2r) * math.sin(dlon / 2) ** 2
+    d = 2 * math.asin(min(1, math.sqrt(a)))
+
+    if d < 1e-9:  # ayni nokta / neredeyse ayni -- egriye gerek yok
+        return [[lat1, lon1], [lat2, lon2]]
+
+    points = []
+    prev_lon = None
+    for i in range(n + 1):
+        f = i / n
+        A = math.sin((1 - f) * d) / math.sin(d)
+        B = math.sin(f * d) / math.sin(d)
+        x = A * math.cos(lat1r) * math.cos(lon1r) + B * math.cos(lat2r) * math.cos(lon2r)
+        y = A * math.cos(lat1r) * math.sin(lon1r) + B * math.cos(lat2r) * math.sin(lon2r)
+        z = A * math.sin(lat1r) + B * math.sin(lat2r)
+        lat_i = math.degrees(math.atan2(z, math.sqrt(x * x + y * y)))
+        lon_i = math.degrees(math.atan2(y, x))
+
+        if prev_lon is not None:
+            while lon_i - prev_lon > 180:
+                lon_i -= 360
+            while lon_i - prev_lon < -180:
+                lon_i += 360
+        prev_lon = lon_i
+
+        points.append([lat_i, lon_i])
+
+    return points
+
+
+@app_dash.callback(
+    Output("route-line-layer", "children"),
+    Input("aircraft-select", "data"),
+)
+def update_route_line(icao24):
+    """Secili ucagin kalkis-varis havalimanlari arasina GREAT CIRCLE
+    (buyuk daire) egrisi cizer -- gercek ucus rotasina (en kisa kure-uzeri
+    mesafe) duz cizgiden cok daha yakin bir gorsel. Hesaplama icin
+    _great_circle_points() kullanilir (bkz. o fonksiyonun docstring'i).
+
+    ADS-B protokolu rota tasimadigi icin adsbdb.com'dan gelen havalimani
+    koordinatlarini kullaniyoruz -- update_route_info ile AYNI /api/route
+    endpoint'i (Redis'te 12 saat cache'li), yani bunun icin EKSTRA dis
+    API cagrisi yok, zaten cekilen veriyi tekrar kullaniyoruz."""
+    if not icao24:
+        return []
+    try:
+        flights = requests.get("http://localhost:8000/api/flights", timeout=3).json()
+    except Exception:
+        flights = []
+    match = next((f for f in flights if f.get("icao24") == icao24), None)
+    callsign = (match.get("callsign") or "").strip() if match else ""
+    if not callsign:
+        return []
+
+    try:
+        route = requests.get(f"http://localhost:8000/api/route/{callsign}",
+                             timeout=5).json()
+    except Exception:
+        route = {"found": False}
+
+    if not route.get("found"):
+        return []
+
+    o_lat, o_lon = route.get("origin_lat"), route.get("origin_lon")
+    d_lat, d_lon = route.get("dest_lat"), route.get("dest_lon")
+    # ONEMLI: adsbdb'deki rotalarin KUCUK bir kismi koordinatsiz
+    # donebiliyor (havalimani veritabaninda eksik veri) -- bu durumda
+    # cizgiyi hic cizmiyoruz (yanlis/varsayilan 0,0 koordinatina
+    # cizmek yaniltici olurdu), metin paneli (update_route_info) yine
+    # de havalimani ismini gosterebiliyor olabilir.
+    if None in (o_lat, o_lon, d_lat, d_lon):
+        return []
+
+    origin_label = f"{route.get('origin_city','')} ({route.get('origin_iata','')})"
+    dest_label = f"{route.get('dest_city','')} ({route.get('dest_iata','')})"
+    positions = _great_circle_points(o_lat, o_lon, d_lat, d_lon, n=64)
+
+    # ONEMLI: update_route_info ile AYNI tutarlilik kontrolu (bkz.
+    # _route_is_plausible() docstring'i) -- supheli rotalarda cizgiyi
+    # SILMIYORUZ (belki dogrudur), ama daha soluk/kesikli cizerek
+    # "bu kesin degil" gorsel sinyali veriyoruz.
+    plausible = _route_is_plausible(
+        match.get("lat"), match.get("lon"), match.get("track"), d_lat, d_lon
+    ) if match else True
+    line_opacity = 0.75 if plausible else 0.3
+    dash = "6, 6" if plausible else "2, 8"
+
+    return [
+        dl.Polyline(positions=positions,
+                   color="#f7b731", weight=2, opacity=line_opacity, dashArray=dash),
+        dl.CircleMarker(center=[o_lat, o_lon], radius=5, color="#f7b731",
+                        fillColor="#f7b731", fillOpacity=0.9,
+                        children=[dl.Tooltip(origin_label)]),
+        dl.CircleMarker(center=[d_lat, d_lon], radius=5, color="#f7b731",
+                        fillColor="#f7b731", fillOpacity=0.9,
+                        children=[dl.Tooltip(dest_label)]),
+    ]
+
+
 @app_dash.callback(
     Output("route-info", "children"),
     [Input("aircraft-select", "data"), Input("language-setting", "data")],
@@ -1350,6 +1531,19 @@ def update_route_info(icao24, lang):
     dest = f"{route.get('dest_city','?')} ({route.get('dest_iata','—')})"
     airline = route.get("airline")
 
+    # ONEMLI: adsbdb'nin cagri kodu->rota eslemesi statik/gecmise dayali --
+    # bazi hava yollari ayni ucus numarasini farkli rotalarda yeniden
+    # kullaniyor (bkz. _route_is_plausible() docstring'i, WZZ43 ornegi).
+    # Ucagin GERCEK anlik yonuyle basit bir tutarlilik kontrolu yapip,
+    # acikca celisen (orn. ters yone giden) rotalari uyariyoruz -- rotayi
+    # GIZLEMIYORUZ (belki dogrudur, heuristik kesin degil), sadece
+    # supheli oldugunu isaretliyoruz.
+    plausible = True
+    d_lat, d_lon = route.get("dest_lat"), route.get("dest_lon")
+    if match and d_lat is not None and d_lon is not None:
+        plausible = _route_is_plausible(
+            match.get("lat"), match.get("lon"), match.get("track"), d_lat, d_lon)
+
     return html.Div(style={
         "background": "#161625", "padding": "8px 10px",
         "borderRadius": "6px", "fontSize": "13px",
@@ -1361,6 +1555,9 @@ def update_route_info(icao24, lang):
             html.Span("  →  ", style={"color": "#666"}),
             html.Span(dest, style={"color": "#00b4d8"}),
         ]),
+        html.Div(t["route_uncertain"], style={
+            "color": "#f7b731", "fontSize": "11px", "marginTop": "4px",
+        }) if not plausible else None,
     ])
 
 
