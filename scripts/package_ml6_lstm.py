@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -16,6 +17,7 @@ from src.ml.models.lstm_autoencoder import (
     AE_FEATURES, STRIDE, WINDOW, LSTMAutoencoder,
     reconstruction_scores, train_lstm_autoencoder,
 )
+from src.ml.training_log import write_training_log
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -42,6 +44,9 @@ def main() -> None:
         model, training = train_lstm_autoencoder(
             LSTMAutoencoder(len(cols)), x[train_idx], mask[train_idx],
             x[val_idx], mask[val_idx], seed=split["seed"])
+        # Kalici egitim izi kurali (ML-11 Bolum 5): her egitim loss izi birakir.
+        write_training_log(training.pop("history"), source, "ml6_lstm_ae",
+                           datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"))
         val_scores = reconstruction_scores(model, x[val_idx], mask[val_idx])
         threshold = float(np.quantile(val_scores, 0.99))
         path = save_lstm_bundle(

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -25,6 +26,7 @@ from src.ml.models.lstm_autoencoder import (
     reconstruction_scores,
     train_lstm_autoencoder,
 )
+from src.ml.training_log import write_training_log
 
 
 def main() -> None:
@@ -76,6 +78,9 @@ def main() -> None:
         mask[val_idx],
         seed=int(split["seed"]),
     )
+    # Kalici egitim izi kurali (ML-11 Bolum 5): her egitim loss izi birakir.
+    write_training_log(training.pop("history"), source, "ml8a_retrained_lstm_ae",
+                       datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"))
     val_scores = reconstruction_scores(model, x[val_idx], mask[val_idx])
     threshold = float(np.quantile(val_scores, 0.99))
     bundle = save_lstm_bundle(

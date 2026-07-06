@@ -71,18 +71,26 @@ def train_lstm_autoencoder(model, x_train, m_train, x_val, m_val, *,
     xt, mt = torch.tensor(x_train), torch.tensor(m_train)
     xv, mv = torch.tensor(x_val), torch.tensor(m_val)
     best_loss, best_state, bad = np.inf, None, 0
+    history: list[dict] = []
     for epoch in range(epochs):
         model.train()
         permutation = torch.randperm(len(xt))
+        epoch_losses = []
         for start in range(0, len(permutation), batch_size):
             idx = permutation[start:start + batch_size]
             loss = masked_mse(xt[idx], model(xt[idx]), mt[idx])
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            epoch_losses.append(float(loss.detach()))
         model.eval()
         with torch.no_grad():
             val_loss = float(masked_mse(xv, model(xv), mv))
+        # Kalici egitim izi (ML-11 Bolum 5): kayit davranisi degistirmez,
+        # RNG tuketimi ve early-stopping karari birebir ayni kalir.
+        history.append({"epoch": epoch + 1,
+                        "train_loss": float(np.mean(epoch_losses)),
+                        "val_loss": val_loss})
         if val_loss < best_loss - 1e-5:
             best_loss, best_state, bad = val_loss, copy.deepcopy(model.state_dict()), 0
         else:
@@ -92,7 +100,8 @@ def train_lstm_autoencoder(model, x_train, m_train, x_val, m_val, *,
     if best_state is None:
         raise RuntimeError("LSTM-AE training en iyi state uretmedi")
     model.load_state_dict(best_state)
-    return model, {"best_val_loss": best_loss, "epochs": epoch + 1}
+    return model, {"best_val_loss": best_loss, "epochs": epoch + 1,
+                   "history": history}
 
 
 def reconstruction_scores(model, x, mask, *, batch_size: int = 512) -> np.ndarray:
