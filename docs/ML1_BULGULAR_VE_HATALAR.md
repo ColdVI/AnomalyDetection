@@ -253,6 +253,52 @@ forecasting/sequence residual (TCN/GRU veya hafif GRU-AE) ve oturum-başı neden
 Kör SEAD holdout ancak bu model development bütçesini karşılayıp feature/model/policy hash'leri
 dondurulduktan sonra **bir kez** açılacaktır.
 
+## ML-8A sonuçları — temporal boosting + karar katmanı ayrıştırması (2026-07-06)
+
+**Ne denedik:** Dondurulmuş 10 saniyelik causal descriptor v1 (kanal başına 20 descriptor),
+class-balanced LightGBM ve threshold/K-of-N/bootstrap-CUSUM karar katmanları. SEAD development
+setinde 5 oturum-izole supervised seed koşuldu; 76 uçuşluk blind holdout hiçbir feature/skor
+akışına alınmadı. Descriptor şema SHA-256: `364cb56ab174540fee53fb991bee85c6811a9a68eeec859bfa84a8cf7bcd2670`.
+
+- **H15 — Temporal descriptor + LightGBM skor katmanını iyileştirmedi (Gate B KALDI).**
+  SEAD seed-ortalama window AUPRC LightGBM'de **0.349**, mevcut IF-füzyonda **0.385** oldu
+  (retrained LSTM-AE: 0.395; bu model eski baseline değildir). Split_00 smoke sonucu 0.666 idi,
+  fakat beş seed genellemesi bu ilk iyimser sonucu doğrulamadı. Neden: descriptor özetleri
+  oturumlar arasında kararlı onset ayrımı üretmiyor; tek seed'e bakmak belirgin seçim yanlılığı.
+  **Ne yapılacak:** LightGBM/Optuna ile kurtarma yok; ML-8C family-holdout DevNet/Deep SAD fazına geçilecek.
+- **H16 — Validation-normal FA kalibrasyonu test oturumlarına taşınmadı (Gate C KALDI).**
+  LightGBM'in hiçbir karar katmanı seed-ortalamasında kritik (recall>=0.30 @ <=2 FA/saat)
+  veya advisory (recall>=0.50 @ <=12 FA/saat) hedefini karşılamadı. En yüksek LightGBM
+  SEAD onset recall threshold/advisory'de 0.302'ydi, fakat FA **38.87/saat** oldu. CUSUM karar katmanı
+  skor tavanını aşamadı. **Ne yapılacak:** Karar katmanı taraması genişletilmeyecek; yeni skor
+  ailesi olmadan policy tuning yapılmayacak.
+- **H17 — SEAD için mevcut LSTM baseline artifact'i yoktu.** Orijinal 3x3 tablonun LSTM satırı
+  `N/A` kaydedildi. Kullanıcı izniyle eski artifactleri ezmeden `ml8a_retrained_lstm_ae` üretildi
+  ve ayrı/etiketli kıyas satırı olarak koşuldu; bunu ML-6/7 baseline'ı gibi sunmak yasaktır.
+- **H18 — “Sonucu kurtarma” ile “protokolü tamamlama” ayrıldı.** Gate sonucu görüldükten sonra
+  descriptor v1, LightGBM hiperparametreleri veya test-eşiği değiştirilmedi ve holdout açılmadı;
+  bunlardan herhangi biri mevcut development sonucunu seçim verisine dönüştürüp iyimser yanlılık
+  üretirdi. Bunlar ancak yeni sürüm/yeni faz, önceden yazılmış hipotez ve ayrı değerlendirme setiyle
+  yeniden açılabilir. Buna karşılık sabit reçeteli ALFA ve aile kırılımları tuning değildir ve
+  deney protokolünü kapatmak için çalıştırılır.
+
+**ALFA sabit-reçete tamamlaması:** 5 seed'de LightGBM AUPRC **0.843**, IF **0.858**, mevcut
+LSTM-AE **0.872** oldu; LightGBM yine skor üstünlüğü göstermedi. LightGBM'in hiçbir policy'si
+operasyonel hedefi karşılamadı. Buna karşılık mevcut IF + CUSUM advisory satırı **0.625 onset
+recall / 7.91 FA-saat** ile advisory hedefini geçti (AvgDT 34.65 s, seed-ortalama MaxDT 81.08 s).
+Bu, karar katmanının ALFA'daki mevcut skora faydasını gösterir; LightGBM Gate B/C başarısı değildir.
+Fault kırılımında LightGBM+CUSUM advisory: engine 0.741, aileron 1.00, aileron-rudder 1.00,
+elevator 1.00, rudder 0.333 (seedler boyunca event-ağırlıklı).
+
+**SEAD aile kırılımı:** LightGBM threshold/critical onset recall external-position 0.561 iken
+global-position 0.064, mechanical 0.080 ve altitude 0.000 kaldı. İyileşme tek aileye yoğunlaşmış,
+genel operasyonel faydaya dönüşmemiştir.
+
+**Gate kararı:** Gate A GEÇTİ; Gate B KALDI. Gate C matris düzeyinde ALFA mevcut IF+CUSUM ile
+GEÇTİ, fakat yeni LightGBM için ve SEAD'de KALDI. Blind holdout açılmadı. Gap-aware nihai
+90'ar matris satırı `artifacts/ml8a/<source>/full_matrix_gapfix/metrics.json` altındadır;
+önceki `full_matrix/` çıktıları telemetry-gap payda hatası nedeniyle superseded'dır.
+
 ## ML-2/ML-3'e devredilen iş listesi
 
 | # | İş | Adres |

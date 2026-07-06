@@ -177,3 +177,48 @@ gösteriyordu (3 sink, 1 consumer). Uygulamada **iki ayrı consumer** tercih edi
 arşivleyici bağımsız ölçeklenebilir; her consumer kendi offset'ini yönetiyor.
 Her iki consumer da aynı Kafka topic'i `adsb.flights`'ı bağımsız okuyor — Kafka'nın
 consumer group modeli buna tasarım gereği izin veriyor, veri kaybı yok.
+
+## ADR-008: ML-8A Gate A geçti; Gate B/C reddedildi
+
+- Durum: Development rejected
+- Tarih: 2026-07-06
+
+ML-8A descriptor v1 prefix-invariance ve no-future testlerini geçti; uçuş/oturum ayrımı,
+train-only scaler, guard-band dışlaması, holdout dışlama assert'i ve şema hash manifesti
+doğrulandı. **Gate A geçti.** Mevcut manifest novelty-detection için normal-only train
+ürettiğinden, kullanıcı onayıyla orijinal splitleri değiştirmeden `supervised_splits`
+alanı eklendi; 5 seed'de oturum kesişimi boş ve final holdout sabittir.
+
+SEAD 5-seed sonucunda LightGBM window AUPRC 0.349, mevcut IF 0.385 oldu ve aynı FA bütçesinde
+onset recall üstünlüğü gösteremedi: **Gate B kaldı.** Hiçbir LightGBM+decision bileşimi
+kritik/advisory hedefini seed ortalamasında karşılamadı: yeni model için **Gate C kaldı.** Blind
+holdout açılmadı ve açılmayacak; ML-8A LightGBM model/policy production adayı değildir.
+
+SEAD'de pre-existing LSTM-AE artifact bulunmadığından orijinal baseline satırı `N/A`dır.
+Kullanıcı izniyle ayrı `ml8a_retrained_lstm_ae` bundle'ı üretildi; mevcut artifactler
+overwrite edilmedi ve bu model yalnız retrained ek kıyas olarak raporlanır. Sabit reçeteli ALFA
+protokolü sonradan tamamlandı: LightGBM AUPRC 0.843 < IF 0.858 < LSTM-AE 0.872. Mevcut
+IF+CUSUM advisory 0.625 recall / 7.91 FA-saat ile matris düzeyinde Gate C'yi geçse de LightGBM
+geçmedi. Optuna/tuning yapılmaz; sonraki model deneyi ML-8C family-holdout'tur.
+
+Nihai sonuçlar gözleme bağlı endpoint ve `max_gap_s=2` exposure hesabı kullanan
+`full_matrix_gapfix/` artifactleridir. İlk `full_matrix/` koşuları ALFA'daki 850 bin saniyelik
+telemetry boşluğunu normal exposure saydığı için superseded ilan edilmiştir; model seçimi veya
+Gate kararı için kullanılmaz.
+
+### Kontrollü olarak yapılmayan “sonucu kurtarma” adımları
+
+Gate B/C sonucu görüldükten sonra aşağıdaki işlemler **bilinçli olarak yapılmaz**; bunlar eksik
+implementasyon değil, test sonucuna bakarak deney tasarımını değiştirmeyi önleyen metodoloji
+kontrolleridir:
+
+| Yapılmayan işlem | Neden şimdi yapılmıyor? | Şimdi yapılırsa ne olur? | Ne zaman yeniden açılabilir? |
+|---|---|---|---|
+| Descriptor v1'e feature ekleme/çıkarma | Şema sonuç görülmeden önce donduruldu. | Test setine uyarlanmış v1 üretir; raporlanan seed sonucu bağımsız kanıt olmaktan çıkar. | Yeni hipotez ve `descriptor_schema_v2` ile, yeni fazda ve önceden yazılmış kabul ölçütleriyle. |
+| LightGBM hiperparametre/Optuna taraması | ML-8A sabit reçetenin skor katkısını ölçüyor. | Development test sonuçlarına aşırı uyum ve çoklu-deneme yanlılığı yaratır. | ML-8C sonrasında ayrı bir tuning protokolü, nested/group CV ve ayrı untouched evaluation setiyle. |
+| Test sonucuna göre threshold/K/N/CUSUM k/h değiştirme | Policy yalnız validation-normal üzerinde kalibre edilmelidir. | Test FA/recall doğrudan optimize edilir; operasyonel genelleme ölçülemez. | Yeni policy sürümü ve yeni validation kalibrasyon setiyle; mevcut test sonucu tekrar seçim için kullanılmadan. |
+| Blind holdout'u açma | Gate B/C geçmedi; model/policy seçimi tamamlanmadı. | Holdout artık blind olmaz ve sonraki model seçimini dolaylı etkiler; tek-seferlik güvence kaybolur. | Yalnız development'ta önceden tanımlı Gate B/C geçen feature/model/policy hash'leri dondurulduktan ve insan kararı kaydedildikten sonra bir kez. |
+| Başarısız ML-8A modelini production adayı olarak paketleme | Kritik/advisory fayda hedefleri karşılanmadı. | Yüksek FA veya yetersiz recall operasyonel alarm yorgunluğu/güven kaybı üretir. | Yeni skor ailesi development bütçesini geçtikten sonra ayrı model sürümü olarak. |
+
+Sabit reçeteyle önceden planlanmış ALFA koşusu, aile/fault kırılımları ve raporlama bu kapsama
+girmez: bunlar sonucu kurtarmak için model değiştirme değil, aynı deney protokolünü tamamlamadır.
