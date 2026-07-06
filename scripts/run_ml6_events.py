@@ -10,22 +10,15 @@ import pandas as pd
 from sklearn.ensemble import IsolationForest
 
 from src.ml.data.scaling import apply_scaler_params
-from src.ml.evaluation.events import event_metrics
+from src.ml.evaluation.events import (
+    event_metrics,
+    load_uav_sead_ranges,
+    range_mask,
+    uav_sead_absolute_us,
+)
 from src.ml.models.modular_iforest import PX4_BASE_MODULES, anomaly_scores
 
 ROOT = Path(__file__).resolve().parents[1]
-
-
-def load_ranges() -> dict[str, list[tuple[float, float]]]:
-    labels = json.loads((ROOT / "data/objectstore/bronze/uav_sead/labels.json").read_text(encoding="utf-8"))
-    result = {}
-    for flight, meta in labels.items():
-        spans = []
-        for annotation in meta.get("ranges", []):
-            for _, intervals in annotation:
-                spans.extend((float(a), float(b)) for a, b in intervals)
-        result[flight] = spans
-    return result
 
 
 def main() -> None:
@@ -48,7 +41,7 @@ def main() -> None:
         fused = np.maximum(fused, anomaly_scores(model, test[cols]) / max(tau, np.finfo(float).eps))
     test["score"] = fused
 
-    ranges = load_ranges()
+    ranges = load_uav_sead_ranges(ROOT / "data/objectstore/bronze/uav_sead/labels.json")
     t0 = pd.read_parquet(
         ROOT / "data/silver/uav_sead_silver.parquet",
         columns=["source_id", "timestamp"]).groupby("source_id")["timestamp"].min().to_dict()
@@ -59,10 +52,8 @@ def main() -> None:
         if not is_normal and not spans:
             continue
         g = g.sort_values("t_rel_s")
-        absolute_us = t0[sid] + g["t_rel_s"].to_numpy() * 1e6
-        y = np.zeros(len(g), dtype=bool)
-        for start, end in spans:
-            y |= (absolute_us >= start) & (absolute_us <= end)
+        absolute_us = uav_sead_absolute_us(g["t_rel_s"].to_numpy(), t0[sid])
+        y = range_mask(absolute_us, spans)
         for policy, k, n in [("1-of-1", 1, 1), ("2-of-3", 2, 3), ("3-of-5", 3, 5)]:
             metrics = event_metrics(
                 g["t_rel_s"].to_numpy(), y, g["score"].to_numpy(), 1.0, k=k, n=n)

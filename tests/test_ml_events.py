@@ -48,3 +48,13 @@ def test_alarm_started_before_event_is_not_counted_as_detection():
     assert m["overlap_detected_events"] == 1
     assert m["preexisting_alarm_events"] == 1
     assert m["false_alarm_events"] == 1
+
+
+def test_event_normal_hours_excludes_large_telemetry_gap_when_requested():
+    t = np.array([0.0, 1.0, 10_000.0, 10_001.0])
+    y = np.zeros(4, dtype=bool)
+    scores = np.zeros(4)
+    uncapped = event_metrics(t, y, scores, 1.0)
+    capped = event_metrics(t, y, scores, 1.0, max_gap_s=2.0)
+    assert uncapped["normal_hours"] > 2.0
+    assert capped["normal_hours"] == 2.0 / 3600.0

@@ -7,7 +7,43 @@ gecikme, kapsama ile saat basina yanlis alarm metriklerini uretir.
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import numpy as np
+
+
+def load_uav_sead_ranges(labels_path: str | Path) -> dict[str, list[tuple[float, float]]]:
+    """Load UAV-SEAD ranges as absolute PX4-microsecond intervals.
+
+    ML-6 event evaluation and ML-8A window labeling share this one parser.
+    """
+
+    labels = json.loads(Path(labels_path).read_text(encoding="utf-8"))
+    result: dict[str, list[tuple[float, float]]] = {}
+    for flight, meta in labels.items():
+        spans: list[tuple[float, float]] = []
+        for annotation in meta.get("ranges", []):
+            for _, intervals in annotation:
+                spans.extend((float(a), float(b)) for a, b in intervals)
+        result[flight] = spans
+    return result
+
+
+def uav_sead_absolute_us(t_rel_s, t0_us: float) -> np.ndarray:
+    """Reconstruct absolute PX4 time using the established ML-6 mapping."""
+
+    return float(t0_us) + np.asarray(t_rel_s, dtype=float) * 1e6
+
+
+def range_mask(values, intervals) -> np.ndarray:
+    """Mark values inside any inclusive interval."""
+
+    values = np.asarray(values, dtype=float)
+    mask = np.zeros(len(values), dtype=bool)
+    for start, end in intervals:
+        mask |= (values >= float(start)) & (values <= float(end))
+    return mask
 
 
 def k_of_n_alarm(scores, threshold: float, *, k: int = 1, n: int = 1) -> np.ndarray:
@@ -86,7 +122,8 @@ def _episodes(mask: np.ndarray) -> list[tuple[int, int]]:
 
 def event_metrics(t_s, y_true, scores, threshold: float, *,
                   k: int = 1, n: int = 1, clear_s: float = 0.0,
-                  cooldown_s: float = 0.0) -> dict[str, float | int]:
+                  cooldown_s: float = 0.0,
+                  max_gap_s: float | None = None) -> dict[str, float | int]:
     """Tek ucus icin event recall/gecikme/kapsama/yanlis-alarm metrikleri.
 
     Event, ard arda gelen ``y_true=True`` orneklerinden olusur. Ana recall,
@@ -101,6 +138,8 @@ def event_metrics(t_s, y_true, scores, threshold: float, *,
         raise ValueError("t_s, y_true ve scores esit uzunlukta tek boyutlu olmali")
     if len(t) and np.any(np.diff(t) < 0):
         raise ValueError("t_s artan sirada olmali")
+    if max_gap_s is not None and max_gap_s <= 0:
+        raise ValueError("max_gap_s pozitif olmali")
 
     alarm, alarm_onsets = persistent_alarm(
         t, s, threshold, k=k, n=n,
@@ -127,7 +166,10 @@ def event_metrics(t_s, y_true, scores, threshold: float, *,
     if len(t) > 1:
         dt = np.diff(t)
         # Bir intervali baslangic orneginin durumu ile iliskilendir.
-        normal_hours = float(dt[~y[:-1]].sum() / 3600.0)
+        valid_exposure = ~y[:-1]
+        if max_gap_s is not None:
+            valid_exposure &= dt <= max_gap_s
+        normal_hours = float(dt[valid_exposure].sum() / 3600.0)
     else:
         normal_hours = 0.0
 
@@ -141,6 +183,7 @@ def event_metrics(t_s, y_true, scores, threshold: float, *,
         "preexisting_alarm_events": preexisting_alarm_events,
         "mean_detection_delay_s": float(np.mean(delays)) if delays else np.nan,
         "max_detection_delay_s": float(np.max(delays)) if delays else np.nan,
+        "detection_delays_s": delays,
         "anomaly_coverage": float(alarm[y].mean()) if y.any() else np.nan,
         "false_alarm_events": false_alarm_events,
         "alarm_onsets": int(alarm_onsets.sum()),
