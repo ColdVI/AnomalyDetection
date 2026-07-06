@@ -1,0 +1,59 @@
+{
+  "causal": true,
+  "descriptors": [
+    "mean",
+    "std",
+    "min",
+    "max",
+    "median",
+    "q10",
+    "q25",
+    "q75",
+    "q90",
+    "range",
+    "first",
+    "last",
+    "last_minus_first",
+    "linear_slope",
+    "diff_mean",
+    "diff_std",
+    "diff_abs_max",
+    "lag1_autocorrelation",
+    "missing_fraction",
+    "stale_fraction"
+  ],
+  "ffill_limit_seconds": 2.0,
+  "schema_version": "descriptor_schema_v1",
+  "sources": {
+    "alfa": {
+      "channels": [
+        "xtrack_error",
+        "alt_error",
+        "gps_speed_residual",
+        "roll_error",
+        "pitch_error",
+        "airspeed_error",
+        "path_dev_mag"
+      ]
+    },
+    "uav_sead": {
+      "channels": [
+        "gps_speed_residual",
+        "alt_baro_residual",
+        "alt_local_residual",
+        "attitude_error_mag",
+        "control_strain",
+        "innovation_check_flags_bit_count",
+        "gps_check_fail_flags_bit_count",
+        "filter_fault_flags_bit_count",
+        "timeout_flags_bit_count",
+        "attitude_missing",
+        "battery_missing",
+        "gps_health_missing"
+      ]
+    }
+  },
+  "stride_seconds": 1.0,
+  "window_alignment": "right",
+  "window_seconds": 10.0
+}

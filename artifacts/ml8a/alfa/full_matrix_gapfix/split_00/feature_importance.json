@@ -1,0 +1,562 @@
+[
+  {
+    "feature": "path_dev_mag__last",
+    "gain": 17077.346312999725
+  },
+  {
+    "feature": "path_dev_mag__q90",
+    "gain": 4616.042367935181
+  },
+  {
+    "feature": "path_dev_mag__q75",
+    "gain": 2337.386801481247
+  },
+  {
+    "feature": "path_dev_mag__max",
+    "gain": 1867.7309293746948
+  },
+  {
+    "feature": "gps_speed_residual__max",
+    "gain": 1218.1879959106445
+  },
+  {
+    "feature": "path_dev_mag__mean",
+    "gain": 709.4584722518921
+  },
+  {
+    "feature": "xtrack_error__last",
+    "gain": 405.62858533859253
+  },
+  {
+    "feature": "path_dev_mag__min",
+    "gain": 393.30299377441406
+  },
+  {
+    "feature": "xtrack_error__median",
+    "gain": 261.11240673065186
+  },
+  {
+    "feature": "xtrack_error__max",
+    "gain": 257.9894027709961
+  },
+  {
+    "feature": "xtrack_error__diff_abs_max",
+    "gain": 252.76449584960938
+  },
+  {
+    "feature": "pitch_error__diff_std",
+    "gain": 214.27119827270508
+  },
+  {
+    "feature": "xtrack_error__diff_mean",
+    "gain": 213.22000122070312
+  },
+  {
+    "feature": "xtrack_error__q75",
+    "gain": 210.22100067138672
+  },
+  {
+    "feature": "path_dev_mag__lag1_autocorrelation",
+    "gain": 190.4125782251358
+  },
+  {
+    "feature": "xtrack_error__q25",
+    "gain": 176.32200622558594
+  },
+  {
+    "feature": "gps_speed_residual__q75",
+    "gain": 176.31992387771606
+  },
+  {
+    "feature": "xtrack_error__q10",
+    "gain": 163.67059707641602
+  },
+  {
+    "feature": "xtrack_error__diff_std",
+    "gain": 162.73501253128052
+  },
+  {
+    "feature": "path_dev_mag__range",
+    "gain": 157.09450149536133
+  },
+  {
+    "feature": "gps_speed_residual__lag1_autocorrelation",
+    "gain": 133.64280891418457
+  },
+  {
+    "feature": "gps_speed_residual__q10",
+    "gain": 94.60235977172852
+  },
+  {
+    "feature": "pitch_error__min",
+    "gain": 92.86809921264648
+  },
+  {
+    "feature": "roll_error__q75",
+    "gain": 70.01185894012451
+  },
+  {
+    "feature": "alt_error__max",
+    "gain": 66.41329956054688
+  },
+  {
+    "feature": "path_dev_mag__diff_abs_max",
+    "gain": 59.34512948989868
+  },
+  {
+    "feature": "path_dev_mag__diff_std",
+    "gain": 58.00909996032715
+  },
+  {
+    "feature": "alt_error__first",
+    "gain": 55.012699127197266
+  },
+  {
+    "feature": "roll_error__min",
+    "gain": 54.940152168273926
+  },
+  {
+    "feature": "xtrack_error__mean",
+    "gain": 52.87918138504028
+  },
+  {
+    "feature": "pitch_error__std",
+    "gain": 47.275559425354004
+  },
+  {
+    "feature": "path_dev_mag__diff_mean",
+    "gain": 44.61728489398956
+  },
+  {
+    "feature": "xtrack_error__range",
+    "gain": 40.03200149536133
+  },
+  {
+    "feature": "gps_speed_residual__min",
+    "gain": 36.17737889289856
+  },
+  {
+    "feature": "xtrack_error__std",
+    "gain": 34.86989963054657
+  },
+  {
+    "feature": "gps_speed_residual__mean",
+    "gain": 34.78859066963196
+  },
+  {
+    "feature": "path_dev_mag__first",
+    "gain": 34.7041015625
+  },
+  {
+    "feature": "roll_error__q10",
+    "gain": 34.3745002746582
+  },
+  {
+    "feature": "gps_speed_residual__diff_std",
+    "gain": 30.11673927307129
+  },
+  {
+    "feature": "xtrack_error__first",
+    "gain": 27.434900283813477
+  },
+  {
+    "feature": "gps_speed_residual__range",
+    "gain": 27.272600173950195
+  },
+  {
+    "feature": "gps_speed_residual__diff_abs_max",
+    "gain": 26.577229022979736
+  },
+  {
+    "feature": "alt_error__mean",
+    "gain": 25.083900451660156
+  },
+  {
+    "feature": "roll_error__mean",
+    "gain": 21.5132999420166
+  },
+  {
+    "feature": "alt_error__lag1_autocorrelation",
+    "gain": 19.744510173797607
+  },
+  {
+    "feature": "gps_speed_residual__last",
+    "gain": 15.443020343780518
+  },
+  {
+    "feature": "roll_error__median",
+    "gain": 15.211719989776611
+  },
+  {
+    "feature": "pitch_error__q25",
+    "gain": 14.94320011138916
+  },
+  {
+    "feature": "roll_error__q90",
+    "gain": 11.396419525146484
+  },
+  {
+    "feature": "pitch_error__diff_abs_max",
+    "gain": 11.215159893035889
+  },
+  {
+    "feature": "path_dev_mag__median",
+    "gain": 10.570129871368408
+  },
+  {
+    "feature": "path_dev_mag__q10",
+    "gain": 10.435999870300293
+  },
+  {
+    "feature": "gps_speed_residual__q90",
+    "gain": 8.900540351867676
+  },
+  {
+    "feature": "xtrack_error__min",
+    "gain": 8.216469764709473
+  },
+  {
+    "feature": "roll_error__std",
+    "gain": 7.939529895782471
+  },
+  {
+    "feature": "gps_speed_residual__std",
+    "gain": 7.57427978515625
+  },
+  {
+    "feature": "airspeed_error__diff_std",
+    "gain": 6.333690166473389
+  },
+  {
+    "feature": "gps_speed_residual__linear_slope",
+    "gain": 5.917590141296387
+  },
+  {
+    "feature": "gps_speed_residual__q25",
+    "gain": 5.872759819030762
+  },
+  {
+    "feature": "path_dev_mag__q25",
+    "gain": 5.408939838409424
+  },
+  {
+    "feature": "gps_speed_residual__median",
+    "gain": 4.921730041503906
+  },
+  {
+    "feature": "path_dev_mag__last_minus_first",
+    "gain": 4.702570974826813
+  },
+  {
+    "feature": "xtrack_error__lag1_autocorrelation",
+    "gain": 3.1996099948883057
+  },
+  {
+    "feature": "xtrack_error__missing_fraction",
+    "gain": 2.154320001602173
+  },
+  {
+    "feature": "alt_error__diff_std",
+    "gain": 1.657039999961853
+  },
+  {
+    "feature": "path_dev_mag__std",
+    "gain": 1.6504700183868408
+  },
+  {
+    "feature": "gps_speed_residual__first",
+    "gain": 0.7744200229644775
+  },
+  {
+    "feature": "xtrack_error__q90",
+    "gain": 0.0
+  },
+  {
+    "feature": "xtrack_error__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "xtrack_error__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "xtrack_error__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_error__std",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_error__min",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_error__median",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_error__q10",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_error__q25",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_error__q75",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_error__q90",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_error__range",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_error__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_error__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_error__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_error__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_error__diff_abs_max",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_error__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_error__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_speed_residual__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_speed_residual__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_speed_residual__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_speed_residual__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "roll_error__max",
+    "gain": 0.0
+  },
+  {
+    "feature": "roll_error__q25",
+    "gain": 0.0
+  },
+  {
+    "feature": "roll_error__range",
+    "gain": 0.0
+  },
+  {
+    "feature": "roll_error__first",
+    "gain": 0.0
+  },
+  {
+    "feature": "roll_error__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "roll_error__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "roll_error__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "roll_error__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "roll_error__diff_std",
+    "gain": 0.0
+  },
+  {
+    "feature": "roll_error__diff_abs_max",
+    "gain": 0.0
+  },
+  {
+    "feature": "roll_error__lag1_autocorrelation",
+    "gain": 0.0
+  },
+  {
+    "feature": "roll_error__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "roll_error__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "pitch_error__mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "pitch_error__max",
+    "gain": 0.0
+  },
+  {
+    "feature": "pitch_error__median",
+    "gain": 0.0
+  },
+  {
+    "feature": "pitch_error__q10",
+    "gain": 0.0
+  },
+  {
+    "feature": "pitch_error__q75",
+    "gain": 0.0
+  },
+  {
+    "feature": "pitch_error__q90",
+    "gain": 0.0
+  },
+  {
+    "feature": "pitch_error__range",
+    "gain": 0.0
+  },
+  {
+    "feature": "pitch_error__first",
+    "gain": 0.0
+  },
+  {
+    "feature": "pitch_error__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "pitch_error__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "pitch_error__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "pitch_error__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "pitch_error__lag1_autocorrelation",
+    "gain": 0.0
+  },
+  {
+    "feature": "pitch_error__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "pitch_error__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__std",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__min",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__max",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__median",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__q10",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__q25",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__q75",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__q90",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__range",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__first",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__diff_abs_max",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__lag1_autocorrelation",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "airspeed_error__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "path_dev_mag__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "path_dev_mag__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "path_dev_mag__stale_fraction",
+    "gain": 0.0
+  }
+]
