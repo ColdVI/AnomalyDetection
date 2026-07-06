@@ -20,4 +20,5 @@ rosbags==0.11.3
 torch==2.12.1
 scipy==1.18.0
 joblib==1.5.3
+lightgbm==4.6.0
 # optional: pymavlink (MAVLink .bin/.tlog support in parse_generic.py)
