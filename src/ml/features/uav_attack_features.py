@@ -50,7 +50,12 @@ CUSUM_SOURCE_COLUMNS = [
     "gps_speed_residual", "hdop", "noise_per_ms",
     "pos_test_ratio", "vel_test_ratio", "hgt_test_ratio",
     "alt_baro_residual", "alt_local_residual", "attitude_error_mag",
+    "ekf_alt_innov", "ekf_vertical_vel_innov",
+    "actuator_output_std", "actuator_output_range",
 ]
+
+ACTUATOR_ACTIVE_STD_THRESHOLD = 1.0  # PWM; 30-flight real-data audit: inactive=0, active>>10
+_ACTUATOR_OUTPUT_COLS = [f"actuator_output_{i}" for i in range(16)]
 
 _GPS_HEALTH_COLS = ["eph", "epv", "raw_gps_eph", "raw_gps_epv", "hdop", "vdop",
                     "satellites_used", "s_variance_m_s", "jamming_indicator", "noise_per_ms"]
@@ -68,6 +73,32 @@ def _center_on_first_valid(series: pd.Series) -> pd.Series:
 
 def _flag_bit_count(series: pd.Series) -> pd.Series:
     return series.fillna(0).astype(np.int64).map(lambda value: int(value).bit_count())
+
+
+def actuator_output_imbalance(
+        g: pd.DataFrame, *, std_threshold: float = ACTUATOR_ACTIVE_STD_THRESHOLD,
+) -> pd.DataFrame:
+    """Nedensel motor-cikisi simetri residual'larini hesapla.
+
+    Bir kanal ancak o ana kadarki gozlemlerinde ``std_threshold`` ustu
+    degiskenlik gosterdikten sonra aktif sayilir. Boylece ucusun sonundaki
+    bilgi onceki satirlari degistirmez; sifir/sabit loglanan kullanilmayan
+    kanallar da residual'i yapay olarak buyutmez.
+    """
+    cols = [c for c in _ACTUATOR_OUTPUT_COLS if c in g.columns]
+    result = pd.DataFrame(index=g.index, columns=[
+        "actuator_output_std", "actuator_output_range", "actuator_active_channels",
+    ], dtype=float)
+    if not cols:
+        return result
+
+    values = g[cols].astype(float)
+    active = values.expanding(min_periods=2).std(ddof=1).gt(float(std_threshold))
+    active_values = values.where(active)
+    result["actuator_output_std"] = active_values.std(axis=1, ddof=0)
+    result["actuator_output_range"] = active_values.max(axis=1) - active_values.min(axis=1)
+    result["actuator_active_channels"] = active.sum(axis=1).astype(float)
+    return result
 
 
 def _flight_features(g: pd.DataFrame, time_col: str, *,
@@ -205,7 +236,8 @@ def _flight_features(g: pd.DataFrame, time_col: str, *,
     # "olcum, tahminle tutarsiz" demek. Hazir-residual ilkesinin PX4 karsiligi.
     _EKF_COLS = ["vel_test_ratio", "pos_test_ratio", "hgt_test_ratio", "mag_test_ratio",
                  "tas_test_ratio", "hagl_test_ratio", "beta_test_ratio",
-                 "ekf_vel_innov_mag", "ekf_pos_innov_mag", "heading_innov"]
+                 "ekf_vel_innov_mag", "ekf_pos_innov_mag", "heading_innov",
+                 "ekf_alt_innov", "ekf_vertical_vel_innov"]
     for c in _EKF_COLS:
         if c in g.columns:
             out[c] = g[c]
@@ -214,6 +246,26 @@ def _flight_features(g: pd.DataFrame, time_col: str, *,
             out = pd.concat([out, rolling_stats(g[c], WIN_5S, f"{c}_5s", stats=("max", "mean"))], axis=1)
             out[f"{c}_cusum_pos"] = cusum(
                 g[c], **cusum_kwargs(cusum_baselines, c))["cusum_pos"]
+
+    for c in ["ekf_alt_innov", "ekf_vertical_vel_innov"]:
+        if c in g.columns:
+            out = pd.concat([
+                out, rolling_stats(g[c], WIN_5S, f"{c}_5s", stats=("max", "mean"))
+            ], axis=1)
+            out[f"{c}_cusum_pos"] = cusum(
+                g[c], **cusum_kwargs(cusum_baselines, c))["cusum_pos"]
+
+    # ML-9: actuator_outputs yalniz SEAD Silver'inda vardir. Aktif kanal
+    # tespiti expanding oldugu icin rolling/CUSUM dahil tum zincir nedenseldir.
+    if any(c in g.columns for c in _ACTUATOR_OUTPUT_COLS):
+        imbalance = actuator_output_imbalance(g)
+        out = pd.concat([out, imbalance], axis=1)
+        for c in ["actuator_output_std", "actuator_output_range"]:
+            out = pd.concat([
+                out, rolling_stats(out[c], WIN_5S, f"{c}_5s", stats=("max", "mean"))
+            ], axis=1)
+            out[f"{c}_cusum_pos"] = cusum(
+                out[c], **cusum_kwargs(cusum_baselines, c))["cusum_pos"]
 
     # Test ratio, EKF olcumu reddettiginde ters sinyal verebilir. Bitmask
     # bayraklari reddi/fault'u dogrudan temsil eder; ordinal ham maskeyi modele

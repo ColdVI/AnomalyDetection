@@ -75,6 +75,29 @@ PX4_ML7_CANDIDATE_MODULES = {
 }
 
 
+# ML-9 kategori-eslesmeli adaylari. Bunlar development Gate B/C gecmeden
+# PX4_BASE_MODULES'a veya paketlenmis production varsayimina alinmaz.
+PX4_ML9_CANDIDATE_MODULES = {
+    **PX4_ML7_CANDIDATE_MODULES,
+    "dikey_tutarlilik": [
+        "ekf_alt_innov", "ekf_vertical_vel_innov",
+        "ekf_alt_innov_5s_max", "ekf_vertical_vel_innov_5s_max",
+        "ekf_alt_innov_cusum_pos",
+    ],
+    "motor_simetrisi": [
+        "actuator_output_std", "actuator_output_range",
+        "actuator_output_std_5s_max", "actuator_output_range_5s_max",
+        "actuator_output_std_cusum_pos",
+    ],
+}
+
+# Gate B'nin dikey ayrisma karsilastirmasi icin mevcut pooled innovation
+# referansi; default modul ailesine eklenmez.
+PX4_ML9_POOLED_EKF_REFERENCE = {
+    "pooled_ekf": ["ekf_pos_innov_mag", "ekf_vel_innov_mag"],
+}
+
+
 def anomaly_scores(model: IsolationForest, X: pd.DataFrame) -> np.ndarray:
     return -model.score_samples(X)
 

@@ -13,7 +13,11 @@ from src.ml.features.temporal import (
     rolling_stats,
     wrap_angle_deg,
 )
-from src.ml.features.uav_attack_features import MISSINGNESS_COLUMNS, build_uav_attack_features
+from src.ml.features.uav_attack_features import (
+    MISSINGNESS_COLUMNS,
+    actuator_output_imbalance,
+    build_uav_attack_features,
+)
 from src.ml.features.uav_attack_features import feature_columns as px4_feature_columns
 
 
@@ -155,3 +159,53 @@ def test_build_uav_attack_features_has_missingness_and_residuals():
     with_m = px4_feature_columns(feats, include_missingness=True)
     without_m = px4_feature_columns(feats, include_missingness=False)
     assert set(with_m) - set(without_m) == set(MISSINGNESS_COLUMNS)
+
+
+def _ml9_actuator_silver(*, stuck: bool = False) -> pd.DataFrame:
+    n = 40
+    phase = np.linspace(0, 4 * np.pi, n)
+    motor = 1400.0 + 100.0 * np.sin(phase)
+    data = {f"actuator_output_{i}": motor.copy() for i in range(4)}
+    data.update({f"actuator_output_{i}": np.zeros(n) for i in range(4, 16)})
+    if stuck:
+        data["actuator_output_0"][20:] = data["actuator_output_0"][19]
+    return pd.DataFrame(data)
+
+
+def test_actuator_output_active_channel_detection():
+    residuals = actuator_output_imbalance(_ml9_actuator_silver())
+    assert residuals["actuator_active_channels"].iloc[-1] == 4
+
+
+def test_actuator_output_imbalance_flags_stuck_motor():
+    healthy = actuator_output_imbalance(_ml9_actuator_silver())
+    stuck = actuator_output_imbalance(_ml9_actuator_silver(stuck=True))
+    assert stuck["actuator_output_range"].iloc[-1] > healthy["actuator_output_range"].iloc[-1]
+
+
+def test_ekf_alt_innov_no_future_leak():
+    n = 40
+    base = _tiny_uav_silver().iloc[:n].copy()
+    base["source_id"] = "sead_prefix"
+    base["label"] = "normal"
+    base["ekf_alt_innov"] = np.linspace(0.0, 1.0, n)
+    base["ekf_vertical_vel_innov"] = np.linspace(0.0, 0.5, n)
+    for i, col in enumerate(_ml9_actuator_silver().columns):
+        base[col] = _ml9_actuator_silver()[col].to_numpy()
+
+    future = base.iloc[-5:].copy()
+    future["timestamp"] += 5_000_000
+    future["ekf_alt_innov"] = 1_000.0
+    future["ekf_vertical_vel_innov"] = 1_000.0
+    future["actuator_output_7"] = np.arange(len(future)) * 500.0
+    extended = pd.concat([base, future], ignore_index=True)
+
+    expected = build_uav_attack_features(base)
+    actual = build_uav_attack_features(extended).iloc[:n]
+    ml9_cols = [c for c in expected if c.startswith("ekf_alt_innov")
+                or c.startswith("ekf_vertical_vel_innov")
+                or c.startswith("actuator_output")]
+    pd.testing.assert_frame_equal(
+        expected[ml9_cols].reset_index(drop=True),
+        actual[ml9_cols].reset_index(drop=True),
+    )

@@ -66,6 +66,7 @@ _LOCAL_FIELDS = [
 _ATTITUDE_SETPOINT_FIELDS = ["roll_body", "pitch_body", "yaw_body", "thrust"]
 _RATE_SETPOINT_FIELDS = ["roll", "pitch", "yaw", "thrust"]
 _ACTUATOR_CONTROL_FIELDS = [f"control[{i}]" for i in range(4)]
+_ACTUATOR_OUTPUT_FIELDS = [f"output[{i}]" for i in range(16)] + ["noutputs"]
 MERGE_TOLERANCE_US = 200_000  # parse_uav_attack ile ayni
 
 
@@ -143,6 +144,11 @@ def parse_ulg_bytes(data: bytes, source_id: str, label: str) -> pd.DataFrame | N
     if all(f"vel_pos_innov[{i}]" in base.columns for i in range(6)):
         base["ekf_vel_innov_mag"] = np.sqrt(sum(base[f"vel_pos_innov[{i}]"] ** 2 for i in range(3)))
         base["ekf_pos_innov_mag"] = np.sqrt(sum(base[f"vel_pos_innov[{i}]"] ** 2 for i in range(3, 6)))
+        # ML-9: pooled yatay+dikey buyukluklari korurken kategori-eslesmeli
+        # dikey innovation'lari ayrica sakla. Mutlak deger, yon yerine
+        # tutarsizlik siddetini temsil eder.
+        base["ekf_vertical_vel_innov"] = base["vel_pos_innov[2]"].abs()
+        base["ekf_alt_innov"] = base["vel_pos_innov[5]"].abs()
         base = base.drop(columns=[f"vel_pos_innov[{i}]" for i in range(6)])
 
     # ML-7: estimator bir olcumu reddettiginde test ratio dusuk/temiz gorunebilir.
@@ -181,6 +187,12 @@ def parse_ulg_bytes(data: bytes, source_id: str, label: str) -> pd.DataFrame | N
         rename={f"control[{i}]": name for i, name in enumerate(
                 ["actuator_roll_cmd", "actuator_pitch_cmd",
                  "actuator_yaw_cmd", "actuator_thrust_cmd"])})
+    base = _merge(
+        base, _topic_df(ulog, "actuator_outputs", _ACTUATOR_OUTPUT_FIELDS),
+        rename={
+            **{f"output[{i}]": f"actuator_output_{i}" for i in range(16)},
+            "noutputs": "actuator_noutputs",
+        })
 
     if "vel_d_m_s" in base.columns:
         base["vertical_rate_mps"] = -base["vel_d_m_s"]
