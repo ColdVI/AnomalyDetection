@@ -79,6 +79,8 @@
     "ekf_vel_innov_mag",
     "ekf_pos_innov_mag",
     "heading_innov",
+    "ekf_alt_innov",
+    "ekf_vertical_vel_innov",
     "pos_test_ratio_5s_mean",
     "pos_test_ratio_5s_max",
     "pos_test_ratio_cusum_pos",
@@ -88,6 +90,21 @@
     "hgt_test_ratio_5s_mean",
     "hgt_test_ratio_5s_max",
     "hgt_test_ratio_cusum_pos",
+    "ekf_alt_innov_5s_mean",
+    "ekf_alt_innov_5s_max",
+    "ekf_alt_innov_cusum_pos",
+    "ekf_vertical_vel_innov_5s_mean",
+    "ekf_vertical_vel_innov_5s_max",
+    "ekf_vertical_vel_innov_cusum_pos",
+    "actuator_output_std",
+    "actuator_output_range",
+    "actuator_active_channels",
+    "actuator_output_std_5s_mean",
+    "actuator_output_std_5s_max",
+    "actuator_output_std_cusum_pos",
+    "actuator_output_range_5s_mean",
+    "actuator_output_range_5s_max",
+    "actuator_output_range_cusum_pos",
     "innovation_check_flags_active",
     "innovation_check_flags_bit_count",
     "gps_check_fail_flags_active",
@@ -524,6 +541,16 @@
       "scale": 0.014386534690856934,
       "impute": 0.0
     },
+    "ekf_alt_innov": {
+      "center": 0.07506513595581055,
+      "scale": 0.21869096159934998,
+      "impute": 0.07506513595581055
+    },
+    "ekf_vertical_vel_innov": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
     "pos_test_ratio_5s_mean": {
       "center": 0.030274573154747485,
       "scale": 0.046825879688848146,
@@ -568,6 +595,81 @@
       "center": 0.002682190949469806,
       "scale": 0.4383566379914058,
       "impute": 0.002682190949469806
+    },
+    "ekf_alt_innov_5s_mean": {
+      "center": 0.10796039551496506,
+      "scale": 0.2552235666910807,
+      "impute": 0.10796039551496506
+    },
+    "ekf_alt_innov_5s_max": {
+      "center": 0.17167741060256958,
+      "scale": 0.6203131675720215,
+      "impute": 0.17167741060256958
+    },
+    "ekf_alt_innov_cusum_pos": {
+      "center": 0.31646246969699865,
+      "scale": 48.46404485639211,
+      "impute": 0.31646246969699865
+    },
+    "ekf_vertical_vel_innov_5s_mean": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "ekf_vertical_vel_innov_5s_max": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "ekf_vertical_vel_innov_cusum_pos": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "actuator_output_std": {
+      "center": 61.9293952820468,
+      "scale": 47.0975559317327,
+      "impute": 61.9293952820468
+    },
+    "actuator_output_range": {
+      "center": 183.0,
+      "scale": 145.0,
+      "impute": 183.0
+    },
+    "actuator_active_channels": {
+      "center": 8.0,
+      "scale": 1.0,
+      "impute": 8.0
+    },
+    "actuator_output_std_5s_mean": {
+      "center": 72.12443557171704,
+      "scale": 35.99413089111718,
+      "impute": 72.12443557171704
+    },
+    "actuator_output_std_5s_max": {
+      "center": 124.90990503158666,
+      "scale": 76.61930989124573,
+      "impute": 124.90990503158666
+    },
+    "actuator_output_std_cusum_pos": {
+      "center": 47.595883424324626,
+      "scale": 1562.6526491350319,
+      "impute": 47.595883424324626
+    },
+    "actuator_output_range_5s_mean": {
+      "center": 217.84,
+      "scale": 116.24000000000001,
+      "impute": 217.84
+    },
+    "actuator_output_range_5s_max": {
+      "center": 391.0,
+      "scale": 257.0,
+      "impute": 391.0
+    },
+    "actuator_output_range_cusum_pos": {
+      "center": 252.8903999999999,
+      "scale": 6390.917600000013,
+      "impute": 252.8903999999999
     },
     "innovation_check_flags_active": {
       "center": 0.0,
