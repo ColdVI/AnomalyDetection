@@ -62,11 +62,20 @@ DEFAULT_WORLD_RADIUS_NM = 12000
 
 def _normalize_common(icao24, callsign, lat, lon, alt_m, velocity_ms, track_deg,
                        vertical_rate_ms, category, squawk, emergency,
-                       is_military, source):
+                       is_military, source, signal_age_sec=None):
     """Tum kaynaklarin USTUNDE birlestigi ortak sema. Her adaptor kendi
     ham verisini normalize etmek icin bunu cagirir -- main() ve
     downstream (Kafka -> consumer -> dashboard) sadece bu ciktiyi gorur,
-    hangi kaynaktan geldigini bilmesi gerekmez."""
+    hangi kaynaktan geldigini bilmesi gerekmez.
+
+    signal_age_sec: bu KAYDIN ("uçak hâlâ dashboard'da görünüyor" ile
+    "sinyali gerçekten ne kadar tazeydi" arasindaki fark) icin onemli --
+    adsb.lol/readsb, bir ucaktan 60 saniyeye kadar mesaj gelmese bile
+    onu listede TUTUYOR (kendi "seen" alaniyla bunu belirtiyor). Biz bu
+    alani KULLANMADIGIMIZ icin, sinyali onlarca saniyedir kesilmis bir
+    ucak bile bizim gozumuzde "taze" gorunuyordu -- haritada donuk/olu
+    bir sinyal gibi kalabiliyordu. None ise kaynak bu bilgiyi
+    saglamiyor demektir (guvenli varsayilan: taze kabul et)."""
     return {
         "icao24": icao24,
         "callsign": callsign,
@@ -81,6 +90,7 @@ def _normalize_common(icao24, callsign, lat, lon, alt_m, velocity_ms, track_deg,
         "emergency": emergency,
         "is_military": is_military,
         "source": source,
+        "signal_age_sec": signal_age_sec,
         "ts": datetime.now(timezone.utc).isoformat(),
     }
 
@@ -118,7 +128,17 @@ def _fetch_adsblol_raw(lat, lon, radius_nm, max_retries=2, retry_delay=3):
     url = f"https://api.adsb.lol/v2/point/{lat}/{lon}/{radius_nm}"
     for attempt in range(max_retries + 1):
         try:
-            r = requests.get(url, timeout=90)  # dunya capinda sorgu icin yuksek timeout
+            # ONEMLI: 90sn'den 120sn'ye cikarildi -- tipik basarili sorgu
+            # ~55-60sn suruyor ama sunucu bazen daha yavas yanit veriyor
+            # (adsb.lol tarafinda gecici yuk/gerginlik oldugunda) --
+            # 90sn bu durumlarda ERKEN pes edip GEREKSIZ yere retry'a
+            # geciyordu. BEDELI: gercekten kopmus bir baglantiyi fark
+            # etmemiz de o kadar uzuyor (3 deneme x 120sn + 2x3sn bekleme
+            # = en kotu durumda ~366sn/6dk, eskiden ~276sn/4.6dk idi).
+            # KOK NEDEN (sunucu tarafi yavaslik/gerginlik) bizim
+            # kontrolumuzde degil -- bu sadece TOLERANSI ayarliyor,
+            # sorunu COZMUYOR.
+            r = requests.get(url, timeout=120)
             if r.status_code == 200:
                 data = r.json()
                 if data.get("ac"):
@@ -167,6 +187,14 @@ def _parse_adsblol_aircraft(ac: dict):
     except (TypeError, ValueError):
         is_military = False
 
+    # ONEMLI: readsb (adsb.lol'un altyapisi), bir ucaktan mesaj kesilse
+    # bile onu 60 saniyeye kadar listede TUTAR -- "seen" alani, o mesajin
+    # GERCEKTE kac saniye once alindigini gosterir. Bu deger BUYUKSE
+    # (orn. 30-40sn+), ucak hala listede olsa bile sinyali aslinda
+    # KESILMIS/eskimis olabilir -- biz bunu KULLANMADAN once, boyle
+    # ucaklar bizim gozumuzde her zaman "taze" gorunuyordu.
+    signal_age = ac.get("seen")
+
     return _normalize_common(
         icao24=icao, callsign=(ac.get("flight") or "").strip(),
         lat=round(float(lat), 6), lon=round(float(lon), 6),
@@ -175,6 +203,7 @@ def _parse_adsblol_aircraft(ac: dict):
         category=ac.get("category", ""), squawk=ac.get("squawk", ""),
         emergency=ac.get("emergency", "none"), is_military=is_military,
         source="adsblol",
+        signal_age_sec=(float(signal_age) if signal_age is not None else None),
     )
 
 
@@ -226,11 +255,19 @@ def _parse_opensky_state(state):
         on_ground = state[8]
         velocity, track, vertical_rate = state[9], state[10], state[11]
         squawk = state[14] or ""
+        last_contact = state[4]  # unix zaman damgasi -- en son mesaj ne zaman alindi
     except (IndexError, TypeError):
         return None
 
     if not icao24 or lat is None or lon is None or on_ground:
         return None
+
+    # ONEMLI: adsb.lol'deki "seen" (saniye once) alaninin OpenSky
+    # karsiligi -- last_contact bir UNIX ZAMAN DAMGASI (mutlak), "kac
+    # saniye once" degil. Simdiki zamandan cikararak ayni birime
+    # (saniye once) ceviriyoruz -- boylece iki kaynak da AYNI
+    # "signal_age_sec" alanini tutarli sekilde dolduruyor.
+    signal_age = (time.time() - last_contact) if last_contact is not None else None
 
     return _normalize_common(
         icao24=icao24, callsign=callsign,
@@ -250,6 +287,7 @@ def _parse_opensky_state(state):
         squawk=squawk, emergency=OPENSKY_EMERGENCY_SQUAWKS.get(squawk, "none"),
         is_military=False,  # OpenSky bu bilgiyi vermiyor
         source="opensky",
+        signal_age_sec=round(signal_age, 1) if signal_age is not None else None,
     )
 
 
@@ -344,49 +382,24 @@ def main():
             t_fetch = time.time() - t_fetch_start
 
             if records:
-                # ONEMLI: Redis'teki her ucagin kaydi bir TTL (yasam suresi)
-                # ile tutulur -- tuketici (dashboard_consumer.py), YENI veri
-                # gelmezse "sinyal kaybetti" varsayimiyla bunu otomatik siler.
-                # Bu TTL, kaynagin GERCEK tazeleme araligindan KISA olursa,
-                # her ucak bir sonraki veri gelmeden ONCE Redis'ten duser --
-                # harita bosalir, sonra yeni veri gelince tekrar dolar --
-                # "kaybolup geri geliyor" hatasinin TAM SEBEBI budur.
-                #
-                # ILK DENEMEDE BUYUK BIR HATA YAPILDI: ttl_hint = args.interval
-                # * 3 hesaplanmisti -- ama args.interval sadece HEDEF, adsblol
-                # gibi kaynaklarda GERCEK cycle suresi (t_fetch) hedeften COK
-                # daha uzun olabiliyor (dunya sorgusunda hedef=15sn ama gercek
-                # ~57-61sn olculdu!) -- interval'e gore hesaplayinca TTL yine
-                # cok kisa kaliyordu, AYNI hatayi bu sefer adsblol icin
-                # yeniden yaratmis olduk. DOGRUSU: hedef ile GERCEK olculen
-                # fetch suresinden BUYUK OLANI kullanmak.
-                #
-                # IKINCI AYAR: guvenlik payi 3x'ten dusuruldu. 3x ile ekranda
-                # "aktif ucus" sayisi tek cycle'dan ~%24 fazla cikiyordu
-                # (OpenSky'de TTL=900sn=15dk -- son 3 cycle'in BIRLESIMI
-                # gosteriliyordu, hem sayiyi sisiriyor hem de bazi ucaklarin
-                # 15dk'ya kadar BAYAT pozisyonda gorunmesine yol aciyordu).
-                #
-                # UCUNCU AYAR (tek bir sabit carpan YETERSIZDI): OpenSky ile
-                # adsblol'un DAVRANISI FARKLI -- OpenSky'de gercek cekme
-                # suresi hep hizli (~1sn), bekleme SADECE sabit --interval'dan
-                # geliyor (COK KARARLI) -- kucuk bir pay (1.5x) yeterli.
-                # adsblol'de ise (dunya sorgusu) gercek sure hedefi ZATEN
-                # asiyor ve KENDISI degisken (57-166sn arasi olculmustu) --
-                # buraya sadece 1.5x uygulamak riskli olurdu (58sn'lik tipik
-                # sureye sadece ~30sn pay birakirdi). Iki rejimi ayirdik:
-                #   - gercek sure hedefi asiyorsa (degisken, is-agirlikli):
-                #     gercek surenin 2 kati -- daha genis pay
-                #   - hedef domine ediyorsa (kararli, OpenSky gibi):
-                #     hedefin 1.5 kati -- dar pay yeterli
-                if t_fetch > args.interval:
-                    ttl_hint = max(60, int(t_fetch * 2))
-                else:
-                    ttl_hint = max(60, int(args.interval * 1.5))
-
+                # ONEMLI: bu producer artik Redis/TTL/pencere kavramindan
+                # TAMAMEN habersiz (tam da "producer hicbir depoyu bilmez"
+                # ilkesine uygun) -- SADECE burada eklenen "cycle_id",
+                # tuketiciye (dashboard_consumer.py) "bu kayitlar AYNI
+                # cycle'a ait" bilgisini tasiyor. Tuketici, cycle_id
+                # DEGISTIGINDE "onceki cycle TAMAMLANDI" sinyalini alip
+                # o cycle'da hic gorulmeyen eski kayitlari SILIYOR --
+                # SANIYE TAHMINI (WINDOW_SEC gibi) YOK, sinir producer'in
+                # KENDI dogal cycle sinirindan geliyor. Bu, eskiden
+                # zaman-pencereli yaklasimin verdigi "birden fazla
+                # cycle'in birlesimi gosteriliyor" fazlaligini (bkz.
+                # proje sohbet gecmisi, %13'e kadar olcduk) SIFIRA
+                # indiriyor -- her zaman TAM OLARAK bir onceki
+                # TAMAMLANMIS cycle ile karsilastiriliyor.
+                stats["cycles"] += 1
                 t_produce_start = time.time()
                 for rec in records:
-                    rec["ttl_hint"] = ttl_hint
+                    rec["cycle_id"] = stats["cycles"]
                     producer.produce(
                         TOPIC, key=rec["icao24"],
                         value=json.dumps(rec).encode(),
@@ -395,14 +408,13 @@ def main():
                 producer.flush()
                 t_produce = time.time() - t_produce_start
 
-                stats["cycles"] += 1
                 stats["total"] += len(records)
                 print(f"[{datetime.now().strftime('%H:%M:%S')}] "
                       f"{len(records)} ucus -> Kafka (kaynak={args.source}, "
                       f"cycle={stats['cycles']}, toplam={stats['total']})")
                 print(f"  [timing] fetch={t_fetch:.1f}s  produce={t_produce:.1f}s  "
                       f"cycle-toplam={time.time() - t0:.1f}s  "
-                      f"(hedef araligi={args.interval}s, ttl_hint={ttl_hint}s)")
+                      f"(hedef araligi={args.interval}s)")
             else:
                 print(f"[{datetime.now().strftime('%H:%M:%S')}] veri alinamadi "
                       f"(kaynak={args.source}, fetch={t_fetch:.1f}s)")

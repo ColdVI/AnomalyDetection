@@ -134,6 +134,7 @@ TEXTS = {
         "tooltip_speed": "Hız",
         "tooltip_track": "Yön",
         "tooltip_vspeed": "Dikey",
+        "tooltip_signal_age": "Sinyal yaşı",
         "tz_default_suffix": " (Türkiye)",
         "filter_civil_label": "Sivil",
         "filter_military_label": "Askeri",
@@ -180,6 +181,7 @@ TEXTS = {
         "tooltip_speed": "Speed",
         "tooltip_track": "Heading",
         "tooltip_vspeed": "V/S",
+        "tooltip_signal_age": "Signal age",
         "tz_default_suffix": " (Turkey)",
         "filter_civil_label": "Civilian",
         "filter_military_label": "Military",
@@ -505,8 +507,9 @@ function(feature, latlng, context){
     const p = feature.properties;
     const heading = p.track || 0;
     const color = p.color || '#00b4d8';
+    const opacity = (p.opacity === undefined || p.opacity === null) ? 1 : p.opacity;
     const html = '<div style="transform: rotate(' + heading + 'deg); ' +
-        'transform-origin: center; width: 22px; height: 22px;">' +
+        'transform-origin: center; width: 22px; height: 22px; opacity: ' + opacity + ';">' +
         '<svg width="22" height="22" viewBox="0 0 24 24">' +
         '<path d="M12 1 L15 13 L23 18 L15 16 L15 20.5 L18.5 22.5 L12 21 ' +
         'L5.5 22.5 L9 20.5 L9 16 L1 18 L9 13 Z" fill="' + color + '" ' +
@@ -525,6 +528,11 @@ _ON_EACH_FEATURE_JS = assign("""
 function(feature, layer, context){
     const p = feature.properties;
     if(!p.icao24){ return; }  // cluster balonu -- ucak degil, tooltip yok
+    let signalRow = '';
+    if(p.signal_age_text){
+        signalRow = '<div style="grid-column: 1 / -1;"><span style="color:#666">' +
+            p.lbl_signal_age + ' </span><span style="color:#f7b731">' + p.signal_age_text + '</span></div>';
+    }
     const html = '<div style="min-width:150px">' +
         '<div style="font-size:14px; font-weight:700; color:' + p.color +
         '; margin-bottom:1px;">' + p.callsign + '</div>' +
@@ -534,6 +542,7 @@ function(feature, layer, context){
         '<div><span style="color:#666">' + p.lbl_speed + ' </span><span>' + p.speed_text + '</span></div>' +
         '<div><span style="color:#666">' + p.lbl_track + ' </span><span>' + p.track_text + '</span></div>' +
         '<div><span style="color:#666">' + p.lbl_vspeed + ' </span><span>' + p.vspeed_text + '</span></div>' +
+        signalRow +
         '</div></div>';
     layer.bindTooltip(html, {direction: 'top', offset: [0, -14]});
 }
@@ -993,11 +1002,29 @@ def update_map(n, tz_name, lang, show_civil, show_military):
             subtitle_parts.append(t["tooltip_military_tag"])
         subtitle = "  ·  ".join(subtitle_parts)
 
+        # ONEMLI: adsb.lol/readsb, bir ucaktan mesaj kesilse bile onu 60
+        # saniyeye kadar listede TUTAR ("seen" alani = mesajin GERCEKTE
+        # kac saniye once alindigi). Bu sureyi KULLANMADAN once, sinyali
+        # onlarca saniyedir kesilmis bir ucak bile haritada "taze"
+        # gorunuyordu -- kullanicinin fark ettigi "olu sinyal" sorunu bu.
+        # 10sn'nin altinda tam opak, 40sn+ icin belirgin soluk (0.35),
+        # arasinda dogrusal geciyor. signal_age_sec None ise (kaynak
+        # saglamiyorsa) GUVENLI VARSAYILAN: tam opak (dim etmeyecek kadar
+        # bilgimiz yok).
+        signal_age = f.get("signal_age_sec")
+        if signal_age is None:
+            opacity = 1.0
+            signal_age_text = None
+        else:
+            opacity = max(0.35, min(1.0, 1.0 - (signal_age - 10) / 30))
+            signal_age_text = f"{signal_age:.0f}sn" if signal_age >= 10 else None
+
         points.append(dict(
             lat=f.get("lat", 39), lon=f.get("lon", 35),
             icao24=icao,
             callsign=callsign or icao.upper(),
             color=color,
+            opacity=round(opacity, 2),
             track=f.get("track") or 0,
             subtitle=subtitle,
             alt_text=f"{f.get('alt', 0):.0f} m",
@@ -1009,6 +1036,7 @@ def update_map(n, tz_name, lang, show_civil, show_military):
                         if f.get('vertical_rate') is not None else "—"),
             lbl_alt=t["tooltip_alt"], lbl_speed=t["tooltip_speed"],
             lbl_track=t["tooltip_track"], lbl_vspeed=t["tooltip_vspeed"],
+            signal_age_text=signal_age_text, lbl_signal_age=t["tooltip_signal_age"],
         ))
 
     geojson_data = dlx.dicts_to_geojson(points)

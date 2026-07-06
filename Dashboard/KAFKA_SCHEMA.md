@@ -12,6 +12,15 @@ cycle başına birkaç bin ile on binler arasında olabilir (sabit, sürekli). K
 consumer'ını yazarken bunu hesaba kat (özellikle MinIO arşivleyici ve model
 consumer'ı için) — throughput/batch boyutu varsayımların buna göre olmalı.
 
+**NOT (KIRICI DEĞİŞİKLİK — `ttl_hint` alanı kaldırıldı):** Daha önce her kayıtta
+bir `ttl_hint` alanı vardı (Redis TTL'i için önerilen süre). Bu tamamen kaldırıldı —
+eğer kendi consumer'ın bu alanı okuyorsa, artık gelmeyecek. Sebep: dashboard
+consumer'ı artık Redis'te TTL kullanmıyor, bunun yerine PENCERE TABANLI bir
+"gör-yoksa-sil" modeline geçti (belirli bir zaman penceresinde hiç görünmeyen
+kayıtları doğrudan siliyor). Bu, sadece BİZİM Redis kullanımımızla ilgili bir
+detaydı — kendi consumer'ın (MinIO arşivleyici, model eğitimi) muhtemelen zaten
+bu alanı hiç kullanmıyordu, ama olur da bir yerde referans varsa diye belirtiyorum.
+
 ---
 
 ## 1. `adsb.flights`
@@ -38,7 +47,8 @@ bağımsız, kendi hızında okursun. Aynı mesajı ikimiz de görürüz, biri d
   "category": "A3",
   "is_military": false,
   "source": "adsblol",
-  "ttl_hint": 174,
+  "cycle_id": 42,
+  "signal_age_sec": 4.5,
   "ts": "2026-07-01T12:34:56.789012+00:00"
 }
 ```
@@ -55,7 +65,8 @@ bağımsız, kendi hızında okursun. Aynı mesajı ikimiz de görürüz, biri d
 | `category` | string | Emitter kategorisi (A0-D7, ADS-B standardı). OpenSky kaynağında hep boş |
 | `is_military` | bool | adsb.lol'ün `dbFlags` bit alanının 1. biti (`dbFlags & 1`) — topluluk veritabanına dayanır, %100 kapsama garantisi yok, alan gelmezse `false`. OpenSky kaynağında hep `false` |
 | `source` | string | `"adsblol"` veya `"opensky"` — hangi kaynaktan geldiği |
-| `ttl_hint` | int | Saniye cinsinden önerilen Redis TTL'i — producer'ın **o çalışma için** ölçtüğü gerçek döngü süresinin ~3 katı (kaynak/hız değişse bile Redis'te veri, bir sonraki tazeleme gelmeden ÖNCE düşmesin diye). Kendi consumer'ını yazarsan bunu kullan, sabit bir sayı varsayma |
+| `cycle_id` | int | Bu kaydın hangi üretim cycle'ına ait olduğu (1'den başlayıp artan sayaç). Aynı cycle_id'ye sahip tüm kayıtlar AYNI fetch işleminden geliyor. Dashboard consumer'ı bunu, bir cycle tamamlanınca o cycle'da görünmeyen eski kayıtları anında temizlemek için kullanıyor (saniye tahminine dayalı TTL/pencere YOK) — kendi consumer'ında "bu cycle'ın verisi tamam" sinyaline ihtiyacın olursa bunu kullan |
+| `signal_age_sec` | float veya null | Bu pozisyonun GERÇEKTE kaç saniye önce alındığı (adsb.lol/readsb'nin kendi "seen" alanı, OpenSky'de "last_contact"tan hesaplanıyor). ÖNEMLİ: adsb.lol bir uçaktan mesaj kesilse bile onu 60 saniyeye kadar listede TUTAR — yani `icao24`'ün kayıtta olması, sinyalin taze olduğu anlamına gelmez. Bu alan büyükse (30-40sn+), uçak hâlâ görünse bile sinyali aslında eskimiş/kesilmiş olabilir. Kaynak bu bilgiyi sağlamıyorsa `null` |
 | `ts` | string | ISO 8601, UTC |
 
 **Model consumer'ın için öneri:** `group.id="anomaly-model"` kullan, `auto.offset.reset="latest"`

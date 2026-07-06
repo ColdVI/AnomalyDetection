@@ -34,15 +34,83 @@ INFLUX_HOST = "http://localhost:8086"
 INFLUX_ORG = "iha-org"
 INFLUX_BUCKET = "adsb-history"
 
-# ONEMLI: bu artik SABIT bir deger olarak KULLANILMIYOR -- sadece kaydin
-# icinde "ttl_hint" yoksa (eski/farkli bir producer'dan gelen kayit vb.)
-# devreye giren GERI DUSUS degeri. Gercek TTL, adsb_producer.py'nin o
-# CALISMA icin kullandigi --interval'den turetilip her kaydin icine
-# "ttl_hint" olarak konuyor -- boylece TTL, kaynak/hiz ne olursa olsun
-# HER ZAMAN dogru kalir (eskiden bu sabitti, OpenSky gibi yavas
-# kaynaklarda TTL'nin tazeleme araligindan KISA kalmasi -- 120sn < 300sn
-# -- ucaklarin "kaybolup geri gelmesine" yol aciyordu).
-REDIS_TTL_SEC = 120
+# ============================================================
+# CYCLE-ID TABANLI "GOR-YOKSA-SIL" MODELI (once TTL, sonra zaman-pencereli
+# yaklasim denendi, ikisi de kaldirildi)
+#
+# 1. DENEME (TTL): her ucak kaydi Redis'e bir TTL (yasam suresi) ile
+# yaziliyordu. "iha:active_flights" kumesinde SREM hic yapilmadigi icin,
+# tekil key TTL ile silinse bile icao24 kumede kalmaya devam ediyordu
+# ("hayalet kayit") -- periyodik bakimla temizleniyordu ama Redis'in
+# burada "kalici bir depo" gibi davranmasini gerektiriyordu.
+#
+# 2. DENEME (zaman penceresi, WINDOW_SEC): TTL yerine, belirli bir
+# SANIYE penceresi boyunca goruleni takip edip pencere kapaninca
+# gorulmeyeni silme. Hayalet sorununu cozdu ama YENI bir sorun getirdi:
+# pencere suresi, kaynagin GERCEK cycle suresine gore TAHMIN edilmek
+# zorundaydi (110-600sn arasi, kaynaga gore elle ayarlaniyordu) -- pencere
+# birden fazla cycle'i kapsadiginda (orn. 180sn/55sn≈3.3 cycle), ekranda
+# "birden fazla cycle'in BIRLESIMI" gosteriliyordu (%13'e kadar fazlalik
+# olcduk). Tek dogru saniye degeri yoktu -- ya fazlalik ya da titreme
+# riski araninda hep bir denge kurulmasi gerekiyordu.
+#
+# 3. (GUNCEL) CYCLE-ID: saniye TAHMIN ETMEK yerine, producer'in KENDI
+# dogal cycle sinirini kullaniyoruz. adsb_producer.py her kayda hangi
+# cycle'a ait oldugunu gosteren bir "cycle_id" ekliyor (stats["cycles"]).
+# Bu consumer, gelen mesajlardaki cycle_id DEGISTIGINDE "onceki cycle
+# TAMAMLANDI" sinyalini alir ve o cycle'da hic gorulmeyen eski kayitlari
+# ANINDA siler. SANIYE TAHMINI YOK -- her zaman TAM OLARAK bir onceki
+# TAMAMLANMIS cycle ile karsilastirilir, bu da fazlaligi SIFIRA indirir.
+# Bir cycle basarisiz olursa (adsb.lol baglanti hatasi vb.), producer o
+# cycle icin HICBIR mesaj/cycle_id degisikligi uretmez -- consumer da
+# sessizce mevcut veriyi korur, saniyeye dayali bir zaman asimi riski YOK.
+#
+# 4. DENENIP GERI ALINAN (regresyon!): mesajlar geldikce Redis'e TEK TEK
+# yazildigi icin, bir cycle akarken (birkaç saniye) Redis KISA SURELIGINE
+# "eskinin bir kismi + yeninin bir kismi" karisik bir durumda kaliyordu --
+# bunu COZMEK icin bir cycle'in TUM verisini once BELLEKTE toplayip,
+# cycle TAMAMLANINCA TEK BIR ATOMIK islemde yazma denendi. AMA bu, bir
+# cycle'in verisinin gorunur olmasini bir SONRAKI cycle baslayana kadar
+# (yani ~1 TAM CYCLE SURESI, orn. ~56sn) ERTELEDI -- ekran surekli
+# producer'in BIR ONCEKI cycle'ini gosterir hale geldi (kullanici bunu
+# "ekran = producer - 1" seklinde fark etti). Birkaç saniyelik KUCUK bir
+# tutarsizligi cozeyim derken, COK DAHA BUYUK bir gecikme (56sn) yaratildi
+# -- bu bir REGRESYONDU, GERI ALINDI. Mesajlar yine GELDIKCE ANINDA
+# yaziliyor (dusuk gecikme onceligi), birkac saniyelik gecis-penceresi
+# tutarsizligi KABUL EDILEN bir bedel (0 gecikmeye kiyasla cok daha iyi).
+
+
+def sweep_stale_flights(rdb, baseline_set, seen_this_cycle, batch_size=500):
+    """Bir cycle tamamlaninca cagrilir. "baseline_set" -- BU cycle
+    BASLAMADAN HEMEN ONCE Redis'in durumu (bir onceki TAMAMLANMIS
+    cycle'in tam verisi). "seen_this_cycle" -- BU cycle'da GERCEKTEN
+    gorulen icao24'ler. baseline_set - seen_this_cycle farki (eski
+    cycle'da vardi ama bu cycle'da hic gelmedi) artik gecersiz sayilip
+    SILINIR -- hem tekil "iha:state:{icao}" key'i (DEL) hem kume
+    uyeligi (SREM).
+
+    ONEMLI (gercek bir hata buradan cikti, dikkat!): sweep CAGIRILDIGI
+    ANDA Redis'in GUNCEL durumunu (SMEMBERS) baseline olarak KULLANMA --
+    o an Redis zaten BU cycle'in kendi verisini icerir (mesajlar
+    geldikce ANINDA yaziliyor), yani "cycle'i kendisiyle" karsilastirmis
+    olursun, fark HICBIR ZAMAN bulunmaz. Baseline, cycle BASLAMADAN
+    ONCE ayrica alinip saklanmis olmali (bkz. main() icindeki
+    baseline_before_cycle degiskeni)."""
+    try:
+        stale = baseline_set - seen_this_cycle
+        if not stale:
+            return 0
+        stale_list = list(stale)
+        pipe = rdb.pipeline()
+        for icao in stale_list:
+            pipe.delete(f"iha:state:{icao}")
+        for i in range(0, len(stale_list), batch_size):
+            pipe.srem("iha:active_flights", *stale_list[i:i + batch_size])
+        pipe.execute()
+        return len(stale)
+    except Exception as e:
+        print(f"  [uyari] pencere temizligi hatasi: {e}")
+        return 0
 
 
 def load_token() -> str:
@@ -105,6 +173,9 @@ def main():
     print("Durdurmak icin Ctrl+C\n")
 
     stats = {"flights": 0, "alerts": 0}
+    current_cycle_id = None
+    seen_this_cycle = set()
+    baseline_before_cycle = None  # bu cycle BASLAMADAN once Redis'in durumu
 
     try:
         while True:
@@ -125,9 +196,35 @@ def main():
                 icao = data.get("icao24", "")
                 if not icao:
                     continue
-                rdb.set(f"iha:state:{icao}", json.dumps(data),
-                       ex=data.get("ttl_hint", REDIS_TTL_SEC))
+
+                # ONEMLI: producer'in gonderdigi "cycle_id" DEGISTIYSE,
+                # bir onceki cycle TAMAMLANMIS demektir -- o cycle'i,
+                # KENDI basladigi andaki Redis durumuyla (baseline_before_cycle)
+                # karsilastirip farkini SIMDI temizliyoruz. Ilk mesajda
+                # (current_cycle_id=None) veya cycle_id gelmeyen eski/farkli
+                # bir kaynaktan gelen kayitlarda GUVENLI VARSAYILAN: temizlik
+                # yapma, sadece takip etmeye basla.
+                cycle_id = data.get("cycle_id")
+                if cycle_id is not None and cycle_id != current_cycle_id:
+                    if current_cycle_id is not None and baseline_before_cycle is not None:
+                        removed = sweep_stale_flights(rdb, baseline_before_cycle, seen_this_cycle)
+                        print(f"[cycle] {current_cycle_id} tamamlandi -- "
+                              f"{len(seen_this_cycle)} ucak goruldu, "
+                              f"{removed} eski kayit silindi")
+                    # YENI cycle basliyor -- Redis'in SU ANKI (henuz bu
+                    # yeni cycle'in verisi hic yazilmamis) durumunu, BIR
+                    # SONRAKI temizlik icin baseline olarak sakla.
+                    baseline_before_cycle = set(rdb.smembers("iha:active_flights"))
+                    current_cycle_id = cycle_id
+                    seen_this_cycle = set()
+
+                # ONEMLI: mesaj geldigi anda ANINDA yaziliyor -- DUSUK
+                # GECIKME buradaki oncelik (bkz. yukaridaki "4. DENENIP
+                # GERI ALINAN" notu). Gecerlilik sadece "bu cycle'da
+                # goruldu mu" sorusuna dayaniyor, TTL YOK.
+                rdb.set(f"iha:state:{icao}", json.dumps(data))
                 rdb.sadd("iha:active_flights", icao)
+                seen_this_cycle.add(icao)
 
                 point = (
                     Point("flights")
