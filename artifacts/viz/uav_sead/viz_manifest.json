@@ -1,0 +1,364 @@
+{
+  "artifact_schema_version": 1,
+  "created_utc": "2026-07-06T16:30:07.174206+00:00",
+  "stage": "ML-11 visualization (read-only analysis)",
+  "source": "uav_sead",
+  "seed": 42,
+  "per_flight_cap": 200,
+  "max_points": 30000,
+  "development_flights": 480,
+  "blind_holdout_flights": 131,
+  "blind_holdout_read": false,
+  "development_source_ids_sha256": "d263a4260bfd0ecc7adf258692932281bcc8fe07a8b9ed8430a44c824c4e85aa",
+  "feature_table_sha256": "14c90f5f9a283982cec9e93e6e0fcf6a4c3811629ac8aff72f0a2bccc4d69b06",
+  "split_manifest_sha256": "0e3047b3abc11d09bc5b2b94e35cca117efce8fa49fdc37393c146550b8d0f0d",
+  "sections": {
+    "s1_portfolio": {
+      "flight_label_counts": {
+        "normal": 324,
+        "altitude_anomaly": 59,
+        "external_position_anomaly": 45,
+        "mechanical_fault": 30,
+        "global_position_anomaly": 22
+      },
+      "annotation_event_counts": {
+        "Actuator Outputs": 27,
+        "Actuator Outputs+Controls": 43,
+        "Position.X": 54,
+        "Position.Y": 55,
+        "Velocity": 2,
+        "Battery": 2,
+        "Position.Z": 115,
+        "Actuator Controls": 16,
+        "Actuator Thrust": 2
+      },
+      "normal_sessions": {
+        "n_normal_flights": 324,
+        "n_sessions": 49,
+        "max_session_size": 21
+      },
+      "duration_minutes": {
+        "median": 1.7183818833333335,
+        "max": 11.704241883333333
+      }
+    },
+    "s3_features": {
+      "top_by_category": {
+        "Actuator Controls": [
+          {
+            "feature": "actuator_thrust_cmd",
+            "auc": 0.996,
+            "q99_abs_ratio": 1.16
+          },
+          {
+            "feature": "attitude_error_mag_5s_rms",
+            "auc": 0.78,
+            "q99_abs_ratio": 1.61
+          },
+          {
+            "feature": "actuator_output_std_5s_mean",
+            "auc": 0.772,
+            "q99_abs_ratio": 1.02
+          },
+          {
+            "feature": "attitude_error_mag",
+            "auc": 0.771,
+            "q99_abs_ratio": 1.71
+          },
+          {
+            "feature": "attitude_error_mag_cusum_pos",
+            "auc": 0.766,
+            "q99_abs_ratio": 7.95
+          }
+        ],
+        "Actuator Outputs": [
+          {
+            "feature": "actuator_thrust_cmd",
+            "auc": 0.979,
+            "q99_abs_ratio": 1.16
+          },
+          {
+            "feature": "baro_alt_m",
+            "auc": 0.147,
+            "q99_abs_ratio": 0.46
+          },
+          {
+            "feature": "alt_baro_residual",
+            "auc": 0.163,
+            "q99_abs_ratio": 0.8
+          },
+          {
+            "feature": "attitude_error_mag",
+            "auc": 0.787,
+            "q99_abs_ratio": 2.43
+          },
+          {
+            "feature": "attitude_error_mag_5s_rms",
+            "auc": 0.773,
+            "q99_abs_ratio": 3.45
+          }
+        ],
+        "Actuator Outputs+Controls": [
+          {
+            "feature": "actuator_thrust_cmd",
+            "auc": 0.983,
+            "q99_abs_ratio": 1.16
+          },
+          {
+            "feature": "baro_alt_m",
+            "auc": 0.147,
+            "q99_abs_ratio": 0.46
+          },
+          {
+            "feature": "alt_baro_residual",
+            "auc": 0.163,
+            "q99_abs_ratio": 0.8
+          },
+          {
+            "feature": "attitude_error_mag",
+            "auc": 0.783,
+            "q99_abs_ratio": 2.08
+          },
+          {
+            "feature": "attitude_error_mag_5s_rms",
+            "auc": 0.775,
+            "q99_abs_ratio": 2.26
+          }
+        ],
+        "Actuator Thrust": [
+          {
+            "feature": "yaw_deg",
+            "auc": 0.189,
+            "q99_abs_ratio": 0.99
+          },
+          {
+            "feature": "actuator_pitch_cmd",
+            "auc": 0.24,
+            "q99_abs_ratio": 0.26
+          },
+          {
+            "feature": "ekf_alt_innov_5s_max",
+            "auc": 0.253,
+            "q99_abs_ratio": 0.08
+          },
+          {
+            "feature": "ekf_alt_innov_cusum_pos",
+            "auc": 0.258,
+            "q99_abs_ratio": 0.0
+          },
+          {
+            "feature": "roll_deg",
+            "auc": 0.26,
+            "q99_abs_ratio": 0.32
+          }
+        ],
+        "Battery": [
+          {
+            "feature": "hgt_test_ratio_5s_max",
+            "auc": 0.972,
+            "q99_abs_ratio": 0.81
+          },
+          {
+            "feature": "epv",
+            "auc": 0.032,
+            "q99_abs_ratio": 0.0
+          },
+          {
+            "feature": "local_vertical_rate_mps",
+            "auc": 0.963,
+            "q99_abs_ratio": 0.99
+          },
+          {
+            "feature": "alt_baro_residual_cusum_pos",
+            "auc": 0.95,
+            "q99_abs_ratio": 0.05
+          },
+          {
+            "feature": "pos_vert_accuracy",
+            "auc": 0.063,
+            "q99_abs_ratio": 0.0
+          }
+        ],
+        "Position.X": [
+          {
+            "feature": "gps_speed_residual",
+            "auc": 0.89,
+            "q99_abs_ratio": 5.26
+          },
+          {
+            "feature": "gps_speed_residual_cusum_pos",
+            "auc": 0.804,
+            "q99_abs_ratio": 2.77
+          },
+          {
+            "feature": "eph",
+            "auc": 0.804,
+            "q99_abs_ratio": 9.01
+          },
+          {
+            "feature": "hdop_5s_max",
+            "auc": 0.224,
+            "q99_abs_ratio": 0.02
+          },
+          {
+            "feature": "jamming_5s_max",
+            "auc": 0.225,
+            "q99_abs_ratio": 0.24
+          }
+        ],
+        "Position.Y": [
+          {
+            "feature": "gps_health_missing",
+            "auc": 0.143,
+            "q99_abs_ratio": 1.0
+          },
+          {
+            "feature": "eph",
+            "auc": 0.851,
+            "q99_abs_ratio": 10.17
+          },
+          {
+            "feature": "num_missing_groups",
+            "auc": 0.193,
+            "q99_abs_ratio": 1.0
+          },
+          {
+            "feature": "vertical_rate_residual",
+            "auc": 0.8,
+            "q99_abs_ratio": 2.08
+          },
+          {
+            "feature": "hdop_5s_max",
+            "auc": 0.213,
+            "q99_abs_ratio": 0.0
+          }
+        ],
+        "Position.Z": [
+          {
+            "feature": "alt_baro_residual_5s_max",
+            "auc": 0.996,
+            "q99_abs_ratio": 1.58
+          },
+          {
+            "feature": "alt_baro_residual_5s_rms",
+            "auc": 0.992,
+            "q99_abs_ratio": 1.49
+          },
+          {
+            "feature": "alt_baro_residual",
+            "auc": 0.936,
+            "q99_abs_ratio": 1.93
+          },
+          {
+            "feature": "ekf_alt_innov_cusum_pos",
+            "auc": 0.741,
+            "q99_abs_ratio": 1.42
+          },
+          {
+            "feature": "ekf_alt_innov_5s_max",
+            "auc": 0.675,
+            "q99_abs_ratio": 5.75
+          }
+        ],
+        "Velocity": [
+          {
+            "feature": "pos_test_ratio_5s_mean",
+            "auc": 0.997,
+            "q99_abs_ratio": 65.96
+          },
+          {
+            "feature": "vel_m_s",
+            "auc": 0.997,
+            "q99_abs_ratio": 60.52
+          },
+          {
+            "feature": "pos_test_ratio_5s_max",
+            "auc": 0.997,
+            "q99_abs_ratio": 34.56
+          },
+          {
+            "feature": "pos_test_ratio",
+            "auc": 0.997,
+            "q99_abs_ratio": 56.29
+          },
+          {
+            "feature": "innovation_check_flags_bit_count",
+            "auc": 0.996,
+            "q99_abs_ratio": 2.0
+          }
+        ]
+      },
+      "n_redundant_pairs": 69,
+      "n_features_in_corr": 133,
+      "categories": [
+        "Actuator Controls",
+        "Actuator Outputs",
+        "Actuator Outputs+Controls",
+        "Actuator Thrust",
+        "Battery",
+        "Position.X",
+        "Position.Y",
+        "Position.Z",
+        "Velocity"
+      ]
+    },
+    "s2_embeddings": {
+      "n_points": 30000,
+      "n_flights": 480,
+      "pca_var_2comp": 0.39961591362953186
+    },
+    "s4_model": {
+      "flight_roc_auc_mean_5seed": 0.5568085169324825,
+      "confusion": {
+        "tp": 416,
+        "fn": 364,
+        "fp": 380,
+        "tn": 543
+      }
+    }
+  },
+  "files": {
+    "s1_portfolio/annotation_event_counts.png": "eb6fcef52bdc75d4f71e40b14c8b2357adbde50c0ca27017d81f999d2a51d3f6",
+    "s1_portfolio/class_counts.png": "9bbfd6e441540bf104c1ebd1d493851b2ea8a5cf1632a3f9a1a9b0653ccb2289",
+    "s1_portfolio/completeness_heatmap.png": "6fd09047cce7ec642ceb6f8272fdb47721aee3c65e07b4d4f804a42bf609b919",
+    "s1_portfolio/completeness_matrix.csv": "62cf75d6c56e207e2bb9a48a24dd28b37d1a39b17159e57d4798996982c18239",
+    "s1_portfolio/flight_duration_hist.png": "55db7b85b4173994f092a505591347e758774275d72658fb6b89d700ca2613f0",
+    "s1_portfolio/session_histogram.png": "788a8438b525b1e99dbe17c9995bce742593524c550a50dc27bf0ec3dfccce52",
+    "s2_embeddings/pca_binary.png": "dd698239fa137d594f29adf967baf5bac2f16f82437a86dfb606584ff7fe6f95",
+    "s2_embeddings/pca_fusion.png": "09aabc9b4e426620618e2edfc8e240ef42c5aaca9bf9e58684daab7c2c4fcb72",
+    "s2_embeddings/pca_label.png": "4cc5c5296744741f432708024fe22c78f9e69009cb4306bacc34711c413dac38",
+    "s2_embeddings/pca_session.png": "1ea8b4ab03c2bdb3300c39058fb06752a9c0b65ac2a3e7d68ab7962e51f7400d",
+    "s2_embeddings/pca_variance.png": "22661c6dd8af828b636dedd1e19d761941c554cf954628b614d5703cf87cb0f0",
+    "s2_embeddings/tsne_binary.png": "be2ee8c622327fb50a821bfdd335a2726b26f54aa00df3390c41530e1cc45259",
+    "s2_embeddings/tsne_fusion.png": "0f5c47b9b7f61540dffd7585ac39ae7598e3c2bd3b05103775037d3ad328b609",
+    "s2_embeddings/tsne_label.png": "97db61751a6fd757f62e5727fa0ff692a2dc14f4fcbf7e511c3dba3a44edcb60",
+    "s2_embeddings/tsne_session.png": "5592eb1f7b8dffbb6737b4f7d45cffa0eda1b1d050db8aa0e8160253ef19fe23",
+    "s3_features/feature_auc_heatmap.png": "1de7603a816a723c43b19f70f9f0f1efdd6901ea9b6483e4b60180ddb1b503cd",
+    "s3_features/feature_auc_matrix.csv": "626d41c79fb2e36de60b01e903bb872f830d3a6011d41b4d520e1b419444c01b",
+    "s3_features/feature_q99_heatmap.png": "d69b2eb4b907fb81f60b1df2a47a0131b39694896e4ae48c04d9d42eef497adb",
+    "s3_features/redundant_pairs.csv": "0eb33b0fbd55efb2f1122592ca0f3e81e1831b5313f844d12116acd6903a113c",
+    "s3_features/spearman_heatmap.png": "33cc7aa384178d3e8c5a6721165eaae1afd715c2bf5bb014bf3737fb8bbe1975",
+    "s4_model/roc_pr_flight.png": "5db3401a90c9491d84f7eca1e6775f7c776dde3d0fc8450f5cd6fe2fc991b86f",
+    "s4_model/score_violin.png": "c634a0a4762e6d5aee3b43368967de2416d02606d03f9b4e2bafd20321a84d07",
+    "s4_model/sead_confusion_binary.png": "aad7807fd986006770b239a749b809a7430e85553c643f3eee8d14730f0c7034",
+    "s4_model/sead_confusion_by_type.png": "5f84a465b88bbd2b60a7faea5bb0b4aecb9b654f88c6b5b5f85c3ff6f21b145c",
+    "s4_model/timeseries_Actuator_Controls_2018-12-10__09_08_26.png": "4d042af0aa671613b7f9e2f95034e1faa85813797b26811f3ed3716491ec8d84",
+    "s4_model/timeseries_Actuator_Controls_2018-12-10__09_20_57.png": "1dedde452b98a3e58f3406ef3e94ed063abce89db4386d7630ab18c8a2be67af",
+    "s4_model/timeseries_Actuator_Outputs_2018-05-26__16_18_10.png": "66f6afb31aa148458a3e43bd1436725e55556921321ccd1b59ca81379b69cc99",
+    "s4_model/timeseries_Actuator_Outputs_2018-12-04__08_01_22.png": "9fee2200f596f9100675fa4cc60d58623c9ac3f7a4771e39a141e5035437a35b",
+    "s4_model/timeseries_Actuator_Outputs_Controls_2018-05-26__16_18_10.png": "992075cec779699c4ed3cf92024a9c3823ad3ef92633b97d631eb3e3fac7ea80",
+    "s4_model/timeseries_Actuator_Outputs_Controls_2018-12-04__08_01_22.png": "481c87b882c1a80c035de3521094b0a751f728ba571ff5441fb342b657443b5d",
+    "s4_model/timeseries_Actuator_Thrust_2019-02-15__08_29_18.png": "660716cad9c3183f7ce524003e13acbd7a4d00cd6e914fc211694d2ccd55f7a6",
+    "s4_model/timeseries_Actuator_Thrust_log_13_2021-10-3-16-05-24.png": "77b9a4c50aef8fd54e83527b8c356236bc032c3f38362fc82838cb88eb23fc9a",
+    "s4_model/timeseries_Battery_2018-06-04__18_05_54.png": "37c481b422335a563cce1e0b88c37bce5d5a12ad187893d23a596fd96bfe9873",
+    "s4_model/timeseries_Battery_2018-06-04__18_17_58.png": "b36c18d4ed50232c8838fc3de36a8e4c6373f5c07277fb3575fd1f911101b6e9",
+    "s4_model/timeseries_Position_X_2018-05-26__16_19_20.png": "1f773072aaeb4d946c49062a95a09ad9661770fa0cf8087d009cd4ac078794f5",
+    "s4_model/timeseries_Position_X_2018-05-26__16_48_10.png": "f1a1bf9c7f9141be51c2eec642fb88f0a87fdce6e43346b6f110d4d57b2c6935",
+    "s4_model/timeseries_Position_Y_2018-05-26__16_19_20.png": "4debbb7614a227996603326035b67476283e2aed3333e215c93448983179ffcb",
+    "s4_model/timeseries_Position_Y_2018-05-26__16_48_10.png": "20dc02d7a6218427fdd1a0c7f5d1972299eea0d0a4767cd5a679f0ae40c4472e",
+    "s4_model/timeseries_Position_Z_2018-06-04__18_21_53.png": "e296511539cb7f833ba33550bbac02ffb9418f918690a7de1eb42d0a0108cfc2",
+    "s4_model/timeseries_Position_Z_2018-09-11__07_29_26.png": "a665d26778e54d50ce4b08808381c9adefa4c77dd0377ec07b84652114de8cea",
+    "s4_model/timeseries_Velocity_2018-05-26__16_48_10.png": "c5fb593f9dd2d2e3a32e3f511fb25cec990b2e64f28d9e068ce265825759867f",
+    "s4_model/timeseries_Velocity_2018-05-26__16_50_01.png": "7fbce66f4ee5c3cfc66058f79d925fac7b82fe6b01f483bc6fa7b765d8777611"
+  }
+}
