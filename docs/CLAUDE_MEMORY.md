@@ -14,16 +14,16 @@
 
 ## İndeks
 
-- [ML fazları durumu (ML-0..ML-9)](#1-ml-fazları-durumu-ml-0ml-9) — splitler, causal CUSUM, gitignore bug, ML-8A/ML-9 Gate B/C kaldı, SEAD 611 uçuşa büyütüldü, ALFA/SEAD küçük-n araştırması
+- [ML fazları durumu (ML-0..ML-11)](#1-ml-fazları-durumu-ml-0ml-11) — splitler, causal CUSUM, gitignore bug, ML-8A/ML-9 Gate B/C kaldı, ML-10 Chronos mechanical Gate B geçti/fusion Gate C kaldı, ML-11 görselleştirme tamam (feature×kategori AUC + top-10 aday + eğitim izi kuralı)
 - [Anomali tespiti ilkeleri (feedback)](#2-anomali-tespiti-ilkeleri-feedback) — normal-sınıfı yapay homojenleştirme önerme, bu unsupervised'ın doğasına ters
 - [Git commit no-coauthor (feedback)](#3-git-commit-no-coauthor-feedback) — bu repoda commit'lere Co-Authored-By ekleme
 - [Dış paydaşa jargonsuz anlat (feedback)](#4-dış-paydaşa-jargonsuz-anlat-feedback) — mentöre yönelik içerikte ML-N faz numarası kullanma
 
 ---
 
-## 1. ML fazları durumu (ML-0..ML-9)
+## 1. ML fazları durumu (ML-0..ML-11)
 
-*Tür: project — "ML-0..ML-9 faz durumu — feature tabloları, splitler, UAV-SEAD 611 uçuşa büyütüldü, ML-9 Gate B/C kaldı"*
+*Tür: project — "ML-0..ML-11 faz durumu — feature tabloları, splitler, UAV-SEAD 611 uçuş, ML-9 Gate B/C kaldı, ML-10 mechanical Gate B geçti/fusion kaldı, ML-11 görselleştirme tamam"*
 
 2026-07-02 itibarıyla ML-0 fazı tamam (FableChat.md/LastChat.md planına göre; bu dosyalar repo kökünde değil, kullanıcının paylaştığı sohbet dökümleri):
 
@@ -67,7 +67,9 @@ ML-8A de tamam (2026-07-06): dondurulmuş causal 10s/1s pencere descriptor'ları
 
 **ML-9 de tamam (2026-07-06, Codex çalıştı, bağımsız doğrulandı — checksum'lar yeniden hesaplandı, sayılar ham CSV'den türetildi)**: `parse_uav_sead.py`'de `ekf_alt_innov`/`ekf_vertical_vel_innov` drop'tan önce saklanıyor; `actuator_output_imbalance()` nedensel/expanding motor-simetri residual'i (gelecek sızıntısı yok, testle kanıtlı); `PX4_ML9_CANDIDATE_MODULES` (dikey_tutarlilik + motor_simetrisi). **Gate A GEÇTİ** (480+131=611, sıfır kesişim). **Gate B KALDI** — Position.Z'de dikey_tutarlilik 0.0956 vs pooled_ekf 0.0743 (+0.021, büyüklük barajı ≥0.05 geçilemedi); Actuator'da motor_simetrisi 0.2049 vs kontrol_cevabi 0.1805 (+0.024, 2/5 seed — kararlılık barajı ≥3/5 geçilemedi). **Gate C KALDI** — ml9_fusion 0.222 recall/25.83 FA-saat (bütçe ~2 kat aşılıyor). Aday modüller production'a alınmadı, holdout kapalı. Örüntü ML-8A ile aynı: küçük feature adımları recall'ı marjinal kımıldatıyor ama operasyonel kazanca dönüşmüyor.
 
-**ML-10 planlandı (2026-07-06, henüz uygulanmadı)**: `docs/ML10_PLAN.md` — SEAD Position.Z/Actuator için Chronos (zero-shot forecast-residual) pilotu. `momentfm` bu ortamda (Python 3.14) KURULAMIYOR (gerçek, tekrarlanabilir pip hatası); `chronos-forecasting==2.3.1` temiz kuruluyor. CPU-only fizibilite kontrol noktası zorunlu. Ayrıca `docs/ML_YETERSIZLIKLER_KAYDI.md` yazıldı: tüm bilinen 28 sınırlama/açık iş tek yerde (A-G tema, 🔴🟡⚪✅ durum etiketleri).
+**ML-10 de tamam (2026-07-06, Codex çalıştı, bağımsız doğrulandı)**: `amazon/chronos-bolt-tiny` zero-shot CPU'da `alt` + `actuator_output_std` kanallarında causal forecast-residual; tam koşu 101.2 s. **Gate A GEÇTİ** (future-leak/zero-shot/holdout-izolasyon testli). **Gate B mechanical dalında GEÇTİ**: `chronos_motor` CUSUM/advisory recall 0.205→0.390 (+0.185, 4/5 seed); Position.Z reddedildi (0.096→0.023). **Gate C KALDI**: ml10_fusion 0.213 recall/23.92 FA-saat (hedef ≥0.50/≤12) — kategori kazancı fusion düzeyinde kayboldu. `chronos_motor` production'a alınmadı, holdout kapalı. H22-H24, ADR-010, C.6. (`momentfm` Python 3.14'te kurulamıyor — F.4 yapısal sınır; `chronos-forecasting==2.3.1` temiz.)
+
+**ML-11 de tamam (2026-07-06, Claude uyguladı)**: `scripts/make_visualizations.py` (read-only) 3 dataset için veri karnesi / PCA+t-SNE (4 boyama, ±10 IQR görsel kırpma) / Spearman + **feature×kategori AUC matrisi** / model tanılama üretti → `artifacts/viz/*/viz_manifest.json` (checksum + development-id-hash). **ANA BULGU (H26)**: zayıf kategoriler ikiye ayrıştı — *füzyon/model sorunu*: `actuator_thrust_cmd` tek başına AUC 0.983 (Actuator O+C) ama 16-feature modülde seyreliyor; *veri/kapsam sorunu*: Position.Z'nin en iyi ayrıştırıcıları baro-tabanlı (AUC 0.996, n=33 satır — %7 doluluk), Actuator Thrust'ta hiçbir feature ayrışmıyor. Füzyon skoru doygun (normal satırlar 0.92-1.0; H27); ALFA LSTM-AE eşiği aşırı muhafazakâr (ROC 0.750 ama 3/38 tespit @ 0 FA; H28). **Sayı düzeltmesi**: "398 normal ~32 oturum" yanlıştı — gerçek **64 oturum** (dev: 324/49; D.1 güncellendi). Top-10 manuel feature-engineering adayı `docs/ML1_BULGULAR_VE_HATALAR.md` "Görselleştirme sonuçları"nda (keşif amaçlı; değerlendirme ancak yeni ön-kayıtlı Gate turunda). Eğitim izi kalıcı kural: `train_lstm_autoencoder` → `info["history"]`, `src/ml/training_log.py` → `artifacts/training_logs/...` loss.csv+PNG. Notebook 09 çalıştırılmış/gömülü; tam pytest 185 + bilinen 4 MinIO; ADR-011. Yetersizlikler kaydı `docs/ML_YETERSIZLIKLER_KAYDI.md`: 29 madde (A-G tema, 🔴🟡⚪✅).
 
 ---
 

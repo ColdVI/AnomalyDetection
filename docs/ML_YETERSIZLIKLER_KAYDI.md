@@ -173,8 +173,12 @@ ancak skor production/default adayı değildir.
 
 ### D.1 — SEAD normal sınıfı heterojen (🔴 Yapısal sınır, BİLEREK "düzeltilmiyor")
 
-398 normal uçuş yalnızca ~32 farklı oturuma dağılıyor (en kalabalık oturum 21 uçuş) — gerçek
-bağımsız örneklem 398 değil ~32'ye yakın. Literatür ("Heterogeneous Normal Classes Pose a
+398 normal uçuş yalnızca 64 farklı oturuma dağılıyor (development: 324 uçuş / 49 oturum; en
+kalabalık oturum 21 uçuş) — gerçek bağımsız örneklem 398 değil ~64'e yakın. *(Sayı düzeltmesi,
+görselleştirme fazı 2026-07-06: önceki kayıtlardaki "~32 oturum" tahmini yanlıştı; sayı
+`session_of` ile split manifest'ten yeniden türetildi ve
+`artifacts/viz/uav_sead/s1_portfolio/session_histogram.png` figürüyle belgelendi. Bulgunun özü
+değişmez: bağımsız örneklem uçuş sayısının çok altında.)* Literatür ("Heterogeneous Normal Classes Pose a
 Challenge for Anomaly Detection", OpenReview) bunu doğruluyor: normal sınıf heterojense
 performans veri artsa bile kötüleşebilir (swamping/masking). **KRİTİK NOT:** bu maddenin
 "çözümü" olarak session-koşullu/context-koşullu bir normallik modeli daha önce önerilmiş ve

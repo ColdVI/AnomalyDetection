@@ -376,6 +376,80 @@ bu yüzden blind holdout kapalı kaldı ve `chronos_motor` development'ta kanıt
 olsa da default/production fusion'a alınmadı. Nihai checksum'lu artifact:
 `artifacts/ml10/uav_sead/full_matrix/`; fizibilite ve precompute manifestleri aynı ağacın altındadır.
 
+## Görselleştirme sonuçları — veri keşfi ve tanılama (ML-11, 2026-07-06, `notebooks/09_gorsellestirme_ve_veri_kesfi.ipynb`)
+
+**Ne yaptık:** `scripts/make_visualizations.py` ile üç dataset için read-only analiz turu:
+veri karnesi (sınıf/oturum/doluluk/süre), PCA+t-SNE projeksiyonları (4 boyama), Spearman
+korelasyon + **tek-feature × kategori AUC matrisi** (`artifacts/viz/<dataset>/s3_features/feature_auc_matrix.csv`)
+ve mevcut artifact modellerle tanılama görselleri (violin, ROC/PR, karar matrisi, örnek zaman
+serileri). Hiçbir model/eşik/split/scaler/CUSUM artifact'ı değişmedi; 131-uçuş SEAD holdout'u
+hiçbir figüre girmedi (`tests/test_ml11_viz.py` hash denetimiyle assert eder; deterministik
+subsample seed=42, uçuş başına ≤200 satır). Projeksiyon figürlerinde ±10 IQR görsel kırpma
+kullanıldı (tek uç değer PCA'yı tek noktaya sıkıştırıyordu); kırpma hiçbir skor hesabına girmez.
+
+- **H25 — SEAD normal sınıfının heterojenliği artık görsel kanıtlı.** Development'taki 324
+  normal uçuş **49 oturuma** dağılıyor (en büyük oturum 21 uçuş); t-SNE'de normal noktalar tek
+  küme değil çok sayıda ada ve oturum boyaması adaların büyük ölçüde oturumu izlediğini
+  gösteriyor. "Normali öğren" hedefi tek yoğunluk değil, oturum ailelerinin birleşimi (D.1'in
+  görsel teyidi).
+- **H26 — Zayıf kategorilerin kök nedeni ikiye ayrıştı (ANA BULGU).** Tek-feature AUC matrisi
+  iki farklı hikâye anlatıyor:
+  - *Füzyon/model sorunu:* `Actuator Outputs+Controls` için `actuator_thrust_cmd` tek başına
+    **AUC 0.983** ayrıştırıyor ve feature zaten `kontrol_cevabi` modülünün İÇİNDE — ama 16
+    feature'lık geniş modül + 6-modüllü max-füzyon içinde seyreliyor. Aynı ailede
+    `attitude_error_mag` (0.783), `control_strain` (0.748), `pitch_rate_error` (0.747) de
+    tekil olarak füzyonun kategori recall'undan (ML-9: 0.205) çok daha güçlü.
+  - *Veri/kapsam sorunu:* `Position.Z`'nin en iyi üç ayrıştırıcısı baro tabanlı
+    (`alt_baro_residual_5s_max` **AUC 0.996**) fakat yalnız **n=33 satırda** mevcut (B.1/B.2:
+    baro kanalı ~%7 dolulukta). Baro'suz en iyi aday `ekf_alt_innov_cusum_pos` (0.741) zaten
+    ML-9'da denendi ve Gate B'yi geçemedi. `Actuator Thrust` (n=113 satır) hiçbir feature'da
+    anlamlı ayrışmıyor → bu kategori için sinyal mevcut kolonlarda yok.
+- **H27 — Füzyon skoru doygun: kalibre max-füzyon normal satırlarda bile 0.92-1.0 bandında.**
+  6 modülün empirik-CDF max'ı tabanı yukarı itiyor; violin grafiklerinde normal ile kategori
+  dağılımları büyük ölçüde örtüşüyor. Kategori-recall kaybının bir kısmı skor değil karar
+  marjı sorunu. Uçuş düzeyi ROC (5 seed, IF-füzyon) **0.557** — SEAD'de ayrım uçuş düzeyinde
+  değil event düzeyinde yaşanıyor; advisory CUSUM noktasında 5-seed toplam karar matrisi
+  TP 416 / FN 364 / FP 380 / TN 543.
+- **H28 — ALFA'da paketli LSTM-AE eşiği aşırı muhafazakâr.** Uçuş ROC AUC **0.750**
+  (IF-füzyon 0.622) ama val-q99 pencere eşiği çalışma noktasında 38 anomalili uçuştan yalnız
+  **3'ü** alarm üretiyor (0 yanlış alarm). Eşik 2 normal val uçuşundan kalibre edilmek zorunda —
+  H2'deki küçük-n eşik kararsızlığının çalışma-noktası görünümü. ALFA tek-feature tarafında
+  rudder için `path_dev_mag` (sep. 0.931) ve `roll/pitch_spec_energy_5s` (0.91) güçlü —
+  bunlar da modüllerin içinde zaten var; sorun yine seyrelme + eşik.
+- **Yorum uyarısı (D.2 küçük-n disiplini):** tek-feature AUC'lerin bir kısmı arıza fiziği değil
+  uçuş-profili karışıklığı yansıtabilir (ör. ALFA `engine_fault` için `wp_dist` 0.913 — arızalı
+  uçuşlar eve dönüyor). CUSUM-tipi feature'larda q99 oranı normal q99≈0 olduğu için astronomik
+  çıkabilir; oran tek başına değil AUC ile birlikte okunmalı.
+
+**Top-10 manuel feature-engineering adayı** (keşif listesi; seçim ancak yeni bir Gate turunda,
+farklı validation ile değerlendirilebilir — aynı veriyle sonuç raporlanmaz):
+
+| # | Aday | Kategori | AUC | Not |
+|---|---|---|---|---|
+| 1 | `actuator_thrust_cmd` (ince modül/tek başına) | Actuator O+C | 0.983 | Modülde var, füzyonda seyreliyor |
+| 2 | `attitude_error_mag` + `_5s_rms` | Actuator O+C | 0.783/0.775 | Aynı seyrelme sorunu |
+| 3 | `control_strain` | Actuator O+C | 0.748 | " |
+| 4 | `pitch_rate_error` | Actuator O+C | 0.747 | " |
+| 5 | `pos_test_ratio_5s_mean` | Velocity | 0.997 | q99 oranı ~66× — güçlü kuyruk imzası |
+| 6 | `gps_frozen_count` | Velocity | 0.978 | Seyrek uç-değer imzası (q99 patlıyor) |
+| 7 | `gps_speed_residual` | Position.X | 0.890 | q99 ~5.3× |
+| 8 | `hgt_test_ratio_5s_max` | Battery | 0.972 | n=51 satır — küçük-n uyarısıyla |
+| 9 | `ekf_alt_innov_5s_mean/max` | Position.Z | 0.673/0.675 | q99 5-11× (kuyruk var, mean zayıf); baro'suz en gerçekçi dikey aday |
+| 10 | ALFA: `path_dev_mag`, `roll/pitch_spec_energy_5s` (rudder'a özel ince modül) | rudder_fault | 0.93/0.91 | Rudder H6 zafiyetine hedefli |
+
+Baro tabanlı `alt_baro_residual*` (AUC 0.996) aday DEĞİL: %7 doluluk kapsam engeli — bu bir
+feature-engineering değil veri temini işi (baro kanalı tamamlanırsa yeniden değerlendirilir).
+
+**Eğitim izi kuralı (Bölüm 5):** `train_lstm_autoencoder` artık epoch başına train/val loss
+geçmişi döndürüyor; `src/ml/training_log.py::write_training_log` bunu
+`artifacts/training_logs/<source>/<model>/<run_id>/loss.csv` + `loss.png` olarak yazıyor ve iki
+LSTM paketleme scripti çağrıyı içeriyor. Bundan sonra eğitilen her model iz bırakır (IF'in epoch
+kavramı yok; ML-10 Chronos zero-shot olduğundan kapsam dışı). Bu fazda model eğitilmedi.
+
+**Doğrulama:** tam `pytest` 185 geçti + bilinen 4 MinIO SDK hatası (ML dışı, F.2); 7'si yeni
+`tests/test_ml11_viz.py` (deterministik subsample, holdout-hash izolasyonu, viz manifest
+checksum'ları, eğitim izi). Checksum'lu çıktılar: `artifacts/viz/{alfa,uav_attack,uav_sead}/viz_manifest.json`.
+
 ## ML-2/ML-3'e devredilen iş listesi
 
 | # | İş | Adres |

@@ -1,6 +1,9 @@
 # ML-11: Görselleştirme ve Veri Keşfi Fazı Planı
 
-Durum: PLANLANDI (2026-07-06). ML-10'dan (`docs/ML10_PLAN.md`) tamamen bağımsızdır —
+Durum: UYGULANDI (2026-07-06). Çıktılar: `scripts/make_visualizations.py`,
+`notebooks/09_gorsellestirme_ve_veri_kesfi.ipynb`, `artifacts/viz/*/viz_manifest.json`,
+`tests/test_ml11_viz.py`; sonuç özeti `docs/ML1_BULGULAR_VE_HATALAR.md`
+"Görselleştirme sonuçları" bölümü, karar kaydı ADR-011. ML-10'dan tamamen bağımsızdır —
 önce, sonra veya paralel koşulabilir; çakışan dosya yok.
 
 ## §0 Amaç ve bağlam

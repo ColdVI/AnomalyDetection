@@ -294,3 +294,26 @@ fayda+FA hedefini karşılamadığından **Gate C kaldı.** `chronos_motor` defa
 alınmaz ve 131-uçuş blind holdout açılmaz. Sonuç görüldükten sonra quantile bandı, context window,
 fusion, stride veya policy grid'i değiştirilmez; böyle bir değişiklik yeni, önceden kayıtlı bir faz
 ve bağımsız değerlendirme gerektirir. Nihai artifact `artifacts/ml10/uav_sead/full_matrix/` altındadır.
+
+## ADR-011: ML-11 read-only görselleştirme fazı; eğitim izi kalıcı kural oldu
+
+- Durum: Tamamlandı (analiz fazı — gate yok, kabul kriterleri sağlandı)
+- Tarih: 2026-07-06
+
+Üç dataset için veri karnesi, PCA/t-SNE projeksiyonları, Spearman + tek-feature×kategori AUC
+matrisi ve mevcut artifact modellerle tanılama görselleri üretildi
+(`scripts/make_visualizations.py`, `notebooks/09_gorsellestirme_ve_veri_kesfi.ipynb`,
+`artifacts/viz/*/viz_manifest.json` checksum'lı). Hiçbir model/eşik/split/scaler/CUSUM
+artifact'ı değişmedi; 131-uçuş SEAD blind holdout'u hiçbir figüre/istatistiğe girmedi
+(`tests/test_ml11_viz.py` development-küme hash'iyle assert eder).
+
+Kararlar: (1) Projeksiyon figürlerinde RobustScaler çıktısına ±10 IQR **görsel** kırpma
+uygulanır — tek uç değer PCA'yı dejenere ediyordu; kırpma hiçbir skor/modele girmez ve figür
+başlığında beyan edilir. (2) UMAP/seaborn KURULMADI (numpy düşürme riski; PCA+t-SNE yeterli).
+(3) `train_lstm_autoencoder` epoch başına train/val loss geçmişi döndürür ve
+`src/ml/training_log.py` bunu `artifacts/training_logs/<source>/<model>/<run_id>/loss.csv`+PNG
+olarak yazar; iki LSTM paketleme scripti çağrıyı içerir — bundan sonra eğitilen her model iz
+bırakır. RNG tüketimi ve early-stopping kararı bire bir aynı kaldı (davranış değişikliği yok).
+(4) Tek-feature AUC'ler keşif çıktısıdır: aday feature'larla aynı veri üzerinde sonuç
+raporlanmaz; değerlendirme ancak yeni, ön-kayıtlı bir Gate turunda yapılır. (5) D.1'deki
+"~32 oturum" tahmini bu fazda 64 (dev: 49) olarak düzeltildi.
