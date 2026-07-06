@@ -25,9 +25,18 @@ AE_FEATURES = {
         "satellites_used", "s_variance_m_s", "eph", "epv", "roll_rate",
         "pitch_rate", "yaw_rate", "attitude_missing", "num_missing_groups", "attitude_stale_s",
     ],
+    # SEAD ayni PX4 omurgasini kullanir. Bu model ML-8A sirasinda yeniden
+    # egitilmis ayri bir karsilastirma satiridir; mevcut ML-6 baseline degildir.
+    "uav_sead": [
+        "gps_step_m", "log_gps_speed", "gps_accel_mps2", "vertical_rate_calc",
+        "gps_speed_residual", "vertical_rate_residual", "course_change_deg",
+        "gps_frozen_count", "jamming_indicator", "noise_per_ms", "hdop", "vdop",
+        "satellites_used", "s_variance_m_s", "eph", "epv", "roll_rate",
+        "pitch_rate", "yaw_rate", "attitude_missing", "num_missing_groups", "attitude_stale_s",
+    ],
 }
-WINDOW = {"alfa": 40, "uav_attack": 50}
-STRIDE = {"alfa": 4, "uav_attack": 5}
+WINDOW = {"alfa": 40, "uav_attack": 50, "uav_sead": 50}
+STRIDE = {"alfa": 4, "uav_attack": 5, "uav_sead": 5}
 
 
 class LSTMAutoencoder(nn.Module):

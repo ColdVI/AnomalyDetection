@@ -108,3 +108,22 @@ def save_lstm_bundle(model, output_dir: str | Path, *, scaler_params: dict,
     path = out / "manifest.json"
     _write_json(manifest, path)
     return path
+
+
+def load_lstm_bundle(output_dir: str | Path):
+    """Load an LSTM-AE bundle after verifying every recorded checksum."""
+
+    import torch
+    from src.ml.models.lstm_autoencoder import LSTMAutoencoder
+
+    out = Path(output_dir)
+    manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    for rel, expected in manifest["files"].items():
+        if _sha256(out / rel) != expected:
+            raise ValueError(f"Artifact checksum uyusmazligi: {rel}")
+    checkpoint = torch.load(out / "model.pt", map_location="cpu", weights_only=True)
+    model = LSTMAutoencoder(len(manifest["feature_columns"]))
+    model.load_state_dict(checkpoint["state_dict"])
+    scaler = json.loads((out / "scaler.json").read_text(encoding="utf-8"))
+    calibration = json.loads((out / "calibration.json").read_text(encoding="utf-8"))
+    return model, scaler, calibration, manifest
