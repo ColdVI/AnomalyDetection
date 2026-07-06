@@ -31,6 +31,11 @@ from src.ml.evaluation.events import (
     range_mask,
     uav_sead_absolute_us,
 )
+from src.ml.evaluation.score_fusion import (
+    empirical_probability as _empirical_probability,
+    last_causal_per_bucket,
+    max_score_fusion,
+)
 from src.ml.features.uav_attack_features import feature_columns
 from src.ml.models.modular_iforest import (
     PX4_ML7_CANDIDATE_MODULES,
@@ -76,18 +81,6 @@ def _jsonable(value):
     return value
 
 
-def _empirical_probability(reference: np.ndarray, values: np.ndarray) -> np.ndarray:
-    finite = np.sort(reference[np.isfinite(reference)])
-    if not len(finite):
-        raise ValueError("Normal validation score reference is empty")
-    result = np.full(len(values), np.nan)
-    valid = np.isfinite(values)
-    result[valid] = (
-        np.searchsorted(finite, values[valid], side="right") + 0.5
-    ) / (len(finite) + 1.0)
-    return result
-
-
 def _score_modules(fitted: dict, scaled: pd.DataFrame, val_ids: set[str]) -> pd.DataFrame:
     out = scaled[["source_id", "t_rel_s", "label"]].copy()
     val_mask = out["source_id"].isin(val_ids).to_numpy()
@@ -97,20 +90,17 @@ def _score_modules(fitted: dict, scaled: pd.DataFrame, val_ids: set[str]) -> pd.
 
     existing = [name for name in PX4_ML7_CANDIDATE_MODULES if name in out]
     ml9 = [name for name in PX4_ML9_CANDIDATE_MODULES if name in out]
-    out["existing_fusion"] = out[existing].max(axis=1)
-    out["ml9_fusion"] = out[ml9].max(axis=1)
+    out["existing_fusion"] = max_score_fusion(out, existing)
+    out["ml9_fusion"] = max_score_fusion(out, ml9)
     return out
 
 
 def _one_second_streams(scored: pd.DataFrame) -> pd.DataFrame:
     """Use the last causally available row in each elapsed one-second bucket."""
-    frames = []
     keep = ["source_id", "t_rel_s", "label", *SCORE_SOURCES]
-    for _, group in scored.sort_values("t_rel_s").groupby("source_id", sort=False):
-        group = group.copy()
-        group["_second"] = np.floor(group["t_rel_s"].astype(float)).astype(np.int64)
-        frames.append(group.groupby("_second", sort=True).tail(1)[keep])
-    return pd.concat(frames, ignore_index=True)
+    return last_causal_per_bucket(
+        scored, stride_seconds=DECISION_STRIDE_S, columns=keep,
+    )
 
 
 def _streams(frame: pd.DataFrame, ids: set[str], score_col: str) -> list[np.ndarray]:
