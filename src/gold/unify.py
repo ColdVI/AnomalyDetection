@@ -27,6 +27,7 @@ import pandas as pd
 
 from src.common.minio_io import (
     ObjectStoreClient,
+    delete_layer_objects,
     get_minio_client,
     list_layer_objects,
     read_parquet_object,
@@ -161,6 +162,23 @@ def _apply_column_map(df: pd.DataFrame, mapping: dict[str, str | None]) -> pd.Da
     return out
 
 
+def clear_gold_before_unify(client: ObjectStoreClient, *, gold_bucket: str | None = None) -> int:
+    """Delete every existing object under `<gold_bucket>/unified/` before a fresh unify run.
+
+    Both `stream_unify()` and `main()`'s in-memory path call `write_gold()`, which always
+    creates a new timestamped+uuid part name (never overwrites). Without this step, each
+    rerun leaves the previous run's parts in place alongside the new ones, so `unified/`
+    accumulates duplicate data and every downstream read (Gold review, the individual
+    project's `load_adsb_gold_data()`) silently double/N-counts rows. Returns the number
+    of objects removed.
+    """
+    g_bucket = gold_bucket or os.getenv("MINIO_GOLD_BUCKET", "gold")
+    removed = delete_layer_objects(client, g_bucket, GOLD_NAME)
+    if removed:
+        logger.info("Gold: cleared %d stale part(s) from %s/%s/ before unify", removed, g_bucket, GOLD_NAME)
+    return removed
+
+
 def stream_unify(
     client: ObjectStoreClient,
     *,
@@ -172,8 +190,11 @@ def stream_unify(
     Parquet per input file. Returns the total number of rows written.
 
     Uses file-by-file streaming so large datasets (>64M rows) don't exhaust RAM.
+    Clears any prior `unified/` output first (see `clear_gold_before_unify`) so reruns
+    don't double-count.
     """
     s_bucket = silver_bucket or os.getenv("MINIO_SILVER_BUCKET", "silver")
+    clear_gold_before_unify(client, gold_bucket=gold_bucket)
     total_rows = 0
     total_parts = 0
 
@@ -258,6 +279,7 @@ def main() -> None:
         if gold.empty:
             logger.error("Nothing to write: Gold is empty (did any Silver step run?)")
             return
+        clear_gold_before_unify(client)
         uri = write_gold(gold, GOLD_NAME, client=client)
         logger.info("Wrote Gold -> %s", uri)
         if args.local_out:

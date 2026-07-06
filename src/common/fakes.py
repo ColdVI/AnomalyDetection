@@ -5,8 +5,8 @@ package) so both pytest fixtures and standalone scripts -- e.g. `scripts/`'s
 local runners, which chain a real upload + Silver parse without a running
 MinIO server -- can use the exact same fake. `FakeMinioClient` implements
 exactly the methods `src.common.minio_io.ObjectStoreClient` declares
-(bucket_exists/make_bucket/put_object/list_objects/get_object), all backed by
-a plain dict.
+(bucket_exists/make_bucket/put_object/list_objects/get_object/remove_object), all backed
+by a plain dict.
 """
 
 from __future__ import annotations
@@ -58,6 +58,9 @@ class FakeMinioClient:
 
     def get_object(self, bucket_name: str, object_name: str) -> _FakeGetResponse:
         return _FakeGetResponse(self.buckets[bucket_name][object_name])
+
+    def remove_object(self, bucket_name: str, object_name: str) -> None:
+        self.buckets.get(bucket_name, {}).pop(object_name, None)
 
     def list_object_names(self, bucket_name: str) -> list[str]:
         return sorted(self.buckets.get(bucket_name, {}).keys())

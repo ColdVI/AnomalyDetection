@@ -29,6 +29,7 @@ import pandas as pd
 
 from src.common.minio_io import (
     ObjectStoreClient,
+    delete_layer_objects,
     download_raw_bytes,
     get_minio_client,
     write_silver,
@@ -201,9 +202,19 @@ def run(
     NOTE: downloads each tar fully into memory (BytesIO) before processing.
     For 3GB+ tars this requires sufficient RAM. Use parse_local_tar() directly
     during development to avoid the download overhead.
+
+    There is no per-tar resume checkpoint -- every call reprocesses all tars
+    found under `bronze_prefix` from scratch. So a prior run's Silver output
+    (whether complete or killed partway through, e.g. by a shutdown) is cleared
+    first (same fix as `src/gold/unify.py:clear_gold_before_unify`); otherwise
+    a rerun's fresh parts would sit alongside the old ones and double-count.
     """
     client = client or get_minio_client()
     bronze_bucket = bronze_bucket or os.getenv("MINIO_BRONZE_BUCKET", "bronze")
+    silver_bucket = os.getenv("MINIO_SILVER_BUCKET", "silver")
+    cleared = delete_layer_objects(client, silver_bucket, SOURCE_TYPE)
+    if cleared:
+        logger.info("Cleared %d stale Silver part(s) from a prior run before reprocessing", cleared)
 
     tar_objects = [
         obj.object_name

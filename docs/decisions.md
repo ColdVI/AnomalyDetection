@@ -115,6 +115,18 @@ Gerçek veriyle doğrulandı (`scripts/run_gold_local.py`, ALFA `processed.zip` 
 `UAVAttackData.zip`, `FakeMinioClient` ile): **99.885 satır** (ALFA 20.239 + UAV Attack
 79.646), tam olarak 10 kolon (7+3).
 
+**ÇÖZÜLDÜ (2026-07-06) — `stream_unify()` rerun'larda eski Gold'u siliyordu, artık siliyor:**
+Bug: `stream_unify()` (ve `main()`'in `--local-out` yolu) her çalıştırmada
+`write_gold()` ile YENİ, zaman damgalı+uuid'li part dosyaları yazıyordu ama
+önceki çalıştırmanın `gold/unified/` altındaki part'larını hiç silmiyordu —
+tekrarlanan her Gold çalıştırması satırları kümülatif olarak şişiriyordu
+(N. çalıştırmadan sonra veri N katı sayılıyordu). `src/common/minio_io.py`'a
+`remove_object` (Protocol'e eklendi, `FakeMinioClient`'a da eklendi) ve
+`delete_layer_objects()` (bir prefix altındaki tüm objeleri siler) eklendi;
+`src/gold/unify.py`'a bunları kullanan `clear_gold_before_unify()` eklendi,
+hem `stream_unify()` hem `main()`'in in-memory yolu artık yazmadan önce bunu
+çağırıyor. Regresyon testi: `tests/test_gold_unify.py::test_stream_unify_rerun_does_not_double_count_rows`.
+
 **BİLİNEN EKSİK (bilerek düzeltilmedi, review'da görülsün diye kaydedildi):** `velocity_mps`
 her iki kaynak için de tamamen null çıkıyor — ALFA'da plan'ın önerdiği `velocity_measured`
 kolonu gerçek veride hiç oluşmuyor (`nav_info-velocity` topic'i eşleşmiyor), UAV Attack'te

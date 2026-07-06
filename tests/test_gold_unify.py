@@ -1,7 +1,9 @@
+import io
+
 import pandas as pd
 
-from src.common.minio_io import write_silver
-from src.gold.unify import GOLD_COLUMNS, unify
+from src.common.minio_io import list_layer_objects, write_silver
+from src.gold.unify import GOLD_COLUMNS, GOLD_NAME, stream_unify, unify
 
 
 def _alfa_silver_df() -> pd.DataFrame:
@@ -103,3 +105,24 @@ def test_unify_returns_empty_frame_with_gold_columns_when_nothing_available(fake
 
     assert gold.empty
     assert list(gold.columns) == GOLD_COLUMNS
+
+
+def test_stream_unify_rerun_does_not_double_count_rows(fake_minio_client):
+    """Regression test: stream_unify() must clear prior unified/ output before
+    rewriting, otherwise a second run leaves the first run's parts in place and
+    every downstream reader double-counts rows."""
+    write_silver(_alfa_silver_df(), "alfa", client=fake_minio_client)
+
+    first_total = stream_unify(fake_minio_client, source_types=("alfa",))
+    second_total = stream_unify(fake_minio_client, source_types=("alfa",))
+
+    assert first_total == second_total == 2
+    gold_bucket = fake_minio_client.buckets.get("gold", {})
+    # rerun must not leave the first run's parts alongside the new ones
+    assert len(list_layer_objects(fake_minio_client, "gold", GOLD_NAME)) == 1
+    total_rows_in_bucket = sum(
+        len(pd.read_parquet(io.BytesIO(gold_bucket[name])))
+        for name in gold_bucket
+        if name.startswith(f"{GOLD_NAME}/")
+    )
+    assert total_rows_in_bucket == 2

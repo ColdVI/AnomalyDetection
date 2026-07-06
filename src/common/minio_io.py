@@ -57,6 +57,8 @@ class ObjectStoreClient(Protocol):
 
     def get_object(self, bucket_name: str, object_name: str): ...
 
+    def remove_object(self, bucket_name: str, object_name: str) -> None: ...
+
 
 def _validate_component(value: str, name: str) -> str:
     if not isinstance(value, str) or not _SAFE_COMPONENT.fullmatch(value):
@@ -239,6 +241,23 @@ def list_layer_objects(
     """List every object key under `<source_type>/` in `bucket` (Bronze/Silver/Gold alike)."""
     prefix = _validate_component(source_type, "source_type") + "/"
     return [obj.object_name for obj in client.list_objects(bucket, prefix=prefix, recursive=True)]
+
+
+def delete_layer_objects(
+    client: ObjectStoreClient,
+    bucket: str,
+    source_type: str,
+) -> int:
+    """Delete every object under `<source_type>/` in `bucket`. Returns the count removed.
+
+    Used to clear a prior run's output before rewriting it (e.g. Gold's `unified/`
+    prefix, see `src/gold/unify.py:clear_gold_before_unify`) so repeated runs don't
+    accumulate duplicate parts alongside the new ones.
+    """
+    object_names = list_layer_objects(client, bucket, source_type)
+    for name in object_names:
+        client.remove_object(bucket, name)
+    return len(object_names)
 
 
 def read_parquet_object(client: ObjectStoreClient, bucket: str, object_name: str) -> pd.DataFrame:
