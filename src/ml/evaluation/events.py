@@ -30,6 +30,27 @@ def load_uav_sead_ranges(labels_path: str | Path) -> dict[str, list[tuple[float,
     return result
 
 
+def load_uav_sead_ranges_by_category(
+        labels_path: str | Path,
+) -> dict[str, dict[str, list[tuple[float, float]]]]:
+    """Load ``flight -> annotation category -> absolute-us intervals``.
+
+    Kategori etiketi kaybolmadan korunur; eski ``load_uav_sead_ranges``
+    davranisi degismez ve tum kategorileri havuzlamaya devam eder.
+    """
+    labels = json.loads(Path(labels_path).read_text(encoding="utf-8"))
+    result: dict[str, dict[str, list[tuple[float, float]]]] = {}
+    for flight, meta in labels.items():
+        categories: dict[str, list[tuple[float, float]]] = {}
+        for annotation in meta.get("ranges", []):
+            for category, intervals in annotation:
+                categories.setdefault(str(category), []).extend(
+                    (float(start), float(end)) for start, end in intervals
+                )
+        result[flight] = categories
+    return result
+
+
 def uav_sead_absolute_us(t_rel_s, t0_us: float) -> np.ndarray:
     """Reconstruct absolute PX4 time using the established ML-6 mapping."""
 

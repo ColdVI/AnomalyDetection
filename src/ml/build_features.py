@@ -17,6 +17,7 @@ Kullanim:
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 from pathlib import Path
 
@@ -48,11 +49,55 @@ def _write(df: pd.DataFrame, source: str) -> Path:
     return out
 
 
+def rebuild_uav_sead_with_frozen_manifest(manifest_path: Path) -> None:
+    """SEAD feature/artifact'lerini mevcut split'i degistirmeden yeniden kur.
+
+    ML-9 yeni split uretmeyi yasaklar. Bu yol manifesti yalniz train kimliklerini
+    secmek icin okur; dosyayi yazmaz ve final_holdout'u fit/skor akisina sokmaz.
+    """
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    config = manifest["sources"]["uav_sead"]
+    split0 = config["splits"]["split_00"]
+    train_ids = set(split0["train"])
+    holdout_ids = set(split0["final_holdout"])
+    if train_ids & holdout_ids:
+        raise AssertionError("Frozen manifestte train/final_holdout kesisiyor")
+
+    silver = pd.read_parquet(SILVER_DIR / "uav_sead_silver.parquet")
+    available_ids = set(silver["source_id"].unique())
+    missing_train = train_ids - available_ids
+    if missing_train:
+        raise ValueError(f"Frozen manifest train ucuslari Silver'da eksik: {sorted(missing_train)}")
+
+    provisional = build_px4_features(silver)
+    train = provisional[provisional["source_id"].isin(train_ids)]
+    baselines = fit_cusum_baselines(train, PX4_CUSUM_COLUMNS)
+    write_cusum_baselines(baselines, CUSUM_DIR / "uav_sead_cusum_baseline.json")
+
+    features = build_px4_features(silver, cusum_baselines=baselines)
+    _write(features, "uav_sead")
+    scaler = fit_scaler_params(
+        features[features["source_id"].isin(train_ids)], px4_feature_columns(features))
+    write_scaler_params(scaler, SCALER_DIR / "uav_sead_robust_scaler.json")
+    logger.info(
+        "UAV-SEAD frozen-manifest rebuild tamam: %d train fit, %d holdout kapali; manifest yazilmadi",
+        len(train_ids), len(holdout_ids),
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Silver -> ML feature tablolari (ML-0)")
     parser.add_argument("--skip-uav-sead", action="store_true",
                         help="UAV-SEAD Silver'i yoksa/istenmiyorsa atla")
+    parser.add_argument(
+        "--uav-sead-only-frozen-manifest", action="store_true",
+        help="Yalniz SEAD'i mevcut split_manifest ile yeniden kur; split uretme/yazma",
+    )
     args = parser.parse_args()
+
+    if args.uav_sead_only_frozen_manifest:
+        rebuild_uav_sead_with_frozen_manifest(OUT_DIR / "split_manifest.json")
+        return
 
     # CUSUM baseline'i train-normal veriden ogrenildigi icin iki gecis gerekir:
     # (1) nedensel default ile etiket/source_id tablosu ve split, (2) train'de
