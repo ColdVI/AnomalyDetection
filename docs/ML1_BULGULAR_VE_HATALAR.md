@@ -337,6 +337,45 @@ motor eşiği yeniden ayarlanmaz, nadir mechanical alt-tipleri modellenmez ve ho
 talimatıyla sıradaki araştırma ML-10 forecast-residual/foundation-model pilotudur; bu fazda başlatılmadı.
 Nihai checksum'lu 5-seed artifact: `artifacts/ml9/uav_sead/full_matrix/` (65 kayıtlı dosya).
 
+## ML-10 sonuçları — zero-shot Chronos forecast-residual pilotu (2026-07-06)
+
+**Ne denedik:** Python 3.14/CPU ortamında `chronos-forecasting==2.3.1` ile resmi
+`amazon/chronos-bolt-tiny` (8.65M parametre, revision
+`a0e552de83495b5c28c14c71c374f3e33280b340`) modeli zero-shot kullanıldı. Development
+doluluk denetiminde dikey adaylar `alt` **%100**, `local_alt_m` **%99.998** ve `baro_alt_m`
+**%6.87** çıktı; sonuç görülmeden önce `alt` sabitlendi. Mechanical kanal olarak ML-9'un
+`actuator_output_std` kolonu kullanıldı (%99.21 satır, 480 uçuşun 479'unda en az bir değer).
+Her 1 saniyelik karar noktasında yalnız önceki en fazla 512 gözlemle q10/q50/q90 tahmini
+yapıldı; bant dışı normalize residual bir kez hesaplandı ve seedler arasında tekrar üretilmedi.
+
+- **H22 — Zorunlu CPU fizibilitesi açık farkla geçti.** 512 örnekli gerçek development
+  penceresinde sıcak tek tahmin ortalaması **9.3 ms** idi. Uçuş boyutu dağılımının sabit sekiz
+  kantilinde iki kanal birlikte **2.57 s** sürdü; 480 development uçuşuna projeksiyon
+  **102.4 s / 0.028 saat** oldu. Sabit `<3 saat` kuralıyla 1 s stride ve tam development kapsamı
+  seçildi. Gerçek tam precompute **101.2 s** sürdü; 57.323 irtifa ve 56.812 actuator residual'i
+  üretildi. Fizibilite sonucu görülerek stride/subset değiştirilmedi.
+- **H23 — Gate B mechanical forecast-residual ile GEÇTİ; irtifa hipotezi reddedildi.** Önceden
+  dondurulan aynı policy+bütçede ortalama recall kazancı >=0.05 ve en az 3/5 seed pozitif şartı,
+  `Actuator Outputs+Controls` için birden çok satırda sağlandı. En güçlü karşılaştırma
+  CUSUM/advisory'de `chronos_motor` **0.390** vs ML-9'un en iyi `motor_simetrisi` **0.205**
+  (+**0.185**, 4/5 seed); CUSUM/critical **0.205 vs 0.093** (+0.112, 4/5) oldu. Buna karşılık
+  `Position.Z` CUSUM/advisory'de `chronos_dikey` **0.023**, `dikey_tutarlilik` **0.096**
+  (-0.073, yalnız 1/5 pozitif) verdi. Sonuç: uçuşun kendi geçmişine koşullu residual actuator
+  dinamiğinde gerçek ve kararlı ek sinyal sağlıyor, fakat irtifa onset'ini çözmüyor.
+- **H24 — Kategori kazancı fusion düzeyinde operasyonel hedefe dönüşmedi (Gate C KALDI).** Planın
+  sabit `ml10_fusion=max(existing_fusion, chronos_dikey, chronos_motor)` skoru CUSUM/advisory'de
+  **0.213 onset recall / 23.92 FA-saat**, kritik **0.133 / 12.83** verdi; hedefler sırasıyla
+  `>=0.50 @ <=12` ve `>=0.30 @ <=2` idi. Sonuç mevcut fusion'a (0.212 / 23.63) neredeyse eşit,
+  ML-9 fusion'dan (0.222 / 25.83) daha düşük FA ama daha düşük recall'dır. Mechanical kanalın tekil
+  kazancı max-fusion ve bütün-event validation kalibrasyonunda korunmadı. Sonuç görülerek fusion,
+  Chronos bağlamı, quantile bandı veya policy grid'i değiştirilmedi.
+
+**Gate kararı:** Gate A GEÇTİ (future-leak, zero-shot/no-training, ortak füzyon ve donmuş karar
+katmanı testleri 9/9; 131-uçuş holdout okunmadı). Gate B mechanical dalından GEÇTİ. Gate C KALDI;
+bu yüzden blind holdout kapalı kaldı ve `chronos_motor` development'ta kanıtlanmış bir aday skor
+olsa da default/production fusion'a alınmadı. Nihai checksum'lu artifact:
+`artifacts/ml10/uav_sead/full_matrix/`; fizibilite ve precompute manifestleri aynı ağacın altındadır.
+
 ## ML-2/ML-3'e devredilen iş listesi
 
 | # | İş | Adres |

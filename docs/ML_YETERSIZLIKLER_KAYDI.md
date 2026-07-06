@@ -1,8 +1,8 @@
 # ML Sistemi — Bilinen Yetersizlikler ve Sınırlamalar Kaydı
 
-Bu doküman ML-0'dan ML-9'a kadar (2026-06-29 → 2026-07-06) bulunan **tüm** bilinen eksiklik,
+Bu doküman ML-0'dan ML-10'a kadar (2026-06-29 → 2026-07-06) bulunan **tüm** bilinen eksiklik,
 sınırlama ve açık işi TEK bir yerde toplar. Amaç: mentör/ekip incelemesinde hiçbir bulgunun
-`docs/ML1_BULGULAR_VE_HATALAR.md`'nin 21 H-maddesi ve `docs/decisions.md`'nin 9 ADR'si arasında
+`docs/ML1_BULGULAR_VE_HATALAR.md`'nin 24 H-maddesi ve `docs/decisions.md`'nin 10 ADR'si arasında
 kaybolmaması. Her madde kaynağını (H-no/ADR-no/dosya) gösterir — burada anlatılan hiçbir şey
 yeni bir iddia değildir, hepsi başka yerde zaten kanıtlanmış bulguların tek-yerde konsolidasyonudur.
 
@@ -137,7 +137,8 @@ atlandı) — bu metodolojik disiplin, eksiklik değil.
 Position.Z'de dikey modül +0.021 recall (4/5 seed, gereken ≥0.05), Actuator Outputs+Controls'te
 motor-simetri +0.024 (2/5 seed, gereken ≥3/5). Fusion en iyi hâliyle 0.222 recall/25.83 FA-saat —
 kritik/advisory hiçbir bütçeyi karşılamadı. Ayrıntı: yukarıdaki ML-9 doğrulama raporu / H19-H21.
-**Sıradaki adım ML-10 (`docs/ML10_PLAN.md`) olarak planlandı, henüz uygulanmadı.**
+**ML-10 uygulandı:** actuator forecast-residual'i bu kategori baseline'ını anlamlı geçti;
+irtifa dalı ve operasyonel fusion hedefi geçmedi (bkz. C.6 / ADR-010).
 
 ### C.3 — USAD, LSTM-AE'nin altında kaldı (✅ Kapandı, ML-3)
 
@@ -156,6 +157,15 @@ tutmak veya ayrı bir eşik stratejisi denenebilir, henüz yapılmadı.
 ALFA ROC 0.742→0.417 (oran skoruyla). İmza az sayıda pencerede yaşadığından oran-tabanlı skor
 sinyali seyreltiyor. Uçuş skoru max kalıyor — bu artık kapanmış bir tasarım kararı, tekrar
 denenmeyecek.
+
+### C.6 — ML-10: mechanical Gate B geçti, fusion Gate C kaldı (✅ Pilot tamamlandı, ADR-010)
+
+Zero-shot `chronos_motor`, Actuator Outputs+Controls CUSUM/advisory recall'ını ML-9'un en iyi
+adayına göre 0.205→0.390 yükseltti (+0.185, 4/5 seed); kategori düzeyinde gerçek ek sinyal
+kanıtlandı. `chronos_dikey` Position.Z'de 0.096→0.023 ile geriledi. Sabit BASE+Chronos max-fusion
+0.213 recall/23.92 FA-saat verdi ve operasyonel Gate C'yi geçmedi. **Kurtarma yapılmadı:** context,
+quantile, fusion veya policy sonucu görerek ayarlanmadı; holdout kapalı kaldı. Pilot tamamlanmıştır,
+ancak skor production/default adayı değildir.
 
 ---
 
@@ -201,11 +211,12 @@ listesinde (#4), platform-bazlı ayrı kalibrasyon önerisi var.
 
 ### E.1 — SEAD zayıf kategoriler için hiçbir policy kritik/advisory bütçeyi karşılamıyor (🔴 Güncel durum)
 
-ML-7'den ML-9'a kadar hiçbir konfigürasyon Position.Z veya Actuator Outputs+Controls için
+ML-7'den ML-10'a kadar hiçbir fusion/policy konfigürasyonu Position.Z veya Actuator Outputs+Controls için
 ≤2 FA/saat @ ≥0.30 recall (kritik) ya da ≤12 FA/saat @ ≥0.50 recall (advisory) hedefini
-karşılamadı. En iyi mevcut sonuç (ML-9 fusion): 0.222 recall / 25.83 FA-saat — FA bütçesinin
-~2 katı. **ML-10 bu ikisini kapatmayı hedefliyor** (`docs/ML10_PLAN.md`); geçemezse dürüst bir
-sınır olarak kabul edilecek.
+karşılamadı. ML-10 mechanical kategori skorunu tek başına belirgin iyileştirdi (0.390 recall), ama
+ML10 fusion yalnız 0.213 recall / 23.92 FA-saat verdi — advisory FA bütçesinin yaklaşık 2 katı.
+Dolayısıyla kategori sinyali bulundu, operasyonel bütün-sistem açığı kapanmadı; yeni veri veya
+önceden tanımlı ayrı bir füzyon hipotezi olmadan mevcut development sonucuna tuning yapılmayacak.
 
 ### E.2 — Blind holdout (131 SEAD uçuşu) hiç açılmadı — gerçek "nihai" sayı yok (⚪ Bilinçli, doğru davranış)
 
@@ -271,6 +282,7 @@ bilerek ML kapsamının dışında tutuluyor.
 | B.3 | EKF test-ratio ters sinyal | H14 | ✅ Kapandı | Füzyon dışı bırakıldı (reject-counter ile birleşmeden kullanılmaz) |
 | C.1 | ML-8A LightGBM Gate B/C kaldı | ADR-008 | ✅ Kapandı | ML-8C/başka model ailesi (planlanmadı) |
 | C.2 | ML-9 kategori residual Gate B/C kaldı | ADR-009 | ✅ Kapandı | **ML-10 planlandı** (`docs/ML10_PLAN.md`) |
+| C.6 | ML-10 mechanical Gate B geçti, fusion Gate C kaldı | H22-H24, ADR-010 | ✅ Pilot tamamlandı | Yeni bağımsız protokol olmadan tuning/holdout yok |
 | C.3 | USAD < LSTM-AE | ML-3 | ✅ Kapandı | — (karar verildi) |
 | C.4 | IF-füzyon heterojen normale kırılgan | B3 | 🟡 Açık iş | nav_info'suz uçuşları val'den ayır |
 | C.5 | Oran-skoru max'tan kötü | H10 | ✅ Kapandı | — (hipotez reddedildi) |
@@ -278,7 +290,7 @@ bilerek ML kapsamının dışında tutuluyor.
 | D.2 | Küçük-n kırılganlık (yaygın) | A.1/A.4/A.6 | ⚪ Bilinçli | Her raporda n belirtilir |
 | D.3 | Enjeksiyon şiddet taraması yok | H12 | 🟡 Açık iş | 2→20 m/s taraması (devir #7) |
 | D.4 | SITL/live domain karışması | H4 | 🟡 Açık iş | Platform-bazlı kalibrasyon (devir #4) |
-| E.1 | Kritik/advisory bütçe karşılanmıyor (SEAD zayıf) | H20 | 🔴 Güncel | **ML-10 hedefi** |
+| E.1 | Kritik/advisory bütçe karşılanmıyor (SEAD zayıf) | H20, H24 | 🔴 Güncel | Yeni veri veya ayrı ön-kayıtlı fusion hipotezi |
 | E.2 | Blind holdout hiç açılmadı | metodoloji | ⚪ Bilinçli | Gate B/C geçmeden açılmaz (doğru) |
 | E.3 | ALFA'daki tek geçiş karar katmanına ait | ADR-008 | ✅ Not edildi | Raporda ayrım netleştirilir |
 | F.1 | `.gitignore` `data/` bug'ı | bu oturum | ✅ Kapandı | Düzeltildi |
@@ -286,5 +298,5 @@ bilerek ML kapsamının dışında tutuluyor.
 | F.3 | 4 MinIO SDK test hatası | — | ⚪ Bilinçli | Kapsam dışı, minio paketi güncellenirse kapanır |
 | F.4 | MOMENT bu ortamda kurulamıyor | bu oturum | 🔴 Yapısal | Ayrı Python 3.10/3.11 ortamı (orantısız) |
 
-**Sayaç:** 28 madde — 8 🔴 yapısal sınır, 5 🟡 gerçek açık iş, 8 ⚪ bilinçli kapsam dışı,
-7 ✅ kapandı/telafi edildi.
+**Sayaç:** 29 madde — 8 🔴 yapısal sınır, 5 🟡 gerçek açık iş, 8 ⚪ bilinçli kapsam dışı,
+8 ✅ kapandı/telafi edildi.

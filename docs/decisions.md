@@ -264,3 +264,33 @@ grid'i değiştirilmez; bunlar mevcut development testine sonucu kurtarma amaçl
 Battery/Vibration/Magnetometer alt-tipleri modellenmez. Yeniden açılma ancak ayrı ML-10 hipotezi,
 önceden yazılmış kabul ölçütleri ve yeni development protokolüyle mümkündür. Nihai artifact
 `artifacts/ml9/uav_sead/full_matrix/` altındadır; manifest 65 dosyanın checksum'ını taşır.
+
+## ADR-010: ML-10 Gate B mechanical dalında geçti; Gate C reddedildi
+
+- Durum: Development category accepted; operational deployment rejected
+- Tarih: 2026-07-06
+
+Zorunlu preflight'ta `amazon/chronos-bolt-tiny` CPU'da gerçek veriyle yüklendi; sıcak tahmin
+ortalaması 9.3 ms ölçüldü. Dikey kanal, development doluluk denetiminde `alt` %100 ile en yüksek
+olduğu için sonuç görülmeden önce sabitlendi; mechanical kanal mevcut `actuator_output_std` oldu.
+Sekiz gerçek uçuşluk fizibilite 480-uçuş tam geçişini 102.4 saniye öngördü ve planın `<3 saat`
+kuralıyla tam development/1 s stride kararı kaydedildi. Tam zero-shot precompute 101.2 saniyede
+tamamlandı; fine-tuning, gradient veya optimizer adımı yoktur.
+
+Chronos skorları yalnız uçuşun nedensel geçmişinden üretildi, her seed'in normal-validation
+dağılımında ampirik olasılığa çevrildi. ML-9 modelleri ve threshold/K-of-N/bootstrap-CUSUM karar
+katmanları checksum doğrulamasıyla değişmeden yeniden kullanıldı; skor kalibrasyonu ve max-fusion
+tek ortak `src/ml/evaluation/score_fusion.py` yardımcısına taşındı. Future-leak, zero-shot,
+karar-katmanı kimliği, füzyon tekilliği ve holdout izolasyonu testleri geçti. **Gate A geçti.**
+
+`Actuator Outputs+Controls` CUSUM/advisory recall'ı `motor_simetrisi` 0.205'ten
+`chronos_motor` 0.390'a çıktı (+0.185, 4/5 seed); kritik CUSUM kazancı +0.112 ve yine 4/5 seed
+pozitifti. Önceden dondurulan >=0.05 ve >=3/5 şartı sağlandığından **Gate B geçti.** Bu kabul yalnız
+mechanical kategori skoruna aittir: `Position.Z` CUSUM/advisory 0.096'dan 0.023'e geriledi.
+
+Sabit `ml10_fusion=max(existing_fusion, chronos_dikey, chronos_motor)` CUSUM/advisory'de
+0.213 recall / 23.92 FA-saat, kritik 0.133 / 12.83 verdi. Hiçbir satır kritik veya advisory
+fayda+FA hedefini karşılamadığından **Gate C kaldı.** `chronos_motor` default/production fusion'a
+alınmaz ve 131-uçuş blind holdout açılmaz. Sonuç görüldükten sonra quantile bandı, context window,
+fusion, stride veya policy grid'i değiştirilmez; böyle bir değişiklik yeni, önceden kayıtlı bir faz
+ve bağımsız değerlendirme gerektirir. Nihai artifact `artifacts/ml10/uav_sead/full_matrix/` altındadır.
