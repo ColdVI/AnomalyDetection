@@ -1,0 +1,4324 @@
+{
+  "flights": [
+    {
+      "source_id": "00_02_49",
+      "wall_seconds": 0.162970099998347,
+      "rows": 673,
+      "scored_points": {
+        "chronos_alt_residual": 70,
+        "chronos_actuator_std_residual": 68
+      }
+    },
+    {
+      "source_id": "00_14_08",
+      "wall_seconds": 0.0725151000006008,
+      "rows": 453,
+      "scored_points": {
+        "chronos_alt_residual": 46,
+        "chronos_actuator_std_residual": 46
+      }
+    },
+    {
+      "source_id": "2018-05-26/16_18_10",
+      "wall_seconds": 0.3657997000045725,
+      "rows": 1972,
+      "scored_points": {
+        "chronos_alt_residual": 200,
+        "chronos_actuator_std_residual": 199
+      }
+    },
+    {
+      "source_id": "2018-05-26/16_19_20",
+      "wall_seconds": 0.2902844999989611,
+      "rows": 1629,
+      "scored_points": {
+        "chronos_alt_residual": 166,
+        "chronos_actuator_std_residual": 165
+      }
+    },
+    {
+      "source_id": "2018-05-26/16_27_25",
+      "wall_seconds": 0.3717793000032543,
+      "rows": 2108,
+      "scored_points": {
+        "chronos_alt_residual": 214,
+        "chronos_actuator_std_residual": 210
+      }
+    },
+    {
+      "source_id": "2018-05-26/16_38_09",
+      "wall_seconds": 0.10655750000296393,
+      "rows": 632,
+      "scored_points": {
+        "chronos_alt_residual": 64,
+        "chronos_actuator_std_residual": 62
+      }
+    },
+    {
+      "source_id": "2018-05-26/16_45_09",
+      "wall_seconds": 0.11095509999722708,
+      "rows": 603,
+      "scored_points": {
+        "chronos_alt_residual": 61,
+        "chronos_actuator_std_residual": 60
+      }
+    },
+    {
+      "source_id": "2018-05-26/16_48_10",
+      "wall_seconds": 0.1754709000015282,
+      "rows": 1034,
+      "scored_points": {
+        "chronos_alt_residual": 104,
+        "chronos_actuator_std_residual": 103
+      }
+    },
+    {
+      "source_id": "2018-05-26/16_50_01",
+      "wall_seconds": 0.038519599998835474,
+      "rows": 306,
+      "scored_points": {
+        "chronos_alt_residual": 31,
+        "chronos_actuator_std_residual": 28
+      }
+    },
+    {
+      "source_id": "2018-05-26/16_50_55",
+      "wall_seconds": 0.13949950000096578,
+      "rows": 780,
+      "scored_points": {
+        "chronos_alt_residual": 79,
+        "chronos_actuator_std_residual": 75
+      }
+    },
+    {
+      "source_id": "2018-05-31/15_58_30",
+      "wall_seconds": 0.7788650000002235,
+      "rows": 4363,
+      "scored_points": {
+        "chronos_alt_residual": 449,
+        "chronos_actuator_std_residual": 448
+      }
+    },
+    {
+      "source_id": "2018-05-31/16_07_48",
+      "wall_seconds": 0.6642002000007778,
+      "rows": 3803,
+      "scored_points": {
+        "chronos_alt_residual": 387,
+        "chronos_actuator_std_residual": 383
+      }
+    },
+    {
+      "source_id": "2018-06-04/18_01_59",
+      "wall_seconds": 0.07890490000136197,
+      "rows": 497,
+      "scored_points": {
+        "chronos_alt_residual": 50,
+        "chronos_actuator_std_residual": 47
+      }
+    },
+    {
+      "source_id": "2018-06-04/18_05_54",
+      "wall_seconds": 0.2007210000010673,
+      "rows": 1089,
+      "scored_points": {
+        "chronos_alt_residual": 110,
+        "chronos_actuator_std_residual": 110
+      }
+    },
+    {
+      "source_id": "2018-06-04/18_15_21",
+      "wall_seconds": 0.04517879999912111,
+      "rows": 338,
+      "scored_points": {
+        "chronos_alt_residual": 33,
+        "chronos_actuator_std_residual": 33
+      }
+    },
+    {
+      "source_id": "2018-06-04/18_17_58",
+      "wall_seconds": 0.2044811000014306,
+      "rows": 1199,
+      "scored_points": {
+        "chronos_alt_residual": 122,
+        "chronos_actuator_std_residual": 122
+      }
+    },
+    {
+      "source_id": "2018-06-04/18_21_53",
+      "wall_seconds": 0.08797960000083549,
+      "rows": 522,
+      "scored_points": {
+        "chronos_alt_residual": 52,
+        "chronos_actuator_std_residual": 52
+      }
+    },
+    {
+      "source_id": "2018-06-04/18_25_07",
+      "wall_seconds": 0.23630229999980656,
+      "rows": 1291,
+      "scored_points": {
+        "chronos_alt_residual": 131,
+        "chronos_actuator_std_residual": 131
+      }
+    },
+    {
+      "source_id": "2018-06-04/18_33_02",
+      "wall_seconds": 0.31581630000437144,
+      "rows": 1776,
+      "scored_points": {
+        "chronos_alt_residual": 181,
+        "chronos_actuator_std_residual": 180
+      }
+    },
+    {
+      "source_id": "2018-06-04/18_36_56",
+      "wall_seconds": 0.21323750000010477,
+      "rows": 1211,
+      "scored_points": {
+        "chronos_alt_residual": 123,
+        "chronos_actuator_std_residual": 122
+      }
+    },
+    {
+      "source_id": "2018-06-04/18_48_21",
+      "wall_seconds": 0.17704149999917718,
+      "rows": 995,
+      "scored_points": {
+        "chronos_alt_residual": 103,
+        "chronos_actuator_std_residual": 102
+      }
+    },
+    {
+      "source_id": "2018-06-04/19_00_07",
+      "wall_seconds": 0.10119039999699453,
+      "rows": 575,
+      "scored_points": {
+        "chronos_alt_residual": 58,
+        "chronos_actuator_std_residual": 57
+      }
+    },
+    {
+      "source_id": "2018-06-04/19_02_08",
+      "wall_seconds": 0.29854550000163727,
+      "rows": 1347,
+      "scored_points": {
+        "chronos_alt_residual": 137,
+        "chronos_actuator_std_residual": 137
+      }
+    },
+    {
+      "source_id": "2018-06-04/19_09_21",
+      "wall_seconds": 0.2319714000041131,
+      "rows": 1223,
+      "scored_points": {
+        "chronos_alt_residual": 124,
+        "chronos_actuator_std_residual": 123
+      }
+    },
+    {
+      "source_id": "2018-06-04/19_17_29",
+      "wall_seconds": 0.2199458999966737,
+      "rows": 1053,
+      "scored_points": {
+        "chronos_alt_residual": 107,
+        "chronos_actuator_std_residual": 107
+      }
+    },
+    {
+      "source_id": "2018-07-03/18_57_00",
+      "wall_seconds": 0.08615479999571107,
+      "rows": 445,
+      "scored_points": {
+        "chronos_alt_residual": 45,
+        "chronos_actuator_std_residual": 43
+      }
+    },
+    {
+      "source_id": "2018-07-03/18_58_45",
+      "wall_seconds": 0.27859219999663765,
+      "rows": 1400,
+      "scored_points": {
+        "chronos_alt_residual": 144,
+        "chronos_actuator_std_residual": 143
+      }
+    },
+    {
+      "source_id": "2018-07-03/19_12_45",
+      "wall_seconds": 0.20370440000260714,
+      "rows": 1005,
+      "scored_points": {
+        "chronos_alt_residual": 102,
+        "chronos_actuator_std_residual": 102
+      }
+    },
+    {
+      "source_id": "2018-07-03/19_16_20",
+      "wall_seconds": 0.2594658999951207,
+      "rows": 1254,
+      "scored_points": {
+        "chronos_alt_residual": 126,
+        "chronos_actuator_std_residual": 126
+      }
+    },
+    {
+      "source_id": "2018-07-09/18_55_04",
+      "wall_seconds": 0.10771209999802522,
+      "rows": 545,
+      "scored_points": {
+        "chronos_alt_residual": 55,
+        "chronos_actuator_std_residual": 54
+      }
+    },
+    {
+      "source_id": "2018-07-09/18_56_32",
+      "wall_seconds": 0.2343299999993178,
+      "rows": 1202,
+      "scored_points": {
+        "chronos_alt_residual": 122,
+        "chronos_actuator_std_residual": 122
+      }
+    },
+    {
+      "source_id": "2018-07-09/19_05_45",
+      "wall_seconds": 0.1681274000002304,
+      "rows": 915,
+      "scored_points": {
+        "chronos_alt_residual": 93,
+        "chronos_actuator_std_residual": 93
+      }
+    },
+    {
+      "source_id": "2018-07-09/19_09_44",
+      "wall_seconds": 0.14187949999904959,
+      "rows": 730,
+      "scored_points": {
+        "chronos_alt_residual": 74,
+        "chronos_actuator_std_residual": 74
+      }
+    },
+    {
+      "source_id": "2018-07-09/19_13_16",
+      "wall_seconds": 0.14571699999942211,
+      "rows": 714,
+      "scored_points": {
+        "chronos_alt_residual": 71,
+        "chronos_actuator_std_residual": 71
+      }
+    },
+    {
+      "source_id": "2018-07-09/19_16_25",
+      "wall_seconds": 0.08571269999811193,
+      "rows": 490,
+      "scored_points": {
+        "chronos_alt_residual": 49,
+        "chronos_actuator_std_residual": 49
+      }
+    },
+    {
+      "source_id": "2018-07-09/19_20_08",
+      "wall_seconds": 0.15321859999676235,
+      "rows": 845,
+      "scored_points": {
+        "chronos_alt_residual": 85,
+        "chronos_actuator_std_residual": 85
+      }
+    },
+    {
+      "source_id": "2018-07-09/19_29_38",
+      "wall_seconds": 0.1449877999984892,
+      "rows": 712,
+      "scored_points": {
+        "chronos_alt_residual": 72,
+        "chronos_actuator_std_residual": 72
+      }
+    },
+    {
+      "source_id": "2018-07-09/19_32_44",
+      "wall_seconds": 0.26849419999780366,
+      "rows": 1344,
+      "scored_points": {
+        "chronos_alt_residual": 136,
+        "chronos_actuator_std_residual": 136
+      }
+    },
+    {
+      "source_id": "2018-07-09/19_36_34",
+      "wall_seconds": 0.05409489999874495,
+      "rows": 345,
+      "scored_points": {
+        "chronos_alt_residual": 35,
+        "chronos_actuator_std_residual": 34
+      }
+    },
+    {
+      "source_id": "2018-07-09/19_41_46",
+      "wall_seconds": 0.14783819999865955,
+      "rows": 783,
+      "scored_points": {
+        "chronos_alt_residual": 79,
+        "chronos_actuator_std_residual": 78
+      }
+    },
+    {
+      "source_id": "2018-07-09/19_44_18",
+      "wall_seconds": 0.3398049999959767,
+      "rows": 1784,
+      "scored_points": {
+        "chronos_alt_residual": 181,
+        "chronos_actuator_std_residual": 180
+      }
+    },
+    {
+      "source_id": "2018-07-09/19_50_38",
+      "wall_seconds": 0.08210479999979725,
+      "rows": 496,
+      "scored_points": {
+        "chronos_alt_residual": 50,
+        "chronos_actuator_std_residual": 49
+      }
+    },
+    {
+      "source_id": "2018-07-09/19_52_37",
+      "wall_seconds": 0.16038549999939278,
+      "rows": 873,
+      "scored_points": {
+        "chronos_alt_residual": 88,
+        "chronos_actuator_std_residual": 88
+      }
+    },
+    {
+      "source_id": "2018-07-09/19_56_32",
+      "wall_seconds": 0.4680508000019472,
+      "rows": 2700,
+      "scored_points": {
+        "chronos_alt_residual": 274,
+        "chronos_actuator_std_residual": 273
+      }
+    },
+    {
+      "source_id": "2018-07-09/20_03_46",
+      "wall_seconds": 0.25659539999469416,
+      "rows": 1354,
+      "scored_points": {
+        "chronos_alt_residual": 139,
+        "chronos_actuator_std_residual": 139
+      }
+    },
+    {
+      "source_id": "2018-07-25/sess006/log001",
+      "wall_seconds": 0.0759602999969502,
+      "rows": 138,
+      "scored_points": {
+        "chronos_alt_residual": 122,
+        "chronos_actuator_std_residual": 119
+      }
+    },
+    {
+      "source_id": "2018-07-25/sess007/log002",
+      "wall_seconds": 0.15700839999772143,
+      "rows": 220,
+      "scored_points": {
+        "chronos_alt_residual": 204,
+        "chronos_actuator_std_residual": 203
+      }
+    },
+    {
+      "source_id": "2018-07-25/sess008/log001",
+      "wall_seconds": 0.07009200000175042,
+      "rows": 96,
+      "scored_points": {
+        "chronos_alt_residual": 80,
+        "chronos_actuator_std_residual": 79
+      }
+    },
+    {
+      "source_id": "2018-07-25/sess009/log001",
+      "wall_seconds": 0.0848377000002074,
+      "rows": 139,
+      "scored_points": {
+        "chronos_alt_residual": 123,
+        "chronos_actuator_std_residual": 122
+      }
+    },
+    {
+      "source_id": "2018-07-25/sess010/log001",
+      "wall_seconds": 0.10753690000274219,
+      "rows": 174,
+      "scored_points": {
+        "chronos_alt_residual": 158,
+        "chronos_actuator_std_residual": 157
+      }
+    },
+    {
+      "source_id": "2018-07-25/sess011/log001",
+      "wall_seconds": 0.17595060000166995,
+      "rows": 240,
+      "scored_points": {
+        "chronos_alt_residual": 224,
+        "chronos_actuator_std_residual": 223
+      }
+    },
+    {
+      "source_id": "2018-07-__/sess006/log001",
+      "wall_seconds": 0.048482999998668674,
+      "rows": 359,
+      "scored_points": {
+        "chronos_alt_residual": 36,
+        "chronos_actuator_std_residual": 36
+      }
+    },
+    {
+      "source_id": "2018-07-__/sess007/log001",
+      "wall_seconds": 0.0596774999939953,
+      "rows": 387,
+      "scored_points": {
+        "chronos_alt_residual": 39,
+        "chronos_actuator_std_residual": 39
+      }
+    },
+    {
+      "source_id": "2018-07-__/sess008/log001",
+      "wall_seconds": 0.1624967000025208,
+      "rows": 926,
+      "scored_points": {
+        "chronos_alt_residual": 94,
+        "chronos_actuator_std_residual": 88
+      }
+    },
+    {
+      "source_id": "2018-07-__/sess009/log001",
+      "wall_seconds": 0.05346730000019306,
+      "rows": 389,
+      "scored_points": {
+        "chronos_alt_residual": 39,
+        "chronos_actuator_std_residual": 39
+      }
+    },
+    {
+      "source_id": "2018-07-__/sess010/log001",
+      "wall_seconds": 0.22372850000101607,
+      "rows": 1255,
+      "scored_points": {
+        "chronos_alt_residual": 127,
+        "chronos_actuator_std_residual": 126
+      }
+    },
+    {
+      "source_id": "2018-07-__/sess011/log001",
+      "wall_seconds": 0.2560468000010587,
+      "rows": 1325,
+      "scored_points": {
+        "chronos_alt_residual": 134,
+        "chronos_actuator_std_residual": 134
+      }
+    },
+    {
+      "source_id": "2018-07-__/sess012/log001",
+      "wall_seconds": 0.08272189999843249,
+      "rows": 489,
+      "scored_points": {
+        "chronos_alt_residual": 49,
+        "chronos_actuator_std_residual": 49
+      }
+    },
+    {
+      "source_id": "2018-07-__/sess013/log001",
+      "wall_seconds": 0.16238679999514716,
+      "rows": 914,
+      "scored_points": {
+        "chronos_alt_residual": 92,
+        "chronos_actuator_std_residual": 92
+      }
+    },
+    {
+      "source_id": "2018-07-__/sess013/log002",
+      "wall_seconds": 0.04156610000063665,
+      "rows": 308,
+      "scored_points": {
+        "chronos_alt_residual": 31,
+        "chronos_actuator_std_residual": 30
+      }
+    },
+    {
+      "source_id": "2018-07-__/sess013/log003",
+      "wall_seconds": 0.27721919999748934,
+      "rows": 1563,
+      "scored_points": {
+        "chronos_alt_residual": 159,
+        "chronos_actuator_std_residual": 155
+      }
+    },
+    {
+      "source_id": "2018-07-__/sess014/log003",
+      "wall_seconds": 0.07311420000041835,
+      "rows": 460,
+      "scored_points": {
+        "chronos_alt_residual": 46,
+        "chronos_actuator_std_residual": 46
+      }
+    },
+    {
+      "source_id": "2018-07-__/sess015/log002",
+      "wall_seconds": 0.03656390000105603,
+      "rows": 268,
+      "scored_points": {
+        "chronos_alt_residual": 27,
+        "chronos_actuator_std_residual": 26
+      }
+    },
+    {
+      "source_id": "2018-07-__/sess015/log005",
+      "wall_seconds": 0.1500259999957052,
+      "rows": 716,
+      "scored_points": {
+        "chronos_alt_residual": 72,
+        "chronos_actuator_std_residual": 72
+      }
+    },
+    {
+      "source_id": "2018-08-21/sess003/log003",
+      "wall_seconds": 0.1145401000030688,
+      "rows": 170,
+      "scored_points": {
+        "chronos_alt_residual": 154,
+        "chronos_actuator_std_residual": 153
+      }
+    },
+    {
+      "source_id": "2018-08-21/sess004/log002",
+      "wall_seconds": 0.12314590000460157,
+      "rows": 202,
+      "scored_points": {
+        "chronos_alt_residual": 186,
+        "chronos_actuator_std_residual": 185
+      }
+    },
+    {
+      "source_id": "2018-08-21/sess005/log001",
+      "wall_seconds": 0.056926600002043415,
+      "rows": 106,
+      "scored_points": {
+        "chronos_alt_residual": 90,
+        "chronos_actuator_std_residual": 89
+      }
+    },
+    {
+      "source_id": "2018-08-21/sess005/log003",
+      "wall_seconds": 0.09474060000502504,
+      "rows": 149,
+      "scored_points": {
+        "chronos_alt_residual": 133,
+        "chronos_actuator_std_residual": 132
+      }
+    },
+    {
+      "source_id": "2018-08-26-29/sess002/log001",
+      "wall_seconds": 0.06854279999970458,
+      "rows": 120,
+      "scored_points": {
+        "chronos_alt_residual": 104,
+        "chronos_actuator_std_residual": 103
+      }
+    },
+    {
+      "source_id": "2018-08-26-29/sess003/log002",
+      "wall_seconds": 0.11550730000453768,
+      "rows": 169,
+      "scored_points": {
+        "chronos_alt_residual": 153,
+        "chronos_actuator_std_residual": 152
+      }
+    },
+    {
+      "source_id": "2018-08-26-29/sess004/log001",
+      "wall_seconds": 0.10487489999650279,
+      "rows": 158,
+      "scored_points": {
+        "chronos_alt_residual": 142,
+        "chronos_actuator_std_residual": 140
+      }
+    },
+    {
+      "source_id": "2018-08-26-29/sess005/log001",
+      "wall_seconds": 0.06024479999905452,
+      "rows": 110,
+      "scored_points": {
+        "chronos_alt_residual": 94,
+        "chronos_actuator_std_residual": 93
+      }
+    },
+    {
+      "source_id": "2018-08-26-29/sess006/log002",
+      "wall_seconds": 0.07644250000157626,
+      "rows": 135,
+      "scored_points": {
+        "chronos_alt_residual": 119,
+        "chronos_actuator_std_residual": 118
+      }
+    },
+    {
+      "source_id": "2018-08-26-29/sess012/log002",
+      "wall_seconds": 0.06806279999727849,
+      "rows": 120,
+      "scored_points": {
+        "chronos_alt_residual": 104,
+        "chronos_actuator_std_residual": 103
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/2016-02-11/19_33_10",
+      "wall_seconds": 0.15409440000075847,
+      "rows": 564,
+      "scored_points": {
+        "chronos_alt_residual": 112,
+        "chronos_actuator_std_residual": 112
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/2016-02-11/19_37_50",
+      "wall_seconds": 0.13219440000102622,
+      "rows": 658,
+      "scored_points": {
+        "chronos_alt_residual": 67,
+        "chronos_actuator_std_residual": 66
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/2016-02-11/19_39_21",
+      "wall_seconds": 0.12364610000076937,
+      "rows": 477,
+      "scored_points": {
+        "chronos_alt_residual": 94,
+        "chronos_actuator_std_residual": 92
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/2016-02-11/19_42_51",
+      "wall_seconds": 0.09170569999696454,
+      "rows": 348,
+      "scored_points": {
+        "chronos_alt_residual": 68,
+        "chronos_actuator_std_residual": 68
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/2016-02-11/19_43_10",
+      "wall_seconds": 0.07371599999896716,
+      "rows": 444,
+      "scored_points": {
+        "chronos_alt_residual": 45,
+        "chronos_actuator_std_residual": 44
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/2016-02-11/19_46_53",
+      "wall_seconds": 0.0570545000009588,
+      "rows": 286,
+      "scored_points": {
+        "chronos_alt_residual": 55,
+        "chronos_actuator_std_residual": 54
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/2016-02-11/19_49_04",
+      "wall_seconds": 0.14983119999669725,
+      "rows": 808,
+      "scored_points": {
+        "chronos_alt_residual": 82,
+        "chronos_actuator_std_residual": 81
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/2016-02-11/19_55_58",
+      "wall_seconds": 0.14207580000220332,
+      "rows": 722,
+      "scored_points": {
+        "chronos_alt_residual": 73,
+        "chronos_actuator_std_residual": 73
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/2018-08-31/14_23_58",
+      "wall_seconds": 0.10305610000068555,
+      "rows": 593,
+      "scored_points": {
+        "chronos_alt_residual": 60,
+        "chronos_actuator_std_residual": 59
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/part2/2018-09-01/19_41_50",
+      "wall_seconds": 0.14663190000283066,
+      "rows": 747,
+      "scored_points": {
+        "chronos_alt_residual": 75,
+        "chronos_actuator_std_residual": 75
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/part2/2018-09-01/19_43_56",
+      "wall_seconds": 0.16022119999979623,
+      "rows": 841,
+      "scored_points": {
+        "chronos_alt_residual": 85,
+        "chronos_actuator_std_residual": 85
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/part2/2018-09-01/19_46_14",
+      "wall_seconds": 0.1847325000053388,
+      "rows": 847,
+      "scored_points": {
+        "chronos_alt_residual": 86,
+        "chronos_actuator_std_residual": 86
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/part2/2018-09-01/19_48_12",
+      "wall_seconds": 0.032489999997778796,
+      "rows": 233,
+      "scored_points": {
+        "chronos_alt_residual": 23,
+        "chronos_actuator_std_residual": 22
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/part2/2018-09-01/19_49_31",
+      "wall_seconds": 0.06946249999600695,
+      "rows": 323,
+      "scored_points": {
+        "chronos_alt_residual": 62,
+        "chronos_actuator_std_residual": 62
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/part2/2018-09-01/19_51_23",
+      "wall_seconds": 0.018415400001686066,
+      "rows": 182,
+      "scored_points": {
+        "chronos_alt_residual": 34,
+        "chronos_actuator_std_residual": 0
+      }
+    },
+    {
+      "source_id": "2018-08-31-09.01/sess003/log002",
+      "wall_seconds": 0.21967039999435656,
+      "rows": 1240,
+      "scored_points": {
+        "chronos_alt_residual": 125,
+        "chronos_actuator_std_residual": 125
+      }
+    },
+    {
+      "source_id": "2018-09-03/2016-02-11/19_35_56",
+      "wall_seconds": 0.02386589999514399,
+      "rows": 125,
+      "scored_points": {
+        "chronos_alt_residual": 23,
+        "chronos_actuator_std_residual": 19
+      }
+    },
+    {
+      "source_id": "2018-09-03/2016-02-11/19_36_59",
+      "wall_seconds": 0.06749080000008689,
+      "rows": 308,
+      "scored_points": {
+        "chronos_alt_residual": 60,
+        "chronos_actuator_std_residual": 60
+      }
+    },
+    {
+      "source_id": "2018-09-03/2018-09-03/13_13_56",
+      "wall_seconds": 0.09465240000281483,
+      "rows": 346,
+      "scored_points": {
+        "chronos_alt_residual": 67,
+        "chronos_actuator_std_residual": 67
+      }
+    },
+    {
+      "source_id": "2018-09-03/2018-09-03/13_17_32",
+      "wall_seconds": 0.26119219999964116,
+      "rows": 1414,
+      "scored_points": {
+        "chronos_alt_residual": 143,
+        "chronos_actuator_std_residual": 142
+      }
+    },
+    {
+      "source_id": "2018-09-03/2018-09-03/13_22_41",
+      "wall_seconds": 0.31361930000275606,
+      "rows": 1670,
+      "scored_points": {
+        "chronos_alt_residual": 169,
+        "chronos_actuator_std_residual": 168
+      }
+    },
+    {
+      "source_id": "2018-09-03/2018-09-03/13_31_17",
+      "wall_seconds": 0.20707249999395572,
+      "rows": 1127,
+      "scored_points": {
+        "chronos_alt_residual": 115,
+        "chronos_actuator_std_residual": 114
+      }
+    },
+    {
+      "source_id": "2018-09-03/2018-09-03/13_46_06",
+      "wall_seconds": 0.17321939999965252,
+      "rows": 977,
+      "scored_points": {
+        "chronos_alt_residual": 99,
+        "chronos_actuator_std_residual": 95
+      }
+    },
+    {
+      "source_id": "2018-09-03/2018-09-03/13_52_01",
+      "wall_seconds": 0.06559959999867715,
+      "rows": 307,
+      "scored_points": {
+        "chronos_alt_residual": 59,
+        "chronos_actuator_std_residual": 58
+      }
+    },
+    {
+      "source_id": "2018-09-03/2018-09-03/13_56_47",
+      "wall_seconds": 0.07371899999998277,
+      "rows": 438,
+      "scored_points": {
+        "chronos_alt_residual": 44,
+        "chronos_actuator_std_residual": 43
+      }
+    },
+    {
+      "source_id": "2018-09-03/2018-09-03/14_00_53",
+      "wall_seconds": 0.11811909999960335,
+      "rows": 424,
+      "scored_points": {
+        "chronos_alt_residual": 83,
+        "chronos_actuator_std_residual": 81
+      }
+    },
+    {
+      "source_id": "2018-09-03/2018-09-03/14_09_02",
+      "wall_seconds": 0.33497630000056233,
+      "rows": 1045,
+      "scored_points": {
+        "chronos_alt_residual": 209,
+        "chronos_actuator_std_residual": 208
+      }
+    },
+    {
+      "source_id": "2018-09-03/2018-09-03/14_14_46",
+      "wall_seconds": 0.07376120000117226,
+      "rows": 327,
+      "scored_points": {
+        "chronos_alt_residual": 63,
+        "chronos_actuator_std_residual": 62
+      }
+    },
+    {
+      "source_id": "2018-09-03/2018-09-03/14_17_16",
+      "wall_seconds": 0.11497200000303565,
+      "rows": 382,
+      "scored_points": {
+        "chronos_alt_residual": 75,
+        "chronos_actuator_std_residual": 74
+      }
+    },
+    {
+      "source_id": "2018-09-03/2018-09-03/14_21_00",
+      "wall_seconds": 0.03804079999827081,
+      "rows": 283,
+      "scored_points": {
+        "chronos_alt_residual": 28,
+        "chronos_actuator_std_residual": 27
+      }
+    },
+    {
+      "source_id": "2018-09-03/2018-09-03/14_22_52",
+      "wall_seconds": 0.1395778000005521,
+      "rows": 775,
+      "scored_points": {
+        "chronos_alt_residual": 78,
+        "chronos_actuator_std_residual": 77
+      }
+    },
+    {
+      "source_id": "2018-09-03/2018-09-03/14_26_07",
+      "wall_seconds": 0.07703209999453975,
+      "rows": 318,
+      "scored_points": {
+        "chronos_alt_residual": 62,
+        "chronos_actuator_std_residual": 59
+      }
+    },
+    {
+      "source_id": "2018-09-05/14_21_31",
+      "wall_seconds": 0.0825258999975631,
+      "rows": 338,
+      "scored_points": {
+        "chronos_alt_residual": 66,
+        "chronos_actuator_std_residual": 61
+      }
+    },
+    {
+      "source_id": "2018-09-05/2016-02-11/19_31_37",
+      "wall_seconds": 0.1305990999971982,
+      "rows": 659,
+      "scored_points": {
+        "chronos_alt_residual": 66,
+        "chronos_actuator_std_residual": 64
+      }
+    },
+    {
+      "source_id": "2018-09-05/2016-02-11/19_34_40",
+      "wall_seconds": 0.04428339999867603,
+      "rows": 228,
+      "scored_points": {
+        "chronos_alt_residual": 43,
+        "chronos_actuator_std_residual": 42
+      }
+    },
+    {
+      "source_id": "2018-09-05/2016-02-11/19_41_03",
+      "wall_seconds": 0.2332518999974127,
+      "rows": 731,
+      "scored_points": {
+        "chronos_alt_residual": 146,
+        "chronos_actuator_std_residual": 145
+      }
+    },
+    {
+      "source_id": "2018-09-06/13_45_46",
+      "wall_seconds": 0.06778959999792278,
+      "rows": 305,
+      "scored_points": {
+        "chronos_alt_residual": 59,
+        "chronos_actuator_std_residual": 59
+      }
+    },
+    {
+      "source_id": "2018-09-06/13_48_45",
+      "wall_seconds": 0.1290997999967658,
+      "rows": 463,
+      "scored_points": {
+        "chronos_alt_residual": 91,
+        "chronos_actuator_std_residual": 91
+      }
+    },
+    {
+      "source_id": "2018-09-06/14_16_08",
+      "wall_seconds": 0.05356079999910435,
+      "rows": 384,
+      "scored_points": {
+        "chronos_alt_residual": 38,
+        "chronos_actuator_std_residual": 37
+      }
+    },
+    {
+      "source_id": "2018-09-06/15_03_26",
+      "wall_seconds": 0.13104279999970458,
+      "rows": 502,
+      "scored_points": {
+        "chronos_alt_residual": 99,
+        "chronos_actuator_std_residual": 98
+      }
+    },
+    {
+      "source_id": "2018-09-07/12_34_09",
+      "wall_seconds": 0.226326700001664,
+      "rows": 728,
+      "scored_points": {
+        "chronos_alt_residual": 144,
+        "chronos_actuator_std_residual": 142
+      }
+    },
+    {
+      "source_id": "2018-09-07/13_04_43",
+      "wall_seconds": 0.10697989999607671,
+      "rows": 402,
+      "scored_points": {
+        "chronos_alt_residual": 79,
+        "chronos_actuator_std_residual": 79
+      }
+    },
+    {
+      "source_id": "2018-09-07/13_07_23",
+      "wall_seconds": 0.11451690000103554,
+      "rows": 403,
+      "scored_points": {
+        "chronos_alt_residual": 79,
+        "chronos_actuator_std_residual": 78
+      }
+    },
+    {
+      "source_id": "2018-09-07/13_58_13",
+      "wall_seconds": 0.11602410000341479,
+      "rows": 414,
+      "scored_points": {
+        "chronos_alt_residual": 81,
+        "chronos_actuator_std_residual": 81
+      }
+    },
+    {
+      "source_id": "2018-09-07/14_03_01",
+      "wall_seconds": 0.11074080000253161,
+      "rows": 419,
+      "scored_points": {
+        "chronos_alt_residual": 82,
+        "chronos_actuator_std_residual": 79
+      }
+    },
+    {
+      "source_id": "2018-09-07/14_16_20",
+      "wall_seconds": 0.14128150000033202,
+      "rows": 725,
+      "scored_points": {
+        "chronos_alt_residual": 73,
+        "chronos_actuator_std_residual": 69
+      }
+    },
+    {
+      "source_id": "2018-09-07/14_19_21",
+      "wall_seconds": 0.2026767999996082,
+      "rows": 1143,
+      "scored_points": {
+        "chronos_alt_residual": 116,
+        "chronos_actuator_std_residual": 116
+      }
+    },
+    {
+      "source_id": "2018-09-07/14_26_54",
+      "wall_seconds": 0.19198179999511922,
+      "rows": 1055,
+      "scored_points": {
+        "chronos_alt_residual": 107,
+        "chronos_actuator_std_residual": 106
+      }
+    },
+    {
+      "source_id": "2018-09-07/14_30_45",
+      "wall_seconds": 0.1433132000020123,
+      "rows": 700,
+      "scored_points": {
+        "chronos_alt_residual": 71,
+        "chronos_actuator_std_residual": 70
+      }
+    },
+    {
+      "source_id": "2018-09-07/14_43_50",
+      "wall_seconds": 0.06833429999824148,
+      "rows": 426,
+      "scored_points": {
+        "chronos_alt_residual": 43,
+        "chronos_actuator_std_residual": 42
+      }
+    },
+    {
+      "source_id": "2018-09-08/17_30_27",
+      "wall_seconds": 0.1741057000035653,
+      "rows": 916,
+      "scored_points": {
+        "chronos_alt_residual": 95,
+        "chronos_actuator_std_residual": 95
+      }
+    },
+    {
+      "source_id": "2018-09-08/17_40_05",
+      "wall_seconds": 0.06305720000091242,
+      "rows": 388,
+      "scored_points": {
+        "chronos_alt_residual": 42,
+        "chronos_actuator_std_residual": 41
+      }
+    },
+    {
+      "source_id": "2018-09-08/17_41_57",
+      "wall_seconds": 0.08431510000082199,
+      "rows": 479,
+      "scored_points": {
+        "chronos_alt_residual": 48,
+        "chronos_actuator_std_residual": 48
+      }
+    },
+    {
+      "source_id": "2018-09-08/17_44_37",
+      "wall_seconds": 0.18082980000326643,
+      "rows": 968,
+      "scored_points": {
+        "chronos_alt_residual": 99,
+        "chronos_actuator_std_residual": 98
+      }
+    },
+    {
+      "source_id": "2018-09-08/17_50_22",
+      "wall_seconds": 0.2040835999941919,
+      "rows": 1085,
+      "scored_points": {
+        "chronos_alt_residual": 112,
+        "chronos_actuator_std_residual": 111
+      }
+    },
+    {
+      "source_id": "2018-09-08/17_56_44",
+      "wall_seconds": 0.056401800000458024,
+      "rows": 379,
+      "scored_points": {
+        "chronos_alt_residual": 39,
+        "chronos_actuator_std_residual": 38
+      }
+    },
+    {
+      "source_id": "2018-09-08/18_11_27",
+      "wall_seconds": 0.18929470000148285,
+      "rows": 1019,
+      "scored_points": {
+        "chronos_alt_residual": 108,
+        "chronos_actuator_std_residual": 107
+      }
+    },
+    {
+      "source_id": "2018-09-08/18_15_39",
+      "wall_seconds": 0.17334619999746792,
+      "rows": 740,
+      "scored_points": {
+        "chronos_alt_residual": 76,
+        "chronos_actuator_std_residual": 75
+      }
+    },
+    {
+      "source_id": "2018-09-08/18_18_28",
+      "wall_seconds": 0.1578700000027311,
+      "rows": 726,
+      "scored_points": {
+        "chronos_alt_residual": 74,
+        "chronos_actuator_std_residual": 73
+      }
+    },
+    {
+      "source_id": "2018-09-08/18_21_08",
+      "wall_seconds": 0.10183739999774843,
+      "rows": 518,
+      "scored_points": {
+        "chronos_alt_residual": 53,
+        "chronos_actuator_std_residual": 52
+      }
+    },
+    {
+      "source_id": "2018-09-08/18_23_15",
+      "wall_seconds": 0.11519579999730922,
+      "rows": 610,
+      "scored_points": {
+        "chronos_alt_residual": 64,
+        "chronos_actuator_std_residual": 63
+      }
+    },
+    {
+      "source_id": "2018-09-08/18_26_14",
+      "wall_seconds": 0.17820179999398533,
+      "rows": 929,
+      "scored_points": {
+        "chronos_alt_residual": 96,
+        "chronos_actuator_std_residual": 95
+      }
+    },
+    {
+      "source_id": "2018-09-08/18_29_43",
+      "wall_seconds": 0.06808490000548773,
+      "rows": 392,
+      "scored_points": {
+        "chronos_alt_residual": 41,
+        "chronos_actuator_std_residual": 40
+      }
+    },
+    {
+      "source_id": "2018-09-08/18_33_06",
+      "wall_seconds": 0.06888299999991432,
+      "rows": 425,
+      "scored_points": {
+        "chronos_alt_residual": 44,
+        "chronos_actuator_std_residual": 44
+      }
+    },
+    {
+      "source_id": "2018-09-08/18_42_34",
+      "wall_seconds": 0.10697890000301413,
+      "rows": 552,
+      "scored_points": {
+        "chronos_alt_residual": 57,
+        "chronos_actuator_std_residual": 55
+      }
+    },
+    {
+      "source_id": "2018-09-08/18_46_38",
+      "wall_seconds": 0.10346710000158055,
+      "rows": 514,
+      "scored_points": {
+        "chronos_alt_residual": 54,
+        "chronos_actuator_std_residual": 53
+      }
+    },
+    {
+      "source_id": "2018-09-08/18_56_26",
+      "wall_seconds": 0.05024830000184011,
+      "rows": 344,
+      "scored_points": {
+        "chronos_alt_residual": 35,
+        "chronos_actuator_std_residual": 34
+      }
+    },
+    {
+      "source_id": "2018-09-10/07_29_03",
+      "wall_seconds": 0.16512230000080308,
+      "rows": 767,
+      "scored_points": {
+        "chronos_alt_residual": 81,
+        "chronos_actuator_std_residual": 79
+      }
+    },
+    {
+      "source_id": "2018-09-10/07_41_13",
+      "wall_seconds": 0.1554340000002412,
+      "rows": 735,
+      "scored_points": {
+        "chronos_alt_residual": 79,
+        "chronos_actuator_std_residual": 78
+      }
+    },
+    {
+      "source_id": "2018-09-10/07_44_54",
+      "wall_seconds": 0.14498599999933504,
+      "rows": 680,
+      "scored_points": {
+        "chronos_alt_residual": 71,
+        "chronos_actuator_std_residual": 70
+      }
+    },
+    {
+      "source_id": "2018-09-10/07_47_58",
+      "wall_seconds": 0.16706909999629715,
+      "rows": 725,
+      "scored_points": {
+        "chronos_alt_residual": 77,
+        "chronos_actuator_std_residual": 76
+      }
+    },
+    {
+      "source_id": "2018-09-10/07_52_17",
+      "wall_seconds": 0.08874179999838816,
+      "rows": 500,
+      "scored_points": {
+        "chronos_alt_residual": 52,
+        "chronos_actuator_std_residual": 51
+      }
+    },
+    {
+      "source_id": "2018-09-10/07_54_58",
+      "wall_seconds": 0.11302020000584889,
+      "rows": 624,
+      "scored_points": {
+        "chronos_alt_residual": 64,
+        "chronos_actuator_std_residual": 63
+      }
+    },
+    {
+      "source_id": "2018-09-10/07_58_30",
+      "wall_seconds": 0.1613350999978138,
+      "rows": 884,
+      "scored_points": {
+        "chronos_alt_residual": 90,
+        "chronos_actuator_std_residual": 89
+      }
+    },
+    {
+      "source_id": "2018-09-10/08_04_54",
+      "wall_seconds": 0.08741709999594605,
+      "rows": 465,
+      "scored_points": {
+        "chronos_alt_residual": 48,
+        "chronos_actuator_std_residual": 47
+      }
+    },
+    {
+      "source_id": "2018-09-10/08_07_27",
+      "wall_seconds": 0.17597879999811994,
+      "rows": 778,
+      "scored_points": {
+        "chronos_alt_residual": 80,
+        "chronos_actuator_std_residual": 79
+      }
+    },
+    {
+      "source_id": "2018-09-10/08_10_16",
+      "wall_seconds": 0.13632589999906486,
+      "rows": 745,
+      "scored_points": {
+        "chronos_alt_residual": 77,
+        "chronos_actuator_std_residual": 75
+      }
+    },
+    {
+      "source_id": "2018-09-10/08_13_04",
+      "wall_seconds": 0.10074930000700988,
+      "rows": 581,
+      "scored_points": {
+        "chronos_alt_residual": 60,
+        "chronos_actuator_std_residual": 59
+      }
+    },
+    {
+      "source_id": "2018-09-10/08_15_27",
+      "wall_seconds": 0.09584509999695001,
+      "rows": 524,
+      "scored_points": {
+        "chronos_alt_residual": 53,
+        "chronos_actuator_std_residual": 52
+      }
+    },
+    {
+      "source_id": "2018-09-10/08_20_33",
+      "wall_seconds": 0.1618640999950003,
+      "rows": 833,
+      "scored_points": {
+        "chronos_alt_residual": 87,
+        "chronos_actuator_std_residual": 86
+      }
+    },
+    {
+      "source_id": "2018-09-10/08_23_45",
+      "wall_seconds": 0.20362110000132816,
+      "rows": 1124,
+      "scored_points": {
+        "chronos_alt_residual": 116,
+        "chronos_actuator_std_residual": 115
+      }
+    },
+    {
+      "source_id": "2018-09-10/08_27_38",
+      "wall_seconds": 0.09681429999909597,
+      "rows": 519,
+      "scored_points": {
+        "chronos_alt_residual": 54,
+        "chronos_actuator_std_residual": 53
+      }
+    },
+    {
+      "source_id": "2018-09-10/08_30_01",
+      "wall_seconds": 0.14439920000586426,
+      "rows": 696,
+      "scored_points": {
+        "chronos_alt_residual": 71,
+        "chronos_actuator_std_residual": 70
+      }
+    },
+    {
+      "source_id": "2018-09-10/08_32_37",
+      "wall_seconds": 0.1465740999992704,
+      "rows": 722,
+      "scored_points": {
+        "chronos_alt_residual": 74,
+        "chronos_actuator_std_residual": 71
+      }
+    },
+    {
+      "source_id": "2018-09-10/08_41_34",
+      "wall_seconds": 0.07037609999679262,
+      "rows": 429,
+      "scored_points": {
+        "chronos_alt_residual": 47,
+        "chronos_actuator_std_residual": 46
+      }
+    },
+    {
+      "source_id": "2018-09-10/19_12_58",
+      "wall_seconds": 0.15221390000078827,
+      "rows": 656,
+      "scored_points": {
+        "chronos_alt_residual": 74,
+        "chronos_actuator_std_residual": 71
+      }
+    },
+    {
+      "source_id": "2018-09-10/19_21_54",
+      "wall_seconds": 0.1739400999940699,
+      "rows": 1003,
+      "scored_points": {
+        "chronos_alt_residual": 104,
+        "chronos_actuator_std_residual": 101
+      }
+    },
+    {
+      "source_id": "2018-09-10/19_24_47",
+      "wall_seconds": 0.21299330000329064,
+      "rows": 1154,
+      "scored_points": {
+        "chronos_alt_residual": 121,
+        "chronos_actuator_std_residual": 120
+      }
+    },
+    {
+      "source_id": "2018-09-11/07_25_53",
+      "wall_seconds": 0.26225650000560563,
+      "rows": 1296,
+      "scored_points": {
+        "chronos_alt_residual": 133,
+        "chronos_actuator_std_residual": 132
+      }
+    },
+    {
+      "source_id": "2018-09-11/07_29_26",
+      "wall_seconds": 0.11132219999853987,
+      "rows": 557,
+      "scored_points": {
+        "chronos_alt_residual": 63,
+        "chronos_actuator_std_residual": 62
+      }
+    },
+    {
+      "source_id": "2018-09-11/07_31_37",
+      "wall_seconds": 0.05285860000003595,
+      "rows": 338,
+      "scored_points": {
+        "chronos_alt_residual": 37,
+        "chronos_actuator_std_residual": 36
+      }
+    },
+    {
+      "source_id": "2018-09-11/07_36_30",
+      "wall_seconds": 0.06600329999491805,
+      "rows": 405,
+      "scored_points": {
+        "chronos_alt_residual": 44,
+        "chronos_actuator_std_residual": 43
+      }
+    },
+    {
+      "source_id": "2018-09-11/07_38_44",
+      "wall_seconds": 0.10213700000167591,
+      "rows": 506,
+      "scored_points": {
+        "chronos_alt_residual": 58,
+        "chronos_actuator_std_residual": 55
+      }
+    },
+    {
+      "source_id": "2018-09-11/07_42_11",
+      "wall_seconds": 0.1553570000032778,
+      "rows": 793,
+      "scored_points": {
+        "chronos_alt_residual": 92,
+        "chronos_actuator_std_residual": 91
+      }
+    },
+    {
+      "source_id": "2018-09-11/07_45_17",
+      "wall_seconds": 0.045325099999899976,
+      "rows": 336,
+      "scored_points": {
+        "chronos_alt_residual": 34,
+        "chronos_actuator_std_residual": 33
+      }
+    },
+    {
+      "source_id": "2018-09-11/07_46_51",
+      "wall_seconds": 0.25758289999794215,
+      "rows": 1272,
+      "scored_points": {
+        "chronos_alt_residual": 134,
+        "chronos_actuator_std_residual": 133
+      }
+    },
+    {
+      "source_id": "2018-09-11/07_51_46",
+      "wall_seconds": 0.16073860000324203,
+      "rows": 867,
+      "scored_points": {
+        "chronos_alt_residual": 90,
+        "chronos_actuator_std_residual": 89
+      }
+    },
+    {
+      "source_id": "2018-09-11/07_54_52",
+      "wall_seconds": 0.05820259999745758,
+      "rows": 376,
+      "scored_points": {
+        "chronos_alt_residual": 38,
+        "chronos_actuator_std_residual": 37
+      }
+    },
+    {
+      "source_id": "2018-09-11/07_55_43",
+      "wall_seconds": 0.11060240000369959,
+      "rows": 575,
+      "scored_points": {
+        "chronos_alt_residual": 59,
+        "chronos_actuator_std_residual": 58
+      }
+    },
+    {
+      "source_id": "2018-09-11/07_57_54",
+      "wall_seconds": 0.08221549999871058,
+      "rows": 460,
+      "scored_points": {
+        "chronos_alt_residual": 47,
+        "chronos_actuator_std_residual": 46
+      }
+    },
+    {
+      "source_id": "2018-09-11/08_00_34",
+      "wall_seconds": 0.24769959999684943,
+      "rows": 1316,
+      "scored_points": {
+        "chronos_alt_residual": 137,
+        "chronos_actuator_std_residual": 136
+      }
+    },
+    {
+      "source_id": "2018-09-11/08_03_41",
+      "wall_seconds": 0.15642499999376014,
+      "rows": 737,
+      "scored_points": {
+        "chronos_alt_residual": 77,
+        "chronos_actuator_std_residual": 76
+      }
+    },
+    {
+      "source_id": "2018-09-11/08_07_20",
+      "wall_seconds": 0.14194779999525053,
+      "rows": 717,
+      "scored_points": {
+        "chronos_alt_residual": 73,
+        "chronos_actuator_std_residual": 72
+      }
+    },
+    {
+      "source_id": "2018-09-11/08_12_21",
+      "wall_seconds": 0.3036301999964053,
+      "rows": 1646,
+      "scored_points": {
+        "chronos_alt_residual": 170,
+        "chronos_actuator_std_residual": 169
+      }
+    },
+    {
+      "source_id": "2018-09-11/08_16_50",
+      "wall_seconds": 0.1369466000032844,
+      "rows": 648,
+      "scored_points": {
+        "chronos_alt_residual": 67,
+        "chronos_actuator_std_residual": 66
+      }
+    },
+    {
+      "source_id": "2018-09-11/08_18_39",
+      "wall_seconds": 0.08041570000204956,
+      "rows": 471,
+      "scored_points": {
+        "chronos_alt_residual": 49,
+        "chronos_actuator_std_residual": 48
+      }
+    },
+    {
+      "source_id": "2018-09-11/08_22_25",
+      "wall_seconds": 0.10076499999559019,
+      "rows": 565,
+      "scored_points": {
+        "chronos_alt_residual": 58,
+        "chronos_actuator_std_residual": 57
+      }
+    },
+    {
+      "source_id": "2018-09-11/08_25_54",
+      "wall_seconds": 0.07384259999525966,
+      "rows": 451,
+      "scored_points": {
+        "chronos_alt_residual": 46,
+        "chronos_actuator_std_residual": 45
+      }
+    },
+    {
+      "source_id": "2018-09-11/08_30_17",
+      "wall_seconds": 0.21830700000282377,
+      "rows": 1211,
+      "scored_points": {
+        "chronos_alt_residual": 125,
+        "chronos_actuator_std_residual": 121
+      }
+    },
+    {
+      "source_id": "2018-09-12/18_35_39",
+      "wall_seconds": 0.11600789999647532,
+      "rows": 425,
+      "scored_points": {
+        "chronos_alt_residual": 97,
+        "chronos_actuator_std_residual": 92
+      }
+    },
+    {
+      "source_id": "2018-09-12/18_38_27",
+      "wall_seconds": 0.11072689999855356,
+      "rows": 312,
+      "scored_points": {
+        "chronos_alt_residual": 99,
+        "chronos_actuator_std_residual": 98
+      }
+    },
+    {
+      "source_id": "2018-09-12/18_46_47",
+      "wall_seconds": 0.047420100003364496,
+      "rows": 245,
+      "scored_points": {
+        "chronos_alt_residual": 31,
+        "chronos_actuator_std_residual": 29
+      }
+    },
+    {
+      "source_id": "2018-09-12/18_48_30",
+      "wall_seconds": 0.16606640000100015,
+      "rows": 664,
+      "scored_points": {
+        "chronos_alt_residual": 89,
+        "chronos_actuator_std_residual": 89
+      }
+    },
+    {
+      "source_id": "2018-09-12/18_51_50",
+      "wall_seconds": 0.14768410000397125,
+      "rows": 581,
+      "scored_points": {
+        "chronos_alt_residual": 80,
+        "chronos_actuator_std_residual": 78
+      }
+    },
+    {
+      "source_id": "2018-09-12/18_59_10",
+      "wall_seconds": 0.18709830000443617,
+      "rows": 892,
+      "scored_points": {
+        "chronos_alt_residual": 100,
+        "chronos_actuator_std_residual": 100
+      }
+    },
+    {
+      "source_id": "2018-09-12/19_14_19",
+      "wall_seconds": 0.127126400002453,
+      "rows": 664,
+      "scored_points": {
+        "chronos_alt_residual": 69,
+        "chronos_actuator_std_residual": 68
+      }
+    },
+    {
+      "source_id": "2018-09-14/07_36_08",
+      "wall_seconds": 0.06919800000468967,
+      "rows": 414,
+      "scored_points": {
+        "chronos_alt_residual": 45,
+        "chronos_actuator_std_residual": 43
+      }
+    },
+    {
+      "source_id": "2018-09-14/07_40_52",
+      "wall_seconds": 0.28256400000100257,
+      "rows": 1408,
+      "scored_points": {
+        "chronos_alt_residual": 158,
+        "chronos_actuator_std_residual": 157
+      }
+    },
+    {
+      "source_id": "2018-09-14/07_45_42",
+      "wall_seconds": 0.20756039999832865,
+      "rows": 1099,
+      "scored_points": {
+        "chronos_alt_residual": 117,
+        "chronos_actuator_std_residual": 116
+      }
+    },
+    {
+      "source_id": "2018-09-14/07_49_38",
+      "wall_seconds": 0.16259700000227895,
+      "rows": 770,
+      "scored_points": {
+        "chronos_alt_residual": 80,
+        "chronos_actuator_std_residual": 79
+      }
+    },
+    {
+      "source_id": "2018-09-14/07_52_46",
+      "wall_seconds": 0.0622427999987849,
+      "rows": 417,
+      "scored_points": {
+        "chronos_alt_residual": 44,
+        "chronos_actuator_std_residual": 43
+      }
+    },
+    {
+      "source_id": "2018-09-14/07_55_09",
+      "wall_seconds": 0.1385846000048332,
+      "rows": 594,
+      "scored_points": {
+        "chronos_alt_residual": 67,
+        "chronos_actuator_std_residual": 66
+      }
+    },
+    {
+      "source_id": "2018-09-14/07_57_33",
+      "wall_seconds": 0.1350925999940955,
+      "rows": 678,
+      "scored_points": {
+        "chronos_alt_residual": 73,
+        "chronos_actuator_std_residual": 72
+      }
+    },
+    {
+      "source_id": "2018-09-14/08_00_52",
+      "wall_seconds": 0.16295520000130637,
+      "rows": 930,
+      "scored_points": {
+        "chronos_alt_residual": 97,
+        "chronos_actuator_std_residual": 95
+      }
+    },
+    {
+      "source_id": "2018-09-14/08_05_42",
+      "wall_seconds": 0.0959696999998414,
+      "rows": 510,
+      "scored_points": {
+        "chronos_alt_residual": 54,
+        "chronos_actuator_std_residual": 52
+      }
+    },
+    {
+      "source_id": "2018-09-14/08_18_08",
+      "wall_seconds": 0.11704189999727532,
+      "rows": 586,
+      "scored_points": {
+        "chronos_alt_residual": 64,
+        "chronos_actuator_std_residual": 60
+      }
+    },
+    {
+      "source_id": "2018-09-14/08_27_55",
+      "wall_seconds": 0.14617700000235345,
+      "rows": 675,
+      "scored_points": {
+        "chronos_alt_residual": 74,
+        "chronos_actuator_std_residual": 71
+      }
+    },
+    {
+      "source_id": "2018-09-14/08_57_38",
+      "wall_seconds": 0.06440880000445759,
+      "rows": 397,
+      "scored_points": {
+        "chronos_alt_residual": 41,
+        "chronos_actuator_std_residual": 40
+      }
+    },
+    {
+      "source_id": "2018-09-14/09_02_59",
+      "wall_seconds": 0.2666081999996095,
+      "rows": 1389,
+      "scored_points": {
+        "chronos_alt_residual": 142,
+        "chronos_actuator_std_residual": 140
+      }
+    },
+    {
+      "source_id": "2018-09-14/09_08_16",
+      "wall_seconds": 0.09979449999809731,
+      "rows": 544,
+      "scored_points": {
+        "chronos_alt_residual": 57,
+        "chronos_actuator_std_residual": 56
+      }
+    },
+    {
+      "source_id": "2018-09-15/16_57_53",
+      "wall_seconds": 0.1729611999980989,
+      "rows": 757,
+      "scored_points": {
+        "chronos_alt_residual": 86,
+        "chronos_actuator_std_residual": 84
+      }
+    },
+    {
+      "source_id": "2018-09-15/17_01_53",
+      "wall_seconds": 0.20212400000309572,
+      "rows": 863,
+      "scored_points": {
+        "chronos_alt_residual": 116,
+        "chronos_actuator_std_residual": 116
+      }
+    },
+    {
+      "source_id": "2018-09-15/17_20_38",
+      "wall_seconds": 0.03428239999630023,
+      "rows": 229,
+      "scored_points": {
+        "chronos_alt_residual": 23,
+        "chronos_actuator_std_residual": 22
+      }
+    },
+    {
+      "source_id": "2018-09-15/17_22_19",
+      "wall_seconds": 0.04297970000334317,
+      "rows": 275,
+      "scored_points": {
+        "chronos_alt_residual": 28,
+        "chronos_actuator_std_residual": 27
+      }
+    },
+    {
+      "source_id": "2018-09-15/18_07_41",
+      "wall_seconds": 0.29776960000162944,
+      "rows": 1555,
+      "scored_points": {
+        "chronos_alt_residual": 161,
+        "chronos_actuator_std_residual": 160
+      }
+    },
+    {
+      "source_id": "2018-09-17/07_34_37",
+      "wall_seconds": 0.4415067000009003,
+      "rows": 2371,
+      "scored_points": {
+        "chronos_alt_residual": 251,
+        "chronos_actuator_std_residual": 248
+      }
+    },
+    {
+      "source_id": "2018-09-17/08_17_29",
+      "wall_seconds": 0.15283369999815477,
+      "rows": 783,
+      "scored_points": {
+        "chronos_alt_residual": 80,
+        "chronos_actuator_std_residual": 78
+      }
+    },
+    {
+      "source_id": "2018-09-17/08_28_04",
+      "wall_seconds": 0.09252759999799309,
+      "rows": 515,
+      "scored_points": {
+        "chronos_alt_residual": 54,
+        "chronos_actuator_std_residual": 51
+      }
+    },
+    {
+      "source_id": "2018-09-17/08_33_10",
+      "wall_seconds": 0.18698269999731565,
+      "rows": 1053,
+      "scored_points": {
+        "chronos_alt_residual": 111,
+        "chronos_actuator_std_residual": 110
+      }
+    },
+    {
+      "source_id": "2018-09-17/08_40_43",
+      "wall_seconds": 0.1928814999992028,
+      "rows": 1045,
+      "scored_points": {
+        "chronos_alt_residual": 110,
+        "chronos_actuator_std_residual": 109
+      }
+    },
+    {
+      "source_id": "2018-09-17/18_55_54",
+      "wall_seconds": 0.1474004999981844,
+      "rows": 740,
+      "scored_points": {
+        "chronos_alt_residual": 77,
+        "chronos_actuator_std_residual": 76
+      }
+    },
+    {
+      "source_id": "2018-09-18/07_38_12",
+      "wall_seconds": 0.1168902000063099,
+      "rows": 600,
+      "scored_points": {
+        "chronos_alt_residual": 62,
+        "chronos_actuator_std_residual": 61
+      }
+    },
+    {
+      "source_id": "2018-09-18/07_44_24",
+      "wall_seconds": 0.15567819999705534,
+      "rows": 796,
+      "scored_points": {
+        "chronos_alt_residual": 82,
+        "chronos_actuator_std_residual": 81
+      }
+    },
+    {
+      "source_id": "2018-09-18/07_48_03",
+      "wall_seconds": 0.35863780000363477,
+      "rows": 1887,
+      "scored_points": {
+        "chronos_alt_residual": 199,
+        "chronos_actuator_std_residual": 198
+      }
+    },
+    {
+      "source_id": "2018-09-18/07_55_26",
+      "wall_seconds": 0.3843946000051801,
+      "rows": 1893,
+      "scored_points": {
+        "chronos_alt_residual": 199,
+        "chronos_actuator_std_residual": 196
+      }
+    },
+    {
+      "source_id": "2018-09-18/08_04_48",
+      "wall_seconds": 0.3788494000036735,
+      "rows": 1928,
+      "scored_points": {
+        "chronos_alt_residual": 203,
+        "chronos_actuator_std_residual": 200
+      }
+    },
+    {
+      "source_id": "2018-09-18/08_39_17",
+      "wall_seconds": 0.31609739999839803,
+      "rows": 1733,
+      "scored_points": {
+        "chronos_alt_residual": 181,
+        "chronos_actuator_std_residual": 180
+      }
+    },
+    {
+      "source_id": "2018-09-18/08_48_35",
+      "wall_seconds": 0.18065789999673143,
+      "rows": 1027,
+      "scored_points": {
+        "chronos_alt_residual": 107,
+        "chronos_actuator_std_residual": 106
+      }
+    },
+    {
+      "source_id": "2018-09-18/08_51_40",
+      "wall_seconds": 0.2809064999964903,
+      "rows": 1467,
+      "scored_points": {
+        "chronos_alt_residual": 154,
+        "chronos_actuator_std_residual": 153
+      }
+    },
+    {
+      "source_id": "2018-09-18/08_57_01",
+      "wall_seconds": 0.243444300002011,
+      "rows": 1224,
+      "scored_points": {
+        "chronos_alt_residual": 131,
+        "chronos_actuator_std_residual": 130
+      }
+    },
+    {
+      "source_id": "2018-09-19/07_57_41",
+      "wall_seconds": 0.2173670999982278,
+      "rows": 1199,
+      "scored_points": {
+        "chronos_alt_residual": 126,
+        "chronos_actuator_std_residual": 124
+      }
+    },
+    {
+      "source_id": "2018-09-19/08_18_11",
+      "wall_seconds": 0.1773964999956661,
+      "rows": 934,
+      "scored_points": {
+        "chronos_alt_residual": 98,
+        "chronos_actuator_std_residual": 97
+      }
+    },
+    {
+      "source_id": "2018-09-19/08_25_55",
+      "wall_seconds": 0.33320069999899715,
+      "rows": 1726,
+      "scored_points": {
+        "chronos_alt_residual": 182,
+        "chronos_actuator_std_residual": 181
+      }
+    },
+    {
+      "source_id": "2018-09-19/08_35_21",
+      "wall_seconds": 0.3787454000048456,
+      "rows": 1828,
+      "scored_points": {
+        "chronos_alt_residual": 197,
+        "chronos_actuator_std_residual": 196
+      }
+    },
+    {
+      "source_id": "2018-09-19/08_49_56",
+      "wall_seconds": 0.2882346999977017,
+      "rows": 1532,
+      "scored_points": {
+        "chronos_alt_residual": 158,
+        "chronos_actuator_std_residual": 157
+      }
+    },
+    {
+      "source_id": "2018-09-19/08_55_56",
+      "wall_seconds": 0.2641917000000831,
+      "rows": 1383,
+      "scored_points": {
+        "chronos_alt_residual": 145,
+        "chronos_actuator_std_residual": 144
+      }
+    },
+    {
+      "source_id": "2018-09-19/15_30_55",
+      "wall_seconds": 0.18906889999925625,
+      "rows": 1080,
+      "scored_points": {
+        "chronos_alt_residual": 111,
+        "chronos_actuator_std_residual": 107
+      }
+    },
+    {
+      "source_id": "2018-09-19/15_36_37",
+      "wall_seconds": 0.3115410000027623,
+      "rows": 1722,
+      "scored_points": {
+        "chronos_alt_residual": 179,
+        "chronos_actuator_std_residual": 178
+      }
+    },
+    {
+      "source_id": "2018-09-19/15_48_59",
+      "wall_seconds": 0.28064979999908246,
+      "rows": 1406,
+      "scored_points": {
+        "chronos_alt_residual": 151,
+        "chronos_actuator_std_residual": 150
+      }
+    },
+    {
+      "source_id": "2018-09-19/15_58_27",
+      "wall_seconds": 0.3832120000006398,
+      "rows": 1903,
+      "scored_points": {
+        "chronos_alt_residual": 205,
+        "chronos_actuator_std_residual": 199
+      }
+    },
+    {
+      "source_id": "2018-09-19/16_08_00",
+      "wall_seconds": 0.2977809000003617,
+      "rows": 1563,
+      "scored_points": {
+        "chronos_alt_residual": 168,
+        "chronos_actuator_std_residual": 165
+      }
+    },
+    {
+      "source_id": "2018-09-19/16_16_36",
+      "wall_seconds": 0.3291456000006292,
+      "rows": 1768,
+      "scored_points": {
+        "chronos_alt_residual": 187,
+        "chronos_actuator_std_residual": 186
+      }
+    },
+    {
+      "source_id": "2018-09-19/16_22_54",
+      "wall_seconds": 0.3539355999964755,
+      "rows": 1821,
+      "scored_points": {
+        "chronos_alt_residual": 192,
+        "chronos_actuator_std_residual": 191
+      }
+    },
+    {
+      "source_id": "2018-09-19/16_29_03",
+      "wall_seconds": 0.34199850000004517,
+      "rows": 1749,
+      "scored_points": {
+        "chronos_alt_residual": 182,
+        "chronos_actuator_std_residual": 181
+      }
+    },
+    {
+      "source_id": "2018-09-21/07_57_25",
+      "wall_seconds": 0.2871002000028966,
+      "rows": 1463,
+      "scored_points": {
+        "chronos_alt_residual": 157,
+        "chronos_actuator_std_residual": 156
+      }
+    },
+    {
+      "source_id": "2018-09-21/08_04_59",
+      "wall_seconds": 0.8336640999987139,
+      "rows": 3211,
+      "scored_points": {
+        "chronos_alt_residual": 459,
+        "chronos_actuator_std_residual": 458
+      }
+    },
+    {
+      "source_id": "2018-09-21/08_16_20",
+      "wall_seconds": 0.3433251000024029,
+      "rows": 1686,
+      "scored_points": {
+        "chronos_alt_residual": 186,
+        "chronos_actuator_std_residual": 184
+      }
+    },
+    {
+      "source_id": "2018-09-21/19_14_06",
+      "wall_seconds": 0.20669980000093346,
+      "rows": 1073,
+      "scored_points": {
+        "chronos_alt_residual": 110,
+        "chronos_actuator_std_residual": 108
+      }
+    },
+    {
+      "source_id": "2018-09-21/19_19_57",
+      "wall_seconds": 0.21574730000429554,
+      "rows": 1088,
+      "scored_points": {
+        "chronos_alt_residual": 111,
+        "chronos_actuator_std_residual": 110
+      }
+    },
+    {
+      "source_id": "2018-09-21/19_36_27",
+      "wall_seconds": 0.6436794999972335,
+      "rows": 3431,
+      "scored_points": {
+        "chronos_alt_residual": 360,
+        "chronos_actuator_std_residual": 360
+      }
+    },
+    {
+      "source_id": "2018-09-21/20_07_57",
+      "wall_seconds": 0.19532219999382505,
+      "rows": 962,
+      "scored_points": {
+        "chronos_alt_residual": 101,
+        "chronos_actuator_std_residual": 100
+      }
+    },
+    {
+      "source_id": "2018-09-21/20_17_16",
+      "wall_seconds": 0.1430435000002035,
+      "rows": 666,
+      "scored_points": {
+        "chronos_alt_residual": 69,
+        "chronos_actuator_std_residual": 68
+      }
+    },
+    {
+      "source_id": "2018-09-21/20_24_01",
+      "wall_seconds": 0.7040122999969753,
+      "rows": 3562,
+      "scored_points": {
+        "chronos_alt_residual": 379,
+        "chronos_actuator_std_residual": 373
+      }
+    },
+    {
+      "source_id": "2018-09-21/20_35_04",
+      "wall_seconds": 0.19638770000165096,
+      "rows": 721,
+      "scored_points": {
+        "chronos_alt_residual": 76,
+        "chronos_actuator_std_residual": 75
+      }
+    },
+    {
+      "source_id": "2018-09-21/20_40_36",
+      "wall_seconds": 0.10691599999699974,
+      "rows": 495,
+      "scored_points": {
+        "chronos_alt_residual": 51,
+        "chronos_actuator_std_residual": 50
+      }
+    },
+    {
+      "source_id": "2018-09-25/07_29_31",
+      "wall_seconds": 0.2313103999986197,
+      "rows": 1112,
+      "scored_points": {
+        "chronos_alt_residual": 116,
+        "chronos_actuator_std_residual": 115
+      }
+    },
+    {
+      "source_id": "2018-09-25/07_34_04",
+      "wall_seconds": 0.30995500000426546,
+      "rows": 1363,
+      "scored_points": {
+        "chronos_alt_residual": 146,
+        "chronos_actuator_std_residual": 146
+      }
+    },
+    {
+      "source_id": "2018-09-25/07_39_04",
+      "wall_seconds": 0.21920440000394592,
+      "rows": 857,
+      "scored_points": {
+        "chronos_alt_residual": 93,
+        "chronos_actuator_std_residual": 92
+      }
+    },
+    {
+      "source_id": "2018-09-25/07_42_48",
+      "wall_seconds": 0.06398300000000745,
+      "rows": 355,
+      "scored_points": {
+        "chronos_alt_residual": 36,
+        "chronos_actuator_std_residual": 32
+      }
+    },
+    {
+      "source_id": "2018-09-25/07_52_26",
+      "wall_seconds": 0.29900659999839263,
+      "rows": 1449,
+      "scored_points": {
+        "chronos_alt_residual": 151,
+        "chronos_actuator_std_residual": 150
+      }
+    },
+    {
+      "source_id": "2018-09-25/07_57_05",
+      "wall_seconds": 0.21112480000010692,
+      "rows": 1172,
+      "scored_points": {
+        "chronos_alt_residual": 123,
+        "chronos_actuator_std_residual": 123
+      }
+    },
+    {
+      "source_id": "2018-09-25/08_03_16",
+      "wall_seconds": 0.47971339999639895,
+      "rows": 2472,
+      "scored_points": {
+        "chronos_alt_residual": 259,
+        "chronos_actuator_std_residual": 258
+      }
+    },
+    {
+      "source_id": "2018-09-25/08_11_51",
+      "wall_seconds": 0.28344709999510087,
+      "rows": 1438,
+      "scored_points": {
+        "chronos_alt_residual": 153,
+        "chronos_actuator_std_residual": 151
+      }
+    },
+    {
+      "source_id": "2018-09-25/08_19_32",
+      "wall_seconds": 0.28621469999779947,
+      "rows": 1523,
+      "scored_points": {
+        "chronos_alt_residual": 164,
+        "chronos_actuator_std_residual": 163
+      }
+    },
+    {
+      "source_id": "2018-09-25/08_26_41",
+      "wall_seconds": 0.3519200999944587,
+      "rows": 1839,
+      "scored_points": {
+        "chronos_alt_residual": 194,
+        "chronos_actuator_std_residual": 193
+      }
+    },
+    {
+      "source_id": "2018-09-27/07_23_56",
+      "wall_seconds": 0.21549310000409605,
+      "rows": 1146,
+      "scored_points": {
+        "chronos_alt_residual": 118,
+        "chronos_actuator_std_residual": 117
+      }
+    },
+    {
+      "source_id": "2018-09-27/08_01_35",
+      "wall_seconds": 0.46371280000312254,
+      "rows": 2278,
+      "scored_points": {
+        "chronos_alt_residual": 252,
+        "chronos_actuator_std_residual": 251
+      }
+    },
+    {
+      "source_id": "2018-09-27/08_12_10",
+      "wall_seconds": 0.3682986999992863,
+      "rows": 1764,
+      "scored_points": {
+        "chronos_alt_residual": 195,
+        "chronos_actuator_std_residual": 194
+      }
+    },
+    {
+      "source_id": "2018-09-27/08_20_24",
+      "wall_seconds": 0.24967950000427663,
+      "rows": 1314,
+      "scored_points": {
+        "chronos_alt_residual": 137,
+        "chronos_actuator_std_residual": 136
+      }
+    },
+    {
+      "source_id": "2018-09-27/08_27_10",
+      "wall_seconds": 0.3363775000034366,
+      "rows": 1764,
+      "scored_points": {
+        "chronos_alt_residual": 186,
+        "chronos_actuator_std_residual": 185
+      }
+    },
+    {
+      "source_id": "2018-09-27/08_32_37",
+      "wall_seconds": 0.2501951000012923,
+      "rows": 1262,
+      "scored_points": {
+        "chronos_alt_residual": 134,
+        "chronos_actuator_std_residual": 134
+      }
+    },
+    {
+      "source_id": "2018-09-27/08_37_20",
+      "wall_seconds": 0.4102624000006472,
+      "rows": 2175,
+      "scored_points": {
+        "chronos_alt_residual": 231,
+        "chronos_actuator_std_residual": 230
+      }
+    },
+    {
+      "source_id": "2018-10-02/07_24_27",
+      "wall_seconds": 0.1737049000003026,
+      "rows": 922,
+      "scored_points": {
+        "chronos_alt_residual": 95,
+        "chronos_actuator_std_residual": 91
+      }
+    },
+    {
+      "source_id": "2018-10-02/07_28_05",
+      "wall_seconds": 0.27195900000515394,
+      "rows": 1446,
+      "scored_points": {
+        "chronos_alt_residual": 149,
+        "chronos_actuator_std_residual": 148
+      }
+    },
+    {
+      "source_id": "2018-10-02/07_32_32",
+      "wall_seconds": 0.25916639999923063,
+      "rows": 1350,
+      "scored_points": {
+        "chronos_alt_residual": 137,
+        "chronos_actuator_std_residual": 136
+      }
+    },
+    {
+      "source_id": "2018-10-02/07_37_01",
+      "wall_seconds": 0.15849960000196006,
+      "rows": 849,
+      "scored_points": {
+        "chronos_alt_residual": 88,
+        "chronos_actuator_std_residual": 87
+      }
+    },
+    {
+      "source_id": "2018-10-02/07_41_57",
+      "wall_seconds": 0.40657759999885457,
+      "rows": 1956,
+      "scored_points": {
+        "chronos_alt_residual": 215,
+        "chronos_actuator_std_residual": 215
+      }
+    },
+    {
+      "source_id": "2018-10-02/07_49_36",
+      "wall_seconds": 0.16609210000024177,
+      "rows": 806,
+      "scored_points": {
+        "chronos_alt_residual": 88,
+        "chronos_actuator_std_residual": 85
+      }
+    },
+    {
+      "source_id": "2018-10-02/07_53_56",
+      "wall_seconds": 0.10252439999749186,
+      "rows": 520,
+      "scored_points": {
+        "chronos_alt_residual": 57,
+        "chronos_actuator_std_residual": 56
+      }
+    },
+    {
+      "source_id": "2018-10-02/08_08_56",
+      "wall_seconds": 0.28434439999546157,
+      "rows": 1499,
+      "scored_points": {
+        "chronos_alt_residual": 161,
+        "chronos_actuator_std_residual": 160
+      }
+    },
+    {
+      "source_id": "2018-10-02/08_18_28",
+      "wall_seconds": 0.29172939999989467,
+      "rows": 1505,
+      "scored_points": {
+        "chronos_alt_residual": 162,
+        "chronos_actuator_std_residual": 161
+      }
+    },
+    {
+      "source_id": "2018-10-02/08_29_35",
+      "wall_seconds": 0.3010275999986334,
+      "rows": 1556,
+      "scored_points": {
+        "chronos_alt_residual": 171,
+        "chronos_actuator_std_residual": 170
+      }
+    },
+    {
+      "source_id": "2018-10-02/08_37_23",
+      "wall_seconds": 0.18891000000439817,
+      "rows": 962,
+      "scored_points": {
+        "chronos_alt_residual": 105,
+        "chronos_actuator_std_residual": 104
+      }
+    },
+    {
+      "source_id": "2018-10-03/18_26_20",
+      "wall_seconds": 0.14896090000547701,
+      "rows": 754,
+      "scored_points": {
+        "chronos_alt_residual": 83,
+        "chronos_actuator_std_residual": 81
+      }
+    },
+    {
+      "source_id": "2018-10-03/18_31_32",
+      "wall_seconds": 0.32523760000185575,
+      "rows": 1684,
+      "scored_points": {
+        "chronos_alt_residual": 179,
+        "chronos_actuator_std_residual": 178
+      }
+    },
+    {
+      "source_id": "2018-10-03/18_43_39",
+      "wall_seconds": 0.37096489999385085,
+      "rows": 1887,
+      "scored_points": {
+        "chronos_alt_residual": 207,
+        "chronos_actuator_std_residual": 206
+      }
+    },
+    {
+      "source_id": "2018-10-03/18_49_12",
+      "wall_seconds": 0.29763450000609737,
+      "rows": 1640,
+      "scored_points": {
+        "chronos_alt_residual": 173,
+        "chronos_actuator_std_residual": 172
+      }
+    },
+    {
+      "source_id": "2018-10-03/18_53_54",
+      "wall_seconds": 0.32960540000203764,
+      "rows": 1504,
+      "scored_points": {
+        "chronos_alt_residual": 163,
+        "chronos_actuator_std_residual": 162
+      }
+    },
+    {
+      "source_id": "2018-10-27/15_43_51",
+      "wall_seconds": 0.11158380000415491,
+      "rows": 387,
+      "scored_points": {
+        "chronos_alt_residual": 75,
+        "chronos_actuator_std_residual": 74
+      }
+    },
+    {
+      "source_id": "2018-10-27/15_48_34",
+      "wall_seconds": 0.12342949999583652,
+      "rows": 446,
+      "scored_points": {
+        "chronos_alt_residual": 91,
+        "chronos_actuator_std_residual": 90
+      }
+    },
+    {
+      "source_id": "2018-10-27/15_51_46",
+      "wall_seconds": 0.031406099995365366,
+      "rows": 142,
+      "scored_points": {
+        "chronos_alt_residual": 26,
+        "chronos_actuator_std_residual": 25
+      }
+    },
+    {
+      "source_id": "2018-10-27/15_57_23",
+      "wall_seconds": 0.03294610000011744,
+      "rows": 160,
+      "scored_points": {
+        "chronos_alt_residual": 30,
+        "chronos_actuator_std_residual": 27
+      }
+    },
+    {
+      "source_id": "2018-10-27/16_00_09",
+      "wall_seconds": 0.032593999996606726,
+      "rows": 161,
+      "scored_points": {
+        "chronos_alt_residual": 30,
+        "chronos_actuator_std_residual": 29
+      }
+    },
+    {
+      "source_id": "2018-11-27/07_36_53",
+      "wall_seconds": 0.3002134000053047,
+      "rows": 1289,
+      "scored_points": {
+        "chronos_alt_residual": 150,
+        "chronos_actuator_std_residual": 148
+      }
+    },
+    {
+      "source_id": "2018-11-27/07_42_38",
+      "wall_seconds": 0.29518559999996796,
+      "rows": 1411,
+      "scored_points": {
+        "chronos_alt_residual": 157,
+        "chronos_actuator_std_residual": 156
+      }
+    },
+    {
+      "source_id": "2018-11-27/07_45_59",
+      "wall_seconds": 0.15771479999966687,
+      "rows": 725,
+      "scored_points": {
+        "chronos_alt_residual": 79,
+        "chronos_actuator_std_residual": 78
+      }
+    },
+    {
+      "source_id": "2018-11-27/07_52_27",
+      "wall_seconds": 0.2890740000002552,
+      "rows": 1441,
+      "scored_points": {
+        "chronos_alt_residual": 159,
+        "chronos_actuator_std_residual": 158
+      }
+    },
+    {
+      "source_id": "2018-11-27/07_59_06",
+      "wall_seconds": 0.6318114999958198,
+      "rows": 3222,
+      "scored_points": {
+        "chronos_alt_residual": 352,
+        "chronos_actuator_std_residual": 350
+      }
+    },
+    {
+      "source_id": "2018-11-27/08_11_22",
+      "wall_seconds": 0.35677120000036666,
+      "rows": 1811,
+      "scored_points": {
+        "chronos_alt_residual": 192,
+        "chronos_actuator_std_residual": 191
+      }
+    },
+    {
+      "source_id": "2018-11-27/08_27_47",
+      "wall_seconds": 0.32801370000379393,
+      "rows": 1591,
+      "scored_points": {
+        "chronos_alt_residual": 178,
+        "chronos_actuator_std_residual": 178
+      }
+    },
+    {
+      "source_id": "2018-11-27/08_49_45",
+      "wall_seconds": 0.28037220000260277,
+      "rows": 1342,
+      "scored_points": {
+        "chronos_alt_residual": 147,
+        "chronos_actuator_std_residual": 145
+      }
+    },
+    {
+      "source_id": "2018-11-27/08_56_16",
+      "wall_seconds": 0.30849879999732366,
+      "rows": 1534,
+      "scored_points": {
+        "chronos_alt_residual": 170,
+        "chronos_actuator_std_residual": 169
+      }
+    },
+    {
+      "source_id": "2018-12-03/07_26_23",
+      "wall_seconds": 0.18241370000032475,
+      "rows": 872,
+      "scored_points": {
+        "chronos_alt_residual": 92,
+        "chronos_actuator_std_residual": 91
+      }
+    },
+    {
+      "source_id": "2018-12-03/07_31_50",
+      "wall_seconds": 0.3352519999971264,
+      "rows": 1690,
+      "scored_points": {
+        "chronos_alt_residual": 183,
+        "chronos_actuator_std_residual": 182
+      }
+    },
+    {
+      "source_id": "2018-12-03/07_43_15",
+      "wall_seconds": 0.03861429999960819,
+      "rows": 266,
+      "scored_points": {
+        "chronos_alt_residual": 29,
+        "chronos_actuator_std_residual": 28
+      }
+    },
+    {
+      "source_id": "2018-12-03/07_46_16",
+      "wall_seconds": 0.4096953999978723,
+      "rows": 1928,
+      "scored_points": {
+        "chronos_alt_residual": 216,
+        "chronos_actuator_std_residual": 215
+      }
+    },
+    {
+      "source_id": "2018-12-03/07_52_12",
+      "wall_seconds": 0.13737580000452,
+      "rows": 632,
+      "scored_points": {
+        "chronos_alt_residual": 69,
+        "chronos_actuator_std_residual": 68
+      }
+    },
+    {
+      "source_id": "2018-12-03/08_17_36",
+      "wall_seconds": 0.17019069999514613,
+      "rows": 854,
+      "scored_points": {
+        "chronos_alt_residual": 91,
+        "chronos_actuator_std_residual": 90
+      }
+    },
+    {
+      "source_id": "2018-12-03/08_38_02",
+      "wall_seconds": 0.26574429999891436,
+      "rows": 1289,
+      "scored_points": {
+        "chronos_alt_residual": 146,
+        "chronos_actuator_std_residual": 144
+      }
+    },
+    {
+      "source_id": "2018-12-03/08_45_02",
+      "wall_seconds": 0.37471670000377344,
+      "rows": 1862,
+      "scored_points": {
+        "chronos_alt_residual": 206,
+        "chronos_actuator_std_residual": 205
+      }
+    },
+    {
+      "source_id": "2018-12-03/08_52_22",
+      "wall_seconds": 0.5162453000011737,
+      "rows": 2677,
+      "scored_points": {
+        "chronos_alt_residual": 289,
+        "chronos_actuator_std_residual": 288
+      }
+    },
+    {
+      "source_id": "2018-12-03/09_02_02",
+      "wall_seconds": 0.4846028000029037,
+      "rows": 2474,
+      "scored_points": {
+        "chronos_alt_residual": 272,
+        "chronos_actuator_std_residual": 271
+      }
+    },
+    {
+      "source_id": "2018-12-04/07_45_29",
+      "wall_seconds": 0.19925119999970775,
+      "rows": 1008,
+      "scored_points": {
+        "chronos_alt_residual": 106,
+        "chronos_actuator_std_residual": 105
+      }
+    },
+    {
+      "source_id": "2018-12-04/07_49_33",
+      "wall_seconds": 0.06427439999970375,
+      "rows": 392,
+      "scored_points": {
+        "chronos_alt_residual": 45,
+        "chronos_actuator_std_residual": 44
+      }
+    },
+    {
+      "source_id": "2018-12-04/07_52_44",
+      "wall_seconds": 0.5600787000003038,
+      "rows": 2834,
+      "scored_points": {
+        "chronos_alt_residual": 313,
+        "chronos_actuator_std_residual": 311
+      }
+    },
+    {
+      "source_id": "2018-12-04/08_01_22",
+      "wall_seconds": 0.3824120999997831,
+      "rows": 1878,
+      "scored_points": {
+        "chronos_alt_residual": 206,
+        "chronos_actuator_std_residual": 203
+      }
+    },
+    {
+      "source_id": "2018-12-04/08_06_40",
+      "wall_seconds": 0.22858860000269488,
+      "rows": 1129,
+      "scored_points": {
+        "chronos_alt_residual": 125,
+        "chronos_actuator_std_residual": 124
+      }
+    },
+    {
+      "source_id": "2018-12-04/08_13_32",
+      "wall_seconds": 0.2501302000018768,
+      "rows": 1213,
+      "scored_points": {
+        "chronos_alt_residual": 140,
+        "chronos_actuator_std_residual": 139
+      }
+    },
+    {
+      "source_id": "2018-12-04/08_20_03",
+      "wall_seconds": 0.5899031000008108,
+      "rows": 2802,
+      "scored_points": {
+        "chronos_alt_residual": 307,
+        "chronos_actuator_std_residual": 306
+      }
+    },
+    {
+      "source_id": "2018-12-04/08_31_08",
+      "wall_seconds": 0.44384100000024773,
+      "rows": 2201,
+      "scored_points": {
+        "chronos_alt_residual": 241,
+        "chronos_actuator_std_residual": 240
+      }
+    },
+    {
+      "source_id": "2018-12-04/08_43_22",
+      "wall_seconds": 0.06499180000537308,
+      "rows": 393,
+      "scored_points": {
+        "chronos_alt_residual": 41,
+        "chronos_actuator_std_residual": 39
+      }
+    },
+    {
+      "source_id": "2018-12-04/08_47_34",
+      "wall_seconds": 0.06156990000454243,
+      "rows": 383,
+      "scored_points": {
+        "chronos_alt_residual": 43,
+        "chronos_actuator_std_residual": 42
+      }
+    },
+    {
+      "source_id": "2018-12-04/08_50_47",
+      "wall_seconds": 0.04744859999482287,
+      "rows": 313,
+      "scored_points": {
+        "chronos_alt_residual": 34,
+        "chronos_actuator_std_residual": 33
+      }
+    },
+    {
+      "source_id": "2018-12-04/08_53_58",
+      "wall_seconds": 0.34631610000360524,
+      "rows": 1710,
+      "scored_points": {
+        "chronos_alt_residual": 192,
+        "chronos_actuator_std_residual": 186
+      }
+    },
+    {
+      "source_id": "2018-12-10/07_58_08",
+      "wall_seconds": 0.5619703000047593,
+      "rows": 2797,
+      "scored_points": {
+        "chronos_alt_residual": 318,
+        "chronos_actuator_std_residual": 317
+      }
+    },
+    {
+      "source_id": "2018-12-10/08_15_58",
+      "wall_seconds": 0.18077749999793014,
+      "rows": 835,
+      "scored_points": {
+        "chronos_alt_residual": 97,
+        "chronos_actuator_std_residual": 97
+      }
+    },
+    {
+      "source_id": "2018-12-10/08_30_26",
+      "wall_seconds": 0.11356510000041453,
+      "rows": 615,
+      "scored_points": {
+        "chronos_alt_residual": 64,
+        "chronos_actuator_std_residual": 63
+      }
+    },
+    {
+      "source_id": "2018-12-10/08_38_24",
+      "wall_seconds": 0.2726773000031244,
+      "rows": 1287,
+      "scored_points": {
+        "chronos_alt_residual": 145,
+        "chronos_actuator_std_residual": 143
+      }
+    },
+    {
+      "source_id": "2018-12-10/08_49_01",
+      "wall_seconds": 0.3056886000049417,
+      "rows": 1619,
+      "scored_points": {
+        "chronos_alt_residual": 180,
+        "chronos_actuator_std_residual": 179
+      }
+    },
+    {
+      "source_id": "2018-12-10/08_56_21",
+      "wall_seconds": 0.45199139999749605,
+      "rows": 2323,
+      "scored_points": {
+        "chronos_alt_residual": 251,
+        "chronos_actuator_std_residual": 250
+      }
+    },
+    {
+      "source_id": "2018-12-10/09_08_26",
+      "wall_seconds": 0.40807580000546295,
+      "rows": 2032,
+      "scored_points": {
+        "chronos_alt_residual": 223,
+        "chronos_actuator_std_residual": 222
+      }
+    },
+    {
+      "source_id": "2018-12-10/09_20_57",
+      "wall_seconds": 0.31333960000483785,
+      "rows": 1401,
+      "scored_points": {
+        "chronos_alt_residual": 156,
+        "chronos_actuator_std_residual": 155
+      }
+    },
+    {
+      "source_id": "2018-12-14/07_34_35",
+      "wall_seconds": 0.19700420000299346,
+      "rows": 943,
+      "scored_points": {
+        "chronos_alt_residual": 108,
+        "chronos_actuator_std_residual": 108
+      }
+    },
+    {
+      "source_id": "2018-12-14/07_46_36",
+      "wall_seconds": 0.1605822999990778,
+      "rows": 712,
+      "scored_points": {
+        "chronos_alt_residual": 81,
+        "chronos_actuator_std_residual": 81
+      }
+    },
+    {
+      "source_id": "2018-12-14/08_10_21",
+      "wall_seconds": 0.3573800000012852,
+      "rows": 1684,
+      "scored_points": {
+        "chronos_alt_residual": 186,
+        "chronos_actuator_std_residual": 186
+      }
+    },
+    {
+      "source_id": "2018-12-14/08_32_31",
+      "wall_seconds": 0.3282575999983237,
+      "rows": 1584,
+      "scored_points": {
+        "chronos_alt_residual": 175,
+        "chronos_actuator_std_residual": 175
+      }
+    },
+    {
+      "source_id": "2018-12-18/07_52_04",
+      "wall_seconds": 0.2496406999998726,
+      "rows": 1190,
+      "scored_points": {
+        "chronos_alt_residual": 135,
+        "chronos_actuator_std_residual": 134
+      }
+    },
+    {
+      "source_id": "2018-12-18/08_03_53",
+      "wall_seconds": 0.13810109999758424,
+      "rows": 599,
+      "scored_points": {
+        "chronos_alt_residual": 67,
+        "chronos_actuator_std_residual": 67
+      }
+    },
+    {
+      "source_id": "2018-12-18/08_12_51",
+      "wall_seconds": 0.10721469999407418,
+      "rows": 533,
+      "scored_points": {
+        "chronos_alt_residual": 59,
+        "chronos_actuator_std_residual": 58
+      }
+    },
+    {
+      "source_id": "2018-12-18/08_18_02",
+      "wall_seconds": 0.8356769000019995,
+      "rows": 4271,
+      "scored_points": {
+        "chronos_alt_residual": 475,
+        "chronos_actuator_std_residual": 473
+      }
+    },
+    {
+      "source_id": "2018-12-18/08_34_53",
+      "wall_seconds": 0.7752537999986089,
+      "rows": 3931,
+      "scored_points": {
+        "chronos_alt_residual": 430,
+        "chronos_actuator_std_residual": 425
+      }
+    },
+    {
+      "source_id": "2018-12-18/08_54_19",
+      "wall_seconds": 0.48630799999955343,
+      "rows": 2427,
+      "scored_points": {
+        "chronos_alt_residual": 268,
+        "chronos_actuator_std_residual": 266
+      }
+    },
+    {
+      "source_id": "2018-12-18/09_04_09",
+      "wall_seconds": 0.16923120000137715,
+      "rows": 787,
+      "scored_points": {
+        "chronos_alt_residual": 85,
+        "chronos_actuator_std_residual": 85
+      }
+    },
+    {
+      "source_id": "2018-12-18/09_12_16",
+      "wall_seconds": 0.15447370000038063,
+      "rows": 684,
+      "scored_points": {
+        "chronos_alt_residual": 75,
+        "chronos_actuator_std_residual": 74
+      }
+    },
+    {
+      "source_id": "2018-12-18/09_23_05",
+      "wall_seconds": 0.1929980000059004,
+      "rows": 911,
+      "scored_points": {
+        "chronos_alt_residual": 111,
+        "chronos_actuator_std_residual": 110
+      }
+    },
+    {
+      "source_id": "2018-12-19/07_49_17",
+      "wall_seconds": 0.1614458999974886,
+      "rows": 735,
+      "scored_points": {
+        "chronos_alt_residual": 86,
+        "chronos_actuator_std_residual": 86
+      }
+    },
+    {
+      "source_id": "2018-12-19/08_06_30",
+      "wall_seconds": 0.38082089999807067,
+      "rows": 1658,
+      "scored_points": {
+        "chronos_alt_residual": 222,
+        "chronos_actuator_std_residual": 221
+      }
+    },
+    {
+      "source_id": "2018-12-19/08_14_47",
+      "wall_seconds": 0.04449380000005476,
+      "rows": 295,
+      "scored_points": {
+        "chronos_alt_residual": 31,
+        "chronos_actuator_std_residual": 31
+      }
+    },
+    {
+      "source_id": "2018-12-19/08_26_15",
+      "wall_seconds": 0.031572500003676396,
+      "rows": 222,
+      "scored_points": {
+        "chronos_alt_residual": 23,
+        "chronos_actuator_std_residual": 23
+      }
+    },
+    {
+      "source_id": "2018-12-19/08_36_16",
+      "wall_seconds": 0.08988369999860879,
+      "rows": 512,
+      "scored_points": {
+        "chronos_alt_residual": 53,
+        "chronos_actuator_std_residual": 52
+      }
+    },
+    {
+      "source_id": "2018-12-19/08_41_40",
+      "wall_seconds": 0.24094940000213683,
+      "rows": 1216,
+      "scored_points": {
+        "chronos_alt_residual": 129,
+        "chronos_actuator_std_residual": 128
+      }
+    },
+    {
+      "source_id": "2018-12-19/08_46_23",
+      "wall_seconds": 0.046742600003199186,
+      "rows": 321,
+      "scored_points": {
+        "chronos_alt_residual": 34,
+        "chronos_actuator_std_residual": 33
+      }
+    },
+    {
+      "source_id": "2018-12-19/08_53_47",
+      "wall_seconds": 0.06849289999809116,
+      "rows": 397,
+      "scored_points": {
+        "chronos_alt_residual": 41,
+        "chronos_actuator_std_residual": 40
+      }
+    },
+    {
+      "source_id": "2018-12-19/09_06_25",
+      "wall_seconds": 0.0480706000016653,
+      "rows": 354,
+      "scored_points": {
+        "chronos_alt_residual": 36,
+        "chronos_actuator_std_residual": 35
+      }
+    },
+    {
+      "source_id": "2018-12-19/09_09_45",
+      "wall_seconds": 0.0396139000004041,
+      "rows": 264,
+      "scored_points": {
+        "chronos_alt_residual": 27,
+        "chronos_actuator_std_residual": 26
+      }
+    },
+    {
+      "source_id": "2018-12-19/09_13_26",
+      "wall_seconds": 0.05669090000446886,
+      "rows": 341,
+      "scored_points": {
+        "chronos_alt_residual": 39,
+        "chronos_actuator_std_residual": 37
+      }
+    },
+    {
+      "source_id": "2018-12-19/09_17_32",
+      "wall_seconds": 0.058939800001098774,
+      "rows": 369,
+      "scored_points": {
+        "chronos_alt_residual": 41,
+        "chronos_actuator_std_residual": 41
+      }
+    },
+    {
+      "source_id": "2018-12-19/09_21_35",
+      "wall_seconds": 0.05026470000302652,
+      "rows": 333,
+      "scored_points": {
+        "chronos_alt_residual": 37,
+        "chronos_actuator_std_residual": 36
+      }
+    },
+    {
+      "source_id": "2018-12-19/09_24_29",
+      "wall_seconds": 0.22945110000000568,
+      "rows": 1104,
+      "scored_points": {
+        "chronos_alt_residual": 126,
+        "chronos_actuator_std_residual": 126
+      }
+    },
+    {
+      "source_id": "2018-12-19/09_28_17",
+      "wall_seconds": 0.033017699999618344,
+      "rows": 225,
+      "scored_points": {
+        "chronos_alt_residual": 26,
+        "chronos_actuator_std_residual": 26
+      }
+    },
+    {
+      "source_id": "2018-12-19/09_31_54",
+      "wall_seconds": 0.03182050000032177,
+      "rows": 191,
+      "scored_points": {
+        "chronos_alt_residual": 23,
+        "chronos_actuator_std_residual": 22
+      }
+    },
+    {
+      "source_id": "2018-12-20/07_21_02",
+      "wall_seconds": 0.051937400006863754,
+      "rows": 297,
+      "scored_points": {
+        "chronos_alt_residual": 33,
+        "chronos_actuator_std_residual": 32
+      }
+    },
+    {
+      "source_id": "2018-12-20/07_28_32",
+      "wall_seconds": 0.06669790000159992,
+      "rows": 392,
+      "scored_points": {
+        "chronos_alt_residual": 45,
+        "chronos_actuator_std_residual": 44
+      }
+    },
+    {
+      "source_id": "2018-12-20/07_31_37",
+      "wall_seconds": 0.043101300005218945,
+      "rows": 287,
+      "scored_points": {
+        "chronos_alt_residual": 31,
+        "chronos_actuator_std_residual": 30
+      }
+    },
+    {
+      "source_id": "2018-12-20/07_34_46",
+      "wall_seconds": 0.10186629999952856,
+      "rows": 530,
+      "scored_points": {
+        "chronos_alt_residual": 54,
+        "chronos_actuator_std_residual": 50
+      }
+    },
+    {
+      "source_id": "2018-12-20/07_38_28",
+      "wall_seconds": 0.06389610000042012,
+      "rows": 417,
+      "scored_points": {
+        "chronos_alt_residual": 44,
+        "chronos_actuator_std_residual": 41
+      }
+    },
+    {
+      "source_id": "2018-12-20/07_47_50",
+      "wall_seconds": 0.22045989999605808,
+      "rows": 1126,
+      "scored_points": {
+        "chronos_alt_residual": 123,
+        "chronos_actuator_std_residual": 122
+      }
+    },
+    {
+      "source_id": "2018-12-20/07_58_46",
+      "wall_seconds": 0.23299599999882048,
+      "rows": 1174,
+      "scored_points": {
+        "chronos_alt_residual": 128,
+        "chronos_actuator_std_residual": 127
+      }
+    },
+    {
+      "source_id": "2018-12-20/08_20_49",
+      "wall_seconds": 0.2913034000011976,
+      "rows": 1484,
+      "scored_points": {
+        "chronos_alt_residual": 158,
+        "chronos_actuator_std_residual": 155
+      }
+    },
+    {
+      "source_id": "2018-12-20/08_52_31",
+      "wall_seconds": 0.18125490000238642,
+      "rows": 822,
+      "scored_points": {
+        "chronos_alt_residual": 99,
+        "chronos_actuator_std_residual": 99
+      }
+    },
+    {
+      "source_id": "2018-12-20/08_57_35",
+      "wall_seconds": 0.3710170999984257,
+      "rows": 1641,
+      "scored_points": {
+        "chronos_alt_residual": 196,
+        "chronos_actuator_std_residual": 195
+      }
+    },
+    {
+      "source_id": "2018-12-20/09_09_45",
+      "wall_seconds": 0.20382489999610698,
+      "rows": 953,
+      "scored_points": {
+        "chronos_alt_residual": 107,
+        "chronos_actuator_std_residual": 106
+      }
+    },
+    {
+      "source_id": "2018-12-20/09_15_00",
+      "wall_seconds": 0.20849640000233194,
+      "rows": 937,
+      "scored_points": {
+        "chronos_alt_residual": 114,
+        "chronos_actuator_std_residual": 114
+      }
+    },
+    {
+      "source_id": "2018-12-20/09_24_00",
+      "wall_seconds": 0.19529529999999795,
+      "rows": 970,
+      "scored_points": {
+        "chronos_alt_residual": 113,
+        "chronos_actuator_std_residual": 113
+      }
+    },
+    {
+      "source_id": "2018-12-20/09_48_11",
+      "wall_seconds": 0.25242550000257324,
+      "rows": 1198,
+      "scored_points": {
+        "chronos_alt_residual": 141,
+        "chronos_actuator_std_residual": 141
+      }
+    },
+    {
+      "source_id": "2018-12-25/08_44_40",
+      "wall_seconds": 0.2621897000062745,
+      "rows": 1276,
+      "scored_points": {
+        "chronos_alt_residual": 140,
+        "chronos_actuator_std_residual": 140
+      }
+    },
+    {
+      "source_id": "2018-12-25/08_51_51",
+      "wall_seconds": 0.276118800000404,
+      "rows": 1425,
+      "scored_points": {
+        "chronos_alt_residual": 158,
+        "chronos_actuator_std_residual": 157
+      }
+    },
+    {
+      "source_id": "2018-12-27/08_57_51",
+      "wall_seconds": 0.06577570000081323,
+      "rows": 340,
+      "scored_points": {
+        "chronos_alt_residual": 40,
+        "chronos_actuator_std_residual": 39
+      }
+    },
+    {
+      "source_id": "2018-12-27/09_30_59",
+      "wall_seconds": 0.2841463000004296,
+      "rows": 1183,
+      "scored_points": {
+        "chronos_alt_residual": 153,
+        "chronos_actuator_std_residual": 153
+      }
+    },
+    {
+      "source_id": "2018-12-27/09_36_06",
+      "wall_seconds": 0.30276489999960177,
+      "rows": 1224,
+      "scored_points": {
+        "chronos_alt_residual": 164,
+        "chronos_actuator_std_residual": 164
+      }
+    },
+    {
+      "source_id": "2018-12-27/09_46_16",
+      "wall_seconds": 0.3606711999964318,
+      "rows": 1487,
+      "scored_points": {
+        "chronos_alt_residual": 192,
+        "chronos_actuator_std_residual": 192
+      }
+    },
+    {
+      "source_id": "2018-12-28/08_13_51",
+      "wall_seconds": 0.4205602999936673,
+      "rows": 1768,
+      "scored_points": {
+        "chronos_alt_residual": 211,
+        "chronos_actuator_std_residual": 211
+      }
+    },
+    {
+      "source_id": "2018-12-31/11_05_14",
+      "wall_seconds": 0.3275331999975606,
+      "rows": 1820,
+      "scored_points": {
+        "chronos_alt_residual": 185,
+        "chronos_actuator_std_residual": 185
+      }
+    },
+    {
+      "source_id": "2019-01-01/14_39_39",
+      "wall_seconds": 0.04016579999733949,
+      "rows": 288,
+      "scored_points": {
+        "chronos_alt_residual": 29,
+        "chronos_actuator_std_residual": 28
+      }
+    },
+    {
+      "source_id": "2019-01-01/14_44_02",
+      "wall_seconds": 0.04754900000261841,
+      "rows": 361,
+      "scored_points": {
+        "chronos_alt_residual": 35,
+        "chronos_actuator_std_residual": 35
+      }
+    },
+    {
+      "source_id": "2019-01-03/07_45_20",
+      "wall_seconds": 0.15955340000073193,
+      "rows": 839,
+      "scored_points": {
+        "chronos_alt_residual": 85,
+        "chronos_actuator_std_residual": 85
+      }
+    },
+    {
+      "source_id": "2019-01-03/08_09_31",
+      "wall_seconds": 0.0412817999967956,
+      "rows": 300,
+      "scored_points": {
+        "chronos_alt_residual": 30,
+        "chronos_actuator_std_residual": 29
+      }
+    },
+    {
+      "source_id": "2019-01-08/07_56_17",
+      "wall_seconds": 0.5360023999965051,
+      "rows": 2749,
+      "scored_points": {
+        "chronos_alt_residual": 279,
+        "chronos_actuator_std_residual": 279
+      }
+    },
+    {
+      "source_id": "2019-01-08/08_08_14",
+      "wall_seconds": 0.30033699999330565,
+      "rows": 1655,
+      "scored_points": {
+        "chronos_alt_residual": 168,
+        "chronos_actuator_std_residual": 168
+      }
+    },
+    {
+      "source_id": "2019-01-08/08_16_07",
+      "wall_seconds": 0.42112550000456395,
+      "rows": 2274,
+      "scored_points": {
+        "chronos_alt_residual": 231,
+        "chronos_actuator_std_residual": 231
+      }
+    },
+    {
+      "source_id": "2019-01-08/08_25_04",
+      "wall_seconds": 0.1639227999985451,
+      "rows": 881,
+      "scored_points": {
+        "chronos_alt_residual": 89,
+        "chronos_actuator_std_residual": 89
+      }
+    },
+    {
+      "source_id": "2019-01-08/08_30_41",
+      "wall_seconds": 0.293264599997201,
+      "rows": 1559,
+      "scored_points": {
+        "chronos_alt_residual": 158,
+        "chronos_actuator_std_residual": 158
+      }
+    },
+    {
+      "source_id": "2019-01-08/08_39_45",
+      "wall_seconds": 0.15421040000364883,
+      "rows": 808,
+      "scored_points": {
+        "chronos_alt_residual": 82,
+        "chronos_actuator_std_residual": 82
+      }
+    },
+    {
+      "source_id": "2019-01-08/08_45_03",
+      "wall_seconds": 0.1308564999999362,
+      "rows": 679,
+      "scored_points": {
+        "chronos_alt_residual": 68,
+        "chronos_actuator_std_residual": 68
+      }
+    },
+    {
+      "source_id": "2019-01-08/08_52_50",
+      "wall_seconds": 0.19220089999726042,
+      "rows": 974,
+      "scored_points": {
+        "chronos_alt_residual": 98,
+        "chronos_actuator_std_residual": 98
+      }
+    },
+    {
+      "source_id": "2019-01-08/08_56_03",
+      "wall_seconds": 0.47965990000375314,
+      "rows": 2577,
+      "scored_points": {
+        "chronos_alt_residual": 261,
+        "chronos_actuator_std_residual": 261
+      }
+    },
+    {
+      "source_id": "2019-01-09/07_43_46",
+      "wall_seconds": 0.17793239999446087,
+      "rows": 960,
+      "scored_points": {
+        "chronos_alt_residual": 97,
+        "chronos_actuator_std_residual": 97
+      }
+    },
+    {
+      "source_id": "2019-01-09/07_49_13",
+      "wall_seconds": 0.4775812000007136,
+      "rows": 2637,
+      "scored_points": {
+        "chronos_alt_residual": 268,
+        "chronos_actuator_std_residual": 268
+      }
+    },
+    {
+      "source_id": "2019-01-09/07_59_28",
+      "wall_seconds": 0.47052699999767356,
+      "rows": 2679,
+      "scored_points": {
+        "chronos_alt_residual": 272,
+        "chronos_actuator_std_residual": 272
+      }
+    },
+    {
+      "source_id": "2019-01-09/08_06_58",
+      "wall_seconds": 0.2713685999988229,
+      "rows": 1494,
+      "scored_points": {
+        "chronos_alt_residual": 151,
+        "chronos_actuator_std_residual": 151
+      }
+    },
+    {
+      "source_id": "2019-01-09/08_18_23",
+      "wall_seconds": 0.1968741000018781,
+      "rows": 974,
+      "scored_points": {
+        "chronos_alt_residual": 98,
+        "chronos_actuator_std_residual": 98
+      }
+    },
+    {
+      "source_id": "2019-01-09/08_22_55",
+      "wall_seconds": 0.4798028000004706,
+      "rows": 2673,
+      "scored_points": {
+        "chronos_alt_residual": 271,
+        "chronos_actuator_std_residual": 271
+      }
+    },
+    {
+      "source_id": "2019-01-09/08_32_29",
+      "wall_seconds": 0.3371943999954965,
+      "rows": 1800,
+      "scored_points": {
+        "chronos_alt_residual": 183,
+        "chronos_actuator_std_residual": 183
+      }
+    },
+    {
+      "source_id": "2019-01-09/08_40_49",
+      "wall_seconds": 0.21738529999856837,
+      "rows": 1085,
+      "scored_points": {
+        "chronos_alt_residual": 110,
+        "chronos_actuator_std_residual": 110
+      }
+    },
+    {
+      "source_id": "2019-01-15/07_28_00",
+      "wall_seconds": 0.09052360000350745,
+      "rows": 460,
+      "scored_points": {
+        "chronos_alt_residual": 46,
+        "chronos_actuator_std_residual": 46
+      }
+    },
+    {
+      "source_id": "2019-01-15/07_32_02",
+      "wall_seconds": 0.57487250000122,
+      "rows": 2886,
+      "scored_points": {
+        "chronos_alt_residual": 293,
+        "chronos_actuator_std_residual": 293
+      }
+    },
+    {
+      "source_id": "2019-01-15/07_40_31",
+      "wall_seconds": 0.3547318000055384,
+      "rows": 1845,
+      "scored_points": {
+        "chronos_alt_residual": 187,
+        "chronos_actuator_std_residual": 187
+      }
+    },
+    {
+      "source_id": "2019-01-15/07_49_03",
+      "wall_seconds": 0.1990721999973175,
+      "rows": 1101,
+      "scored_points": {
+        "chronos_alt_residual": 111,
+        "chronos_actuator_std_residual": 111
+      }
+    },
+    {
+      "source_id": "2019-01-15/08_02_55",
+      "wall_seconds": 0.40082019999681506,
+      "rows": 2255,
+      "scored_points": {
+        "chronos_alt_residual": 229,
+        "chronos_actuator_std_residual": 229
+      }
+    },
+    {
+      "source_id": "2019-01-15/08_14_07",
+      "wall_seconds": 0.5046949999959907,
+      "rows": 2768,
+      "scored_points": {
+        "chronos_alt_residual": 281,
+        "chronos_actuator_std_residual": 281
+      }
+    },
+    {
+      "source_id": "2019-01-15/08_31_01",
+      "wall_seconds": 0.49776009999914095,
+      "rows": 2706,
+      "scored_points": {
+        "chronos_alt_residual": 275,
+        "chronos_actuator_std_residual": 275
+      }
+    },
+    {
+      "source_id": "2019-01-15/08_46_05",
+      "wall_seconds": 0.17484649999823887,
+      "rows": 588,
+      "scored_points": {
+        "chronos_alt_residual": 116,
+        "chronos_actuator_std_residual": 116
+      }
+    },
+    {
+      "source_id": "2019-01-16/07_21_48",
+      "wall_seconds": 0.46990859999641543,
+      "rows": 1301,
+      "scored_points": {
+        "chronos_alt_residual": 260,
+        "chronos_actuator_std_residual": 260
+      }
+    },
+    {
+      "source_id": "2019-01-16/07_39_29",
+      "wall_seconds": 0.0487072999967495,
+      "rows": 363,
+      "scored_points": {
+        "chronos_alt_residual": 36,
+        "chronos_actuator_std_residual": 36
+      }
+    },
+    {
+      "source_id": "2019-01-16/07_42_54",
+      "wall_seconds": 0.4553133000008529,
+      "rows": 1316,
+      "scored_points": {
+        "chronos_alt_residual": 264,
+        "chronos_actuator_std_residual": 264
+      }
+    },
+    {
+      "source_id": "2019-01-16/07_49_46",
+      "wall_seconds": 0.39457129999937024,
+      "rows": 1200,
+      "scored_points": {
+        "chronos_alt_residual": 240,
+        "chronos_actuator_std_residual": 240
+      }
+    },
+    {
+      "source_id": "2019-01-16/08_28_05",
+      "wall_seconds": 0.43655349999608006,
+      "rows": 1355,
+      "scored_points": {
+        "chronos_alt_residual": 271,
+        "chronos_actuator_std_residual": 271
+      }
+    },
+    {
+      "source_id": "2019-01-18/07_19_34",
+      "wall_seconds": 0.03920129999460187,
+      "rows": 250,
+      "scored_points": {
+        "chronos_alt_residual": 25,
+        "chronos_actuator_std_residual": 23
+      }
+    },
+    {
+      "source_id": "2019-01-18/07_23_51",
+      "wall_seconds": 0.08538560000306461,
+      "rows": 496,
+      "scored_points": {
+        "chronos_alt_residual": 50,
+        "chronos_actuator_std_residual": 50
+      }
+    },
+    {
+      "source_id": "2019-01-18/07_28_38",
+      "wall_seconds": 0.47178639999765437,
+      "rows": 2520,
+      "scored_points": {
+        "chronos_alt_residual": 255,
+        "chronos_actuator_std_residual": 255
+      }
+    },
+    {
+      "source_id": "2019-01-18/07_35_54",
+      "wall_seconds": 0.0469089999969583,
+      "rows": 303,
+      "scored_points": {
+        "chronos_alt_residual": 30,
+        "chronos_actuator_std_residual": 30
+      }
+    },
+    {
+      "source_id": "2019-01-18/07_41_23",
+      "wall_seconds": 0.08596079999551876,
+      "rows": 495,
+      "scored_points": {
+        "chronos_alt_residual": 50,
+        "chronos_actuator_std_residual": 50
+      }
+    },
+    {
+      "source_id": "2019-01-18/07_44_44",
+      "wall_seconds": 0.2934659000020474,
+      "rows": 1554,
+      "scored_points": {
+        "chronos_alt_residual": 157,
+        "chronos_actuator_std_residual": 157
+      }
+    },
+    {
+      "source_id": "2019-01-18/08_07_57",
+      "wall_seconds": 0.4506117999990238,
+      "rows": 1336,
+      "scored_points": {
+        "chronos_alt_residual": 268,
+        "chronos_actuator_std_residual": 268
+      }
+    },
+    {
+      "source_id": "2019-01-18/08_26_38",
+      "wall_seconds": 0.10048819999792613,
+      "rows": 342,
+      "scored_points": {
+        "chronos_alt_residual": 67,
+        "chronos_actuator_std_residual": 67
+      }
+    },
+    {
+      "source_id": "2019-01-18/08_37_09",
+      "wall_seconds": 0.15060929999890504,
+      "rows": 754,
+      "scored_points": {
+        "chronos_alt_residual": 76,
+        "chronos_actuator_std_residual": 76
+      }
+    },
+    {
+      "source_id": "2019-01-18/08_39_38",
+      "wall_seconds": 0.10726189999695634,
+      "rows": 338,
+      "scored_points": {
+        "chronos_alt_residual": 66,
+        "chronos_actuator_std_residual": 66
+      }
+    },
+    {
+      "source_id": "2019-01-18/08_44_30",
+      "wall_seconds": 0.17603609999787295,
+      "rows": 572,
+      "scored_points": {
+        "chronos_alt_residual": 113,
+        "chronos_actuator_std_residual": 113
+      }
+    },
+    {
+      "source_id": "2019-01-18/08_50_33",
+      "wall_seconds": 0.24291889999585692,
+      "rows": 722,
+      "scored_points": {
+        "chronos_alt_residual": 143,
+        "chronos_actuator_std_residual": 143
+      }
+    },
+    {
+      "source_id": "2019-01-18/08_58_39",
+      "wall_seconds": 0.47249359999841545,
+      "rows": 1353,
+      "scored_points": {
+        "chronos_alt_residual": 271,
+        "chronos_actuator_std_residual": 271
+      }
+    },
+    {
+      "source_id": "2019-01-18/09_04_40",
+      "wall_seconds": 0.11363510000228416,
+      "rows": 389,
+      "scored_points": {
+        "chronos_alt_residual": 76,
+        "chronos_actuator_std_residual": 76
+      }
+    },
+    {
+      "source_id": "2019-01-18/09_07_45",
+      "wall_seconds": 0.09965559999545803,
+      "rows": 369,
+      "scored_points": {
+        "chronos_alt_residual": 72,
+        "chronos_actuator_std_residual": 72
+      }
+    },
+    {
+      "source_id": "2019-01-22/07_22_12",
+      "wall_seconds": 0.22210910000285367,
+      "rows": 1193,
+      "scored_points": {
+        "chronos_alt_residual": 121,
+        "chronos_actuator_std_residual": 119
+      }
+    },
+    {
+      "source_id": "2019-01-22/07_24_25",
+      "wall_seconds": 0.3343867000003229,
+      "rows": 1867,
+      "scored_points": {
+        "chronos_alt_residual": 189,
+        "chronos_actuator_std_residual": 188
+      }
+    },
+    {
+      "source_id": "2019-01-22/07_33_37",
+      "wall_seconds": 0.4969889999993029,
+      "rows": 2646,
+      "scored_points": {
+        "chronos_alt_residual": 268,
+        "chronos_actuator_std_residual": 268
+      }
+    },
+    {
+      "source_id": "2019-01-22/07_42_25",
+      "wall_seconds": 0.545586700005515,
+      "rows": 2605,
+      "scored_points": {
+        "chronos_alt_residual": 264,
+        "chronos_actuator_std_residual": 264
+      }
+    },
+    {
+      "source_id": "2019-01-22/07_51_08",
+      "wall_seconds": 0.40964050000184216,
+      "rows": 2138,
+      "scored_points": {
+        "chronos_alt_residual": 217,
+        "chronos_actuator_std_residual": 217
+      }
+    },
+    {
+      "source_id": "2019-01-25/16_38_11",
+      "wall_seconds": 0.11960910000198055,
+      "rows": 463,
+      "scored_points": {
+        "chronos_alt_residual": 91,
+        "chronos_actuator_std_residual": 91
+      }
+    },
+    {
+      "source_id": "2019-01-25/16_41_38",
+      "wall_seconds": 0.16508069999690633,
+      "rows": 551,
+      "scored_points": {
+        "chronos_alt_residual": 109,
+        "chronos_actuator_std_residual": 108
+      }
+    },
+    {
+      "source_id": "2019-01-25/16_45_32",
+      "wall_seconds": 0.14283910000085598,
+      "rows": 514,
+      "scored_points": {
+        "chronos_alt_residual": 101,
+        "chronos_actuator_std_residual": 100
+      }
+    },
+    {
+      "source_id": "2019-01-25/16_50_43",
+      "wall_seconds": 0.11670109999977285,
+      "rows": 605,
+      "scored_points": {
+        "chronos_alt_residual": 61,
+        "chronos_actuator_std_residual": 60
+      }
+    },
+    {
+      "source_id": "2019-01-25/17_03_27",
+      "wall_seconds": 1.261392700005672,
+      "rows": 6908,
+      "scored_points": {
+        "chronos_alt_residual": 702,
+        "chronos_actuator_std_residual": 700
+      }
+    },
+    {
+      "source_id": "2019-01-25/17_19_25",
+      "wall_seconds": 0.27960129999701167,
+      "rows": 1441,
+      "scored_points": {
+        "chronos_alt_residual": 146,
+        "chronos_actuator_std_residual": 142
+      }
+    },
+    {
+      "source_id": "2019-01-25/17_29_58",
+      "wall_seconds": 0.3161598000006052,
+      "rows": 1718,
+      "scored_points": {
+        "chronos_alt_residual": 174,
+        "chronos_actuator_std_residual": 172
+      }
+    },
+    {
+      "source_id": "2019-02-01/17_42_55",
+      "wall_seconds": 0.559103600004164,
+      "rows": 3084,
+      "scored_points": {
+        "chronos_alt_residual": 313,
+        "chronos_actuator_std_residual": 313
+      }
+    },
+    {
+      "source_id": "2019-02-01/18_35_27",
+      "wall_seconds": 0.2892573999997694,
+      "rows": 1630,
+      "scored_points": {
+        "chronos_alt_residual": 165,
+        "chronos_actuator_std_residual": 165
+      }
+    },
+    {
+      "source_id": "2019-02-05/11_01_09",
+      "wall_seconds": 0.27234519999910844,
+      "rows": 1354,
+      "scored_points": {
+        "chronos_alt_residual": 137,
+        "chronos_actuator_std_residual": 137
+      }
+    },
+    {
+      "source_id": "2019-02-06/07_57_05",
+      "wall_seconds": 0.08167649999813875,
+      "rows": 485,
+      "scored_points": {
+        "chronos_alt_residual": 49,
+        "chronos_actuator_std_residual": 48
+      }
+    },
+    {
+      "source_id": "2019-02-15/08_29_18",
+      "wall_seconds": 0.32778829999733716,
+      "rows": 1750,
+      "scored_points": {
+        "chronos_alt_residual": 177,
+        "chronos_actuator_std_residual": 177
+      }
+    },
+    {
+      "source_id": "2019-02-15/09_15_54",
+      "wall_seconds": 0.11622630000056233,
+      "rows": 576,
+      "scored_points": {
+        "chronos_alt_residual": 58,
+        "chronos_actuator_std_residual": 57
+      }
+    },
+    {
+      "source_id": "2019-02-26/08_17_55",
+      "wall_seconds": 0.37285890000202926,
+      "rows": 1921,
+      "scored_points": {
+        "chronos_alt_residual": 195,
+        "chronos_actuator_std_residual": 195
+      }
+    },
+    {
+      "source_id": "2019-03-01/07_36_24",
+      "wall_seconds": 0.4279489000036847,
+      "rows": 2293,
+      "scored_points": {
+        "chronos_alt_residual": 232,
+        "chronos_actuator_std_residual": 232
+      }
+    },
+    {
+      "source_id": "2019-03-04/08_07_05",
+      "wall_seconds": 0.2019343000065419,
+      "rows": 1097,
+      "scored_points": {
+        "chronos_alt_residual": 111,
+        "chronos_actuator_std_residual": 108
+      }
+    },
+    {
+      "source_id": "2019-03-04/08_10_05",
+      "wall_seconds": 0.2856238000022131,
+      "rows": 1577,
+      "scored_points": {
+        "chronos_alt_residual": 160,
+        "chronos_actuator_std_residual": 159
+      }
+    },
+    {
+      "source_id": "2019-03-04/08_14_41",
+      "wall_seconds": 0.2531853999971645,
+      "rows": 1315,
+      "scored_points": {
+        "chronos_alt_residual": 133,
+        "chronos_actuator_std_residual": 132
+      }
+    },
+    {
+      "source_id": "2019-03-04/08_18_44",
+      "wall_seconds": 0.209475100004056,
+      "rows": 1176,
+      "scored_points": {
+        "chronos_alt_residual": 119,
+        "chronos_actuator_std_residual": 118
+      }
+    },
+    {
+      "source_id": "2019-03-04/08_23_15",
+      "wall_seconds": 0.2259092000022065,
+      "rows": 1248,
+      "scored_points": {
+        "chronos_alt_residual": 126,
+        "chronos_actuator_std_residual": 125
+      }
+    },
+    {
+      "source_id": "2019-03-04/08_28_37",
+      "wall_seconds": 0.11869320000550942,
+      "rows": 577,
+      "scored_points": {
+        "chronos_alt_residual": 58,
+        "chronos_actuator_std_residual": 57
+      }
+    },
+    {
+      "source_id": "2019-03-04/08_31_08",
+      "wall_seconds": 0.14221010000619572,
+      "rows": 718,
+      "scored_points": {
+        "chronos_alt_residual": 72,
+        "chronos_actuator_std_residual": 71
+      }
+    },
+    {
+      "source_id": "2019-03-04/08_33_41",
+      "wall_seconds": 0.20719580000150017,
+      "rows": 1122,
+      "scored_points": {
+        "chronos_alt_residual": 113,
+        "chronos_actuator_std_residual": 113
+      }
+    },
+    {
+      "source_id": "2019-03-04/08_36_56",
+      "wall_seconds": 0.09134569999878295,
+      "rows": 515,
+      "scored_points": {
+        "chronos_alt_residual": 52,
+        "chronos_actuator_std_residual": 52
+      }
+    },
+    {
+      "source_id": "2019-03-04/08_38_53",
+      "wall_seconds": 0.1633265999989817,
+      "rows": 764,
+      "scored_points": {
+        "chronos_alt_residual": 77,
+        "chronos_actuator_std_residual": 77
+      }
+    },
+    {
+      "source_id": "2019-03-04/08_41_17",
+      "wall_seconds": 0.18614560000423808,
+      "rows": 1025,
+      "scored_points": {
+        "chronos_alt_residual": 104,
+        "chronos_actuator_std_residual": 103
+      }
+    },
+    {
+      "source_id": "2019-03-04/08_44_55",
+      "wall_seconds": 0.100065500002529,
+      "rows": 550,
+      "scored_points": {
+        "chronos_alt_residual": 55,
+        "chronos_actuator_std_residual": 55
+      }
+    },
+    {
+      "source_id": "2019-03-11/07_38_50",
+      "wall_seconds": 0.32788609999988694,
+      "rows": 1736,
+      "scored_points": {
+        "chronos_alt_residual": 176,
+        "chronos_actuator_std_residual": 176
+      }
+    },
+    {
+      "source_id": "2019-03-12/07_45_43",
+      "wall_seconds": 0.2942230000044219,
+      "rows": 1681,
+      "scored_points": {
+        "chronos_alt_residual": 170,
+        "chronos_actuator_std_residual": 170
+      }
+    },
+    {
+      "source_id": "2019-03-15/11_05_20",
+      "wall_seconds": 0.29557260000001406,
+      "rows": 1549,
+      "scored_points": {
+        "chronos_alt_residual": 157,
+        "chronos_actuator_std_residual": 155
+      }
+    },
+    {
+      "source_id": "2019-03-15/11_14_48",
+      "wall_seconds": 0.19793729999946663,
+      "rows": 1077,
+      "scored_points": {
+        "chronos_alt_residual": 109,
+        "chronos_actuator_std_residual": 108
+      }
+    },
+    {
+      "source_id": "2019-03-15/11_19_19",
+      "wall_seconds": 0.27058470000338275,
+      "rows": 1298,
+      "scored_points": {
+        "chronos_alt_residual": 131,
+        "chronos_actuator_std_residual": 131
+      }
+    },
+    {
+      "source_id": "2019-03-15/11_26_05",
+      "wall_seconds": 0.2730872000029194,
+      "rows": 1407,
+      "scored_points": {
+        "chronos_alt_residual": 142,
+        "chronos_actuator_std_residual": 142
+      }
+    },
+    {
+      "source_id": "2019-03-22/07_46_23",
+      "wall_seconds": 0.3208412000021781,
+      "rows": 1795,
+      "scored_points": {
+        "chronos_alt_residual": 182,
+        "chronos_actuator_std_residual": 182
+      }
+    },
+    {
+      "source_id": "2019-05-21/07_40_35",
+      "wall_seconds": 0.21493300000292948,
+      "rows": 1159,
+      "scored_points": {
+        "chronos_alt_residual": 117,
+        "chronos_actuator_std_residual": 117
+      }
+    },
+    {
+      "source_id": "2019-05-21/07_54_18",
+      "wall_seconds": 0.3153403000032995,
+      "rows": 1788,
+      "scored_points": {
+        "chronos_alt_residual": 181,
+        "chronos_actuator_std_residual": 181
+      }
+    },
+    {
+      "source_id": "2019-05-21/08_04_49",
+      "wall_seconds": 0.21720660000573844,
+      "rows": 1216,
+      "scored_points": {
+        "chronos_alt_residual": 123,
+        "chronos_actuator_std_residual": 123
+      }
+    },
+    {
+      "source_id": "2019-05-21/08_22_58",
+      "wall_seconds": 0.20641130000149133,
+      "rows": 1144,
+      "scored_points": {
+        "chronos_alt_residual": 116,
+        "chronos_actuator_std_residual": 116
+      }
+    },
+    {
+      "source_id": "2019-12-02/09_40_27",
+      "wall_seconds": 0.23383809999359073,
+      "rows": 1278,
+      "scored_points": {
+        "chronos_alt_residual": 129,
+        "chronos_actuator_std_residual": 129
+      }
+    },
+    {
+      "source_id": "2021-10-06--/11_54_32",
+      "wall_seconds": 0.18789660000038566,
+      "rows": 929,
+      "scored_points": {
+        "chronos_alt_residual": 97,
+        "chronos_actuator_std_residual": 97
+      }
+    },
+    {
+      "source_id": "2021-10-07_pid--/log_0_2021-10-1-17-16-16",
+      "wall_seconds": 0.07480319999740459,
+      "rows": 425,
+      "scored_points": {
+        "chronos_alt_residual": 44,
+        "chronos_actuator_std_residual": 44
+      }
+    },
+    {
+      "source_id": "2021-10-07_pid--/log_1_2021-10-1-17-28-54",
+      "wall_seconds": 0.07430109999404522,
+      "rows": 456,
+      "scored_points": {
+        "chronos_alt_residual": 46,
+        "chronos_actuator_std_residual": 46
+      }
+    },
+    {
+      "source_id": "2021-10-07_pid--/log_3_2021-10-1-16-15-52",
+      "wall_seconds": 0.04860599999665283,
+      "rows": 317,
+      "scored_points": {
+        "chronos_alt_residual": 33,
+        "chronos_actuator_std_residual": 33
+      }
+    },
+    {
+      "source_id": "2023-08/2021-10-04/01_39_47",
+      "wall_seconds": 0.1025149999986752,
+      "rows": 578,
+      "scored_points": {
+        "chronos_alt_residual": 58,
+        "chronos_actuator_std_residual": 58
+      }
+    },
+    {
+      "source_id": "2023-08/2022-09-06/14_15_05",
+      "wall_seconds": 0.08234619999711867,
+      "rows": 457,
+      "scored_points": {
+        "chronos_alt_residual": 46,
+        "chronos_actuator_std_residual": 46
+      }
+    },
+    {
+      "source_id": "2023-08/sess006/log001",
+      "wall_seconds": 0.16647079999529524,
+      "rows": 783,
+      "scored_points": {
+        "chronos_alt_residual": 79,
+        "chronos_actuator_std_residual": 78
+      }
+    },
+    {
+      "source_id": "2023-08/sess074/log001",
+      "wall_seconds": 0.16660560000309488,
+      "rows": 841,
+      "scored_points": {
+        "chronos_alt_residual": 85,
+        "chronos_actuator_std_residual": 85
+      }
+    },
+    {
+      "source_id": "log_13_2021-10-3-16-05-24",
+      "wall_seconds": 0.1469518000012613,
+      "rows": 693,
+      "scored_points": {
+        "chronos_alt_residual": 70,
+        "chronos_actuator_std_residual": 70
+      }
+    },
+    {
+      "source_id": "log_31_2021-10-4-10-51-44",
+      "wall_seconds": 0.23359959999652347,
+      "rows": 1116,
+      "scored_points": {
+        "chronos_alt_residual": 113,
+        "chronos_actuator_std_residual": 113
+      }
+    }
+  ]
+}
