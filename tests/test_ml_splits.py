@@ -3,6 +3,7 @@ import pytest
 
 from src.ml.data.scaling import apply_scaler_params, fit_scaler_params
 from src.ml.data.splits import (
+    add_supervised_splits,
     assert_no_flight_overlap,
     build_split_manifest,
     flight_label_table,
@@ -74,6 +75,25 @@ def test_build_split_manifest_has_seeds_and_lofo():
     assert len(entry["lofo"]) == 10  # 10 normal ucus; mixed anomalili, fold degil
     for split in entry["splits"].values():
         assert_no_flight_overlap(split)
+
+
+def test_supervised_splits_have_both_classes_and_exclude_holdout():
+    manifest = build_split_manifest({"alfa": _flights_df()})
+    holdout = "fault_0"
+    for split in manifest["sources"]["alfa"]["splits"].values():
+        split["final_holdout"] = [holdout]
+        split["final_holdout_anomalous"] = [holdout]
+        split["development_anomalous"] = [f"fault_{i}" for i in range(1, 4)] + ["mixed"]
+    extended = add_supervised_splits(manifest, sources=("alfa",))
+
+    for split in extended["sources"]["alfa"]["supervised_splits"].values():
+        assert holdout not in split["train"] + split["val"] + split["test"]
+        for part in ("train", "val", "test"):
+            assert split[f"{part}_normal"]
+            assert split[f"{part}_anomalous"]
+        assert not set(split["train"]) & set(split["val"])
+        assert not set(split["train"]) & set(split["test"])
+        assert not set(split["val"]) & set(split["test"])
 
 
 def test_scaler_fit_on_train_only_and_constant_column_safe():

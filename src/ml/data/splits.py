@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import logging
+from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -277,6 +278,81 @@ def write_manifest(manifest: dict, path: str | Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
     logger.info("Split manifest yazildi: %s", path)
+
+
+def _partition_supervised_groups(groups: list[str], *, seed: int) -> tuple[set[str], set[str], set[str]]:
+    """Deterministically partition one label stratum 60/20/20 by group."""
+
+    if len(groups) < 3:
+        raise ValueError("Supervised train/val/test icin her sinifta en az 3 grup gerekli")
+    order = np.asarray(sorted(groups), dtype=object)
+    np.random.default_rng(seed).shuffle(order)
+    n_test = max(1, round(len(order) * 0.20))
+    n_val = max(1, round(len(order) * 0.20))
+    if n_test + n_val >= len(order):
+        n_test = n_val = 1
+    test = set(order[:n_test].tolist())
+    val = set(order[n_test:n_test + n_val].tolist())
+    train = set(order[n_test + n_val:].tolist())
+    return train, val, test
+
+
+def add_supervised_splits(manifest: dict, *, sources: tuple[str, ...] = ("alfa", "uav_sead")) -> dict:
+    """Add ML-8A binary supervised folds without changing novelty folds.
+
+    The original manifest was intentionally normal-only for novelty detection,
+    so it cannot train a supervised classifier.  ML-8A folds partition normal
+    and anomalous development groups separately, preserve session isolation,
+    and exclude the fixed final holdout and exploration sets completely.
+    """
+
+    out = deepcopy(manifest)
+    for source in sources:
+        config = out["sources"][source]
+        labels: dict[str, str] = config["flight_labels"]
+        reference = config["splits"]["split_00"]
+        final_holdout = set(reference.get("final_holdout", []))
+        exploration = set(reference.get("exploration", []))
+        development = set(labels) - final_holdout - exploration
+        group_of = session_of if config.get("split_unit") == "session" else (lambda value: value)
+
+        anomalous_groups = {
+            group_of(sid) for sid in development if labels[sid] not in NORMAL_LABELS
+        }
+        all_groups = {group_of(sid) for sid in development}
+        normal_only_groups = all_groups - anomalous_groups
+
+        folds: dict[str, dict] = {}
+        for seed in range(int(out.get("n_seeds", N_SEEDS))):
+            an_train, an_val, an_test = _partition_supervised_groups(
+                sorted(anomalous_groups), seed=seed
+            )
+            no_train, no_val, no_test = _partition_supervised_groups(
+                sorted(normal_only_groups), seed=10_000 + seed
+            )
+            group_sets = {
+                "train": an_train | no_train,
+                "val": an_val | no_val,
+                "test": an_test | no_test,
+            }
+            fold: dict[str, object] = {
+                "seed": seed,
+                "split_unit": config.get("split_unit", "source_id"),
+                "policy": "stratified 60/20/20 development groups; final_holdout excluded",
+                "final_holdout": sorted(final_holdout),
+            }
+            for part, groups in group_sets.items():
+                ids = sorted(sid for sid in development if group_of(sid) in groups)
+                fold[part] = ids
+                fold[f"{part}_normal"] = sorted(sid for sid in ids if labels[sid] in NORMAL_LABELS)
+                fold[f"{part}_anomalous"] = sorted(sid for sid in ids if labels[sid] not in NORMAL_LABELS)
+            folds[f"split_{seed:02d}"] = fold
+        config["supervised_splits"] = folds
+        config["supervised_split_note"] = (
+            "ML-8A override: original splits are normal-only novelty folds; "
+            "these folds are group-isolated and never include final_holdout."
+        )
+    return out
 
 
 def assert_no_flight_overlap(split: dict) -> None:
