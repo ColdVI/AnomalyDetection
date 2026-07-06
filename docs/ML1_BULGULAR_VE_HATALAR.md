@@ -299,6 +299,44 @@ GEÇTİ, fakat yeni LightGBM için ve SEAD'de KALDI. Blind holdout açılmadı. 
 90'ar matris satırı `artifacts/ml8a/<source>/full_matrix_gapfix/metrics.json` altındadır;
 önceki `full_matrix/` çıktıları telemetry-gap payda hatası nedeniyle superseded'dır.
 
+## ML-9 sonuçları — kategori-eşleşmeli residual'lar (2026-07-06)
+
+**Ne denedik:** SEAD Silver'a pooled EKF innovation'ları silmeden dikey hız/irtifa innovation'ları
+ve 16 `actuator_outputs` kanalı eklendi. Gerçek development verisindeki 15 mechanical + 15 normal
+uçuş denetiminde kullanılmayan kanalların uçuş-içi std'si 0, aktif kanalların std'si >10 PWM idi;
+aktiflik eşiği 1 PWM seçildi. Gelecek bilgisiyle kanal seçmemek için aktiflik tüm uçuş std'siyle
+değil, geçmişe-bakan expanding std ile açıldı. Rolling/CUSUM prefix-invariance hem sentetik hem gerçek
+uçuş prefix'inde geçti. Mevcut threshold/K-of-N/bootstrap-CUSUM kodu değiştirilmeden import edildi.
+
+- **H19 — Kategori-eşleşmesi yönsel sinyal verdi ama Gate B büyüklük/kararlılık şartını geçmedi.**
+  Gate B kuralı sonuç görülmeden önce aynı policy+bütçede ortalama recall kazancı >=0.05 ve en az
+  3/5 seed'de pozitif kazanç olarak donduruldu. `Position.Z` için dikey modül CUSUM/advisory'de
+  **0.096**, pooled EKF **0.074** recall verdi (+0.021; 4/5 seed): yön tutarlı, etki yetersizdi.
+  Threshold/advisory kazancı da yalnız +0.034'tü. `Actuator Outputs+Controls` için motor-simetri
+  CUSUM/advisory **0.205**, mevcut kontrol-cevabı **0.180** verdi (+0.024; 2/5 seed). Kritik
+  CUSUM'da +0.054 görünse de yalnız 1/5 seed pozitif olduğundan genellenebilir kabul edilmedi.
+  **Gate B KALDI.**
+- **H20 — Yeni modüller fusion skorunu operasyonel bütçeye taşımadı (Gate C KALDI).** ML9 fusion
+  CUSUM/advisory seed ortalaması **0.222 onset recall / 25.83 FA-saat**, kritik **0.139 / 14.49**
+  oldu; her ikisi de FA bütçesini aştı. Bütçe içinde kalan K-of-N/advisory **3.40 FA-saat** verdi
+  ama recall yalnız **0.017** idi. Mevcut fusion CUSUM/advisory **0.212 / 23.63** olduğundan yeni
+  feature'lar toplam recall'ı yalnız ~0.011 artırıp FA'yı da yükseltti. Kritik/advisory hedefini
+  karşılayan satır yoktur; blind holdout kapalı kaldı.
+- **H21 — Plan sayıları ile frozen gerçek artifact arasında veri-sürümü farkı var.** ML9 planı
+  412 uçuş/76 holdout yazsa da çalıştırma anındaki mevcut manifest ve yeniden üretilen gerçek veri
+  **611 işlenebilir uçuş/131 holdout** içeriyordu (labels.json'da 612 kayıt; telemetry tablosunda 611).
+  §6 gereği yeni split üretilmedi; mevcut manifest byte-byte korundu (SHA-256
+  `0e3047b3abc11d09bc5b2b94e35cca117efce8fa49fdc37393c146550b8d0f0d`). Development matrisinde
+  `Position.Z` n=113 event, `Actuator Outputs+Controls` n=41 eventtir. `Actuator Thrust`, `Battery`
+  ve `Velocity` yalnız n=2 olduğundan raporlanır ama genelleme iddiası yapılmaz; bunlara özel feature
+  eklenmedi.
+
+**Gate kararı:** Gate A GEÇTİ; Gate B ve Gate C KALDI. `PX4_ML9_CANDIDATE_MODULES` aday olarak
+kalır, default/production modüllerine alınmaz. Threshold/K/N/CUSUM sonucu görerek genişletilmez,
+motor eşiği yeniden ayarlanmaz, nadir mechanical alt-tipleri modellenmez ve holdout açılmaz. Planın
+talimatıyla sıradaki araştırma ML-10 forecast-residual/foundation-model pilotudur; bu fazda başlatılmadı.
+Nihai checksum'lu 5-seed artifact: `artifacts/ml9/uav_sead/full_matrix/` (65 kayıtlı dosya).
+
 ## ML-2/ML-3'e devredilen iş listesi
 
 | # | İş | Adres |

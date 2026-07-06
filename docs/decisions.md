@@ -234,3 +234,33 @@ kontrolleridir:
 
 Sabit reçeteyle önceden planlanmış ALFA koşusu, aile/fault kırılımları ve raporlama bu kapsama
 girmez: bunlar sonucu kurtarmak için model değiştirme değil, aynı deney protokolünü tamamlamadır.
+
+## ADR-009: ML-9 Gate A geçti; kategori residual'ları development'ta reddedildi
+
+- Durum: Development rejected
+- Tarih: 2026-07-06
+
+SEAD parser ve feature katmanına geriye uyumlu olarak `ekf_alt_innov`,
+`ekf_vertical_vel_innov` ve actuator-output simetri residual'ları eklendi. Aktif motor kanalı eşiği
+30 development uçuşundaki gerçek dağılımdan 1 PWM seçildi; expanding aktiflik, rolling ve CUSUM
+prefix-invariance testlerinden geçti. Scaler her seed'in yalnız normal train uçuşlarında, feature
+CUSUM baseline'ı frozen split_00 normal train'de fit edildi. Karar katmanları ML-8A modülünden
+değiştirilmeden kullanıldı. **Gate A geçti.**
+
+Mevcut frozen manifest plan metnindeki eski 412/76 sayısından farklı olarak 611 işlenebilir uçuş ve
+131 blind holdout içeriyordu. Yeni split üretilmedi veya manifest yeniden yazılmadı; SHA-256
+`0e3047b3abc11d09bc5b2b94e35cca117efce8fa49fdc37393c146550b8d0f0d` kaldı. Holdout telemetry,
+feature veya skor akışına alınmadı.
+
+5 seed'de dikey modül `Position.Z` CUSUM/advisory recall'ını pooled EKF'ye göre 0.074'ten 0.096'ya,
+motor-simetri modülü `Actuator Outputs+Controls` recall'ını kontrol-cevabına göre 0.180'den 0.205'e
+çıkardı; kazançlar önceden dondurulan >=0.05 ve >=3/5 seed kararlılık kuralını birlikte sağlamadı.
+**Gate B kaldı.** ML9 fusion CUSUM/advisory 0.222 recall / 25.83 FA-saat, kritik 0.139 / 14.49
+verdi; hiçbir policy kritik/advisory fayda+FA hedefini karşılamadı. **Gate C kaldı.** Aday modüller
+default'a alınmaz ve blind holdout kapalı kalır.
+
+Sonuç görüldükten sonra motor aktiflik eşiği, feature listesi, IF parametreleri veya karar policy
+grid'i değiştirilmez; bunlar mevcut development testine sonucu kurtarma amaçlı uyum olurdu. Nadir
+Battery/Vibration/Magnetometer alt-tipleri modellenmez. Yeniden açılma ancak ayrı ML-10 hipotezi,
+önceden yazılmış kabul ölçütleri ve yeni development protokolüyle mümkündür. Nihai artifact
+`artifacts/ml9/uav_sead/full_matrix/` altındadır; manifest 65 dosyanın checksum'ını taşır.
