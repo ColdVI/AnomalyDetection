@@ -87,7 +87,15 @@ individual/metehan_geo/
 ├── viz.py              # Bolum 5, Adim 7-8 (GeoJSON export, Folium DEGIL -- bkz 5.1)
 ├── viz/
 │   ├── index.html        # MapLibre GL JS vanilla viewer (CDN, build gerektirmez)
-│   └── data/              # viz.py'nin urettigi *.geojson dosyalari
+│   └── data/              # *.geojson (viz.py/build_flight_density.py/build_heatmap_points.py/
+│                          # build_mlat_layer.py ciktilari) -- GIT'TE TUTULMUYOR (2026-07-07,
+│                          # bkz. .gitignore "data/*.geojson"). En buyugu (density_flights_res5.geojson)
+│                          # ~109MB, GitHub'in 100MB sert limitini asiyordu. Lokalde uretmek icin:
+│                          #   python -m individual.metehan_geo.main
+│                          #   python -m individual.metehan_geo.build_flight_density
+│                          #   python -m individual.metehan_geo.build_heatmap_points
+│                          #   python -m individual.metehan_geo.build_mlat_layer
+│                          # (hepsi MinIO Gold'a erisim gerektirir, sirayla ~1-1.5 saat surer)
 ├── clustering.py        # Bolum 5, Adim 9-13
 ├── routes.py             # Bolum 6 (rota sapmasi tespiti)
 ├── build_baseline.py     # Bolum 6, tek seferlik baseline kurulumu
@@ -136,17 +144,32 @@ JS, CDN'den MapLibre GL JS) bu dosyaları `fetch()` ile okuyup çizer.
   H3 yoğunluk katmanı ve rota çizgileri `style.load` event'ine bağlı bir
   fonksiyon olarak yazılmalı, her stil değişiminde yeniden eklenmeli.
 
-**Çoklu-çözünürlük H3 (zoom'a göre hex-içinde-hex, 2026-07-07 eklendi):**
-Tek çözünürlük (5) yerine 3 kademe (`res3`/`res4`/`res5`) üretiliyor —
-`res3`/`res4`, `res5`'in 243.835 hex'lik tablosundan `h3.cell_to_parent()`
-ile **ucretsiz türetiliyor** (1 milyar satırı tekrar taramadan, sadece
-küçük agregat tablo üzerinde çalışıyor). `index.html`'de `zoomend`
-event'inde hangi kademenin gösterileceği belirlenip `source.setData()`
-ile katman içeriği değiştiriliyor (kaynak/katman yeniden oluşturulmuyor,
-sadece verisi). Daha ince çözünürlük (6+) istenirse bu iki dosyadan
-türetilemez — ham veriyi (1 milyar satır) tekrar taramak gerekir, ayrıca
-görüş alanına (viewport) göre parçalama olmadan dosya boyutu çok büyür;
-bu ileride ayrı bir karar.
+**Çoklu-çözünürlük H3 — denendi, sonra TERK EDİLDİ (2026-07-07):**
+İlk denemede tek çözünürlük (5) yerine 3 kademe (`res3`/`res4`/`res5`,
+zoom'a göre `source.setData()` ile geçiş) kuruldu. `?forceRes=5` debug
+parametresiyle test edilince (düzeltilmiş `flight_count` + log-scale ile)
+res5'in dünya zoom'unda bile yeterince ayırt edici kaldığı görüldü —
+kullanıcı kademe sistemini tamamen bırakıp **her zoom seviyesinde sadece
+res5** kullanmaya karar verdi (`index.html`'de `METRICS` artık tek dosya:
+`density_flights_res5.geojson` / `density_res5.geojson`, zoom-bağımlı
+kademe/`pickResolutionTier`/debounce kodu kaldırıldı). `density_res3/4*`
+dosyaları diskte duruyor (referans/gelecekte lazım olursa), ama frontend
+artık onları kullanmıyor. Daha ince çözünürlük (6+) hâlâ ham veriyi (1
+milyar satır) tekrar taramayı gerektirir — bu ileride ayrı bir karar.
+
+**Heatmap "glow" modu + Minimal Koyu taban (2026-07-07 eklendi):** Hexagon
+dolgu moduna alternatif olarak MapLibre'nin native `heatmap` layer'ı eklendi
+(`build_heatmap_points.py`, hex merkezleri + weight=metrik). İlk denemede
+taban harita olarak NASA Black Marble (foto-gerçekçi gece ışıkları)
+kullanıldı ama kullanıcı geri bildirdi: foto + heatmap kombinasyonu "resmin
+üstüne yapıştırılmış filtre" gibi durdu, marksblogg'un kendi QGIS render'ı
+gibi entegre görünmedi. **Black Marble kaldırıldı**, yerine sadece ülke
+sınırları içeren düz/minimal koyu bir taban (`MINIMAL_DARK_STYLE`, Natural
+Earth 110m sınırları) varsayılan yapıldı — heatmap kendi ışığını "boşluğa"
+yayıyor, foto dokusuyla rekabet etmiyor. Ayrıca heatmap tek katman yerine
+**iki katman** oldu: geniş/yumuşak "glow" (hale) + dar/parlak "core"
+(çekirdek) — matplotlib "magma" colormap'ine yakın renklerle gerçek bir
+bloom/ışık-patlaması hissi veriyor.
 
 **MLAT kapsama katmanı (2026-07-07 eklendi):** `build_mlat_layer.py`,
 Silver'daki `ads_source_type` alanını kullanarak (bkz. Bölüm 2 istisnası)
@@ -202,6 +225,34 @@ yapıp sonucu bir `collections.Counter`'da biriktirir (benzersiz hex sayısı
 -- resolution'a göre birkaç bin ile birkaç milyon arası -- rahatça bellekte
 tutulabilir, çünkü toplam SATIR sayısı değil toplam benzersiz HEX sayısı bu.
 Sonunda `Counter`'ı `pd.DataFrame(..., columns=["h3_cell","point_count"])`'e çevirip döner.
+
+**ÖNEMLİ METODOLOJİK DÜZELTME (2026-07-07, kullanıcı buldu):** `point_count`
+(ham trace nokta sayısı) **YANLIŞ metrik** — ADS-B saniyede birkaç kez pozisyon
+üretiyor, havaalanı/bekleme bölgesindeki yavaş bir uçak aynı hex'te onlarca
+nokta bırakırken cruise hızındaki bir uçak birkaç nokta bırakıyor. Bu "en sık
+kullanılan ROTA" sorusuna yanlış cevap veriyor (havaalanı çevresi yapay
+şişiyor). Gerçek veride bazı hex'lerde `point_count`/`flight_count` oranı
+**~4867'ye kadar çıktı**.
+
+Doğru metrik `flight_count` — `build_flight_density.py` (yeni script,
+`individual/metehan_geo/` altında) her hex için **benzersiz (source_id, date)**
+sayısını hesaplar (aynı uçağın aynı hex'teki tüm noktaları 1 sayılır). Ek
+metrik `day_count` — hex'in kaç farklı takvim gününde trafik gördüğü (11
+tar'ın rolling-history penceresi çakışmadığı için 11'den fazla olabilir, ör.
+res5'te medyan 9, maks 41) — "kalıcı koridor" ile "tek seferlik" ayrımı için.
+
+**Kritik uyarı — parent'a toplama flight_count için YANLIŞ:** `point_count`
+`h3.cell_to_parent()` ile üst çözünürlüğe toplanabilir (matematiksel olarak
+doğru, toplam nokta = alt hücrelerin toplamı). Ama `flight_count`'ta bu
+YANLIŞ — aynı uçak 3 farklı res5 hex'inden geçip hepsi aynı res4 ebeveynine
+bağlıysa, çocukları toplamak o uçağı 3 kez sayar. Bu yüzden `flight_count`/
+`day_count` **her resolution (3/4/5) için ayrı ayrı, doğrudan** hesaplandı —
+tek streaming geçişte (satır başına 3 kat `h3.latlng_to_cell` + dedup, ama 3
+ayrı 1-milyar-satır taramasından çok daha ucuz).
+
+`viz/index.html`'de iki metrik de mevcut (varsayılan: `flight`, düzeltilmiş
+metrik), kullanıcı dropdown'dan `point` (eski/ham) ile karşılaştırabiliyor;
+`day_count` için bir min-eşik slider'ı var (filtre olarak).
 
 ### 6.1 Kümeleme için örnekleme (yeni adım, 9'dan önce)
 
