@@ -1,0 +1,68 @@
+{
+  "stage": "ML-16 TabFM preflight",
+  "created_utc": "2026-07-07T14:42:54.882038+00:00",
+  "status": "failed",
+  "error": "preflight command timed out after 1804.1 seconds before producing the 1000-row timing artifact",
+  "package": "tabfm==1.0.0",
+  "package_version": "1.0.0",
+  "model_id": "google/tabfm-1.0.0-pytorch",
+  "target_channels": [
+    "actuator_output_std",
+    "hgt_test_ratio"
+  ],
+  "timed_target": "actuator_output_std",
+  "context_rows_available_after_target_filter": 87415,
+  "eval_rows_available_after_target_filter": 57909,
+  "requested_context_rows": 4096,
+  "requested_preflight_rows": 1000,
+  "n_context": 4096,
+  "seed": 0,
+  "family_exclusion": {
+    "actuator_output_std": [
+      "actuator_output_range",
+      "actuator_output_range_5s_max",
+      "actuator_output_range_5s_mean",
+      "actuator_output_range_cusum_pos",
+      "actuator_output_std",
+      "actuator_output_std_5s_max",
+      "actuator_output_std_5s_mean",
+      "actuator_output_std_cusum_pos"
+    ],
+    "hgt_test_ratio": [
+      "hgt_test_ratio",
+      "hgt_test_ratio_5s_max",
+      "hgt_test_ratio_5s_mean",
+      "hgt_test_ratio_cusum_pos"
+    ]
+  },
+  "predictor_count": 136,
+  "predictor_imputation": "train-normal median, then 0 for all-missing predictors",
+  "model_load_seconds": null,
+  "fit_seconds": null,
+  "predict_seconds": null,
+  "observed_timeout_seconds": 1804.1,
+  "prediction_shape": [],
+  "development_flights": 480,
+  "blind_holdout_read": false,
+  "blind_holdout_flights": 131,
+  "development_decision_rows": 58231,
+  "projection": {
+    "target_count": 2,
+    "projected_full_runtime_seconds": null,
+    "projected_full_runtime_hours": null,
+    "runtime_limit_hours": 3.0,
+    "under_3h_rule_passed": false,
+    "decision": "tabfm_not_feasible_in_this_environment",
+    "reason": "1000-row preflight did not complete within 30 minutes; full development cannot be certified under the fixed <3h rule"
+  },
+  "pytest_before_install": {
+    "command": ".venv\\Scripts\\python -m pytest -q -k \"not minio\" --basetemp tmp_pytest_ml16_preinstall",
+    "result": "196 passed, 22 deselected, 1 warning"
+  },
+  "pytest_after_install": {
+    "command": ".venv\\Scripts\\python -m pytest -q -k \"not minio\" --basetemp tmp_pytest_ml16_postinstall",
+    "result": "196 passed, 22 deselected, 1 warning"
+  },
+  "split_manifest_sha256": "0e3047b3abc11d09bc5b2b94e35cca117efce8fa49fdc37393c146550b8d0f0d",
+  "feature_table_sha256": "14c90f5f9a283982cec9e93e6e0fcf6a4c3811629ac8aff72f0a2bccc4d69b06"
+}
