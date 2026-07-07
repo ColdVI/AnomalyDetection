@@ -35,10 +35,11 @@
   </label>
   <div class="row">
     <button id="toggleFizikiBtn">Fiziki (hillshade) aç/kapa</button>
+    <button id="toggleGlobeBtn">2D / 3D Küre</button>
   </div>
   <div id="legend">
     Hex rengi: nokta yoğunluğu (açık sarı → düşük, koyu kırmızı → yüksek).
-    Sağ alttaki küre ikonu 2D/3D geçişi.
+    "2D / 3D Küre" butonu ile küre görünümüne geçilebilir.
   </div>
   <div id="status">density.geojson yükleniyor...</div>
 </div>
@@ -62,7 +63,19 @@ const map = new maplibregl.Map({
 });
 
 map.addControl(new maplibregl.NavigationControl(), "top-right");
-map.addControl(new maplibregl.GlobeControl(), "bottom-right");
+// NOT: maplibregl.GlobeControl (hazir buton) maplibre-gl 4.7.1'de YOK (5.x'te
+// eklendi) -- new maplibregl.GlobeControl() burada TypeError firlatiyordu ve
+// bu script bloğundaki SONRAKI HER SEY (style.load handler, fetch, butonlar)
+// hic calismiyordu. Kendi manuel toggle butonumuzu kullaniyoruz (asagida),
+// map.setProjection() 4.7.1'de zaten var, ekstra kontrol siniflarina gerek yok.
+let currentProjection = "mercator";
+
+// Sessizce patlayip "sonsuza kadar yukleniyor" gibi gorunmesin diye: JS
+// hatalarini status kutusuna da yazdir.
+window.addEventListener("error", (e) => {
+  const el = document.getElementById("status");
+  if (el) el.textContent = `JS hatasi: ${e.message}`;
+});
 
 // Performans kurali: ham nokta verisi degil, onceden agregat edilmis
 // density.geojson (h3_cell + point_count) fetch() ile ayri dosyadan yuklenir.
@@ -122,7 +135,7 @@ function addHillshadeLayer() {
 let cachedDensityGeoJSON = null;
 
 map.on("style.load", async () => {
-  map.setProjection({ type: "globe" });
+  map.setProjection({ type: currentProjection });
 
   if (!cachedDensityGeoJSON) {
     try {
@@ -136,6 +149,11 @@ map.on("style.load", async () => {
   }
   addDensityLayers(cachedDensityGeoJSON);
   if (hillshadeOn) addHillshadeLayer();
+});
+
+document.getElementById("toggleGlobeBtn").addEventListener("click", () => {
+  currentProjection = currentProjection === "mercator" ? "globe" : "mercator";
+  map.setProjection({ type: currentProjection });
 });
 
 document.getElementById("styleSelect").addEventListener("change", (e) => {
