@@ -139,10 +139,15 @@ TEXTS = {
         "tz_default_suffix": " (Türkiye)",
         "filter_civil_label": "Sivil",
         "filter_military_label": "Askeri",
+        "filter_ground_label": "Yerde",
         "field_military": "Askeri mi",
         "military_yes": "Evet",
         "military_no": "Hayır",
+        "field_ground": "Yerde mi",
+        "ground_yes": "Evet",
+        "ground_no": "Hayır",
         "tooltip_military_tag": "Askeri",
+        "tooltip_ground_tag": "Yerde",
         "map_style_label": "Harita Türü",
         "map_style_street": "Sokak",
         "map_style_satellite": "Uydu",
@@ -186,10 +191,15 @@ TEXTS = {
         "tz_default_suffix": " (Turkey)",
         "filter_civil_label": "Civilian",
         "filter_military_label": "Military",
+        "filter_ground_label": "Ground",
         "field_military": "Military",
         "military_yes": "Yes",
         "military_no": "No",
+        "field_ground": "On Ground",
+        "ground_yes": "Yes",
+        "ground_no": "No",
         "tooltip_military_tag": "Military",
+        "tooltip_ground_tag": "Ground",
         "map_style_label": "Map Style",
         "map_style_street": "Street",
         "map_style_satellite": "Satellite",
@@ -796,6 +806,12 @@ LANG_BTN_INACTIVE_STYLE = {**LANG_BTN_BASE_STYLE,
 DEFAULT_AIRCRAFT_COLOR = "#00b4d8"
 MILITARY_COLOR = "#8a9a5b"
 ALERT_COLOR = "#e63946"
+# ONEMLI: yerde/havada askeri-sivil ekseninden BAGIMSIZ, ayri bir boyut --
+# bir ucak ayni anda hem askeri hem yerde olabilir. Bu yuzden GROUND_COLOR
+# rengi DEGISTIRMEZ (oncelik hala alarm > askeri > sivil), sadece tooltip'e
+# "Yerde" etiketi ekler (bkz. update_map) -- ayri bir renk yerine filtre
+# butonunun kendisi (asagida) tarafsiz bir kum/toprak tonu kullanir.
+GROUND_COLOR = "#e0a458"
 
 # Sol-ust askeri/sivil filtre butonlari -- haritanin kendi zoom (+/-)
 # kontrolu de sol-ustte oldugu icin (Leaflet varsayilani, ~10px kenar
@@ -812,6 +828,9 @@ FILTER_BTN_CIVIL_ACTIVE_STYLE = {**FILTER_BTN_BASE_STYLE,
 FILTER_BTN_MILITARY_ACTIVE_STYLE = {**FILTER_BTN_BASE_STYLE,
     "backgroundColor": MILITARY_COLOR, "color": "#07070e",
     "border": f"1px solid {MILITARY_COLOR}"}
+FILTER_BTN_GROUND_ACTIVE_STYLE = {**FILTER_BTN_BASE_STYLE,
+    "backgroundColor": GROUND_COLOR, "color": "#07070e",
+    "border": f"1px solid {GROUND_COLOR}"}
 FILTER_BTN_INACTIVE_STYLE = {**FILTER_BTN_BASE_STYLE,
     "backgroundColor": "#161625", "color": "#888", "border": "1px solid #2a2a4a"}
 
@@ -872,9 +891,19 @@ app_dash.layout = html.Div(id="app-root", style={
                    style=FILTER_BTN_CIVIL_ACTIVE_STYLE),
         html.Button("Askeri", id="filter-military-btn", n_clicks=0,
                    style=FILTER_BTN_MILITARY_ACTIVE_STYLE),
+        # ONEMLI: varsayilan KAPALI (inactive) -- yerdeki ucaklar eskiden
+        # producer'da TAMAMEN atiliyordu (bkz. adsb_producer.py, is_ground
+        # notu), simdi Kafka'ya kadar geliyorlar ama haritada varsayilan
+        # olarak GIZLI kaliyor. Boylece bu ozellik eklenmeden onceki
+        # davranis (yerdeki ucaklar gorunmez) varsayilan olarak korunuyor,
+        # kalabalik havalimanlarinda haritayi aniden doldurmuyor -- kullanici
+        # isterse kendi acar.
+        html.Button("Yerde", id="filter-ground-btn", n_clicks=0,
+                   style=FILTER_BTN_INACTIVE_STYLE),
     ]),
     dcc.Store(id="show-civil", data=True),
     dcc.Store(id="show-military", data=True),
+    dcc.Store(id="show-ground", data=False),
 
     # ------------------------------------------- Durum cubugu (overlay) --
     html.Div(id="status", style={
@@ -1014,9 +1043,9 @@ app_dash.layout = html.Div(id="app-root", style={
     [Output("aircraft-geojson", "data"), Output("status", "children")],
     [Input("tick", "n_intervals"), Input("timezone-setting", "data"),
      Input("language-setting", "data"), Input("show-civil", "data"),
-     Input("show-military", "data")]
+     Input("show-military", "data"), Input("show-ground", "data")]
 )
-def update_map(n, tz_name, lang, show_civil, show_military):
+def update_map(n, tz_name, lang, show_civil, show_military, show_ground):
     tz = _resolve_tz(tz_name)
     t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
     cat_labels = CATEGORY_LABELS.get(lang, CATEGORY_LABELS[DEFAULT_LANGUAGE])
@@ -1039,9 +1068,18 @@ def update_map(n, tz_name, lang, show_civil, show_military):
     # elenmiyor. Biri kapatilinca o gruptaki ucaklar hem haritadan hem de
     # asagidaki "aktif ucus" sayacindan (status bar) dusuyor, cunku sayac
     # goruntulenen/secilebilir ucaklari yansitmali.
+    # ONEMLI: "Yerde" filtresi askeri/sivil ekseninden BAGIMSIZ -- bir ucak
+    # ayni anda hem askeri hem yerde olabilir. Bu yuzden IKI kosul AYRI AYRI
+    # uygulanir (VE ile): once askeri/sivil turune gore, sonra (sadece
+    # yerdeki ucaklara) yerde-gorunurlugune gore. Havadaki bir ucak
+    # show_ground'dan hic etkilenmez.
     def _passes_filter(f):
         is_mil = bool(f.get("is_military"))
-        return (show_military if is_mil else show_civil)
+        if not (show_military if is_mil else show_civil):
+            return False
+        if f.get("is_ground") and not show_ground:
+            return False
+        return True
 
     flights = [f for f in flights if _passes_filter(f)]
 
@@ -1066,6 +1104,8 @@ def update_map(n, tz_name, lang, show_civil, show_military):
             subtitle_parts.append(category_label)
         if is_military:
             subtitle_parts.append(t["tooltip_military_tag"])
+        if f.get("is_ground"):
+            subtitle_parts.append(t["tooltip_ground_tag"])
         subtitle = "  ·  ".join(subtitle_parts)
 
         # ONEMLI: adsb.lol/readsb, bir ucaktan mesaj kesilse bile onu 60
@@ -1346,6 +1386,7 @@ def update_base_tile_layer(style):
      Output("timezone-label", "children"), Output("language-label", "children"),
      Output("aircraft-info-title", "children"), Output("history-panel-title", "children"),
      Output("filter-civil-btn", "children"), Output("filter-military-btn", "children"),
+     Output("filter-ground-btn", "children"),
      Output("map-style-label", "children"), Output("map-style-street-btn", "children"),
      Output("map-style-satellite-btn", "children")],
     Input("language-setting", "data"),
@@ -1357,7 +1398,7 @@ def update_static_texts(lang):
     t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
     return (t["settings_title"], t["trace_hours_label"], t["timezone_label"],
             t["language_label"], t["aircraft_info_title"], t["history_panel_title"],
-            t["filter_civil_label"], t["filter_military_label"],
+            t["filter_civil_label"], t["filter_military_label"], t["filter_ground_label"],
             t["map_style_label"], t["map_style_street"], t["map_style_satellite"])
 
 
@@ -1382,6 +1423,16 @@ def toggle_show_military(n_clicks, current):
 
 
 @app_dash.callback(
+    Output("show-ground", "data"),
+    Input("filter-ground-btn", "n_clicks"),
+    State("show-ground", "data"),
+    prevent_initial_call=True,
+)
+def toggle_show_ground(n_clicks, current):
+    return not current
+
+
+@app_dash.callback(
     Output("filter-civil-btn", "style"),
     Input("show-civil", "data"),
 )
@@ -1396,6 +1447,14 @@ def style_civil_filter_btn(visible):
 )
 def style_military_filter_btn(visible):
     return FILTER_BTN_MILITARY_ACTIVE_STYLE if visible else FILTER_BTN_INACTIVE_STYLE
+
+
+@app_dash.callback(
+    Output("filter-ground-btn", "style"),
+    Input("show-ground", "data"),
+)
+def style_ground_filter_btn(visible):
+    return FILTER_BTN_GROUND_ACTIVE_STYLE if visible else FILTER_BTN_INACTIVE_STYLE
 
 
 @app_dash.callback(
@@ -1773,6 +1832,7 @@ def update_live_panel(n, icao24, tz_name, lang):
         (t["field_category"], category_label),
         (t["field_squawk"], squawk),
         (t["field_military"], t["military_yes"] if match.get("is_military") else t["military_no"]),
+        (t["field_ground"], t["ground_yes"] if match.get("is_ground") else t["ground_no"]),
         (t["field_last_update"], ts_display),
     ]
 

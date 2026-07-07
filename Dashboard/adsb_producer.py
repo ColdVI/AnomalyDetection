@@ -10,11 +10,11 @@ VERI KAYNAGI ADAPTORLERI -- yeni bir kaynak eklemek KOLAY:
   1) "fetch_all_<isim>(args) -> list[dict]" seklinde bir fonksiyon yaz.
      Donen HER dict, ASAGIDAKI ORTAK SEMAYA uymali (bkz. _normalize_common):
        icao24, callsign, lat, lon, alt, velocity, track, vertical_rate,
-       category, squawk, emergency, is_military, source, ts
+       category, squawk, emergency, is_military, is_ground, source, ts
      Kaynagin desteklemedigi alanlar icin makul varsayilan kullan:
      sayisal alanlar None, metin alanlari "", is_military False,
-     emergency "none". _normalize_common() bunu senin yerine yapar,
-     sadece elindeki degerleri ona ver.
+     is_ground False, emergency "none". _normalize_common() bunu senin
+     yerine yapar, sadece elindeki degerleri ona ver.
   2) Dosyanin sonundaki SOURCES sozlugune "isim": fetch_all_<isim> ekle.
   3) --source <isim> (veya DATA_SOURCE ortam degiskeni) ile sec.
 main() dongusu SOURCES disinda hicbir yerde kaynaga OZGU kod icermez --
@@ -62,7 +62,7 @@ DEFAULT_WORLD_RADIUS_NM = 12000
 
 def _normalize_common(icao24, callsign, lat, lon, alt_m, velocity_ms, track_deg,
                        vertical_rate_ms, category, squawk, emergency,
-                       is_military, source, signal_age_sec=None):
+                       is_military, source, is_ground=False, signal_age_sec=None):
     """Tum kaynaklarin USTUNDE birlestigi ortak sema. Her adaptor kendi
     ham verisini normalize etmek icin bunu cagirir -- main() ve
     downstream (Kafka -> consumer -> dashboard) sadece bu ciktiyi gorur,
@@ -89,6 +89,7 @@ def _normalize_common(icao24, callsign, lat, lon, alt_m, velocity_ms, track_deg,
         "squawk": squawk,
         "emergency": emergency,
         "is_military": is_military,
+        "is_ground": is_ground,
         "source": source,
         "signal_age_sec": signal_age_sec,
         "ts": datetime.now(timezone.utc).isoformat(),
@@ -157,9 +158,19 @@ def _fetch_adsblol_raw(lat, lon, radius_nm, max_retries=2, retry_delay=3):
 def _parse_adsblol_aircraft(ac: dict):
     lat = ac.get("lat")
     lon = ac.get("lon")
-    alt = ac.get("alt_baro", ac.get("alt_geom", 0))
-    if not lat or not lon or not alt or str(alt).lower() == "ground":
+    alt_raw = ac.get("alt_baro", ac.get("alt_geom", 0))
+    # ONEMLI (askeri/sivil filtresiyle AYNI desende, ayri bir eksen):
+    # adsb.lol, yerdeki (park/taksi) bir ucak icin "alt_baro" yerine
+    # DUZ METIN "ground" donduruyor -- eskiden bu durumda kaydi TAMAMEN
+    # ATIYORDUK (bkz. Dashboard/HANDOFF_UPDATE_2026-07-07.md Bolum 5,
+    # "adsb.lol'un 'total aircraft' sayisi bizden yuksek cikabilir" notu
+    # -- kok neden buydu). Artik ATMIYORUZ -- is_ground=True ile isaretleyip
+    # irtifayi 0 kabul ediyoruz, haritada gosterip gostermemek tamamen
+    # kullanicinin "Yerde" filtre butonuna (bkz. app.py) birakiliyor.
+    is_ground = (str(alt_raw).lower() == "ground")
+    if not lat or not lon or (not is_ground and not alt_raw):
         return None
+    alt = 0.0 if is_ground else alt_raw
     icao = ac.get("hex", "").strip().lower()
     if not icao:
         return None
@@ -206,7 +217,7 @@ def _parse_adsblol_aircraft(ac: dict):
         velocity_ms=velocity, track_deg=track, vertical_rate_ms=vertical_rate,
         category=ac.get("category", ""), squawk=ac.get("squawk", ""),
         emergency=ac.get("emergency", "none"), is_military=is_military,
-        source="adsblol",
+        source="adsblol", is_ground=is_ground,
         signal_age_sec=(float(signal_age) if signal_age is not None else None),
     )
 
@@ -263,7 +274,7 @@ def _parse_opensky_state(state):
     except (IndexError, TypeError):
         return None
 
-    if not icao24 or lat is None or lon is None or on_ground:
+    if not icao24 or lat is None or lon is None:
         return None
 
     # ONEMLI: adsb.lol'deki "seen" (saniye once) alaninin OpenSky
@@ -290,7 +301,7 @@ def _parse_opensky_state(state):
         category="",  # OpenSky kategori kodlari adsb.lol'unkiyle eslesmiyor
         squawk=squawk, emergency=OPENSKY_EMERGENCY_SQUAWKS.get(squawk, "none"),
         is_military=False,  # OpenSky bu bilgiyi vermiyor
-        source="opensky",
+        source="opensky", is_ground=bool(on_ground),
         signal_age_sec=round(signal_age, 1) if signal_age is not None else None,
     )
 

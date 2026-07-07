@@ -242,6 +242,7 @@ def main():
                     .field("lat", float(data.get("lat", 0.0)))
                     .field("lon", float(data.get("lon", 0.0)))
                     .field("alt", float(data.get("alt", 0.0)))
+                    .field("is_ground", bool(data.get("is_ground", False)))
                     .time(datetime.now(timezone.utc))
                 )
                 # ONEMLI: velocity/vertical_rate/track icin data.get(..., 0.0)
