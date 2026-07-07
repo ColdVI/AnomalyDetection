@@ -1,0 +1,10 @@
+INFO:__main__:Opening local tar: C:\Users\PC_6276\Desktop\datas\Adsb_historical\v2025.12.01-planes-readsb-prod-0.tar
+INFO:__main__:v2025.12.01-planes-readsb-prod-0.tar: 61399 trace member(s) found
+INFO:__main__:  Progress: 300/61399 members
+INFO:__main__:Silver part 00000: 446000 rows (total 446000 so far)
+INFO:__main__:  Progress: 600/61399 members
+INFO:__main__:Silver part 00001: 455314 rows (total 901314 so far)
+INFO:__main__:  Progress: 900/61399 members
+INFO:__main__:Silver part 00002: 461506 rows (total 1362820 so far)
+INFO:__main__:  Progress: 1200/61399 members
+INFO:__main__:Silver part 00003: 432192 rows (total 1795012 so far)

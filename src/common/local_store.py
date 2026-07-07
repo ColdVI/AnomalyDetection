@@ -5,7 +5,8 @@ process exits), this persists objects to real files under a base directory, so B
 Gold stay readable across separate commands (e.g. `make bronze-alfa` then `make silver-alfa`)
 without a running MinIO server. Selected via `STORAGE_BACKEND=local` (see .env.example) --
 `get_minio_client()` in `src.common.minio_io` returns this instead of a real `Minio` client.
-Implements exactly the `ObjectStoreClient` protocol surface.
+Implements exactly the `ObjectStoreClient` protocol surface (bucket_exists/make_bucket/
+put_object/list_objects/get_object/remove_object).
 """
 
 from __future__ import annotations
@@ -70,6 +71,10 @@ class LocalObjectStoreClient:
     def get_object(self, bucket_name: str, object_name: str) -> _LocalGetResponse:
         target = self._bucket_dir(bucket_name) / object_name
         return _LocalGetResponse(target.read_bytes())
+
+    def remove_object(self, bucket_name: str, object_name: str) -> None:
+        target = self._bucket_dir(bucket_name) / object_name
+        target.unlink(missing_ok=True)
 
     def list_objects(
         self,

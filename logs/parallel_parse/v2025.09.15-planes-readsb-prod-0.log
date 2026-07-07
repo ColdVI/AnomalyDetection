@@ -1,0 +1,368 @@
+INFO:__main__:Opening local tar: C:\Users\PC_6276\Desktop\datas\Adsb_historical\v2025.09.15-planes-readsb-prod-0.tar
+INFO:__main__:v2025.09.15-planes-readsb-prod-0.tar: 72714 trace member(s) found
+INFO:__main__:  Progress: 300/72714 members
+INFO:__main__:Silver part 00000: 450878 rows (total 450878 so far)
+INFO:__main__:  Progress: 600/72714 members
+INFO:__main__:Silver part 00001: 366434 rows (total 817312 so far)
+INFO:__main__:  Progress: 900/72714 members
+INFO:__main__:Silver part 00002: 394963 rows (total 1212275 so far)
+INFO:__main__:  Progress: 1200/72714 members
+INFO:__main__:Silver part 00003: 407946 rows (total 1620221 so far)
+INFO:__main__:  Progress: 1500/72714 members
+INFO:__main__:Silver part 00004: 402745 rows (total 2022966 so far)
+INFO:__main__:  Progress: 1800/72714 members
+INFO:__main__:Silver part 00005: 409379 rows (total 2432345 so far)
+INFO:__main__:  Progress: 2100/72714 members
+INFO:__main__:Silver part 00006: 395602 rows (total 2827947 so far)
+INFO:__main__:  Progress: 2400/72714 members
+INFO:__main__:Silver part 00007: 429185 rows (total 3257132 so far)
+INFO:__main__:  Progress: 2700/72714 members
+INFO:__main__:Silver part 00008: 349520 rows (total 3606652 so far)
+INFO:__main__:  Progress: 3000/72714 members
+INFO:__main__:Silver part 00009: 366868 rows (total 3973520 so far)
+INFO:__main__:  Progress: 3300/72714 members
+INFO:__main__:Silver part 00010: 393692 rows (total 4367212 so far)
+INFO:__main__:  Progress: 3600/72714 members
+INFO:__main__:Silver part 00011: 431935 rows (total 4799147 so far)
+INFO:__main__:  Progress: 3900/72714 members
+INFO:__main__:Silver part 00012: 425966 rows (total 5225113 so far)
+INFO:__main__:  Progress: 4200/72714 members
+INFO:__main__:Silver part 00013: 382635 rows (total 5607748 so far)
+INFO:__main__:  Progress: 4500/72714 members
+INFO:__main__:Silver part 00014: 400789 rows (total 6008537 so far)
+INFO:__main__:  Progress: 4800/72714 members
+INFO:__main__:Silver part 00015: 433297 rows (total 6441834 so far)
+INFO:__main__:  Progress: 5100/72714 members
+INFO:__main__:Silver part 00016: 354420 rows (total 6796254 so far)
+INFO:__main__:  Progress: 5400/72714 members
+INFO:__main__:Silver part 00017: 382896 rows (total 7179150 so far)
+INFO:__main__:  Progress: 5700/72714 members
+INFO:__main__:Silver part 00018: 396695 rows (total 7575845 so far)
+INFO:__main__:  Progress: 6000/72714 members
+INFO:__main__:Silver part 00019: 358720 rows (total 7934565 so far)
+INFO:__main__:  Progress: 6300/72714 members
+INFO:__main__:Silver part 00020: 398776 rows (total 8333341 so far)
+INFO:__main__:  Progress: 6600/72714 members
+INFO:__main__:Silver part 00021: 404828 rows (total 8738169 so far)
+INFO:__main__:  Progress: 6900/72714 members
+INFO:__main__:Silver part 00022: 430860 rows (total 9169029 so far)
+INFO:__main__:  Progress: 7200/72714 members
+INFO:__main__:Silver part 00023: 399573 rows (total 9568602 so far)
+INFO:__main__:  Progress: 7500/72714 members
+INFO:__main__:Silver part 00024: 406485 rows (total 9975087 so far)
+INFO:__main__:  Progress: 7800/72714 members
+INFO:__main__:Silver part 00025: 376573 rows (total 10351660 so far)
+INFO:__main__:  Progress: 8100/72714 members
+INFO:__main__:Silver part 00026: 387933 rows (total 10739593 so far)
+INFO:__main__:  Progress: 8400/72714 members
+INFO:__main__:Silver part 00027: 414059 rows (total 11153652 so far)
+INFO:__main__:  Progress: 8700/72714 members
+INFO:__main__:Silver part 00028: 333282 rows (total 11486934 so far)
+INFO:__main__:  Progress: 9000/72714 members
+INFO:__main__:Silver part 00029: 436352 rows (total 11923286 so far)
+INFO:__main__:  Progress: 9300/72714 members
+INFO:__main__:Silver part 00030: 381487 rows (total 12304773 so far)
+INFO:__main__:  Progress: 9600/72714 members
+INFO:__main__:Silver part 00031: 468985 rows (total 12773758 so far)
+INFO:__main__:  Progress: 9900/72714 members
+INFO:__main__:Silver part 00032: 394865 rows (total 13168623 so far)
+INFO:__main__:  Progress: 10200/72714 members
+INFO:__main__:Silver part 00033: 410505 rows (total 13579128 so far)
+INFO:__main__:  Progress: 10500/72714 members
+INFO:__main__:Silver part 00034: 399255 rows (total 13978383 so far)
+INFO:__main__:  Progress: 10800/72714 members
+INFO:__main__:Silver part 00035: 396472 rows (total 14374855 so far)
+INFO:__main__:  Progress: 11100/72714 members
+INFO:__main__:Silver part 00036: 426460 rows (total 14801315 so far)
+INFO:__main__:  Progress: 11400/72714 members
+INFO:__main__:Silver part 00037: 390240 rows (total 15191555 so far)
+INFO:__main__:  Progress: 11700/72714 members
+INFO:__main__:Silver part 00038: 399229 rows (total 15590784 so far)
+INFO:__main__:  Progress: 12000/72714 members
+INFO:__main__:Silver part 00039: 420983 rows (total 16011767 so far)
+INFO:__main__:  Progress: 12300/72714 members
+INFO:__main__:Silver part 00040: 371679 rows (total 16383446 so far)
+INFO:__main__:  Progress: 12600/72714 members
+INFO:__main__:Silver part 00041: 402359 rows (total 16785805 so far)
+INFO:__main__:  Progress: 12900/72714 members
+INFO:__main__:Silver part 00042: 401949 rows (total 17187754 so far)
+INFO:__main__:  Progress: 13200/72714 members
+INFO:__main__:Silver part 00043: 382286 rows (total 17570040 so far)
+INFO:__main__:  Progress: 13500/72714 members
+INFO:__main__:Silver part 00044: 422559 rows (total 17992599 so far)
+INFO:__main__:  Progress: 13800/72714 members
+INFO:__main__:Silver part 00045: 385558 rows (total 18378157 so far)
+INFO:__main__:  Progress: 14100/72714 members
+INFO:__main__:Silver part 00046: 361009 rows (total 18739166 so far)
+INFO:__main__:  Progress: 14400/72714 members
+INFO:__main__:Silver part 00047: 398766 rows (total 19137932 so far)
+INFO:__main__:  Progress: 14700/72714 members
+INFO:__main__:Silver part 00048: 367036 rows (total 19504968 so far)
+INFO:__main__:  Progress: 15000/72714 members
+INFO:__main__:Silver part 00049: 345066 rows (total 19850034 so far)
+INFO:__main__:  Progress: 15300/72714 members
+INFO:__main__:Silver part 00050: 433873 rows (total 20283907 so far)
+INFO:__main__:  Progress: 15600/72714 members
+INFO:__main__:Silver part 00051: 429682 rows (total 20713589 so far)
+INFO:__main__:  Progress: 15900/72714 members
+INFO:__main__:Silver part 00052: 396646 rows (total 21110235 so far)
+INFO:__main__:  Progress: 16200/72714 members
+INFO:__main__:Silver part 00053: 419613 rows (total 21529848 so far)
+INFO:__main__:  Progress: 16500/72714 members
+INFO:__main__:Silver part 00054: 422145 rows (total 21951993 so far)
+INFO:__main__:  Progress: 16800/72714 members
+INFO:__main__:Silver part 00055: 424015 rows (total 22376008 so far)
+INFO:__main__:  Progress: 17100/72714 members
+INFO:__main__:Silver part 00056: 436976 rows (total 22812984 so far)
+INFO:__main__:  Progress: 17400/72714 members
+INFO:__main__:Silver part 00057: 392882 rows (total 23205866 so far)
+INFO:__main__:  Progress: 17700/72714 members
+INFO:__main__:Silver part 00058: 419233 rows (total 23625099 so far)
+INFO:__main__:  Progress: 18000/72714 members
+INFO:__main__:Silver part 00059: 430209 rows (total 24055308 so far)
+INFO:__main__:  Progress: 18300/72714 members
+INFO:__main__:Silver part 00060: 410429 rows (total 24465737 so far)
+INFO:__main__:  Progress: 18600/72714 members
+INFO:__main__:Silver part 00061: 419554 rows (total 24885291 so far)
+INFO:__main__:  Progress: 18900/72714 members
+INFO:__main__:Silver part 00062: 428950 rows (total 25314241 so far)
+INFO:__main__:  Progress: 19200/72714 members
+INFO:__main__:Silver part 00063: 408988 rows (total 25723229 so far)
+INFO:__main__:  Progress: 19500/72714 members
+INFO:__main__:Silver part 00064: 370159 rows (total 26093388 so far)
+INFO:__main__:  Progress: 19800/72714 members
+INFO:__main__:Silver part 00065: 429267 rows (total 26522655 so far)
+INFO:__main__:  Progress: 20100/72714 members
+INFO:__main__:Silver part 00066: 397120 rows (total 26919775 so far)
+INFO:__main__:  Progress: 20400/72714 members
+INFO:__main__:Silver part 00067: 365170 rows (total 27284945 so far)
+INFO:__main__:  Progress: 20700/72714 members
+INFO:__main__:Silver part 00068: 420906 rows (total 27705851 so far)
+INFO:__main__:  Progress: 21000/72714 members
+INFO:__main__:Silver part 00069: 389024 rows (total 28094875 so far)
+INFO:__main__:  Progress: 21300/72714 members
+INFO:__main__:Silver part 00070: 387687 rows (total 28482562 so far)
+INFO:__main__:  Progress: 21600/72714 members
+INFO:__main__:Silver part 00071: 391165 rows (total 28873727 so far)
+INFO:__main__:  Progress: 21900/72714 members
+INFO:__main__:Silver part 00072: 357589 rows (total 29231316 so far)
+INFO:__main__:  Progress: 22200/72714 members
+INFO:__main__:Silver part 00073: 397226 rows (total 29628542 so far)
+INFO:__main__:  Progress: 22500/72714 members
+INFO:__main__:Silver part 00074: 437493 rows (total 30066035 so far)
+INFO:__main__:  Progress: 22800/72714 members
+INFO:__main__:Silver part 00075: 419635 rows (total 30485670 so far)
+INFO:__main__:  Progress: 23100/72714 members
+INFO:__main__:Silver part 00076: 391849 rows (total 30877519 so far)
+INFO:__main__:  Progress: 23400/72714 members
+INFO:__main__:Silver part 00077: 374720 rows (total 31252239 so far)
+INFO:__main__:  Progress: 23700/72714 members
+INFO:__main__:Silver part 00078: 358392 rows (total 31610631 so far)
+INFO:__main__:  Progress: 24000/72714 members
+INFO:__main__:Silver part 00079: 361398 rows (total 31972029 so far)
+INFO:__main__:  Progress: 24300/72714 members
+INFO:__main__:Silver part 00080: 399144 rows (total 32371173 so far)
+INFO:__main__:  Progress: 24600/72714 members
+INFO:__main__:Silver part 00081: 354288 rows (total 32725461 so far)
+INFO:__main__:  Progress: 24900/72714 members
+INFO:__main__:Silver part 00082: 413459 rows (total 33138920 so far)
+INFO:__main__:  Progress: 25200/72714 members
+INFO:__main__:Silver part 00083: 405381 rows (total 33544301 so far)
+INFO:__main__:  Progress: 25500/72714 members
+INFO:__main__:Silver part 00084: 426208 rows (total 33970509 so far)
+INFO:__main__:  Progress: 25800/72714 members
+INFO:__main__:Silver part 00085: 398208 rows (total 34368717 so far)
+INFO:__main__:  Progress: 26100/72714 members
+INFO:__main__:Silver part 00086: 383753 rows (total 34752470 so far)
+INFO:__main__:  Progress: 26400/72714 members
+INFO:__main__:Silver part 00087: 370095 rows (total 35122565 so far)
+INFO:__main__:  Progress: 26700/72714 members
+INFO:__main__:Silver part 00088: 419409 rows (total 35541974 so far)
+INFO:__main__:  Progress: 27000/72714 members
+INFO:__main__:Silver part 00089: 375431 rows (total 35917405 so far)
+INFO:__main__:  Progress: 27300/72714 members
+INFO:__main__:Silver part 00090: 386540 rows (total 36303945 so far)
+INFO:__main__:  Progress: 27600/72714 members
+INFO:__main__:Silver part 00091: 344634 rows (total 36648579 so far)
+INFO:__main__:  Progress: 27900/72714 members
+INFO:__main__:Silver part 00092: 425433 rows (total 37074012 so far)
+INFO:__main__:  Progress: 28200/72714 members
+INFO:__main__:Silver part 00093: 396439 rows (total 37470451 so far)
+INFO:__main__:  Progress: 28500/72714 members
+INFO:__main__:Silver part 00094: 397168 rows (total 37867619 so far)
+INFO:__main__:  Progress: 28800/72714 members
+INFO:__main__:Silver part 00095: 440053 rows (total 38307672 so far)
+INFO:__main__:  Progress: 29100/72714 members
+INFO:__main__:Silver part 00096: 394540 rows (total 38702212 so far)
+INFO:__main__:  Progress: 29400/72714 members
+INFO:__main__:Silver part 00097: 403814 rows (total 39106026 so far)
+INFO:__main__:  Progress: 29700/72714 members
+INFO:__main__:Silver part 00098: 372858 rows (total 39478884 so far)
+INFO:__main__:  Progress: 30000/72714 members
+INFO:__main__:Silver part 00099: 414215 rows (total 39893099 so far)
+INFO:__main__:  Progress: 30300/72714 members
+INFO:__main__:Silver part 00100: 405494 rows (total 40298593 so far)
+INFO:__main__:  Progress: 30600/72714 members
+INFO:__main__:Silver part 00101: 391144 rows (total 40689737 so far)
+INFO:__main__:  Progress: 30900/72714 members
+INFO:__main__:Silver part 00102: 374502 rows (total 41064239 so far)
+INFO:__main__:  Progress: 31200/72714 members
+INFO:__main__:Silver part 00103: 444515 rows (total 41508754 so far)
+INFO:__main__:  Progress: 31500/72714 members
+INFO:__main__:Silver part 00104: 335760 rows (total 41844514 so far)
+INFO:__main__:  Progress: 31800/72714 members
+INFO:__main__:Silver part 00105: 400347 rows (total 42244861 so far)
+INFO:__main__:  Progress: 32100/72714 members
+INFO:__main__:Silver part 00106: 397306 rows (total 42642167 so far)
+INFO:__main__:  Progress: 32400/72714 members
+INFO:__main__:Silver part 00107: 338114 rows (total 42980281 so far)
+INFO:__main__:  Progress: 32700/72714 members
+INFO:__main__:Silver part 00108: 370232 rows (total 43350513 so far)
+INFO:__main__:  Progress: 33000/72714 members
+INFO:__main__:Silver part 00109: 385074 rows (total 43735587 so far)
+INFO:__main__:  Progress: 33300/72714 members
+INFO:__main__:Silver part 00110: 431356 rows (total 44166943 so far)
+INFO:__main__:  Progress: 33600/72714 members
+INFO:__main__:Silver part 00111: 382733 rows (total 44549676 so far)
+INFO:__main__:  Progress: 33900/72714 members
+INFO:__main__:Silver part 00112: 419252 rows (total 44968928 so far)
+INFO:__main__:  Progress: 34200/72714 members
+INFO:__main__:Silver part 00113: 401412 rows (total 45370340 so far)
+INFO:__main__:  Progress: 34500/72714 members
+INFO:__main__:Silver part 00114: 416362 rows (total 45786702 so far)
+INFO:__main__:  Progress: 34800/72714 members
+INFO:__main__:Silver part 00115: 450770 rows (total 46237472 so far)
+INFO:__main__:  Progress: 35100/72714 members
+INFO:__main__:Silver part 00116: 401951 rows (total 46639423 so far)
+INFO:__main__:  Progress: 35400/72714 members
+INFO:__main__:Silver part 00117: 412535 rows (total 47051958 so far)
+INFO:__main__:  Progress: 35700/72714 members
+INFO:__main__:Silver part 00118: 456084 rows (total 47508042 so far)
+INFO:__main__:  Progress: 36000/72714 members
+INFO:__main__:Silver part 00119: 420916 rows (total 47928958 so far)
+INFO:__main__:  Progress: 36300/72714 members
+INFO:__main__:Silver part 00120: 415711 rows (total 48344669 so far)
+INFO:__main__:  Progress: 36600/72714 members
+INFO:__main__:Silver part 00121: 382873 rows (total 48727542 so far)
+INFO:__main__:  Progress: 36900/72714 members
+INFO:__main__:Silver part 00122: 435104 rows (total 49162646 so far)
+INFO:__main__:  Progress: 37200/72714 members
+INFO:__main__:Silver part 00123: 416435 rows (total 49579081 so far)
+INFO:__main__:  Progress: 37500/72714 members
+INFO:__main__:Silver part 00124: 422905 rows (total 50001986 so far)
+INFO:__main__:  Progress: 37800/72714 members
+INFO:__main__:Silver part 00125: 387255 rows (total 50389241 so far)
+INFO:__main__:  Progress: 38100/72714 members
+INFO:__main__:Silver part 00126: 451392 rows (total 50840633 so far)
+INFO:__main__:  Progress: 38400/72714 members
+INFO:__main__:Silver part 00127: 394038 rows (total 51234671 so far)
+INFO:__main__:  Progress: 38700/72714 members
+INFO:__main__:Silver part 00128: 426252 rows (total 51660923 so far)
+INFO:__main__:  Progress: 39000/72714 members
+INFO:__main__:Silver part 00129: 412895 rows (total 52073818 so far)
+INFO:__main__:  Progress: 39300/72714 members
+INFO:__main__:Silver part 00130: 398149 rows (total 52471967 so far)
+INFO:__main__:  Progress: 39600/72714 members
+INFO:__main__:Silver part 00131: 377601 rows (total 52849568 so far)
+INFO:__main__:  Progress: 39900/72714 members
+INFO:__main__:Silver part 00132: 385654 rows (total 53235222 so far)
+INFO:__main__:  Progress: 40200/72714 members
+INFO:__main__:Silver part 00133: 391022 rows (total 53626244 so far)
+INFO:__main__:  Progress: 40500/72714 members
+INFO:__main__:Silver part 00134: 375042 rows (total 54001286 so far)
+INFO:__main__:  Progress: 40800/72714 members
+INFO:__main__:Silver part 00135: 418646 rows (total 54419932 so far)
+INFO:__main__:  Progress: 41100/72714 members
+INFO:__main__:Silver part 00136: 404146 rows (total 54824078 so far)
+INFO:__main__:  Progress: 41400/72714 members
+INFO:__main__:Silver part 00137: 400356 rows (total 55224434 so far)
+INFO:__main__:  Progress: 41700/72714 members
+INFO:__main__:Silver part 00138: 391631 rows (total 55616065 so far)
+INFO:__main__:  Progress: 42000/72714 members
+INFO:__main__:Silver part 00139: 392880 rows (total 56008945 so far)
+INFO:__main__:  Progress: 42300/72714 members
+INFO:__main__:Silver part 00140: 438881 rows (total 56447826 so far)
+INFO:__main__:  Progress: 42600/72714 members
+INFO:__main__:Silver part 00141: 404401 rows (total 56852227 so far)
+INFO:__main__:  Progress: 42900/72714 members
+INFO:__main__:Silver part 00142: 431438 rows (total 57283665 so far)
+INFO:__main__:  Progress: 43200/72714 members
+INFO:__main__:Silver part 00143: 363736 rows (total 57647401 so far)
+INFO:__main__:  Progress: 43500/72714 members
+INFO:__main__:Silver part 00144: 362970 rows (total 58010371 so far)
+INFO:__main__:  Progress: 43800/72714 members
+INFO:__main__:Silver part 00145: 404674 rows (total 58415045 so far)
+INFO:__main__:  Progress: 44100/72714 members
+INFO:__main__:Silver part 00146: 420331 rows (total 58835376 so far)
+INFO:__main__:  Progress: 44400/72714 members
+INFO:__main__:Silver part 00147: 359177 rows (total 59194553 so far)
+INFO:__main__:  Progress: 44700/72714 members
+INFO:__main__:Silver part 00148: 357933 rows (total 59552486 so far)
+INFO:__main__:  Progress: 45000/72714 members
+INFO:__main__:Silver part 00149: 410388 rows (total 59962874 so far)
+INFO:__main__:  Progress: 45300/72714 members
+INFO:__main__:Silver part 00150: 396233 rows (total 60359107 so far)
+INFO:__main__:  Progress: 45600/72714 members
+INFO:__main__:Silver part 00151: 385308 rows (total 60744415 so far)
+INFO:__main__:  Progress: 45900/72714 members
+INFO:__main__:Silver part 00152: 354320 rows (total 61098735 so far)
+INFO:__main__:  Progress: 46200/72714 members
+INFO:__main__:Silver part 00153: 399662 rows (total 61498397 so far)
+INFO:__main__:  Progress: 46500/72714 members
+INFO:__main__:Silver part 00154: 409944 rows (total 61908341 so far)
+INFO:__main__:  Progress: 46800/72714 members
+INFO:__main__:Silver part 00155: 388711 rows (total 62297052 so far)
+INFO:__main__:  Progress: 47100/72714 members
+INFO:__main__:Silver part 00156: 408262 rows (total 62705314 so far)
+INFO:__main__:  Progress: 47400/72714 members
+INFO:__main__:Silver part 00157: 346357 rows (total 63051671 so far)
+INFO:__main__:  Progress: 47700/72714 members
+INFO:__main__:Silver part 00158: 394175 rows (total 63445846 so far)
+INFO:__main__:  Progress: 48000/72714 members
+INFO:__main__:Silver part 00159: 366218 rows (total 63812064 so far)
+INFO:__main__:  Progress: 48300/72714 members
+INFO:__main__:Silver part 00160: 370561 rows (total 64182625 so far)
+INFO:__main__:  Progress: 48600/72714 members
+INFO:__main__:Silver part 00161: 457861 rows (total 64640486 so far)
+INFO:__main__:  Progress: 48900/72714 members
+INFO:__main__:Silver part 00162: 378901 rows (total 65019387 so far)
+INFO:__main__:  Progress: 49200/72714 members
+INFO:__main__:Silver part 00163: 408183 rows (total 65427570 so far)
+INFO:__main__:  Progress: 49500/72714 members
+INFO:__main__:Silver part 00164: 408860 rows (total 65836430 so far)
+INFO:__main__:  Progress: 49800/72714 members
+INFO:__main__:Silver part 00165: 386343 rows (total 66222773 so far)
+INFO:__main__:  Progress: 50100/72714 members
+INFO:__main__:Silver part 00166: 354690 rows (total 66577463 so far)
+INFO:__main__:  Progress: 50400/72714 members
+INFO:__main__:Silver part 00167: 416046 rows (total 66993509 so far)
+INFO:__main__:  Progress: 50700/72714 members
+INFO:__main__:Silver part 00168: 389776 rows (total 67383285 so far)
+INFO:__main__:  Progress: 51000/72714 members
+INFO:__main__:Silver part 00169: 399967 rows (total 67783252 so far)
+INFO:__main__:  Progress: 51300/72714 members
+INFO:__main__:Silver part 00170: 395990 rows (total 68179242 so far)
+INFO:__main__:  Progress: 51600/72714 members
+INFO:__main__:Silver part 00171: 385133 rows (total 68564375 so far)
+INFO:__main__:  Progress: 51900/72714 members
+INFO:__main__:Silver part 00172: 399378 rows (total 68963753 so far)
+INFO:__main__:  Progress: 52200/72714 members
+INFO:__main__:Silver part 00173: 404633 rows (total 69368386 so far)
+INFO:__main__:  Progress: 52500/72714 members
+INFO:__main__:Silver part 00174: 398779 rows (total 69767165 so far)
+INFO:__main__:  Progress: 52800/72714 members
+INFO:__main__:Silver part 00175: 426940 rows (total 70194105 so far)
+INFO:__main__:  Progress: 53100/72714 members
+INFO:__main__:Silver part 00176: 424816 rows (total 70618921 so far)
+INFO:__main__:  Progress: 53400/72714 members
+INFO:__main__:Silver part 00177: 388992 rows (total 71007913 so far)
+INFO:__main__:  Progress: 53700/72714 members
+INFO:__main__:Silver part 00178: 402678 rows (total 71410591 so far)
+INFO:__main__:  Progress: 54000/72714 members
+INFO:__main__:Silver part 00179: 415892 rows (total 71826483 so far)
+INFO:__main__:  Progress: 54300/72714 members
+INFO:__main__:Silver part 00180: 414980 rows (total 72241463 so far)
+INFO:__main__:  Progress: 54600/72714 members
+INFO:__main__:Silver part 00181: 390670 rows (total 72632133 so far)
+INFO:__main__:  Progress: 54900/72714 members
+INFO:__main__:Silver part 00182: 396921 rows (total 73029054 so far)
