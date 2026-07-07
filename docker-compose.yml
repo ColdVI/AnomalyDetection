@@ -1,31 +1,41 @@
 services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    profiles: ["streaming"]
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    deploy:
-      resources:
-        limits:
-          memory: 512m
-
+  # ONEMLI: Zookeeper KALDIRILDI -- Kafka artik KRaft modunda (kendi
+  # kendini yonetiyor, ayri bir koordinasyon servisi gerekmiyor). Zookeeper
+  # sadece lokal/native kurulumun bir kalintisiydi (bkz. Dashboard/
+  # FULL_PROJECT_HANDOFF.md Bolum 6.3), Docker'da tek-broker icin gereksiz
+  # bir servis + ekstra ~512MB RAM demekti. KRaft, Kafka'nin kendisinin
+  # onerdigi/varsayilan yolu (Zookeeper 4.0'da tamamen kaldiriliyor).
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     profiles: ["streaming"]
-    depends_on:
-      - zookeeper
     ports:
-      - "9092:9092"
+      - "29092:29092"   # host erisimi (Windows'tan test/GUI araclari icin)
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      # Tek node kendi kendinin controller'i (quorum voter'i) -- sabit,
+      # herkeste ayni CLUSTER_ID/veri dizini kullanildigi surece degismez.
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      CLUSTER_ID: tV5djcsiQ1ql2me9Hh6M_Q
+      # Iki ayri client listener zorunlu: container'lar birbirine
+      # "kafka:9092" ile baglanir, host (Windows) tarafi "localhost:29092"
+      # kullanir. Tek listener (eskiden PLAINTEXT://localhost:9092)
+      # container-ici client'lari kirar -- broker metadata'da "localhost"
+      # dondugunde producer/consumer container'lari KENDI icini isaret
+      # eder, broker'a degil (klasik Kafka+Docker hatasi). CONTROLLER,
+      # KRaft'in kendi ic haberlesmesi icin -- ayri, client'lara kapali.
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
     deploy:
       resources:
         limits:
@@ -71,7 +81,7 @@ services:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
     volumes:
-      - D:/docker-volumes/minio:/data
+      - minio_data:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
@@ -82,5 +92,81 @@ services:
         limits:
           memory: 1g
 
+  # --------------------------------------------------------------------
+  # Dashboard servisleri (Dashboard/) -- adsb.lol -> Kafka -> Redis/InfluxDB
+  # -> Dash. Detay/gecmis: Dashboard/FULL_PROJECT_HANDOFF.md ve
+  # Dashboard/HANDOFF_UPDATE_2026-07-07.md. Dorduncu servis (dashboard-app)
+  # icindeki FastAPI'ye "localhost:8000" ile erisir -- FastAPI+Dash AYNI
+  # process'te (app.py) calistigi icin bu kasitli, degistirilmemeli.
+  # --------------------------------------------------------------------
+  adsb-producer:
+    build:
+      context: ./Dashboard
+    image: iha-dashboard:local
+    profiles: ["streaming"]
+    restart: unless-stopped
+    environment:
+      KAFKA_BOOTSTRAP: kafka:9092
+    depends_on:
+      - kafka
+    command: ["python", "adsb_producer.py"]
+
+  dashboard-consumer:
+    build:
+      context: ./Dashboard
+    image: iha-dashboard:local
+    profiles: ["streaming"]
+    restart: unless-stopped
+    environment:
+      KAFKA_BOOTSTRAP: kafka:9092
+      REDIS_HOST: redis
+      INFLUX_HOST: http://influxdb:8086
+      INFLUX_ORG: iha-org
+      INFLUX_BUCKET: adsb-history
+      INFLUX_TOKEN: iha-influx-token-docker
+    depends_on:
+      - kafka
+      - redis
+      - influxdb
+    command: ["python", "dashboard_consumer.py"]
+
+  dashboard-app:
+    build:
+      context: ./Dashboard
+    image: iha-dashboard:local
+    profiles: ["streaming"]
+    restart: unless-stopped
+    environment:
+      REDIS_HOST: redis
+      INFLUX_HOST: http://influxdb:8086
+      INFLUX_ORG: iha-org
+      INFLUX_BUCKET: adsb-history
+      INFLUX_TOKEN: iha-influx-token-docker
+    ports:
+      - "8000:8000"
+      - "8050:8050"
+    depends_on:
+      - redis
+      - influxdb
+    command: ["python", "app.py"]
+
+  minio-archiver:
+    build:
+      context: ./Dashboard
+    image: iha-dashboard:local
+    profiles: ["streaming"]
+    restart: unless-stopped
+    environment:
+      KAFKA_BOOTSTRAP: kafka:9092
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+    depends_on:
+      - kafka
+      - minio
+    command: ["python", "minio_archiver.py"]
+
 volumes:
   influxdb_data:
+  minio_data:
+  kafka_data:
