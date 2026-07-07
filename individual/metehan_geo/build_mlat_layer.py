@@ -89,6 +89,9 @@ def run(h3_resolution: int = 5) -> None:
 
     features = []
     for row in mlat_df.itertuples(index=False):
+        ring = h3_cell_to_polygon(row.h3_cell)
+        if ring is None:
+            continue  # kutup-noktasi hucresi, render edilemiyor (bkz. h3_cell_to_polygon)
         features.append({
             "type": "Feature",
             "properties": {
@@ -97,7 +100,7 @@ def run(h3_resolution: int = 5) -> None:
                 "total_count": int(row.total_count),
                 "mlat_ratio": float(row.mlat_ratio),
             },
-            "geometry": {"type": "Polygon", "coordinates": [h3_cell_to_polygon(row.h3_cell)]},
+            "geometry": {"type": "Polygon", "coordinates": [ring]},
         })
     geojson = {"type": "FeatureCollection", "features": features}
 

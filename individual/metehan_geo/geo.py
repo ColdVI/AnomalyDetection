@@ -30,15 +30,46 @@ def assign_h3_cell(df: pd.DataFrame, resolution: int) -> pd.DataFrame:
     return out
 
 
-def h3_cell_to_polygon(hex_id: str) -> list[list[float]]:
+def h3_cell_to_polygon(hex_id: str) -> list[list[float]] | None:
     """Hex sinirini GeoJSON Polygon `coordinates` formatina cevirir.
 
     GeoJSON [lon, lat] sirasi bekler (h3.cell_to_boundary [lat, lon] donuyor),
     ve halka (ring) kapali olmali (ilk nokta = son nokta).
+
+    Antimeridian (180. meridyen) fix (2026-07-07, kullanici bulgusu -- gercek
+    veride dogrulandi, ör. Pasifik'te ~60G hex'i): 180'i kesen hex'lerde
+    boundary noktalari -179.x ve +179.x arasinda "zipliyor", bu ringi oldugu
+    gibi GeoJSON'a yazarsak boylam span'i ~360'a yakin cikiyor -- MapLibre
+    (ve cogu renderer) bunu kucuk hex yerine neredeyse tum dunyayi saran dev/
+    yanlis bir sekil olarak ciziyor. Duzeltme: ring'in boylam span'i > 180 ise
+    (yani gercekten kesiyorsa) negatif boylamlari +360 kaydirip ringi TEK,
+    surekli bir koordinat uzayinda tut (ör. -179.8 -> 180.2). Bu, katı GeoJSON
+    (-180..180) disinda ama MapLibre projeksiyon asamasinda bunu sorunsuz
+    render ediyor -- antimeridian-kesen poligonlar icin yaygin pratik cozum.
+
+    Kutup-noktasi istisnasi (ayni gun bulundu): dusuk resolution'da (ör. res3)
+    tam kutup uzerindeki pentagon hucrelerin (H3'un icosahedron'unda 12
+    tanesinden biri) koseleri boylamin NEREDEYSE TAMAMINA (ör. 21 - 270 derece)
+    yayiliyor -- bu basit bir "180'i kesme" degil, kutupta tum meridyenlerin
+    kesismesinden kaynaklanan gercek bir yozlasma (degenerate case). +360
+    kaydirma bunu duzeltemez (kayma sonrasi da span>180 kaliyor). Bu KESINLIKLE
+    nadir (res3'te 7333 hex'ten sadece 2'si, iki kutupta) ve Web Mercator'da
+    zaten anlamli/dogru render edilemez (Mercator kutuplari sonsuzda tanimliyor)
+    -- bu yuzden duzeltmeye calismak yerine None donup cagiran tarafin (bkz.
+    build_density_geojson, build_mlat_layer.py) bu feature'i atlamasi saglaniyor.
     """
     boundary = h3.cell_to_boundary(hex_id)  # [(lat, lon), ...]
     ring = [[lon, lat] for lat, lon in boundary]
     ring.append(ring[0])
+
+    lons = [p[0] for p in ring]
+    if max(lons) - min(lons) > 180:
+        ring = [[lon + 360 if lon < 0 else lon, lat] for lon, lat in ring]
+        lons = [p[0] for p in ring]
+        if max(lons) - min(lons) > 180:
+            logger.warning("h3_cell_to_polygon: %s render edilemiyor (kutup-noktasi hucresi), atlaniyor", hex_id)
+            return None
+
     return ring
 
 
