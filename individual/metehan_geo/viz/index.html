@@ -61,9 +61,13 @@
   .segmented { display: flex; background: rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 3px; gap: 2px; }
   .segmented button {
     flex: 1; border: none; background: transparent; color: #9d9da8;
-    padding: 6px 6px; font-size: 12px; border-radius: 6px; cursor: pointer; font-weight: 600;
+    padding: 6px 4px; font-size: 12px; border-radius: 6px; cursor: pointer; font-weight: 600;
     transition: background 0.15s, color 0.15s; font-family: inherit;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
+  /* 4 secenekli (zaman araligi) segmented kontrolde daha az yer var --
+     kucuk fontla tut, taskmasin. */
+  #timeRangeSegmented button { font-size: 10.5px; padding: 6px 2px; }
   .segmented button.active { background: #3b6fe0; color: #fff; }
   .segmented button:not(.active):hover { background: rgba(255, 255, 255, 0.07); color: #e9e9ee; }
 
@@ -89,6 +93,13 @@
 
   .legend-swatch { height: 10px; border-radius: 5px; margin-bottom: 4px; }
   .legend-scale { display: flex; justify-content: space-between; font-size: 10.5px; color: #93939f; font-variant-numeric: tabular-nums; }
+
+  #realtimeHint {
+    font-size: 10.5px; line-height: 1.5; color: #9d9da8;
+    background: rgba(59, 111, 224, 0.12); border: 1px solid rgba(59, 111, 224, 0.3);
+    border-radius: 8px; padding: 8px 10px;
+  }
+  #realtimeHint b { color: #cfd6f5; }
 
   #status {
     font-size: 10.5px; color: #6d6d78; padding: 8px 14px;
@@ -116,6 +127,16 @@
     </div>
 
     <div class="field">
+      <label>Zaman Aralığı</label>
+      <div class="segmented" id="timeRangeSegmented">
+        <button type="button" data-value="historical" class="active">Tarihsel</button>
+        <button type="button" data-value="live">Canlı</button>
+        <button type="button" data-value="24h">24 Saat</button>
+        <button type="button" data-value="7d">7 Gün</button>
+      </div>
+    </div>
+
+    <div class="field">
       <label>Görselleştirme</label>
       <div class="segmented" id="renderModeSegmented">
         <button type="button" data-value="hexagon" class="active">Hexagon</button>
@@ -123,7 +144,14 @@
       </div>
     </div>
 
-    <div class="field">
+    <div class="field" id="realtimeHint" style="display:none">
+      <b>Canlı modda</b> yalnızca "benzersiz uçuş" metriği kullanılır ve gün
+      filtresi/heatmap görünümü yoktur — pencere zaten kısa (son birkaç dakika
+      / 24 saat / 7 gün), bu ayrımlar anlamsız. Veri InfluxDB'den ~15sn'de bir
+      otomatik tazelenir.
+    </div>
+
+    <div class="field" id="metricField">
       <label>Metrik</label>
       <div class="segmented" id="metricSegmented">
         <button type="button" data-value="flight" class="active">Uçuş sayısı</button>
@@ -245,6 +273,30 @@ let currentMetric = "flight"; // varsayilan: duzeltilmis metrik (2026-07-07 kara
 let renderMode = "hexagon"; // "hexagon" | "heatmap" (2026-07-07 eklendi)
 let minDayCount = 0;
 
+// --- Realtime (--live/--24h/--7d) katmani (2026-07-07 eklendi) ---
+// docs/realtime_pipeline_prompt.md: InfluxDB'den (Dashboard/dashboard_consumer.py
+// zaten yaziyor) individual/metehan_geo/realtime_density.py ile hesaplanan
+// GeoJSON'lar. AYNI flight_count tanimi (historical ile tutarli), ama tek
+// metrik var (point/flight toggle yok) ve day_count/heatmap-nokta dosyasi
+// henuz yok -- bu yuzden realtime secilince metrik/gun-filtresi gizlenir,
+// heatmap modu devre disi birakilir (asagida).
+let currentTimeRange = "historical"; // "historical" | "live" | "24h" | "7d"
+const REALTIME_FILES = {
+  live: "data/density_realtime_live.geojson",
+  "24h": "data/density_realtime_24h.geojson",
+  "7d": "data/density_realtime_7d.geojson",
+};
+
+// Realtime dosyalari surekli degisen/kucuk olcekli veri oldugu icin sabit
+// colorBreaks kalibre etmek anlamsiz (historical'in aksine) -- her yuklemede
+// KENDI point_count dagilimindan (p10/p50/p75/p90/p99) dinamik hesaplaniyor.
+function computeBreaksFromFeatures(geojson) {
+  const values = geojson.features.map(f => f.properties.point_count).sort((a, b) => a - b);
+  if (values.length === 0) return [1, 1, 1, 1, 1];
+  const pct = (p) => values[Math.min(values.length - 1, Math.floor(p * values.length))];
+  return [pct(0.10), pct(0.50), pct(0.75), pct(0.90), pct(0.99)];
+}
+
 // Heatmap "glow" rengi -- matplotlib "magma" colormap'ine yakin bir yaklasim.
 // IKI KATMANLI teknik: genis/yumusak "hale" (glow) + dar/parlak "cekirdek"
 // (core) ust uste -- gercek bloom/isik-patlamasi efektleri de boyle sahtelenir.
@@ -293,8 +345,13 @@ function log10ColorExpression(breaks) {
 
 // Kompakt renk-skalasi legend'i (eski uzun aciklama metni yerine, 2026-07-07) --
 // mevcut metrik + goruntuleme moduna gore gradient + min/max sayilari.
+// currentLegendBreaks: render() tarafindan set edilir -- historical'da
+// METRICS[..].colorBreaks (sabit, gercek dagilimdan onceden hesaplandi),
+// realtime'da her yuklemede computeBreaksFromFeatures() ile DINAMIK.
+let currentLegendBreaks = METRICS.flight.colorBreaks;
+
 function updateLegend() {
-  const breaks = METRICS[currentMetric].colorBreaks;
+  const breaks = currentLegendBreaks;
   const colors = renderMode === "heatmap"
     ? ["#1b0c41", "#781c6d", "#cf4446", "#fb9b06", "#fcffa4", "#ffffff"]
     : HEX_COLORS;
@@ -313,6 +370,18 @@ async function fetchJsonCached(cache, key, url) {
   const json = await res.json();
   cache.set(key, json);
   return json;
+}
+
+// Realtime dosyalari arka planda surekli degisiyor (realtime_density.py
+// --loop-seconds) -- gecmis'in aksine BURADA cache YOK, her cagride hem JS
+// tarafinda hem tarayici HTTP cache'inde bypass (cache-busting query param +
+// no-store) taze veri cekilir. (2026-07-07: "Canli sekmesi gercekten taze
+// mi" sorusuna yanit -- onceki halde sourceKey degismedigi surece hic yeniden
+// fetch edilmiyordu, bu yuzden ilk yuklemeden sonra donuk kaliyordu.)
+async function fetchJsonFresh(url) {
+  const res = await fetch(`${url}?t=${Date.now()}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`${url} yuklenemedi: ${res.status}`);
+  return res.json();
 }
 
 function addDensityLayers(geojson, colorExpr) {
@@ -404,14 +473,23 @@ let loadedHeatmapMetric = null;
 let requestSeq = 0;
 
 async function render() {
-  const metricKey = currentMetric;
+  const isHistorical = currentTimeRange === "historical";
+  const sourceKey = isHistorical ? `hist:${currentMetric}` : `rt:${currentTimeRange}`;
   const mySeq = ++requestSeq;
   try {
     if (renderMode === "hexagon") {
-      if (loadedHexMetric !== metricKey) {
-        const geojson = await fetchJsonCached(geojsonCache, metricKey, METRICS[metricKey].file);
+      // Historical: sourceKey degismedigi surece cache'ten kullan (sabit
+      // veri, tekrar fetch anlamsiz). Realtime: HER render() cagrisinda taze
+      // veri cek -- sourceKey (rt:live/24h/7d) ayni kalsa bile arkadaki
+      // GeoJSON dosyasi surekli degisiyor.
+      if (isHistorical ? loadedHexMetric !== sourceKey : true) {
+        const file = isHistorical ? METRICS[currentMetric].file : REALTIME_FILES[currentTimeRange];
+        const geojson = isHistorical
+          ? await fetchJsonCached(geojsonCache, sourceKey, file)
+          : await fetchJsonFresh(file);
         if (mySeq !== requestSeq) return;
-        const colorExpr = log10ColorExpression(METRICS[metricKey].colorBreaks);
+        const breaks = isHistorical ? METRICS[currentMetric].colorBreaks : computeBreaksFromFeatures(geojson);
+        const colorExpr = log10ColorExpression(breaks);
         const source = map.getSource("density");
         if (source) {
           source.setData(geojson);
@@ -419,10 +497,21 @@ async function render() {
         } else {
           addDensityLayers(geojson, colorExpr);
         }
-        loadedHexMetric = metricKey;
-        document.getElementById("status").textContent = `hexagon/${metricKey}: ${geojson.features.length} hex`;
+        loadedHexMetric = sourceKey;
+        currentLegendBreaks = breaks;
+        const suffix = isHistorical ? "" : ` (guncellendi: ${new Date().toLocaleTimeString("tr-TR")})`;
+        document.getElementById("status").textContent = `hexagon/${sourceKey}: ${geojson.features.length} hex${suffix}`;
       }
+    } else if (!isHistorical) {
+      // Heatmap (nokta+weight) dosyalari henuz sadece historical icin uretiliyor
+      // (build_heatmap_points.py) -- realtime'da hexagon moduna zorla don.
+      renderMode = "hexagon";
+      for (const b of document.querySelectorAll("#renderModeSegmented button")) {
+        b.classList.toggle("active", b.dataset.value === "hexagon");
+      }
+      return render();
     } else {
+      const metricKey = currentMetric;
       if (loadedHeatmapMetric !== metricKey) {
         const geojson = await fetchJsonCached(pointsCache, metricKey, METRICS[metricKey].pointsFile);
         if (mySeq !== requestSeq) return;
@@ -437,6 +526,7 @@ async function render() {
           addHeatmapLayer(geojson, METRICS[metricKey].colorBreaks);
         }
         loadedHeatmapMetric = metricKey;
+        currentLegendBreaks = METRICS[metricKey].colorBreaks;
         document.getElementById("status").textContent = `heatmap/${metricKey}: ${geojson.features.length} nokta`;
       }
     }
@@ -538,6 +628,47 @@ document.getElementById("styleSelect").addEventListener("change", (e) => {
   map.setStyle(STYLES[currentStyleKey]); // style.load handler katmanlari yeniden ekler
 });
 
+// Realtime secilince metrik/gun-filtresi kontrolleri anlamsiz (tek metrik
+// var, day_count yok) -- gizle. Tarihsel'e donunce geri goster.
+function updateFieldVisibilityForTimeRange() {
+  const isHistorical = currentTimeRange === "historical";
+  document.getElementById("metricField").style.display = isHistorical ? "block" : "none";
+  document.getElementById("dayCountField").style.display =
+    isHistorical && METRICS[currentMetric].hasDayCount ? "block" : "none";
+  document.getElementById("realtimeHint").style.display = isHistorical ? "none" : "block";
+}
+
+// Realtime sekmesi acikken sayfayi elle yenilemeye gerek kalmasin diye
+// periyodik otomatik yeniden-render -- render() kendisi zaten realtime icin
+// her seferinde taze fetch yapiyor (yukarida), bu sadece tetikleyici.
+// Kafka uretici dongusu ~15sn hedefli (KAFKA_SCHEMA.md) -- ondan daha sik
+// sormanin faydasi yok.
+const REALTIME_REFRESH_MS = 15000;
+let realtimeRefreshTimer = null;
+
+function startRealtimeAutoRefresh() {
+  if (realtimeRefreshTimer) return;
+  realtimeRefreshTimer = setInterval(() => {
+    if (currentTimeRange !== "historical") render();
+  }, REALTIME_REFRESH_MS);
+}
+
+function stopRealtimeAutoRefresh() {
+  if (realtimeRefreshTimer) clearInterval(realtimeRefreshTimer);
+  realtimeRefreshTimer = null;
+}
+
+document.getElementById("timeRangeSegmented").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-value]");
+  if (!btn) return;
+  currentTimeRange = btn.dataset.value;
+  for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
+  updateFieldVisibilityForTimeRange();
+  if (currentTimeRange === "historical") stopRealtimeAutoRefresh();
+  else startRealtimeAutoRefresh();
+  render();
+});
+
 document.getElementById("renderModeSegmented").addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-value]");
   if (!btn) return;
@@ -551,7 +682,7 @@ document.getElementById("metricSegmented").addEventListener("click", (e) => {
   if (!btn) return;
   currentMetric = btn.dataset.value;
   for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
-  document.getElementById("dayCountField").style.display = METRICS[currentMetric].hasDayCount ? "block" : "none";
+  updateFieldVisibilityForTimeRange();
   render();
 });
 
@@ -561,9 +692,8 @@ document.getElementById("dayCountSlider").addEventListener("input", (e) => {
   applyDayCountFilter();
 });
 
-// Baslangicta "point" metriginin gun-sayisi filtresi olmadigi icin gizle
-// (varsayilan metrik "flight" oldugundan ilk yuklemede gorunur kalir).
-document.getElementById("dayCountField").style.display = METRICS[currentMetric].hasDayCount ? "block" : "none";
+// Baslangic durumu (varsayilan: historical/flight, gun-filtresi gorunur).
+updateFieldVisibilityForTimeRange();
 
 document.getElementById("globeToggle").addEventListener("change", (e) => {
   currentProjection = e.target.checked ? "globe" : "mercator";

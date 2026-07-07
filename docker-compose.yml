@@ -81,7 +81,7 @@ services:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
     volumes:
-      - minio_data:/data
+      - D:/docker-volumes/minio:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
@@ -168,5 +168,4 @@ services:
 
 volumes:
   influxdb_data:
-  minio_data:
   kafka_data:
