@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <title>Metehan — ADS-B Yoğunluk / Rota Haritası</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+<script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css" rel="stylesheet" />
 <style>
   html, body { margin: 0; padding: 0; height: 100%; }
   #map { position: absolute; inset: 0; }
@@ -63,11 +63,10 @@ const map = new maplibregl.Map({
 });
 
 map.addControl(new maplibregl.NavigationControl(), "top-right");
-// NOT: maplibregl.GlobeControl (hazir buton) maplibre-gl 4.7.1'de YOK (5.x'te
-// eklendi) -- new maplibregl.GlobeControl() burada TypeError firlatiyordu ve
-// bu script bloğundaki SONRAKI HER SEY (style.load handler, fetch, butonlar)
-// hic calismiyordu. Kendi manuel toggle butonumuzu kullaniyoruz (asagida),
-// map.setProjection() 4.7.1'de zaten var, ekstra kontrol siniflarina gerek yok.
+// NOT: maplibre-gl 4.7.1'de hem GlobeControl hem setProjection YOKTU (5.x'te
+// eklendi) -- ikisi de TypeError firlatip script'in geri kalanini durduruyordu.
+// CDN 5.24.0'a yukseltildi (ikisi de .d.ts'de dogrulandi). Kendi manuel toggle
+// butonumuzu (asagida) kullanmaya devam ediyoruz, GlobeControl'e gerek yok.
 let currentProjection = "mercator";
 
 // Sessizce patlayip "sonsuza kadar yukleniyor" gibi gorunmesin diye: JS
