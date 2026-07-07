@@ -15,6 +15,7 @@ Sonra tarayicida: http://localhost:8050
 """
 import json
 import math
+import os
 import threading
 import time
 from datetime import datetime, timedelta, timezone
@@ -230,14 +231,24 @@ TILE_LAYERS = {
 }
 DEFAULT_MAP_STYLE = "street"
 
+# ONEMLI: REDIS_HOST/INFLUX_HOST/INFLUX_TOKEN artik ortam degiskeniyle
+# ayarlanabilir -- Windows'ta native calisirken (setup_local_windows.py)
+# varsayilanlar (localhost + dosyadan token) hala gecerli, Docker'da
+# docker-compose.yml servis adlarini (redis, influxdb) ve sabit token'i
+# (DOCKER_INFLUXDB_INIT_ADMIN_TOKEN) enjekte eder.
 TOKEN_FILE = Path("influx_token.txt")
-INFLUX_HOST = "http://localhost:8086"
-INFLUX_ORG = "iha-org"
-INFLUX_BUCKET = "adsb-history"
+REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
+REDIS_PORT = int(os.environ.get("REDIS_PORT", "6379"))
+INFLUX_HOST = os.environ.get("INFLUX_HOST", "http://localhost:8086")
+INFLUX_ORG = os.environ.get("INFLUX_ORG", "iha-org")
+INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "adsb-history")
 
-if not TOKEN_FILE.exists():
-    raise SystemExit("influx_token.txt bulunamadi. Once setup_local_windows.py calistir.")
-INFLUX_TOKEN = TOKEN_FILE.read_text().strip()
+INFLUX_TOKEN = os.environ.get("INFLUX_TOKEN")
+if not INFLUX_TOKEN:
+    if not TOKEN_FILE.exists():
+        raise SystemExit("influx_token.txt bulunamadi ve INFLUX_TOKEN ortam degiskeni yok. "
+                          "Once setup_local_windows.py calistir (native) ya da INFLUX_TOKEN set et (docker).")
+    INFLUX_TOKEN = TOKEN_FILE.read_text().strip()
 
 # ------------------------------------------------------------------ FastAPI --
 
@@ -245,7 +256,7 @@ app_api = FastAPI(title="ADS-B Local API")
 app_api.add_middleware(CORSMiddleware, allow_origins=["*"],
                         allow_methods=["*"], allow_headers=["*"])
 
-_rpool = redis.ConnectionPool(host="localhost", port=6379, db=0,
+_rpool = redis.ConnectionPool(host=REDIS_HOST, port=REDIS_PORT, db=0,
                                decode_responses=True, protocol=2)
 _influx = InfluxDBClient(url=INFLUX_HOST, token=INFLUX_TOKEN, org=INFLUX_ORG)
 _query_api = _influx.query_api()

@@ -16,6 +16,7 @@ Kullanim:
     python dashboard_consumer.py
 """
 import json
+import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -25,14 +26,19 @@ from confluent_kafka import Consumer
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import WriteOptions
 
-BOOTSTRAP = "localhost:9092"
+# ONEMLI: Docker'da "localhost" container'in KENDI icini isaret eder --
+# BOOTSTRAP/REDIS_HOST/INFLUX_HOST bu yuzden ortam degiskeniyle
+# ayarlanabilir (docker-compose.yml servis adlarini enjekte eder).
+BOOTSTRAP = os.environ.get("KAFKA_BOOTSTRAP", "localhost:9092")
 FLIGHTS_TOPIC = "adsb.flights"
 ALERTS_TOPIC = "adsb.alerts"
 
 TOKEN_FILE = Path("influx_token.txt")
-INFLUX_HOST = "http://localhost:8086"
-INFLUX_ORG = "iha-org"
-INFLUX_BUCKET = "adsb-history"
+REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
+REDIS_PORT = int(os.environ.get("REDIS_PORT", "6379"))
+INFLUX_HOST = os.environ.get("INFLUX_HOST", "http://localhost:8086")
+INFLUX_ORG = os.environ.get("INFLUX_ORG", "iha-org")
+INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "adsb-history")
 
 # ============================================================
 # CYCLE-ID TABANLI "GOR-YOKSA-SIL" MODELI (once TTL, sonra zaman-pencereli
@@ -114,15 +120,19 @@ def sweep_stale_flights(rdb, baseline_set, seen_this_cycle, batch_size=500):
 
 
 def load_token() -> str:
+    env_token = os.environ.get("INFLUX_TOKEN")
+    if env_token:
+        return env_token
     if not TOKEN_FILE.exists():
-        raise SystemExit("influx_token.txt bulunamadi. Once setup_local_windows.py calistir.")
+        raise SystemExit("influx_token.txt bulunamadi ve INFLUX_TOKEN ortam degiskeni yok. "
+                          "Once setup_local_windows.py calistir (native) ya da INFLUX_TOKEN set et (docker).")
     return TOKEN_FILE.read_text().strip()
 
 
 def main():
     token = load_token()
 
-    rdb = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True,
+    rdb = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0, decode_responses=True,
                       protocol=2)
     rdb.ping()
     print("Redis baglandi.")

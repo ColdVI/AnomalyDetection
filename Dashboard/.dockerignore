@@ -1,0 +1,7 @@
+influxdb/
+influx_token.txt
+*.bat
+*.ps1
+__pycache__/
+*.pyc
+.git/

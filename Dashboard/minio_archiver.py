@@ -27,7 +27,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-BOOTSTRAP    = "localhost:9092"
+BOOTSTRAP    = os.environ.get("KAFKA_BOOTSTRAP", "localhost:9092")
 TOPIC        = "adsb.flights"
 GROUP_ID     = "minio-archiver"
 BATCH_SIZE   = 500          # kaç mesajda bir dosya yaz
@@ -47,7 +47,8 @@ def get_minio() -> Minio:
 
 def ensure_lifecycle(client: Minio, bucket: str) -> None:
     """7 günlük silme kuralı — sadece adsblol_realtime/_landing/ prefix'i için."""
-    from minio.lifecycleconfig import LifecycleConfig, Rule, Filter, Expiration
+    from minio.lifecycleconfig import LifecycleConfig, Rule, Expiration
+    from minio.commonconfig import Filter
     try:
         cfg = LifecycleConfig([
             Rule(
