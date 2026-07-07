@@ -144,14 +144,21 @@ JS, CDN'den MapLibre GL JS) bu dosyaları `fetch()` ile okuyup çizer.
 4. Büyük veriyi asla HTML içine gömülü `<script>` JSON'u olarak yazma —
    ayrı `.geojson`/`.json` dosyasından `fetch()` ile yükle.
 
-### 1. `load_adsb_gold_data(client=None) -> pd.DataFrame`
-MinIO Gold'dan `adsblol_hist`/`adsblol_historical`/`adsblol_rt`/`adsblol_realtime`
-satırlarını çeker, birleştirir. `src/common/minio_io.py`'deki
-`get_minio_client()`/`read_layer()`'ı çağır, yeniden yazma.
+### 1. `load_adsb_gold_data(client=None) -> Iterator[pd.DataFrame]`
+**DEĞİŞTİ (2026-07-07):** Gerçek veri **1.006.744.756 satır** (adsb historical,
+2.500 Gold parçası) çıktı — 16GB RAM'e tek DataFrame olarak sığmaz. Bu yüzden
+`read_layer()` (hepsini `pd.concat` eden) KULLANILMAZ. Bunun yerine bir
+**generator**: `list_layer_objects(client, gold_bucket, "unified")` ile parça
+listesini al, her parçayı `read_parquet_object` ile TEK TEK oku, `source_type`
+kolonu `adsblol_historical`/`adsblol_hist`/`adsblol_realtime`/`adsblol_rt`
+olan satırları filtrele, `yield` et. Çağıran taraf (`compute_hex_density`,
+örnekleme adımı) bu generator'ı tüketir, hiçbir zaman tüm veri aynı anda
+bellekte olmaz.
 
 ### 2. `clean_coordinates(df) -> pd.DataFrame`
 Null `lat`/`lon` at, geçersiz aralık dışını (`lat` -90/90, `lon` -180/180)
-filtrele. Kaç satır silindiğini logla.
+filtrele. Kaç satır silindiğini logla. Değişmedi — ama artık `load_adsb_gold_data()`'nin
+her tek chunk'ına ayrı ayrı uygulanır (generator'ı tüketen döngü içinde).
 
 ### 3. `filter_bbox(df, min_lat, max_lat, min_lon, max_lon) -> pd.DataFrame`
 İsteğe bağlı bölgesel filtre (senin analiz kararın, pipeline'da yok).
@@ -164,8 +171,28 @@ ekle. `resolution`'ı CLI argümanı yap, sabit yazma.
 `h3.cell_to_boundary(hex_id)` ile hex sınır koordinatlarını GeoJSON
 `Polygon` `coordinates` formatına ([lon, lat] sırası, ring kapalı) çevir.
 
-### 6. `compute_hex_density(df) -> pd.DataFrame`
-`.groupby("h3_cell").size().reset_index(name="point_count")`.
+### 6. `compute_hex_density(chunks: Iterator[pd.DataFrame]) -> pd.DataFrame`
+**DEĞİŞTİ:** Tek `df` almaz, `load_adsb_gold_data()`'den gelen (clean+h3
+uygulanmış) chunk generator'ını tüketir. Her chunk için `.groupby("h3_cell").size()`
+yapıp sonucu bir `collections.Counter`'da biriktirir (benzersiz hex sayısı
+-- resolution'a göre birkaç bin ile birkaç milyon arası -- rahatça bellekte
+tutulabilir, çünkü toplam SATIR sayısı değil toplam benzersiz HEX sayısı bu.
+Sonunda `Counter`'ı `pd.DataFrame(..., columns=["h3_cell","point_count"])`'e çevirip döner.
+
+### 6.1 Kümeleme için örnekleme (yeni adım, 9'dan önce)
+
+1 milyar noktada DBSCAN çalıştırmak hesaplama açısından imkansız. Bu yüzden
+`compute_hex_density` ile **aynı streaming geçişte** (chunk'ları ikinci kez
+okumaya gerek kalmadan) bir rezervuar örneği de biriktirilir:
+
+`reservoir_sample_chunks(chunks: Iterator[pd.DataFrame], max_points: int) -> pd.DataFrame`
+— her chunk'tan `max_points / toplam_chunk_sayısı` kadar rastgele satır alıp
+biriktirir (toplam chunk sayısı bilinmiyorsa `np.random.choice` ile chunk
+başına sabit bir oranda örnekleme de kabul edilebilir, hassas rezervuar
+algoritması şart değil). Çıktı boyutu (`max_points`, CLI argümanı, örn.
+2-5 milyon) sklearn DBSCAN'in haversine metric ile makul sürede çalışacağı
+bir ölçek olmalı. Kümeleme (Adım 9-13) bu örnek üzerinde çalışır, tüm veri
+üzerinde DEĞİL.
 
 ### 7. `build_density_geojson(density_df) -> dict`
 Her hex'i `h3_cell_to_polygon` ile bir GeoJSON `Feature` (`properties.point_count`

@@ -408,3 +408,13 @@ INFO:__main__:  Progress: 60900/62531 members
 INFO:__main__:Silver part 00202: 380138 rows (total 80397773 so far)
 INFO:__main__:  Progress: 61200/62531 members
 INFO:__main__:Silver part 00203: 424275 rows (total 80822048 so far)
+INFO:__main__:  Progress: 61500/62531 members
+INFO:__main__:Silver part 00204: 387474 rows (total 81209522 so far)
+INFO:__main__:  Progress: 61800/62531 members
+INFO:__main__:Silver part 00205: 402624 rows (total 81612146 so far)
+INFO:__main__:  Progress: 62100/62531 members
+INFO:__main__:Silver part 00206: 375681 rows (total 81987827 so far)
+INFO:__main__:  Progress: 62400/62531 members
+INFO:__main__:Silver part 00207: 428265 rows (total 82416092 so far)
+INFO:__main__:Silver part 00208: 160659 rows (total 82576751 so far)
+INFO:__main__:Done v2025.11.15-planes-readsb-prod-0.tar: 209 Silver part(s), 82576751 total rows, 0 error(s)

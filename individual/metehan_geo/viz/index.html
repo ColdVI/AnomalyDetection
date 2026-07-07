@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<title>Metehan — ADS-B Yoğunluk / Rota Haritası</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; }
+  #map { position: absolute; inset: 0; }
+  #panel {
+    position: absolute; top: 10px; left: 10px; z-index: 1;
+    background: rgba(20, 20, 24, 0.85); color: #eee; font: 13px/1.4 system-ui, sans-serif;
+    padding: 10px 12px; border-radius: 8px; max-width: 260px;
+  }
+  #panel label { display: block; margin-top: 6px; }
+  #panel select, #panel button { width: 100%; margin-top: 2px; }
+  #panel .row { display: flex; gap: 6px; }
+  #panel .row > * { flex: 1; }
+  #legend { margin-top: 8px; font-size: 11px; opacity: 0.85; }
+  #status { margin-top: 8px; font-size: 11px; opacity: 0.7; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="panel">
+  <strong>ADS-B Yoğunluk Haritası</strong>
+  <label>Harita stili
+    <select id="styleSelect">
+      <option value="dark">Siyasi — Koyu (CARTO Dark Matter)</option>
+      <option value="light">Siyasi — Açık (CARTO Positron)</option>
+      <option value="liberty">Siyasi — Renkli (OpenFreeMap Liberty)</option>
+    </select>
+  </label>
+  <div class="row">
+    <button id="toggleFizikiBtn">Fiziki (hillshade) aç/kapa</button>
+  </div>
+  <div id="legend">
+    Hex rengi: nokta yoğunluğu (açık sarı → düşük, koyu kırmızı → yüksek).
+    Sağ alttaki küre ikonu 2D/3D geçişi.
+  </div>
+  <div id="status">density.geojson yükleniyor...</div>
+</div>
+<script>
+// --- Bölüm 5.1 kararı: MapLibre GL JS, vanilla, CDN, Node.js/build yok. ---
+
+const STYLES = {
+  dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+  light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+  liberty: "https://tiles.openfreemap.org/styles/liberty",
+};
+
+let currentStyleKey = "dark";
+let hillshadeOn = false;
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: STYLES[currentStyleKey],
+  center: [35, 39], // Turkiye civari baslangic, veri global
+  zoom: 3,
+});
+
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+map.addControl(new maplibregl.GlobeControl(), "bottom-right");
+
+// Performans kurali: ham nokta verisi degil, onceden agregat edilmis
+// density.geojson (h3_cell + point_count) fetch() ile ayri dosyadan yuklenir.
+async function loadDensityGeoJSON() {
+  const res = await fetch("data/density.geojson");
+  if (!res.ok) throw new Error(`density.geojson yuklenemedi: ${res.status}`);
+  return res.json();
+}
+
+function addDensityLayers(geojson) {
+  if (map.getSource("density")) return; // zaten ekli
+
+  map.addSource("density", { type: "geojson", data: geojson });
+
+  map.addLayer({
+    id: "density-fill",
+    type: "fill",
+    source: "density",
+    paint: {
+      "fill-color": [
+        "interpolate", ["linear"], ["get", "point_count"],
+        0, "#ffffb2",
+        100, "#fecc5c",
+        1000, "#fd8d3c",
+        10000, "#f03b20",
+        100000, "#bd0026",
+      ],
+      "fill-opacity": 0.55,
+    },
+  });
+
+  map.addLayer({
+    id: "density-outline",
+    type: "line",
+    source: "density",
+    paint: { "line-color": "#000000", "line-opacity": 0.08, "line-width": 0.5 },
+  });
+}
+
+function addHillshadeLayer() {
+  if (map.getSource("terrarium")) return;
+  map.addSource("terrarium", {
+    type: "raster-dem",
+    tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+    tileSize: 256,
+    encoding: "terrarium",
+    maxzoom: 15,
+  });
+  map.addLayer(
+    { id: "hillshade", type: "hillshade", source: "terrarium", paint: { "hillshade-exaggeration": 0.4 } },
+    "density-fill" // yogunluk katmaninin ALTINA ekle
+  );
+}
+
+// map.setStyle(...) tum custom source/layer'lari siler -- her stil
+// degisiminde bunlari YENIDEN eklemek gerekiyor. En sik yapilan hata burasi.
+let cachedDensityGeoJSON = null;
+
+map.on("style.load", async () => {
+  map.setProjection({ type: "globe" });
+
+  if (!cachedDensityGeoJSON) {
+    try {
+      cachedDensityGeoJSON = await loadDensityGeoJSON();
+      document.getElementById("status").textContent =
+        `${cachedDensityGeoJSON.features.length} hex yuklendi.`;
+    } catch (err) {
+      document.getElementById("status").textContent = `Hata: ${err.message}`;
+      return;
+    }
+  }
+  addDensityLayers(cachedDensityGeoJSON);
+  if (hillshadeOn) addHillshadeLayer();
+});
+
+document.getElementById("styleSelect").addEventListener("change", (e) => {
+  currentStyleKey = e.target.value;
+  map.setStyle(STYLES[currentStyleKey]); // style.load handler katmanlari yeniden ekler
+});
+
+document.getElementById("toggleFizikiBtn").addEventListener("click", () => {
+  hillshadeOn = !hillshadeOn;
+  if (hillshadeOn) {
+    addHillshadeLayer();
+  } else if (map.getLayer("hillshade")) {
+    map.removeLayer("hillshade");
+    map.removeSource("terrarium");
+  }
+});
+</script>
+</body>
+</html>
