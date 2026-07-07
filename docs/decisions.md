@@ -345,3 +345,36 @@ kaldı**; holdout açılmaz, `itki_komutu` production füzyona alınmaz. Sonuç 
 listesi, füzyon veya policy grid'i değiştirilmez; kategori-bazlı ayrı alarm kanalı gibi bir
 mimari ancak yeni, ön-kayıtlı bir fazla değerlendirilebilir. Artifact:
 `artifacts/ml12/uav_sead/full_matrix/`.
+
+## ADR-013: ML-13 iki alarm kanalı mimarisi recall kazandı ama FA şartında reddedildi
+
+- Durum: Development rejected; operational deployment rejected
+- Tarih: 2026-07-07
+
+ML-12'nin H30 bulgusu ("`itki_komutu` güçlü bir kategori uzmanı ama max-füzyonda FA yükü yüzünden
+eriyor") üzerine ML-13 ön-kayıtlı iki-kanal mimarisi uygulandı
+(`docs/ML13_KANAL_MIMARISI_PLAN.md`). Sistem kanalı donmuş ML-9 `existing_fusion`, mekanik kanal
+ML-12'nin kayıtlı `itki_komutu` split modelleridir. Skorlayıcı model eğitimi yapılmadı; ML-9/ML-12
+manifest checksum'ları doğrulandı, 131-uçuş blind holdout okunmadı, decision layer ve
+`event_metrics` fonksiyonları değiştirilmeden kullanıldı. Kanal birleşimi, aynı 1 s karar kovasında
+çift tetikleri tek operatör bildirimi sayan boolean onset OR'udur. **Gate A geçti.**
+
+Önceden sabitlenen üç bütçe bölüşümü değerlendirildi: advisory 10+2 / 8+4 / 6+6 ve critical
+1.67+0.33 / 1.33+0.67 / 1+1. Birleşik kanal en iyi tek-kanal baseline'a karşı recall kazancı verdi:
+`dengeli` CUSUM/advisory 0.217→0.291 (+0.074, 5/5 seed), CUSUM/critical 0.137→0.212 (+0.075,
+5/5), K-of-N/advisory 0.016→0.122 (+0.105, 5/5). Ancak tüm bu anlamlı recall artışları FA'yı
+ön-kayıtlı 1.10x freninin üstüne taşıdı: CUSUM/advisory 23.70→44.70 FA-saat (1.89x),
+CUSUM/critical 12.98→27.49 (2.12x), K-of-N/advisory 3.29→12.60 (3.83x). **Gate B kaldı**:
+kazanım FA şişirerek satın alındı.
+
+Operasyonel Gate C1 de geçmedi. En iyi birleşik advisory recall 0.291 / 44.70 FA-saat
+(hedef ≥0.50 @ ≤12), en iyi critical recall 0.212 / 27.49 FA-saat (hedef ≥0.30 @ ≤2). Bütçe-içi
+advisory satırın recall'u yalnız 0.106 / 11.16 oldu. Sınırlı Gate C2 de geçmedi: mekanik kanal
+Actuator Outputs+Controls için `dengeli` K-of-N/advisory'de 0.541 recall üretti ama 12.60 FA-saat
+ile 12 sınırını aştı; `esit` threshold/advisory 0.498 / 11.16 ile recall eşiğinin az altında kaldı.
+Dolayısıyla "mekanik-özel monitör" iddiası da development'ta kanıtlanmış sayılmaz.
+
+Karar: ML-13 mimarisi production'a alınmaz, blind holdout açılmaz, bütçe bölüşümü/policy/OR
+semantiği sonuç görülerek değiştirilmez. Artifact `artifacts/ml13/uav_sead/full_matrix/` altındadır;
+`tests/test_ml13.py` 8/8 geçti, Gate B/C sayıları ham CSV'lerden bağımsız yeniden türetildi ve MinIO
+hariç geniş test paketi 186 passed / 22 deselected olarak tamamlandı.
