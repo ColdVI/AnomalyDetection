@@ -317,3 +317,31 @@ bırakır. RNG tüketimi ve early-stopping kararı bire bir aynı kaldı (davran
 (4) Tek-feature AUC'ler keşif çıktısıdır: aday feature'larla aynı veri üzerinde sonuç
 raporlanmaz; değerlendirme ancak yeni, ön-kayıtlı bir Gate turunda yapılır. (5) D.1'deki
 "~32 oturum" tahmini bu fazda 64 (dev: 49) olarak düzeltildi.
+
+## ADR-012: ML-12 ince-modül Gate B geçti (B1+B2); fusion Gate C yine reddedildi
+
+- Durum: Development category accepted; operational deployment rejected
+- Tarih: 2026-07-07
+
+ML-11'in seyrelme hipotezi (H26) ön-kayıtlı iki adayla test edildi (`docs/ML12_INCE_MODUL_PLAN.md`;
+listeler, hiperparametreler, füzyon tanımları ve Gate kuralları sonuç görülmeden sabitlendi).
+Donmuş ML-9 split scaler'ları ve modelleri checksum doğrulamasıyla yeniden kullanıldı;
+`motor_simetrisi`/`existing_fusion` (ML-9) ve `chronos_motor`/`ml10_fusion` (ML-10) baseline
+satırları yeniden hesaplanmadan donmuş CSV'lerden alındı ve testle bire bir eşitliği kanıtlandı.
+Blind holdout (131 uçuş) hiçbir aşamada okunmadı. **Gate A geçti.**
+
+Tek-feature `itki_komutu` (actuator_thrust_cmd) Actuator Outputs+Controls'te 6 policy/bütçe
+kombinasyonunun 5'inde anlamlı kazanç verdi: `motor_simetrisi`ne karşı CUSUM/advisory 0.205→0.459
+(+0.254, 4/5 seed), K-of-N/advisory +0.332 (5/5); `chronos_motor`a karşı CUSUM/advisory
+0.390→0.459 (+0.068, 3/5), CUSUM/critical +0.132 (5/5). **Gate B hem B1 (gate'i belirleyen) hem
+B2'den (bilinen-en-iyi) geçti** — kategori için bilinen en iyi skor artık ince modül.
+3-feature `itki_kontrol_ince` her yerde tek-feature'ın altında kaldı: seyrelme 3 feature'da bile
+ölçülür; geniş-modül mimarisinin kategori zafiyetindeki payı deneysel olarak doğrulandı.
+
+`ml12_fusion_itki` CUSUM/advisory 0.217 recall / 23.74 FA-saat verdi (hedef ≥0.50 @ ≤12) — mevcut
+ve ML-10 füzyonlarıyla pratikte aynı. Kök neden ölçüldü: ince modül normal uçuşlarda 38.1 FA-saat
+bırakan bir kategori uzmanı; max-füzyon böyle bir uzmanı hedef bütçede kullanamıyor. **Gate C
+kaldı**; holdout açılmaz, `itki_komutu` production füzyona alınmaz. Sonuç görüldükten sonra modül
+listesi, füzyon veya policy grid'i değiştirilmez; kategori-bazlı ayrı alarm kanalı gibi bir
+mimari ancak yeni, ön-kayıtlı bir fazla değerlendirilebilir. Artifact:
+`artifacts/ml12/uav_sead/full_matrix/`.

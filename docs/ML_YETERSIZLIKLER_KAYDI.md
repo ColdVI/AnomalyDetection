@@ -167,6 +167,17 @@ kanıtlandı. `chronos_dikey` Position.Z'de 0.096→0.023 ile geriledi. Sabit BA
 quantile, fusion veya policy sonucu görerek ayarlanmadı; holdout kapalı kaldı. Pilot tamamlanmıştır,
 ancak skor production/default adayı değildir.
 
+### C.7 — ML-12: ince-modül Gate B geçti (B1+B2), fusion Gate C yine kaldı (✅ Tur tamamlandı, ADR-012)
+
+ML-11'in seyrelme hipotezi ön-kayıtlı testte doğrulandı: tek-feature `itki_komutu`
+(actuator_thrust_cmd) Actuator Outputs+Controls CUSUM/advisory recall'ını 0.205→**0.459**'a
+taşıdı ve `chronos_motor`u da (0.390) geçti — kategori için bilinen en iyi skor artık bu.
+3-feature ince varyant bile tek-feature'ın altında kaldı (seyrelme 3 feature'da ölçülür). AMA
+füzyon yine operasyonel hedefe dönüşmedi (0.217/23.74 FA-saat): kök neden ölçüldü — ince modül
+normal uçuşlarda 38.1 FA-saat bırakan bir **kategori uzmanı**; max-füzyon böyle bir uzmanı hedef
+bütçede kullanamıyor. Kategori-bazlı ayrı alarm kanalı gibi bir mimari değişiklik ancak yeni
+ön-kayıtlı fazla değerlendirilir. Holdout kapalı.
+
 ---
 
 ## D. Metodolojik / istatistiksel sınırlamalar
@@ -215,12 +226,16 @@ listesinde (#4), platform-bazlı ayrı kalibrasyon önerisi var.
 
 ### E.1 — SEAD zayıf kategoriler için hiçbir policy kritik/advisory bütçeyi karşılamıyor (🔴 Güncel durum)
 
-ML-7'den ML-10'a kadar hiçbir fusion/policy konfigürasyonu Position.Z veya Actuator Outputs+Controls için
+ML-7'den ML-12'ye kadar hiçbir fusion/policy konfigürasyonu Position.Z veya Actuator Outputs+Controls için
 ≤2 FA/saat @ ≥0.30 recall (kritik) ya da ≤12 FA/saat @ ≥0.50 recall (advisory) hedefini
-karşılamadı. ML-10 mechanical kategori skorunu tek başına belirgin iyileştirdi (0.390 recall), ama
-ML10 fusion yalnız 0.213 recall / 23.92 FA-saat verdi — advisory FA bütçesinin yaklaşık 2 katı.
-Dolayısıyla kategori sinyali bulundu, operasyonel bütün-sistem açığı kapanmadı; yeni veri veya
-önceden tanımlı ayrı bir füzyon hipotezi olmadan mevcut development sonucuna tuning yapılmayacak.
+karşılamadı. Kategori skoru iki turda üst üste belirgin iyileşti (ML-10 `chronos_motor` 0.390,
+ML-12 `itki_komutu` **0.459** CUSUM/advisory recall) ama füzyonlar hep aynı bantta kaldı
+(0.212-0.217 recall / ~24 FA-saat — advisory FA bütçesinin ~2 katı). ML-12 kök nedeni ölçtü:
+kategori-uzmanı skorlar normal uçuşlarda yüksek FA bırakıyor ve max-füzyon bunları hedef bütçede
+kullanamıyor. Dolayısıyla kategori sinyali fazlasıyla var, operasyonel bütün-sistem açığı
+mimariden kaynaklı; kategori-bazlı ayrı alarm kanalı gibi bir değişiklik ancak yeni ön-kayıtlı
+fazla, yeni veri veya ayrı füzyon hipoteziyle ele alınır — mevcut development sonucuna tuning
+yapılmayacak.
 
 ### E.2 — Blind holdout (131 SEAD uçuşu) hiç açılmadı — gerçek "nihai" sayı yok (⚪ Bilinçli, doğru davranış)
 
@@ -287,6 +302,7 @@ bilerek ML kapsamının dışında tutuluyor.
 | C.1 | ML-8A LightGBM Gate B/C kaldı | ADR-008 | ✅ Kapandı | ML-8C/başka model ailesi (planlanmadı) |
 | C.2 | ML-9 kategori residual Gate B/C kaldı | ADR-009 | ✅ Kapandı | **ML-10 planlandı** (`docs/ML10_PLAN.md`) |
 | C.6 | ML-10 mechanical Gate B geçti, fusion Gate C kaldı | H22-H24, ADR-010 | ✅ Pilot tamamlandı | Yeni bağımsız protokol olmadan tuning/holdout yok |
+| C.7 | ML-12 ince-modül Gate B geçti (B1+B2), fusion Gate C kaldı | H29-H30, ADR-012 | ✅ Tur tamamlandı | Kategori-bazlı alarm kanalı ancak yeni ön-kayıtlı fazla |
 | C.3 | USAD < LSTM-AE | ML-3 | ✅ Kapandı | — (karar verildi) |
 | C.4 | IF-füzyon heterojen normale kırılgan | B3 | 🟡 Açık iş | nav_info'suz uçuşları val'den ayır |
 | C.5 | Oran-skoru max'tan kötü | H10 | ✅ Kapandı | — (hipotez reddedildi) |
@@ -302,5 +318,5 @@ bilerek ML kapsamının dışında tutuluyor.
 | F.3 | 4 MinIO SDK test hatası | — | ⚪ Bilinçli | Kapsam dışı, minio paketi güncellenirse kapanır |
 | F.4 | MOMENT bu ortamda kurulamıyor | bu oturum | 🔴 Yapısal | Ayrı Python 3.10/3.11 ortamı (orantısız) |
 
-**Sayaç:** 29 madde — 8 🔴 yapısal sınır, 5 🟡 gerçek açık iş, 8 ⚪ bilinçli kapsam dışı,
-8 ✅ kapandı/telafi edildi.
+**Sayaç:** 30 madde — 8 🔴 yapısal sınır, 5 🟡 gerçek açık iş, 8 ⚪ bilinçli kapsam dışı,
+9 ✅ kapandı/telafi edildi.
