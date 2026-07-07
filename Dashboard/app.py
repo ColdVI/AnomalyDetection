@@ -277,28 +277,78 @@ def get_alerts():
     return [json.loads(a) for a in r.lrange("iha:recent_alerts", 0, 9)]
 
 
-@app_api.get("/api/route/{callsign}")
-def get_route(callsign: str):
-    """adsb.lol/ADS-B protokolu kalkis/varis tasimiyor -- adsbdb.com'un
-    ucretsiz, topluluk tarafindan tutulan callsign->rota veritabanini
-    kullaniyoruz. Rota nadiren degistigi icin Redis'te 12 saat cache'liyoruz,
-    her secimde dis API'ye vurmayalim.
+def _fetch_adsblol_route(callsign: str, lat: float, lon: float):
+    """adsb.lol'un KENDI rota API'si -- adsbdb.com'dan FARKLI, muhtemelen
+    daha guncel bir kaynak (VRS standing data + adsb.lol'un kendi
+    plausibility filtresi). Kullanici WZZ43 testinde adsbdb.com YANLIS,
+    adsb.lol'un kendi sitesi DOGRU rota gosterdigi icin bu tekrar denendi.
 
-    === DENENIP VAZGECILEN: adsb.lol'un KENDI routeset API'si ===
-    adsb.lol'un kendi web sitesinin kullandigi
-    "https://api.adsb.lol/api/0/routeset" (tar1090 projesinin resmi
-    dokumantasyonunda dogrulanmis) denendi -- kullanici WZZ43 testinde
-    adsbdb.com YANLIS, adsb.lol'un SITESI DOGRU rota gosterdigi icin bu
-    umut vericiydi. Ama 6 farkli istek varyasyonu (POST'ta 5 farkli govde
-    sekli + duz GET) HEPSI ayni sonucu verdi: HTTP 201, Content-Type
-    text/html, TAMAMEN BOS govde -- istek ICERIGINDEN BAGIMSIZ olarak
-    AYNI cevap gelmesi, bunun bizim istek formatimizla ilgili olmadigini,
-    muhtemelen bir CDN/guvenlik katmaninin (API anahtari yok, tarayici
-    gibi gorunmuyoruz, veya endpoint'in kendisi degisti/kullanimdan
-    kalkti) bu istekleri sessizce engelledigini gosteriyor -- format
-    tahmin ederek asilamayacak bir sinir. adsbdb.com'a geri donuldu.
-    === /DENENIP VAZGECILEN ===
-    """
+    ONCEKI DENEMEDE (6 varyasyon) HEPSI ayni bos "201 text/html" yanitini
+    veriyordu -- COZULDU: sebep istek govdesi degil, EKSIK Origin/Referer
+    basliklariydi (muhtemelen bir CORS/bot-koruma katmani, sadece
+    adsb.lol'un KENDI sitesinden gelen isteklere gercek yanit veriyor).
+    Origin+Referer eklenince endpoint GERCEK bir 422 hatasi verdi --
+    bu da GERCEK semayi ortaya cikardi: "callsign" YETMIYOR, "lat" ve
+    "lng" de ZORUNLU (muhtemelen adsb.lol kendi "plausible" filtresini
+    ucagin GERCEK konumuna gore hesapliyor -- bkz. "plausible" alani).
+    Bu yuzden bu fonksiyon artik lat/lon PARAMETRE olarak ALIYOR --
+    caginin bunlari saglamasi sart, yoksa istek zaten calismaz."""
+    try:
+        resp = requests.post(
+            "https://api.adsb.lol/api/0/routeset",
+            json={"planes": [{"callsign": callsign, "lat": lat, "lng": lon}]},
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                              "AppleWebKit/537.36 (KHTML, like Gecko) "
+                              "Chrome/124.0.0.0 Safari/537.36",
+                "Accept": "application/json, text/plain, */*",
+                "Content-Type": "application/json",
+                "Origin": "https://adsb.lol",
+                "Referer": "https://adsb.lol/",
+            },
+            timeout=5,
+        )
+        if resp.status_code != 200:
+            return None
+        data = resp.json()
+        if not data or not isinstance(data, list):
+            return None
+        route = data[0]
+        if not route.get("airport_codes") or route.get("airport_codes") == "unknown":
+            return None
+        airports = route.get("_airports") or []
+        if len(airports) < 2:
+            return None
+        origin, dest = airports[0], airports[-1]  # ara durak varsa atlaniyor, ilk/son alinir
+        return {
+            "found": True,
+            "airline": route.get("airline_code"),  # ICAO kodu -- adsbdb kadar zengin (tam isim) degil
+            "origin_name": origin.get("name"),
+            "origin_iata": origin.get("iata"),
+            "origin_city": origin.get("location"),
+            "origin_lat": origin.get("lat"),
+            "origin_lon": origin.get("lon"),
+            "dest_name": dest.get("name"),
+            "dest_iata": dest.get("iata"),
+            "dest_city": dest.get("location"),
+            "dest_lat": dest.get("lat"),
+            "dest_lon": dest.get("lon"),
+            # adsb.lol'un KENDI guven bayragi -- update_route_info/line
+            # bunu bizim _route_is_plausible() kontrolumuzle BIRLIKTE
+            # kullaniyor.
+            "source_plausible": bool(route.get("plausible", True)),
+        }
+    except Exception:
+        return None
+
+
+@app_api.get("/api/route/{callsign}")
+def get_route(callsign: str, lat: float = None, lon: float = None):
+    """Kalkis/varis rotasi -- ONCE adsb.lol'un kendi route API'sini
+    dener (dogru sema + basliklarla artik CALISIYOR, bkz.
+    _fetch_adsblol_route docstring'i), basarisiz olursa VEYA lat/lon
+    saglanmamissa adsbdb.com'a DUSER. Rota nadiren degistigi icin
+    Redis'te 12 saat cache'liyoruz, her secimde dis API'ye vurmayalim."""
     callsign = callsign.strip().upper()
     if not callsign:
         return {"found": False}
@@ -309,31 +359,36 @@ def get_route(callsign: str):
     if cached is not None:
         return json.loads(cached)
 
-    result = {"found": False}
-    try:
-        resp = requests.get(f"https://api.adsbdb.com/v0/callsign/{callsign}", timeout=5)
-        if resp.status_code == 200:
-            data = resp.json().get("response", {})
-            route = data.get("flightroute")
-            if route:
-                origin = route.get("origin") or {}
-                dest = route.get("destination") or {}
-                result = {
-                    "found": True,
-                    "airline": (route.get("airline") or {}).get("name"),
-                    "origin_name": origin.get("name"),
-                    "origin_iata": origin.get("iata_code"),
-                    "origin_city": origin.get("municipality"),
-                    "origin_lat": origin.get("latitude"),
-                    "origin_lon": origin.get("longitude"),
-                    "dest_name": dest.get("name"),
-                    "dest_iata": dest.get("iata_code"),
-                    "dest_city": dest.get("municipality"),
-                    "dest_lat": dest.get("latitude"),
-                    "dest_lon": dest.get("longitude"),
-                }
-    except Exception:
-        pass  # bulunamadi/erisilemedi -- found:False donuyoruz, cache'lemiyoruz
+    result = None
+    if lat is not None and lon is not None:
+        result = _fetch_adsblol_route(callsign, lat, lon)
+
+    if result is None:
+        result = {"found": False}
+        try:
+            resp = requests.get(f"https://api.adsbdb.com/v0/callsign/{callsign}", timeout=5)
+            if resp.status_code == 200:
+                data = resp.json().get("response", {})
+                route = data.get("flightroute")
+                if route:
+                    origin = route.get("origin") or {}
+                    dest = route.get("destination") or {}
+                    result = {
+                        "found": True,
+                        "airline": (route.get("airline") or {}).get("name"),
+                        "origin_name": origin.get("name"),
+                        "origin_iata": origin.get("iata_code"),
+                        "origin_city": origin.get("municipality"),
+                        "origin_lat": origin.get("latitude"),
+                        "origin_lon": origin.get("longitude"),
+                        "dest_name": dest.get("name"),
+                        "dest_iata": dest.get("iata_code"),
+                        "dest_city": dest.get("municipality"),
+                        "dest_lat": dest.get("latitude"),
+                        "dest_lon": dest.get("longitude"),
+                    }
+        except Exception:
+            pass  # bulunamadi/erisilemedi -- found:False donuyoruz, cache'lemiyoruz
 
     # 12 saat cache -- bulunamadi sonucunu da cache'liyoruz (ayni callsign icin
     # tekrar tekrar bosuna sorgu atmayalim), ama daha kisa sureli (1 saat)
@@ -1477,8 +1532,11 @@ def update_route_line(icao24):
         return []
 
     try:
-        route = requests.get(f"http://localhost:8000/api/route/{callsign}",
-                             timeout=5).json()
+        route = requests.get(
+            f"http://localhost:8000/api/route/{callsign}",
+            params={"lat": match.get("lat"), "lon": match.get("lon")},
+            timeout=5,
+        ).json()
     except Exception:
         route = {"found": False}
 
@@ -1499,13 +1557,18 @@ def update_route_line(icao24):
     dest_label = f"{route.get('dest_city','')} ({route.get('dest_iata','')})"
     positions = _great_circle_points(o_lat, o_lon, d_lat, d_lon, n=64)
 
-    # ONEMLI: update_route_info ile AYNI tutarlilik kontrolu (bkz.
-    # _route_is_plausible() docstring'i) -- supheli rotalarda cizgiyi
+    # ONEMLI: IKI sinyali birlikte kullaniyoruz -- (1) adsb.lol'un route'u
+    # KENDI SUNUCUSUNDA zaten olasilik filtresinden gecirmis olabilir
+    # (bkz. "source_plausible" -- adsbdb.com fallback'inde bu alan yok,
+    # o zaman varsayilan True), (2) bizim KENDI ucak-yonu tutarlilik
+    # kontrolumuz (bkz. _route_is_plausible() docstring'i). Ikisinden
+    # BIRI supheli derse, supheli sayiyoruz. Supheli rotalarda cizgiyi
     # SILMIYORUZ (belki dogrudur), ama daha soluk/kesikli cizerek
     # "bu kesin degil" gorsel sinyali veriyoruz.
-    plausible = _route_is_plausible(
+    own_check = _route_is_plausible(
         match.get("lat"), match.get("lon"), match.get("track"), d_lat, d_lon
     ) if match else True
+    plausible = route.get("source_plausible", True) and own_check
     line_opacity = 0.75 if plausible else 0.3
     dash = "6, 6" if plausible else "2, 8"
 
@@ -1546,8 +1609,11 @@ def update_route_info(icao24, lang):
                         style={"color": "#666", "fontSize": "12px"})
 
     try:
-        route = requests.get(f"http://localhost:8000/api/route/{callsign}",
-                             timeout=5).json()
+        route = requests.get(
+            f"http://localhost:8000/api/route/{callsign}",
+            params={"lat": match.get("lat"), "lon": match.get("lon")} if match else {},
+            timeout=5,
+        ).json()
     except Exception:
         route = {"found": False}
 
@@ -1559,17 +1625,18 @@ def update_route_info(icao24, lang):
     dest = f"{route.get('dest_city','?')} ({route.get('dest_iata','—')})"
     airline = route.get("airline")
 
-    # ONEMLI: adsbdb'nin cagri kodu->rota eslemesi statik/gecmise dayali --
-    # bazi hava yollari ayni ucus numarasini farkli rotalarda yeniden
-    # kullaniyor (bkz. _route_is_plausible() docstring'i, WZZ43 ornegi).
-    # Ucagin GERCEK anlik yonuyle basit bir tutarlilik kontrolu yapip,
-    # acikca celisen (orn. ters yone giden) rotalari uyariyoruz -- rotayi
+    # ONEMLI: IKI sinyali birlikte kullaniyoruz -- (1) adsb.lol'un route'u
+    # KENDI SUNUCUSUNDA zaten olasilik filtresinden gecirmis olabilir
+    # (bkz. "source_plausible" -- adsbdb.com fallback'inde bu alan yok,
+    # o zaman varsayilan True), (2) bizim KENDI ucak-yonu tutarlilik
+    # kontrolumuz (bkz. _route_is_plausible() docstring'i, WZZ43 ornegi).
+    # Ikisinden BIRI supheli derse, supheli sayiyoruz. Rotayi
     # GIZLEMIYORUZ (belki dogrudur, heuristik kesin degil), sadece
     # supheli oldugunu isaretliyoruz.
-    plausible = True
+    plausible = route.get("source_plausible", True)
     d_lat, d_lon = route.get("dest_lat"), route.get("dest_lon")
     if match and d_lat is not None and d_lon is not None:
-        plausible = _route_is_plausible(
+        plausible = plausible and _route_is_plausible(
             match.get("lat"), match.get("lon"), match.get("track"), d_lat, d_lon)
 
     return html.Div(style={

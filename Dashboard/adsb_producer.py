@@ -187,13 +187,17 @@ def _parse_adsblol_aircraft(ac: dict):
     except (TypeError, ValueError):
         is_military = False
 
-    # ONEMLI: readsb (adsb.lol'un altyapisi), bir ucaktan mesaj kesilse
-    # bile onu 60 saniyeye kadar listede TUTAR -- "seen" alani, o mesajin
-    # GERCEKTE kac saniye once alindigini gosterir. Bu deger BUYUKSE
-    # (orn. 30-40sn+), ucak hala listede olsa bile sinyali aslinda
-    # KESILMIS/eskimis olabilir -- biz bunu KULLANMADAN once, boyle
-    # ucaklar bizim gozumuzde her zaman "taze" gorunuyordu.
-    signal_age = ac.get("seen")
+    # ONEMLI: readsb (adsb.lol'un altyapisi) IKI AYRI tazelik alani
+    # tutuyor -- "seen" (bu ucaktan HERHANGI bir mesaj -- irtifa/hiz vb. --
+    # ne zaman geldi) ve "seen_pos" (POZISYON ozel olarak ne zaman
+    # guncellendi). Biz haritada POZISYON gosterdigimiz icin asil onemli
+    # olan seen_pos -- bir ucak zayif sinyal bolgesinde olup irtifa/hiz
+    # mesajlari gelmeye devam ederken (yani "seen" dusuk kalirken, ucak
+    # HER cycle'da listede gorunmeye devam eder, bizim cycle-id
+    # temizligimiz HICBIR ZAMAN tetiklenmez) pozisyonu DAKIKALARCA
+    # guncellenmemis olabilir -- bu durumu SADECE seen_pos yakalar.
+    # seen_pos yoksa (readsb her zaman doldurmuyor) seen'e dusuyoruz.
+    signal_age = ac.get("seen_pos", ac.get("seen"))
 
     return _normalize_common(
         icao24=icao, callsign=(ac.get("flight") or "").strip(),
