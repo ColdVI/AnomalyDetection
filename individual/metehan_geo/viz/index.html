@@ -37,11 +37,17 @@
     <button id="toggleFizikiBtn">Fiziki (hillshade) aç/kapa</button>
     <button id="toggleGlobeBtn">2D / 3D Küre</button>
   </div>
+  <div class="row">
+    <button id="toggleMlatBtn">MLAT kapsama katmanı aç/kapa</button>
+  </div>
   <div id="legend">
     Hex rengi: nokta yoğunluğu (açık sarı → düşük, koyu kırmızı → yüksek).
-    "2D / 3D Küre" butonu ile küre görünümüne geçilebilir.
+    Zoom yaptıkça hex çözünürlüğü otomatik incelir (res3→4→5, hex içinde hex).
+    "2D / 3D Küre" butonu ile küre görünümüne geçilebilir. Mavi katman: MLAT
+    (multilateration) kapsamı — koyu mavi = o hex'teki trafiğin büyük kısmı
+    MLAT'tan geliyor (tek istasyon kapsamının sınırında).
   </div>
-  <div id="status">density.geojson yükleniyor...</div>
+  <div id="status">yükleniyor...</div>
 </div>
 <script>
 // --- Bölüm 5.1 kararı: MapLibre GL JS, vanilla, CDN, Node.js/build yok. ---
@@ -76,12 +82,50 @@ window.addEventListener("error", (e) => {
   if (el) el.textContent = `JS hatasi: ${e.message}`;
 });
 
-// Performans kurali: ham nokta verisi degil, onceden agregat edilmis
-// density.geojson (h3_cell + point_count) fetch() ile ayri dosyadan yuklenir.
-async function loadDensityGeoJSON() {
-  const res = await fetch("data/density.geojson");
-  if (!res.ok) throw new Error(`density.geojson yuklenemedi: ${res.status}`);
-  return res.json();
+// --- Cok-cozunurluklu H3 (zoom'a gore hex-icinde-hex) ---
+// Resolution 3/4 density_res5.geojson'dan h3.cell_to_parent ile ucretsiz
+// turetildi (1 milyar satiri tekrar taramadan); res5 orijinal tam-cozunurluk.
+// Zoom disari -> kaba/buyuk hex (res3), zoom icine -> ince/kucuk hex (res5).
+const RESOLUTION_TIERS = [
+  { res: 3, maxZoom: 5, file: "data/density_res3.geojson" },
+  { res: 4, maxZoom: 7, file: "data/density_res4.geojson" },
+  { res: 5, maxZoom: Infinity, file: "data/density_res5.geojson" },
+];
+
+function pickResolutionTier(zoom) {
+  return RESOLUTION_TIERS.find(t => zoom < t.maxZoom) ?? RESOLUTION_TIERS[RESOLUTION_TIERS.length - 1];
+}
+
+const geojsonCache = new Map(); // res -> parsed GeoJSON (tekrar fetch etmemek icin)
+
+async function loadDensityGeoJSON(tier) {
+  if (geojsonCache.has(tier.res)) return geojsonCache.get(tier.res);
+  const res = await fetch(tier.file);
+  if (!res.ok) throw new Error(`${tier.file} yuklenemedi: ${res.status}`);
+  const geojson = await res.json();
+  geojsonCache.set(tier.res, geojson);
+  return geojson;
+}
+
+let currentTierRes = null;
+
+async function showResolutionForZoom(zoom) {
+  const tier = pickResolutionTier(zoom);
+  if (tier.res === currentTierRes) return;
+  try {
+    const geojson = await loadDensityGeoJSON(tier);
+    const source = map.getSource("density");
+    if (source) {
+      source.setData(geojson);
+    } else {
+      addDensityLayers(geojson);
+    }
+    currentTierRes = tier.res;
+    document.getElementById("status").textContent =
+      `res${tier.res}: ${geojson.features.length} hex (zoom ${zoom.toFixed(1)})`;
+  } catch (err) {
+    document.getElementById("status").textContent = `Hata: ${err.message}`;
+  }
 }
 
 function addDensityLayers(geojson) {
@@ -114,6 +158,46 @@ function addDensityLayers(geojson) {
   });
 }
 
+// --- MLAT kapsama katmani (kullanicinin onerisi, 2026-07-07) ---
+// Silver'daki ads_source_type alanindan (Gold'da yok, bkz. Bolum 2 istisnasi)
+// hesaplandi -- hangi hex'lerde multilateration kapsamayi genislettigini
+// gosterir. mlat_ratio yuksek olan hex'ler tek-istasyon kapsaminin
+// sinirinda/disinda demek (kiyi/ada istasyon kumeleri civari).
+let mlatOn = false;
+let mlatGeoJSON = null;
+
+async function loadMlatGeoJSON() {
+  if (mlatGeoJSON) return mlatGeoJSON;
+  const res = await fetch("data/mlat_density.geojson");
+  if (!res.ok) throw new Error(`mlat_density.geojson yuklenemedi: ${res.status}`);
+  mlatGeoJSON = await res.json();
+  return mlatGeoJSON;
+}
+
+function addMlatLayer(geojson) {
+  if (map.getSource("mlat")) return;
+  map.addSource("mlat", { type: "geojson", data: geojson });
+  map.addLayer({
+    id: "mlat-fill",
+    type: "fill",
+    source: "mlat",
+    paint: {
+      "fill-color": "#3b82f6", // mavi -- yogunluk katmanindan (sari-kirmizi) ayirt edilsin
+      "fill-opacity": [
+        "interpolate", ["linear"], ["get", "mlat_ratio"],
+        0, 0.05,
+        0.5, 0.35,
+        1, 0.7,
+      ],
+    },
+  });
+}
+
+function removeMlatLayer() {
+  if (map.getLayer("mlat-fill")) map.removeLayer("mlat-fill");
+  if (map.getSource("mlat")) map.removeSource("mlat");
+}
+
 function addHillshadeLayer() {
   if (map.getSource("terrarium")) return;
   map.addSource("terrarium", {
@@ -130,24 +214,20 @@ function addHillshadeLayer() {
 }
 
 // map.setStyle(...) tum custom source/layer'lari siler -- her stil
-// degisiminde bunlari YENIDEN eklemek gerekiyor. En sik yapilan hata burasi.
-let cachedDensityGeoJSON = null;
-
+// degisiminde bunlari YENIDEN eklemek gerekiyor (source/layer kaybolur, ama
+// geojsonCache JS bellekte kaldigi icin tekrar fetch gerekmez). En sik
+// yapilan hata burasi.
 map.on("style.load", async () => {
   map.setProjection({ type: currentProjection });
-
-  if (!cachedDensityGeoJSON) {
-    try {
-      cachedDensityGeoJSON = await loadDensityGeoJSON();
-      document.getElementById("status").textContent =
-        `${cachedDensityGeoJSON.features.length} hex yuklendi.`;
-    } catch (err) {
-      document.getElementById("status").textContent = `Hata: ${err.message}`;
-      return;
-    }
-  }
-  addDensityLayers(cachedDensityGeoJSON);
+  currentTierRes = null; // source/layer'lar stil degisince silindi, yeniden ekle
+  await showResolutionForZoom(map.getZoom());
   if (hillshadeOn) addHillshadeLayer();
+  if (mlatOn) addMlatLayer(await loadMlatGeoJSON());
+});
+
+// Zoom degistikce dogru cozunurluk katmanina gec (hex-icinde-hex hissi).
+map.on("zoomend", () => {
+  showResolutionForZoom(map.getZoom());
 });
 
 document.getElementById("toggleGlobeBtn").addEventListener("click", () => {
@@ -158,6 +238,20 @@ document.getElementById("toggleGlobeBtn").addEventListener("click", () => {
 document.getElementById("styleSelect").addEventListener("change", (e) => {
   currentStyleKey = e.target.value;
   map.setStyle(STYLES[currentStyleKey]); // style.load handler katmanlari yeniden ekler
+});
+
+document.getElementById("toggleMlatBtn").addEventListener("click", async () => {
+  mlatOn = !mlatOn;
+  if (mlatOn) {
+    try {
+      addMlatLayer(await loadMlatGeoJSON());
+    } catch (err) {
+      document.getElementById("status").textContent = `Hata: ${err.message}`;
+      mlatOn = false;
+    }
+  } else {
+    removeMlatLayer();
+  }
 });
 
 document.getElementById("toggleFizikiBtn").addEventListener("click", () => {

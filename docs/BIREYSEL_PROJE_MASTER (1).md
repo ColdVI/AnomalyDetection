@@ -37,12 +37,17 @@ başlıklara referans ver ama okumayı kullanıcı yapacak):
 ## 2. Veri kaynağı ve bağlantı
 
 - **Konum:** MinIO `gold` bucket, `unified/*.parquet` objeleri.
-- **MinIO şu an native Windows process olarak çalışıyor** (Docker değil —
-  altyapı sorunları nedeniyle geçici olarak `minio.exe` ile ayakta).
-  Bağlantı bilgisi değişmedi: `.env`'de `MINIO_ENDPOINT=localhost:9000`,
-  `MINIO_ACCESS_KEY`/`MINIO_SECRET_KEY` aynı. Kod tarafında hiçbir fark
-  yok — `src/common/minio_io.py`'deki `get_minio_client()` aynı şekilde
-  çalışır.
+- **MinIO artık Docker'da çalışıyor** (`docker compose up -d minio`) —
+  yukarıdaki "native Windows process" notu 2026-07-07'de Docker'a geri
+  dönülünce güncelliğini yitirdi. Bağlantı bilgisi değişmedi:
+  `MINIO_ENDPOINT=localhost:9000` vb.
+- **İstisna — MLAT katmanı Silver'dan okur, Gold'dan DEĞİL:** Gold'un ortak
+  7+3 şeması `ads_source_type` (adsb_icao/mlat/tisb_icao/...) kolonunu
+  taşımıyor (ADR-003, kaynağa-özel kolonlar Silver'da kalır). MLAT kapsama
+  katmanı (`build_mlat_layer.py`) bu yüzden bilinçli olarak
+  `silver/adsblol_historical/`'ı doğrudan tarar. Yoğunluk haritası ve
+  kümeleme akışı yine Gold'dan okumaya devam ediyor — bu tek özellik için
+  belgelenmiş bir istisna.
 - **Filtre:** `source_type` kolonu `adsblol_historical` / `adsblol_hist` /
   `adsblol_realtime` / `adsblol_rt` olan satırlar (isimlendirme geçiş
   sürecinde iki varyant da olabilir, ikisini de kapsa).
@@ -130,6 +135,25 @@ JS, CDN'den MapLibre GL JS) bu dosyaları `fetch()` ile okuyup çizer.
 - `map.setStyle(...)` çağrısı **tüm custom source/layer'ları siler** —
   H3 yoğunluk katmanı ve rota çizgileri `style.load` event'ine bağlı bir
   fonksiyon olarak yazılmalı, her stil değişiminde yeniden eklenmeli.
+
+**Çoklu-çözünürlük H3 (zoom'a göre hex-içinde-hex, 2026-07-07 eklendi):**
+Tek çözünürlük (5) yerine 3 kademe (`res3`/`res4`/`res5`) üretiliyor —
+`res3`/`res4`, `res5`'in 243.835 hex'lik tablosundan `h3.cell_to_parent()`
+ile **ucretsiz türetiliyor** (1 milyar satırı tekrar taramadan, sadece
+küçük agregat tablo üzerinde çalışıyor). `index.html`'de `zoomend`
+event'inde hangi kademenin gösterileceği belirlenip `source.setData()`
+ile katman içeriği değiştiriliyor (kaynak/katman yeniden oluşturulmuyor,
+sadece verisi). Daha ince çözünürlük (6+) istenirse bu iki dosyadan
+türetilemez — ham veriyi (1 milyar satır) tekrar taramak gerekir, ayrıca
+görüş alanına (viewport) göre parçalama olmadan dosya boyutu çok büyür;
+bu ileride ayrı bir karar.
+
+**MLAT kapsama katmanı (2026-07-07 eklendi):** `build_mlat_layer.py`,
+Silver'daki `ads_source_type` alanını kullanarak (bkz. Bölüm 2 istisnası)
+her hex için MLAT-kaynaklı nokta oranını hesaplar (`mlat_density.geojson`).
+Gerçek veride MLAT ~%1.3 (kıyı/ada istasyon kümeleri civarında kapsamayı
+genişletiyor) — açık okyanusta senkronize istasyon olmadığı için MLAT da
+işe yaramıyor, bu bilinen/kabul edilmiş bir sınır.
 
 **Performans kuralı — asla ham nokta verisini tarayıcıya gönderme:**
 1. Yoğunluk haritası: Python'da H3 hex'e göre önceden agregat et
