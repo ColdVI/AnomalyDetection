@@ -1,0 +1,758 @@
+{
+  "gate_a": {
+    "status": "passed",
+    "blind_holdout_telemetry_or_scores_read": false,
+    "blind_holdout_flights_locked": 131,
+    "frozen_ml9_manifest_verified": true,
+    "frozen_ml12_manifest_verified": true,
+    "scorer_models_loaded_from_artifacts": true,
+    "scorer_model_training_performed": false,
+    "system_channel": "existing_fusion",
+    "mechanical_channel": "itki_komutu",
+    "budget_allocations": {
+      "agirlikli_sistem": {
+        "advisory": {
+          "sistem": 10.0,
+          "mekanik": 2.0
+        },
+        "critical": {
+          "sistem": 1.67,
+          "mekanik": 0.33
+        }
+      },
+      "dengeli": {
+        "advisory": {
+          "sistem": 8.0,
+          "mekanik": 4.0
+        },
+        "critical": {
+          "sistem": 1.33,
+          "mekanik": 0.67
+        }
+      },
+      "esit": {
+        "advisory": {
+          "sistem": 6.0,
+          "mekanik": 6.0
+        },
+        "critical": {
+          "sistem": 1.0,
+          "mekanik": 1.0
+        }
+      }
+    },
+    "decision_layers": "imported unchanged from src/ml/decision/decision_layers.py",
+    "event_metrics": "imported unchanged from src/ml/evaluation/events.py",
+    "union_semantics": "boolean OR over aligned per-flight one-second onset masks"
+  },
+  "gate_b": {
+    "status": "failed",
+    "evaluated_seed_count": 5,
+    "rule": "matching decision/budget mean recall gain >=0.05, positive in >=3/5 seeds, and union FA <=1.10x frozen best single-channel baseline",
+    "comparisons": [
+      {
+        "allocation": "agirlikli_sistem",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "cusum",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.2837209302325581,
+        "baseline_mean_recall": 0.21705426356589141,
+        "mean_recall_gain": 0.06666666666666672,
+        "positive_seed_count": 5,
+        "candidate_mean_false_alarms_per_hour": 42.50832465606861,
+        "baseline_mean_false_alarms_per_hour": 23.701264763207703,
+        "fa_ratio": 1.793504485130083,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 3,
+          "ml12_fusion_itki": 2
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "agirlikli_sistem",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "cusum",
+        "budget": "critical",
+        "candidate_mean_recall": 0.21007751937984492,
+        "baseline_mean_recall": 0.13720930232558134,
+        "mean_recall_gain": 0.07286821705426359,
+        "positive_seed_count": 5,
+        "candidate_mean_false_alarms_per_hour": 25.60585145207319,
+        "baseline_mean_false_alarms_per_hour": 12.980037594222512,
+        "fa_ratio": 1.972710114758874,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 3,
+          "ml12_fusion_itki": 2
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "agirlikli_sistem",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.08294573643410852,
+        "baseline_mean_recall": 0.01627906976744186,
+        "mean_recall_gain": 0.06666666666666668,
+        "positive_seed_count": 4,
+        "candidate_mean_false_alarms_per_hour": 9.099126993846266,
+        "baseline_mean_false_alarms_per_hour": 3.294004608936936,
+        "fa_ratio": 2.762329770018992,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 5
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "agirlikli_sistem",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "candidate_mean_recall": 0.07984496124031008,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.07984496124031008,
+        "positive_seed_count": 5,
+        "candidate_mean_false_alarms_per_hour": 7.707448450974925,
+        "baseline_mean_false_alarms_per_hour": 0.0,
+        "fa_ratio": Infinity,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 5
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "agirlikli_sistem",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "threshold",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.03798449612403101,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.03798449612403101,
+        "positive_seed_count": 2,
+        "candidate_mean_false_alarms_per_hour": 3.398202814962434,
+        "baseline_mean_false_alarms_per_hour": 0.0,
+        "fa_ratio": Infinity,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 5
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "agirlikli_sistem",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "threshold",
+        "budget": "critical",
+        "candidate_mean_recall": 0.034108527131782945,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.034108527131782945,
+        "positive_seed_count": 1,
+        "candidate_mean_false_alarms_per_hour": 2.1471884453667736,
+        "baseline_mean_false_alarms_per_hour": 0.0,
+        "fa_ratio": Infinity,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 5
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "dengeli",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "cusum",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.2906976744186046,
+        "baseline_mean_recall": 0.21705426356589141,
+        "mean_recall_gain": 0.07364341085271324,
+        "positive_seed_count": 5,
+        "candidate_mean_false_alarms_per_hour": 44.696031879120554,
+        "baseline_mean_false_alarms_per_hour": 23.701264763207703,
+        "fa_ratio": 1.8858078809576337,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 3,
+          "ml12_fusion_itki": 2
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "dengeli",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "cusum",
+        "budget": "critical",
+        "candidate_mean_recall": 0.21240310077519378,
+        "baseline_mean_recall": 0.13720930232558134,
+        "mean_recall_gain": 0.07519379844961244,
+        "positive_seed_count": 5,
+        "candidate_mean_false_alarms_per_hour": 27.488632265472933,
+        "baseline_mean_false_alarms_per_hour": 12.980037594222512,
+        "fa_ratio": 2.117762145597196,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 3,
+          "ml12_fusion_itki": 2
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "dengeli",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.12170542635658914,
+        "baseline_mean_recall": 0.01627906976744186,
+        "mean_recall_gain": 0.1054263565891473,
+        "positive_seed_count": 5,
+        "candidate_mean_false_alarms_per_hour": 12.600990967328567,
+        "baseline_mean_false_alarms_per_hour": 3.294004608936936,
+        "fa_ratio": 3.825432099621514,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 5
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "dengeli",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "candidate_mean_recall": 0.07984496124031008,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.07984496124031008,
+        "positive_seed_count": 5,
+        "candidate_mean_false_alarms_per_hour": 7.707448450974925,
+        "baseline_mean_false_alarms_per_hour": 0.0,
+        "fa_ratio": Infinity,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 5
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "dengeli",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "threshold",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.06976744186046512,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.06976744186046512,
+        "positive_seed_count": 4,
+        "candidate_mean_false_alarms_per_hour": 8.572845183717114,
+        "baseline_mean_false_alarms_per_hour": 0.0,
+        "fa_ratio": Infinity,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 5
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "dengeli",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "threshold",
+        "budget": "critical",
+        "candidate_mean_recall": 0.034108527131782945,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.034108527131782945,
+        "positive_seed_count": 1,
+        "candidate_mean_false_alarms_per_hour": 2.1471884453667736,
+        "baseline_mean_false_alarms_per_hour": 0.0,
+        "fa_ratio": Infinity,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 5
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "esit",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "cusum",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.2589147286821706,
+        "baseline_mean_recall": 0.21705426356589141,
+        "mean_recall_gain": 0.041860465116279125,
+        "positive_seed_count": 4,
+        "candidate_mean_false_alarms_per_hour": 46.03853344714024,
+        "baseline_mean_false_alarms_per_hour": 23.701264763207703,
+        "fa_ratio": 1.9424504939756402,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 3,
+          "ml12_fusion_itki": 2
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "esit",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "cusum",
+        "budget": "critical",
+        "candidate_mean_recall": 0.21162790697674416,
+        "baseline_mean_recall": 0.13720930232558134,
+        "mean_recall_gain": 0.07441860465116282,
+        "positive_seed_count": 5,
+        "candidate_mean_false_alarms_per_hour": 27.567911810915938,
+        "baseline_mean_false_alarms_per_hour": 12.980037594222512,
+        "fa_ratio": 2.1238699511306938,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 3,
+          "ml12_fusion_itki": 2
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "esit",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.12170542635658914,
+        "baseline_mean_recall": 0.01627906976744186,
+        "mean_recall_gain": 0.1054263565891473,
+        "positive_seed_count": 5,
+        "candidate_mean_false_alarms_per_hour": 13.883251295044285,
+        "baseline_mean_false_alarms_per_hour": 3.294004608936936,
+        "fa_ratio": 4.214703056995656,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 5
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "esit",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "candidate_mean_recall": 0.07984496124031008,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.07984496124031008,
+        "positive_seed_count": 5,
+        "candidate_mean_false_alarms_per_hour": 7.707448450974925,
+        "baseline_mean_false_alarms_per_hour": 0.0,
+        "fa_ratio": Infinity,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 5
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "esit",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "threshold",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.1062015503875969,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.1062015503875969,
+        "positive_seed_count": 5,
+        "candidate_mean_false_alarms_per_hour": 11.159328176963616,
+        "baseline_mean_false_alarms_per_hour": 0.0,
+        "fa_ratio": Infinity,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 5
+        },
+        "meaningful_gain": false
+      },
+      {
+        "allocation": "esit",
+        "candidate": "channel_union",
+        "baseline_rule": "per-split best of existing_fusion and ml12_fusion_itki",
+        "decision": "threshold",
+        "budget": "critical",
+        "candidate_mean_recall": 0.034108527131782945,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.034108527131782945,
+        "positive_seed_count": 1,
+        "candidate_mean_false_alarms_per_hour": 2.1471884453667736,
+        "baseline_mean_false_alarms_per_hour": 0.0,
+        "fa_ratio": Infinity,
+        "fa_not_inflated": false,
+        "baseline_source_counts": {
+          "existing_fusion": 5
+        },
+        "meaningful_gain": false
+      }
+    ]
+  },
+  "gate_c1": {
+    "status": "failed",
+    "evaluated_seed_count": 5,
+    "candidates": [
+      {
+        "allocation": "agirlikli_sistem",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.2837209302325581,
+        "mean_false_alarms_per_hour": 42.50832465606861,
+        "passed": false
+      },
+      {
+        "allocation": "agirlikli_sistem",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.21007751937984492,
+        "mean_false_alarms_per_hour": 25.60585145207319,
+        "passed": false
+      },
+      {
+        "allocation": "agirlikli_sistem",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.08294573643410852,
+        "mean_false_alarms_per_hour": 9.099126993846266,
+        "passed": false
+      },
+      {
+        "allocation": "agirlikli_sistem",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.07984496124031008,
+        "mean_false_alarms_per_hour": 7.707448450974925,
+        "passed": false
+      },
+      {
+        "allocation": "agirlikli_sistem",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.03798449612403101,
+        "mean_false_alarms_per_hour": 3.398202814962434,
+        "passed": false
+      },
+      {
+        "allocation": "agirlikli_sistem",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.034108527131782945,
+        "mean_false_alarms_per_hour": 2.1471884453667736,
+        "passed": false
+      },
+      {
+        "allocation": "dengeli",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.2906976744186046,
+        "mean_false_alarms_per_hour": 44.696031879120554,
+        "passed": false
+      },
+      {
+        "allocation": "dengeli",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.21240310077519378,
+        "mean_false_alarms_per_hour": 27.488632265472933,
+        "passed": false
+      },
+      {
+        "allocation": "dengeli",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.12170542635658914,
+        "mean_false_alarms_per_hour": 12.600990967328567,
+        "passed": false
+      },
+      {
+        "allocation": "dengeli",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.07984496124031008,
+        "mean_false_alarms_per_hour": 7.707448450974925,
+        "passed": false
+      },
+      {
+        "allocation": "dengeli",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.06976744186046512,
+        "mean_false_alarms_per_hour": 8.572845183717114,
+        "passed": false
+      },
+      {
+        "allocation": "dengeli",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.034108527131782945,
+        "mean_false_alarms_per_hour": 2.1471884453667736,
+        "passed": false
+      },
+      {
+        "allocation": "esit",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.2589147286821706,
+        "mean_false_alarms_per_hour": 46.03853344714024,
+        "passed": false
+      },
+      {
+        "allocation": "esit",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.21162790697674416,
+        "mean_false_alarms_per_hour": 27.567911810915938,
+        "passed": false
+      },
+      {
+        "allocation": "esit",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.12170542635658914,
+        "mean_false_alarms_per_hour": 13.883251295044285,
+        "passed": false
+      },
+      {
+        "allocation": "esit",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.07984496124031008,
+        "mean_false_alarms_per_hour": 7.707448450974925,
+        "passed": false
+      },
+      {
+        "allocation": "esit",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.1062015503875969,
+        "mean_false_alarms_per_hour": 11.159328176963616,
+        "passed": false
+      },
+      {
+        "allocation": "esit",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.034108527131782945,
+        "mean_false_alarms_per_hour": 2.1471884453667736,
+        "passed": false
+      }
+    ]
+  },
+  "gate_c2": {
+    "status": "failed",
+    "evaluated_seed_count": 5,
+    "rule": "mechanical channel only: Actuator Outputs+Controls recall >=0.30 @ channel FA <=2, or recall >=0.50 @ channel FA <=12",
+    "candidates": [
+      {
+        "allocation": "agirlikli_sistem",
+        "decision": "cusum",
+        "budget": "advisory",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.33658536585365856,
+        "mean_channel_false_alarms_per_hour": 20.534989939039114,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "agirlikli_sistem",
+        "decision": "cusum",
+        "budget": "critical",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.3463414634146341,
+        "mean_channel_false_alarms_per_hour": 13.61300216047755,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "agirlikli_sistem",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.33658536585365856,
+        "mean_channel_false_alarms_per_hour": 9.099126993846266,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "agirlikli_sistem",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.33658536585365856,
+        "mean_channel_false_alarms_per_hour": 7.707448450974925,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "agirlikli_sistem",
+        "decision": "threshold",
+        "budget": "advisory",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.18048780487804877,
+        "mean_channel_false_alarms_per_hour": 3.398202814962434,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "agirlikli_sistem",
+        "decision": "threshold",
+        "budget": "critical",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.18048780487804877,
+        "mean_channel_false_alarms_per_hour": 2.1471884453667736,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "dengeli",
+        "decision": "cusum",
+        "budget": "advisory",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.3804878048780488,
+        "mean_channel_false_alarms_per_hour": 24.39825585486658,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "dengeli",
+        "decision": "cusum",
+        "budget": "critical",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.3463414634146341,
+        "mean_channel_false_alarms_per_hour": 15.848231758629051,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "dengeli",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.5414634146341464,
+        "mean_channel_false_alarms_per_hour": 12.600990967328567,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "dengeli",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.33658536585365856,
+        "mean_channel_false_alarms_per_hour": 7.707448450974925,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "dengeli",
+        "decision": "threshold",
+        "budget": "advisory",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.3170731707317073,
+        "mean_channel_false_alarms_per_hour": 8.572845183717114,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "dengeli",
+        "decision": "threshold",
+        "budget": "critical",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.18048780487804877,
+        "mean_channel_false_alarms_per_hour": 2.1471884453667736,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "esit",
+        "decision": "cusum",
+        "budget": "advisory",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.3853658536585366,
+        "mean_channel_false_alarms_per_hour": 29.638511752692104,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "esit",
+        "decision": "cusum",
+        "budget": "critical",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.3024390243902439,
+        "mean_channel_false_alarms_per_hour": 17.152221745796545,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "esit",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.5317073170731708,
+        "mean_channel_false_alarms_per_hour": 13.883251295044285,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "esit",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.33658536585365856,
+        "mean_channel_false_alarms_per_hour": 7.707448450974925,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "esit",
+        "decision": "threshold",
+        "budget": "advisory",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.4975609756097561,
+        "mean_channel_false_alarms_per_hour": 11.159328176963616,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      },
+      {
+        "allocation": "esit",
+        "decision": "threshold",
+        "budget": "critical",
+        "annotation_category": "Actuator Outputs+Controls",
+        "mean_category_event_onset_recall": 0.18048780487804877,
+        "mean_channel_false_alarms_per_hour": 2.1471884453667736,
+        "critical_equivalent_passed": false,
+        "advisory_equivalent_passed": false,
+        "passed": false
+      }
+    ]
+  }
+}
