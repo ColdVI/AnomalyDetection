@@ -97,6 +97,16 @@ PX4_ML9_POOLED_EKF_REFERENCE = {
     "pooled_ekf": ["ekf_pos_innov_mag", "ekf_vel_innov_mag"],
 }
 
+# ML-12 ince-modul adaylari (docs/ML12_INCE_MODUL_PLAN.md, ON-KAYIT).
+# Hipotez: guclu tekil sinyal genis modulde seyreliyor (ML-11 H26).
+# Listeler plana sabitlendi; Gate B/C gecmeden default'a alinmaz.
+PX4_ML12_THIN_MODULES = {
+    "itki_komutu": ["actuator_thrust_cmd"],
+    "itki_kontrol_ince": [
+        "actuator_thrust_cmd", "attitude_error_mag", "control_strain",
+    ],
+}
+
 
 def anomaly_scores(model: IsolationForest, X: pd.DataFrame) -> np.ndarray:
     return -model.score_samples(X)

@@ -440,6 +440,10 @@ farklı validation ile değerlendirilebilir — aynı veriyle sonuç raporlanmaz
 Baro tabanlı `alt_baro_residual*` (AUC 0.996) aday DEĞİL: %7 doluluk kapsam engeli — bu bir
 feature-engineering değil veri temini işi (baro kanalı tamamlanırsa yeniden değerlendirilir).
 
+Listenin 1-4. sıraları (seyrelme hipotezi) **ML-12 ince-modül turu** olarak ön-kayıtla ele
+alındı: `docs/ML12_INCE_MODUL_PLAN.md` (Gate kuralları sonuç görülmeden sabitlendi; sonuçlar
+aşağıda ayrı bölümde).
+
 **Eğitim izi kuralı (Bölüm 5):** `train_lstm_autoencoder` artık epoch başına train/val loss
 geçmişi döndürüyor; `src/ml/training_log.py::write_training_log` bunu
 `artifacts/training_logs/<source>/<model>/<run_id>/loss.csv` + `loss.png` olarak yazıyor ve iki
@@ -449,6 +453,46 @@ kavramı yok; ML-10 Chronos zero-shot olduğundan kapsam dışı). Bu fazda mode
 **Doğrulama:** tam `pytest` 185 geçti + bilinen 4 MinIO SDK hatası (ML dışı, F.2); 7'si yeni
 `tests/test_ml11_viz.py` (deterministik subsample, holdout-hash izolasyonu, viz manifest
 checksum'ları, eğitim izi). Checksum'lu çıktılar: `artifacts/viz/{alfa,uav_attack,uav_sead}/viz_manifest.json`.
+
+## ML-12 sonuçları — ince-modül hipotezi (2026-07-07, `docs/ML12_INCE_MODUL_PLAN.md` ön-kayıtlı)
+
+**Ne denedik:** ML-11'in seyrelme hipotezini (H26) kontrollü test: `actuator_thrust_cmd` tek
+başına 1-feature'lık IF modülü (`itki_komutu`) ve 3-feature'lık ince varyant
+(`itki_kontrol_ince`) olarak, donmuş ML-9 scaler/split/karar-katmanlarıyla, checksum'lu
+ML-9/ML-10 baseline satırlarına karşı ölçüldü. İki aday da sonuç görülmeden kaydedildi; hiçbir
+hiperparametre/füzyon/policy sonradan değişmedi. Artifact: `artifacts/ml12/uav_sead/full_matrix/`.
+
+- **H29 — Seyrelme hipotezi DOĞRULANDI; Gate B hem B1 hem B2'den GEÇTİ (ANA SONUÇ).**
+  `itki_komutu` (tek feature!) Actuator Outputs+Controls onset-recall'unda 6 policy/bütçe
+  kombinasyonundan 5'inde anlamlı kazanç verdi:
+  - **B1** vs `motor_simetrisi`: CUSUM/advisory **0.459 vs 0.205** (+0.254, 4/5 seed);
+    K-of-N/advisory +0.332 (**5/5 seed**); CUSUM/critical +0.244 (4/5).
+  - **B2** vs `chronos_motor` (önceki bilinen en iyi, ML-10): CUSUM/advisory **0.459 vs 0.390**
+    (+0.068, 3/5); CUSUM/critical +0.132 (**5/5**); K-of-N/advisory +0.210 (5/5). Tek feature'lık
+    IF, 8.65M parametrelik zero-shot foundation modelini bu kategoride geçti — **kategori için
+    bilinen en iyi skor artık `itki_komutu`**.
+  - Seyrelmenin doğrudan kanıtı: 3-feature'lık `itki_kontrol_ince` her kombinasyonda tek-feature
+    varyantın ALTINDA kaldı (CUSUM/advisory 0.415, threshold/advisory 0.151 — baseline'a eşit).
+    Feature eklemek daha 3 feature'da bile sinyali sulandırıyor; ML-11'deki 16-feature modül
+    gözlemi mekanizma olarak doğrulandı.
+- **H30 — Gate C yine KALDI; kök neden artık ölçülü: ince modül kategori uzmanı, sistem
+  dedektörü değil.** `ml12_fusion_itki = max(existing_fusion, itki_komutu)` CUSUM/advisory
+  **0.217 recall / 23.74 FA-saat** verdi (hedef ≥0.50 @ ≤12; mevcut fusion 0.212/23.63, ML-10
+  fusion 0.213/23.92 — üçü pratikte aynı). Neden: `itki_komutu` tek başına sistem genelinde
+  advisory CUSUM'da **47.8 FA-saat** üretiyor ve normal uçuşlarda 38.1 FA-saat bırakıyor —
+  yalnız mechanical eventlerde güçlü (0.442 onset recall), diğer kategorilerde zayıf
+  (altitude 0.056). Max-füzyona yüksek-FA'lı bir uzman eklemek füzyon eşiğini yukarı itiyor ve
+  kategori kazancı bütün-event kalibrasyonunda eriyor — ML-10'daki örüntünün (H24) mekanizmalı
+  tekrarı. Kategori-uzmanı skorların operasyonel değere dönüşmesi max-füzyon dışında bir yol
+  (ör. kategori-bazlı ayrı alarm kanalı) gerektirir; bu ayrı, ön-kayıtlı bir faz işidir.
+
+**Gate kararı:** Gate A GEÇTİ (holdout okunmadı — 480 dev/131 holdout hash doğrulamalı; donmuş
+ML-9 scaler yeniden kullanıldı; karar katmanları/score-fusion identity testli; baseline satırları
+donmuş CSV'lerle bire bir eşit — `test_ml12.py` 5/5). Gate B GEÇTİ (B1+B2). Gate C KALDI —
+holdout AÇILMADI, `itki_komutu` production füzyona ALINMADI; development'ta kanıtlanmış en iyi
+kategori-aday skoru olarak kayıtlı. Doğrulama: Gate B/C sayıları ham
+`category_metrics.csv`/`metrics.csv`'den bağımsız yeniden türetildi, gates.json ile bire bir
+örtüştü; tam pytest 190 geçti + bilinen 4 MinIO.
 
 ## ML-2/ML-3'e devredilen iş listesi
 
