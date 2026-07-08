@@ -489,7 +489,17 @@ def health():
     return {"status": "ok", "active_flights": len(fl)}
 
 
-DATA_SOURCES = ("adsblol", "opensky")
+# ============================================================ Kayit --
+# Yeni bir kaynak eklemek icin buraya BIR giris ekle (ayrica
+# adsb_producer.py'deki SOURCES sozlugune ayni "key" ile fetch fonksiyonunu
+# ekle) -- butonlar ve callback bu listeden turetiliyor, baska hicbir yeri
+# degistirmen gerekmiyor.
+DATA_SOURCE_DEFS = [
+    {"key": "adsblol", "label": "adsb.lol"},
+    {"key": "opensky", "label": "OpenSky"},
+]
+DATA_SOURCES = tuple(d["key"] for d in DATA_SOURCE_DEFS)
+DEFAULT_DATA_SOURCE = DATA_SOURCE_DEFS[0]["key"]
 REDIS_DATA_SOURCE_KEY = "iha:settings:data_source"
 REDIS_PRODUCER_STATUS_KEY = "iha:producer_status"
 
@@ -502,7 +512,7 @@ def get_data_source():
     sonraki cycle'a kadar (60/300sn) istenen degisikligi henuz uygulamamis
     olabilir -- ikisi FARKLIYSA arayuz "gecis bekleniyor" gosterebiliyor."""
     r = redis.Redis(connection_pool=_rpool)
-    requested = r.get(REDIS_DATA_SOURCE_KEY) or "adsblol"
+    requested = r.get(REDIS_DATA_SOURCE_KEY) or DEFAULT_DATA_SOURCE
     status_raw = r.get(REDIS_PRODUCER_STATUS_KEY)
     active = json.loads(status_raw) if status_raw else None
     return {"requested": requested, "active": active}
@@ -1254,10 +1264,11 @@ app_dash.layout = html.Div(id="app-root", style={
                        style={"fontSize": "12px", "color": "#888",
                               "display": "block", "marginBottom": "6px"}),
             html.Div(style={"display": "flex", "gap": "6px"}, children=[
-                html.Button("adsb.lol", id="data-source-adsblol-btn", n_clicks=0,
-                           style=LANG_BTN_ACTIVE_STYLE),
-                html.Button("OpenSky", id="data-source-opensky-btn", n_clicks=0,
-                           style=LANG_BTN_INACTIVE_STYLE),
+                html.Button(d["label"], id={"type": "data-source-btn", "index": d["key"]},
+                           n_clicks=0,
+                           style=LANG_BTN_ACTIVE_STYLE if d["key"] == DEFAULT_DATA_SOURCE
+                                 else LANG_BTN_INACTIVE_STYLE)
+                for d in DATA_SOURCE_DEFS
             ]),
             html.Div(id="data-source-status", style={
                 "fontSize": "10px", "color": "#666", "marginTop": "5px",
@@ -1793,12 +1804,14 @@ def update_map_style_buttons(style):
 
 
 @app_dash.callback(
-    [Output("data-source-adsblol-btn", "style"), Output("data-source-opensky-btn", "style"),
+    [Output({"type": "data-source-btn", "index": ALL}, "style"),
      Output("data-source-status", "children")],
-    [Input("tick", "n_intervals"), Input("data-source-adsblol-btn", "n_clicks"),
-     Input("data-source-opensky-btn", "n_clicks"), Input("language-setting", "data")],
+    [Input("tick", "n_intervals"),
+     Input({"type": "data-source-btn", "index": ALL}, "n_clicks"),
+     Input("language-setting", "data")],
+    State({"type": "data-source-btn", "index": ALL}, "id"),
 )
-def manage_data_source(n, adsblol_clicks, opensky_clicks, lang):
+def manage_data_source(n, btn_clicks, lang, btn_ids):
     """Diger ayarlardan (dil/harita/saat dilimi) FARKLI -- bu, AYRI BIR
     PROCESS'in (adsb_producer.py) okudugu paylasilan bir ayar, pure
     client-side degil. Butona basilinca ONCE backend'e YAZIYORUZ
@@ -1806,20 +1819,20 @@ def manage_data_source(n, adsblol_clicks, opensky_clicks, lang):
     her tetiklemede) GERCEK durumu OKUYUP gosteriyoruz -- boylece "istenen"
     ile "producer'in su an gercekten kullandigi" (henuz bir sonraki
     cycle'a -- 60/300sn -- gecmemis olabilir) birbirinden AYRI gosterilir,
-    kullanici "tikladim ama degismedi" sanip yanilmaz."""
+    kullanici "tikladim ama degismedi" sanip yanilmaz.
+
+    Butonlar DATA_SOURCE_DEFS'ten pattern-matching id ile uretiliyor (bkz.
+    layout) -- buton SAYISI hep DATA_SOURCE_DEFS'e esit ve SABIT (dinamik
+    olarak degismiyor), bu yuzden Output/Input ALL burada guvenli; flight-
+    segment-btn'deki gibi AYRI bir liste-uretme callback'i ile karisip
+    IndexError riski yok (bkz. proje sohbet gecmisi)."""
     t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
     ctx = dash.callback_context
-    trigger = ctx.triggered[0]["prop_id"] if ctx.triggered else ""
-    if trigger == "data-source-adsblol-btn.n_clicks":
+    triggered_id = ctx.triggered_id
+    if isinstance(triggered_id, dict) and triggered_id.get("type") == "data-source-btn":
         try:
             requests.post("http://localhost:8000/api/data_source",
-                          params={"source": "adsblol"}, timeout=3)
-        except Exception:
-            pass
-    elif trigger == "data-source-opensky-btn.n_clicks":
-        try:
-            requests.post("http://localhost:8000/api/data_source",
-                          params={"source": "opensky"}, timeout=3)
+                          params={"source": triggered_id["index"]}, timeout=3)
         except Exception:
             pass
 
@@ -1828,12 +1841,12 @@ def manage_data_source(n, adsblol_clicks, opensky_clicks, lang):
     except Exception:
         info = {}
 
-    requested = info.get("requested", "adsblol")
+    requested = info.get("requested", DEFAULT_DATA_SOURCE)
     active = info.get("active") or {}
     active_source = active.get("source")
 
-    adsblol_style = LANG_BTN_ACTIVE_STYLE if requested == "adsblol" else LANG_BTN_INACTIVE_STYLE
-    opensky_style = LANG_BTN_ACTIVE_STYLE if requested == "opensky" else LANG_BTN_INACTIVE_STYLE
+    styles = [LANG_BTN_ACTIVE_STYLE if b["index"] == requested else LANG_BTN_INACTIVE_STYLE
+              for b in btn_ids]
 
     if active_source and active_source != requested:
         status = t["data_source_pending"].format(requested=requested, active=active_source)
@@ -1842,7 +1855,7 @@ def manage_data_source(n, adsblol_clicks, opensky_clicks, lang):
     else:
         status = ""
 
-    return adsblol_style, opensky_style, status
+    return styles, status
 
 
 @app_dash.callback(

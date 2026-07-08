@@ -25,7 +25,11 @@ VERI KAYNAGI ADAPTORLERI -- yeni bir kaynak eklemek KOLAY:
      sayisal alanlar None, metin alanlari "", is_military False,
      is_ground False, emergency "none". _normalize_common() bunu senin
      yerine yapar, sadece elindeki degerleri ona ver.
-  2) Dosyanin sonundaki SOURCES sozlugune "isim": fetch_all_<isim> ekle.
+  2) Dosyanin sonundaki SOURCES sozlugune "isim": {"fetch": fetch_all_<isim>,
+     "interval": <varsayilan_saniye>} ekle. Kaynak, kimlik dogrulama basarili
+     olunca vb. daha kisa bir araliga gecebiliyorsa "interval_override":
+     (fetch'ten SONRA cagrilan, ya bir saniye sayisi ya da None donen bir
+     fonksiyon) da ekleyebilirsin -- bkz. asagidaki "opensky" girdisi.
   3) --source <isim> (veya DATA_SOURCE ortam degiskeni) ile sec.
 main() dongusu SOURCES disinda hicbir yerde kaynaga OZGU kod icermez --
 hangi kaynak secilirse secilsin ayni sekilde calisir.
@@ -79,13 +83,13 @@ TOPIC = "adsb.flights"
 DEFAULT_WORLD_RADIUS_NM = 12000
 
 # Kaynak dashboard'dan CANLI degistirilebiliyor (bkz. modul docstring'i) --
-# her kaynagin kendi hedef-aralik SANIYESI var, kullanicinin istegiyle
-# SABIT: adsb.lol 60sn'de bir, OpenSky 300sn'de bir (anonim erisimde
-# GUNDE SADECE 400 kredi -- kisa aralik kotayi dakikalar icinde tuketir).
-# Bu, args.interval'i (CLI/ENV) Redis uzerinden kaynak degistirilebilir
-# durumdayken GECERSIZ KILAR -- Redis yoksa/erisilemezse args.interval
-# aynen kullanilmaya devam eder (eski/statik davranis).
-SOURCE_INTERVALS = {"adsblol": 60, "opensky": 300}
+# her kaynagin kendi hedef-aralik SANIYESI var (bkz. SOURCES sozlugu, dosya
+# sonu), kullanicinin istegiyle SABIT: adsb.lol 60sn'de bir, OpenSky
+# 300sn'de bir (anonim erisimde GUNDE SADECE 400 kredi -- kisa aralik
+# kotayi dakikalar icinde tuketir). Bu, args.interval'i (CLI/ENV) Redis
+# uzerinden kaynak degistirilebilir durumdayken GECERSIZ KILAR -- Redis
+# yoksa/erisilemezse args.interval aynen kullanilmaya devam eder (eski/
+# statik davranis).
 # OPENSKY_CLIENT_ID/SECRET ile kimlik dogrulamali erisimde gunluk kredi
 # 400 -> 4000'e cikiyor (bkz. _get_opensky_token()). CANLI OLCUM (bkz.
 # "X-Rate-Limit-Remaining" loglari): dunya capinda bbox'siz TEK istek
@@ -432,11 +436,28 @@ def fetch_all_opensky(args):
 
 
 # ============================================================ Kayit --
-# Yeni kaynak eklemek icin buraya "isim": fetch_all_isim ekle -- baska
-# hicbir yeri degistirmen gerekmiyor.
+# Yeni kaynak eklemek icin buraya BIR giris ekle -- main() SADECE bu
+# sozlukten okur, baska hicbir yeri (butonlar dahil app.py'deki
+# DATA_SOURCE_DEFS ayri bir kayittir, orada da ayni isimle eslesen bir
+# girdi eklemen gerekir) degistirmen gerekmiyor.
+#   fetch:              fetch_all_<isim>(args) -> list[dict]
+#   interval:           varsayilan hedef aralik (saniye)
+#   interval_override:  (opsiyonel) fetch()'ten SONRA cagrilir; bir sayi
+#                       donerse "interval"i o cycle icin GECERSIZ KILAR,
+#                       None donerse (orn. kimlik dogrulama basarisizsa)
+#                       "interval" aynen kullanilmaya devam eder.
 SOURCES = {
-    "adsblol": fetch_all_adsblol,
-    "opensky": fetch_all_opensky,
+    "adsblol": {"fetch": fetch_all_adsblol, "interval": 60},
+    "opensky": {
+        "fetch": fetch_all_opensky,
+        "interval": 300,
+        # Kimlik dogrulamali erisimde (bkz. OPENSKY_AUTH_INTERVAL yorumu)
+        # daha kisa araliga gec -- token cache'i fetch_all_opensky() SIRASINDA
+        # dolar/dogrulanir, o yuzden bu SADECE fetch'ten sonra anlamli.
+        "interval_override": lambda: (
+            OPENSKY_AUTH_INTERVAL if _opensky_token_cache["token"] else None
+        ),
+    },
 }
 
 
@@ -523,22 +544,26 @@ def main():
                         current_source = requested
                 except Exception:
                     pass  # Redis gecici erisilemez -- bir onceki/varsayilan kaynakla devam
-            fetch_fn = SOURCES[current_source]
-            current_interval = SOURCE_INTERVALS.get(current_source, args.interval)
+            entry = SOURCES[current_source]
+            fetch_fn = entry["fetch"]
+            current_interval = entry.get("interval", args.interval)
 
             t_fetch_start = time.time()
             records = fetch_fn(args)
             t_fetch = time.time() - t_fetch_start
 
-            # ONEMLI: fetch_fn(args) CAGRILDIKTAN SONRA kontrol ediyoruz --
-            # opensky ise, _get_opensky_token() cache'i bu cagri SIRASINDA
-            # doldu/dogrulandi (OPENSKY_CLIENT_ID/SECRET gecerliyse). Token
-            # YOKSA (credential yok/gecersiz) cache bos kalir, guvenli
-            # (yavas/anonim) 300sn'de kalinir -- boylece gercekte
-            # dogrulanmamis bir kimlikle YANLISLIKLA hizli/kota-asan
-            # araliga gecilmez.
-            if current_source == "opensky" and _opensky_token_cache["token"]:
-                current_interval = OPENSKY_AUTH_INTERVAL
+            # ONEMLI: interval_override, fetch_fn(args) CAGRILDIKTAN SONRA
+            # calisiyor -- opensky ornegindeki gibi, _get_opensky_token()
+            # cache'i bu cagri SIRASINDA doldu/dogrulandi (credential
+            # gecerliyse). Override None donerse (credential yok/gecersiz)
+            # yukaridaki sabit "interval" degeri aynen kullanilmaya devam
+            # eder -- gercekte dogrulanmamis bir kimlikle YANLISLIKLA
+            # hizli/kota-asan bir araliga gecilmez.
+            override_fn = entry.get("interval_override")
+            if override_fn:
+                overridden = override_fn()
+                if overridden:
+                    current_interval = overridden
 
             if records:
                 # ONEMLI: bu producer UCUS VERISI icin Redis/TTL/pencere
