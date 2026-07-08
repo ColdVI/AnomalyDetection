@@ -90,7 +90,19 @@ services:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
     volumes:
-      - D:/docker-volumes/minio:/data
+      # ONEMLI: sabit "D:/docker-volumes/minio" burada SABIT KALMAMALI --
+      # her takim arkadasinin makinesinde D: suruculu bir yol olmayabilir
+      # (bu makinede yok, bkz. proje sohbet gecmisi -- ilk kez tam bunun
+      # icin "minio_data" adli Docker-yonetimli volume'e cevrilmisti, ama
+      # baska bir takim arkadasinin D:'li makinesinden gelen bir commit
+      # bunu geri D:/... yoluna cevirdi -- iki makine surekli birbirini
+      # EZERDI). KOK COZUM: MINIO_DATA_PATH .env degiskeni (KAFKA_LAN_HOST
+      # ile ayni desen) -- bos/tanimsizsa Docker'in KENDI yonettigi
+      # "minio_data" adli volume kullanilir (HERKESTE calisir, varsayilan
+      # guvenli); D: suruculu bir yol tercih eden biri KENDI .env'ine
+      # "MINIO_DATA_PATH=D:/docker-volumes/minio" yazabilir, bu ARTIK
+      # git'e gitmiyor (.env gitignored), commit çakışması bitiyor.
+      - ${MINIO_DATA_PATH:-minio_data}:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
@@ -188,3 +200,4 @@ services:
 volumes:
   influxdb_data:
   kafka_data:
+  minio_data:
