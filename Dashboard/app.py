@@ -29,9 +29,8 @@ import requests
 import uvicorn
 import dash
 import dash_leaflet as dl
-import dash_leaflet.express as dlx
 from dash_extensions.javascript import assign
-from dash import Dash, dcc, html, Output, Input, State
+from dash import Dash, dcc, html, Output, Input, State, ALL
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from influxdb_client import InfluxDBClient
@@ -103,11 +102,25 @@ DEFAULT_LANGUAGE = "tr"
 TEXTS = {
     "tr": {
         "settings_title": "Ayarlar",
-        "trace_hours_label": "Rota izi (saat)",
         "timezone_label": "Saat dilimi (UTC farkı)",
         "language_label": "Dil",
         "aircraft_info_title": "Uçak Bilgisi",
-        "history_panel_title": "Geçmiş (son 24 saat)",
+        "history_panel_title": "Geçmiş",
+        "history_range_placeholder_start": "Başlangıç",
+        "history_range_placeholder_end": "Bitiş",
+        "history_day_placeholder": "Gün",
+        "history_hour_placeholder": "Saat",
+        "history_calculate_label": "Hesapla",
+        "callsign_search_placeholder": "Çağrı kodu ara...",
+        "callsign_not_found": "'{callsign}' bulunamadı",
+        "stats_title": "İstatistikler",
+        "stats_yaxis_label": "Benzersiz uçak sayısı",
+        "data_source_label": "Veri Kaynağı",
+        "data_source_active": "Aktif: {source}",
+        "data_source_pending": "İsteniyor: {requested} · aktif: {active} (geçiş bekleniyor)",
+        "previous_flights_title": "Önceki Uçuşlar (7 gün)",
+        "no_previous_flights": "Bu uçak için geçmiş uçuş bulunamadı.",
+        "flight_duration_min": "{min} dk",
         "click_aircraft": "Haritada bir uçağa tıklayın.",
         "no_signal": "{icao} şu anda sinyal göndermiyor (kapsama alanından çıkmış olabilir).",
         "no_callsign": "Çağrı kodu yok, rota sorgulanamıyor.",
@@ -151,15 +164,28 @@ TEXTS = {
         "map_style_label": "Harita Türü",
         "map_style_street": "Sokak",
         "map_style_satellite": "Uydu",
-        "route_uncertain": "⚠ Rota güncel olmayabilir (uçak farklı bir yöne gidiyor)",
     },
     "en": {
         "settings_title": "Settings",
-        "trace_hours_label": "Track trail (hours)",
         "timezone_label": "Time zone (UTC offset)",
         "language_label": "Language",
         "aircraft_info_title": "Aircraft Info",
-        "history_panel_title": "History (last 24h)",
+        "history_panel_title": "History",
+        "history_range_placeholder_start": "Start",
+        "history_range_placeholder_end": "End",
+        "history_day_placeholder": "Day",
+        "history_hour_placeholder": "Hour",
+        "history_calculate_label": "Calculate",
+        "callsign_search_placeholder": "Search callsign...",
+        "callsign_not_found": "'{callsign}' not found",
+        "stats_title": "Statistics",
+        "stats_yaxis_label": "Unique aircraft count",
+        "data_source_label": "Data Source",
+        "data_source_active": "Active: {source}",
+        "data_source_pending": "Requested: {requested} · active: {active} (switch pending)",
+        "previous_flights_title": "Previous Flights (7 days)",
+        "no_previous_flights": "No previous flights found for this aircraft.",
+        "flight_duration_min": "{min} min",
         "click_aircraft": "Click an aircraft on the map.",
         "no_signal": "{icao} is not currently transmitting (may have left coverage area).",
         "no_callsign": "No callsign, route lookup unavailable.",
@@ -203,7 +229,6 @@ TEXTS = {
         "map_style_label": "Map Style",
         "map_style_street": "Street",
         "map_style_satellite": "Satellite",
-        "route_uncertain": "⚠ Route may be outdated (aircraft heading a different way)",
     },
 }
 
@@ -464,12 +489,57 @@ def health():
     return {"status": "ok", "active_flights": len(fl)}
 
 
+DATA_SOURCES = ("adsblol", "opensky")
+REDIS_DATA_SOURCE_KEY = "iha:settings:data_source"
+REDIS_PRODUCER_STATUS_KEY = "iha:producer_status"
+
+
+@app_api.get("/api/data_source")
+def get_data_source():
+    """Dashboard'un kaynak butonlarinin okudugu endpoint -- HEM istenen
+    (dashboard'dan en son yazilan) HEM de GERCEKTE aktif (adsb_producer.py
+    kendi cycle'inda yazdigi) kaynagi ayri ayri donduruyor. Producer bir
+    sonraki cycle'a kadar (60/300sn) istenen degisikligi henuz uygulamamis
+    olabilir -- ikisi FARKLIYSA arayuz "gecis bekleniyor" gosterebiliyor."""
+    r = redis.Redis(connection_pool=_rpool)
+    requested = r.get(REDIS_DATA_SOURCE_KEY) or "adsblol"
+    status_raw = r.get(REDIS_PRODUCER_STATUS_KEY)
+    active = json.loads(status_raw) if status_raw else None
+    return {"requested": requested, "active": active}
+
+
+@app_api.post("/api/data_source")
+def set_data_source(source: str):
+    if source not in DATA_SOURCES:
+        return {"error": f"gecersiz kaynak: {source}"}
+    r = redis.Redis(connection_pool=_rpool)
+    r.set(REDIS_DATA_SOURCE_KEY, source)
+    return {"requested": source}
+
+
 @app_api.get("/api/history/{icao24}")
-def get_history(icao24: str, hours: int = 24):
-    hours = min(hours, 24 * 7)  # bucket zaten 7 gunden fazlasini tutmuyor
+def get_history(icao24: str, hours: int = 24, start: str = None, end: str = None):
+    # ONEMLI: start/end verilirse (tarih araligi secici) hours YOK SAYILIR.
+    # start/end ham string'i DOGRUDAN flux sorgusuna GOMMUYORUZ (injection
+    # riski -- kullanicidan gelen deger) -- once datetime.fromisoformat ile
+    # PARSE edip, KENDI ISO string'imize (guvenli, tek format, sadece
+    # dogrulanmis tarih/saat bilgisi) geri cevirip OYLE gomuyoruz.
+    if start and end:
+        try:
+            start_dt = datetime.fromisoformat(start.replace("Z", "+00:00"))
+            end_dt = datetime.fromisoformat(end.replace("Z", "+00:00"))
+        except ValueError:
+            return {"error": "invalid start/end (ISO8601 bekleniyor)"}
+        range_clause = (
+            f'range(start: {start_dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}, '
+            f'stop: {end_dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")})'
+        )
+    else:
+        hours = min(hours, 24 * 7)  # bucket zaten 7 gunden fazlasini tutmuyor
+        range_clause = f'range(start: -{hours}h)'
     flux = f'''
     from(bucket: "{INFLUX_BUCKET}")
-      |> range(start: -{hours}h)
+      |> {range_clause}
       |> filter(fn: (r) => r["_measurement"] == "flights")
       |> filter(fn: (r) => r["icao24"] == "{icao24}")
       |> filter(fn: (r) => r["_field"] == "alt" or r["_field"] == "velocity"
@@ -499,6 +569,110 @@ def get_history(icao24: str, hours: int = 24):
                 tables[col] = None
         return json.loads(tables[["_time", "lat", "lon", "alt", "velocity"]]
                           .to_json(orient="records"))
+    except Exception as e:
+        return {"error": str(e)}
+
+
+GEOCODE_CACHE_TTL = 60 * 60 * 24 * 30  # 30 gun -- yer adlari neredeyse hic degismez
+GEOCODE_MAX_LOOKUPS_PER_REQUEST = 16  # guvenlik siniri, bkz. _reverse_geocode
+
+
+def _reverse_geocode(lat, lon):
+    """lat/lon -> kisa yer adi (sehir/kasaba/bolge), OpenStreetMap Nominatim
+    (ucretsiz, API key gerektirmiyor -- projede adsbdb.com icin de ayni
+    'ucretsiz topluluk servisi' yaklasimi kullanildi). Redis'te KABA bir
+    hassasiyetle (2 ondalik, ~1km) 30 gun cache'leniyor -- hem Nominatim'in
+    adil kullanim politikasina (agir otomatik sorgu YOK, bu sadece
+    kullanici bir ucak SECTIGINDE calisan interaktif bir ozellik) saygi
+    icin, hem de ayni havalimani/bolgeye yakin cok sayida ucusun AYNI
+    cache kaydini paylasabilmesi icin. Basarisiz olursa (ag hatasi, zaman
+    asimi, sonuc yok) None doner -- cagiran taraf koordinati fallback
+    olarak gosterir, hata FIRLATMAZ (bu bir "olsa iyi olur" zenginlestirme,
+    segment listesinin CALISMASI buna bagli DEGIL)."""
+    r = redis.Redis(connection_pool=_rpool)
+    cache_key = f"iha:geocode:{round(lat, 2)}:{round(lon, 2)}"
+    cached = r.get(cache_key)
+    if cached is not None:
+        return cached or None
+    name = None
+    try:
+        resp = requests.get(
+            "https://nominatim.openstreetmap.org/reverse",
+            params={"lat": lat, "lon": lon, "format": "jsonv2", "zoom": 10},
+            headers={"User-Agent": "iha-anomali-dashboard/1.0 (universite staj projesi)"},
+            timeout=4,
+        )
+        if resp.status_code == 200:
+            addr = resp.json().get("address", {})
+            name = (addr.get("city") or addr.get("town") or addr.get("village")
+                    or addr.get("county") or addr.get("state"))
+    except Exception:
+        pass
+    r.set(cache_key, name or "", ex=GEOCODE_CACHE_TTL)
+    return name
+
+
+@app_api.get("/api/flight_segments/{icao24}")
+def get_flight_segments(icao24: str):
+    """Bucket'in tuttugu TUM gecmisi (7 gune kadar) ayri UCUSLARA boler --
+    sol paneldeki 'onceki ucuslar' listesi icin. AYNI gap-tabanli heuristik
+    (bkz. FLIGHT_GAP_THRESHOLD_MIN, update_flight_path'teki 'son ucus'
+    mantigiyla TUTARLI olmasi icin) -- ardisik iki nokta arasinda
+    esikten BUYUK bir bosluk, "onceki ucus bitti, yenisi basladi" sayilir.
+    Her segmentin baslangic/bitis noktasi icin (mumkunse) bir yer adi da
+    donuyor (bkz. _reverse_geocode) -- bulunamazsa frontend koordinati
+    fallback olarak gosterebilsin diye start_lat/lon, end_lat/lon HER
+    ZAMAN dahil."""
+    flux = f'''
+    from(bucket: "{INFLUX_BUCKET}")
+      |> range(start: -168h)
+      |> filter(fn: (r) => r["_measurement"] == "flights")
+      |> filter(fn: (r) => r["icao24"] == "{icao24}")
+      |> filter(fn: (r) => r["_field"] == "lat" or r["_field"] == "lon")
+      |> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+    '''
+    try:
+        tables = _query_api.query_data_frame(flux)
+        if isinstance(tables, list):
+            tables = pd.concat(tables, ignore_index=True) if tables else pd.DataFrame()
+        if tables.empty:
+            return []
+        tables["_time"] = pd.to_datetime(tables["_time"], utc=True)
+        tables = tables.sort_values("_time").reset_index(drop=True)
+
+        gap = pd.Timedelta(minutes=FLIGHT_GAP_THRESHOLD_MIN)
+        break_idx = tables.index[tables["_time"].diff() > gap].tolist()
+        starts = [0] + break_idx
+        ends = break_idx + [len(tables)]
+
+        segments = []
+        for s, e in zip(starts, ends):
+            if e - s < 3:
+                continue  # tek/iki noktalik "segment" muhtemelen gurultu, gercek ucus degil
+            start_row, end_row = tables.iloc[s], tables.iloc[e - 1]
+            segments.append({
+                "start": start_row["_time"].strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+                "end": end_row["_time"].strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+                "duration_min": round((end_row["_time"] - start_row["_time"]).total_seconds() / 60, 1),
+                "points": int(e - s),
+                "start_lat": float(start_row["lat"]), "start_lon": float(start_row["lon"]),
+                "end_lat": float(end_row["lat"]), "end_lon": float(end_row["lon"]),
+            })
+        segments.sort(key=lambda s: s["start"], reverse=True)  # en yeni once
+
+        # ONEMLI: geocoding DIS bir servise gidiyor -- kotu durumda (hepsi
+        # cache-miss) yavaslamayi sinirlamak icin sadece EN YENI N segmenti
+        # zenginlestiriyoruz (GEOCODE_MAX_LOOKUPS_PER_REQUEST / 2, cunku
+        # her segment 2 lookup -- baslangic+bitis). Geri kalanlar icin
+        # frontend start_lat/lon'dan koordinat gosterir.
+        for seg in segments[:GEOCODE_MAX_LOOKUPS_PER_REQUEST // 2]:
+            seg["start_place"] = _reverse_geocode(seg["start_lat"], seg["start_lon"])
+            seg["end_place"] = _reverse_geocode(seg["end_lat"], seg["end_lon"])
+        for seg in segments[GEOCODE_MAX_LOOKUPS_PER_REQUEST // 2:]:
+            seg["start_place"] = None
+            seg["end_place"] = None
+
+        return segments
     except Exception as e:
         return {"error": str(e)}
 
@@ -553,45 +727,51 @@ app_dash = Dash(__name__, title="ADS-B Local Dashboard")
 # --------------------------------------------------------------------------
 # UCAK KATMANI RENDER MANTIGI -- artik CLIENT-SIDE (JavaScript)
 #
-# ONEMLI MIMARI DEGISIKLIK: eskiden her ucak icin Python'da bir dl.DivMarker
-# + ic ice Div'li dl.Tooltip nesnesi INSA EDILIYOR, tumu JSON'a cevrilip
-# tarayiciya gonderiliyordu. "Dunya" modunda (5.000-11.000+ ucak) bu, hem
-# Python tarafinda hem tarayicinin React/Leaflet reconciliation'inda
-# donmaya yol aciyordu (bkz. proje sohbet gecmisi) -- CPU hizindan bagimsiz,
+# ONEMLI MIMARI DEGISIKLIK (1. asama): eskiden her ucak icin Python'da bir
+# dl.DivMarker + ic ice Div'li dl.Tooltip nesnesi INSA EDILIYOR, tumu
+# JSON'a cevrilip tarayiciya gonderiliyordu. "Dunya" modunda (5.000-
+# 11.000+ ucak) bu, hem Python tarafinda hem tarayicinin React/Leaflet
+# reconciliation'inda donmaya yol aciyordu -- CPU hizindan bagimsiz,
 # mimari bir sinir (tek JS thread'inde on binlerce DOM elemani senkron
-# insa etmek). Flightradar24 ve adsb.lol'un kendi haritalari da AYNI
-# nedenle boyle calismiyor.
+# insa etmek). COZUM: dl.GeoJSON + supercluster (JS) ile "dunya zoom'unda
+# binlerce nokta birkac yuz cluster balonuna indirgeniyordu.
 #
-# COZUM: dl.GeoJSON(cluster=True) -- veri hafif GeoJSON olarak gidiyor
-# (Python'da ic ice component AGACI yok, duz sozluk listesi), gercek
-# marker/tooltip olusturma islemi supercluster (hizli JS kutuphanesi) +
-# asagidaki iki KUCUK JS fonksiyonuyla TARAYICIDA yapiliyor. Uzaktan
-# bakildiginda (dunya zoom'u) binlerce nokta birkaç yuz "cluster balonu"na
-# indirgeniyor -- sadece o an ekranda gorunecek kadar gercek marker olusuyor.
+# ONEMLI MIMARI DEGISIKLIK (2. asama, GUNCEL): kullanici "sekil+yon kalsin
+# ama balon degil, GERCEK ucak gorunsun, donma olmasin" istedi -- tar1090
+# (adsb.lol'un de kullandigi arayuz) incelendi, onlarin da ayni sorunu
+# CANVAS/WebGL tabanli render ile (DOM marker DEGIL) coz-dugu goruldu
+# (bkz. proje sohbet gecmisi). Bu yuzden kumeleme TAMAMEN KALDIRILDI --
+# her ucak artik GERCEK bir GeoJSON Polygon (kucuk, heading'e gore
+# ONCEDEN Python'da dondurulmus bir ok/dart sekli, bkz.
+# _rotated_aircraft_polygon()), TEK BIR PAYLASILAN L.canvas() renderer'a
+# atanarak (asagidaki _GEOJSON_STYLE_JS) render ediliyor -- Leaflet, ayni
+# renderer'a atanmis TUM sekilleri TEK <canvas> elemaninda birlestiriyor,
+# binlerce DOM node YERINE tek canvas + tek repaint.
 #
-# ONEMLI: bu iki isim (_POINT_TO_LAYER_JS / _ON_EACH_FEATURE_JS) asagidaki
+# ONEMLI: bu iki isim (_GEOJSON_STYLE_JS / _ON_EACH_FEATURE_JS) asagidaki
 # app_dash.layout icinde KULLANILIYOR -- Python modul seviyesinde yukaridan
 # asagiya calistigi icin layout'tan ONCE tanimlanmis olmalari sart.
 
-# Ucak SVG ikonunu (yon rotasyonlu) client-side olusturan fonksiyon.
-# Eski Python-tarafi _airplane_icon() ile BIREBIR AYNI SVG/CSS -- sadece
-# JS'e tasindi, gorsel sonuc degismiyor. Cluster'lar (feature.properties
-# icao24 tasimayan sentetik gruplar) buraya hic ugramiyor, supercluster
-# onlari kendi varsayilan balon ikonuyla ayrica render ediyor.
-_POINT_TO_LAYER_JS = assign("""
-function(feature, latlng, context){
+# GeoJSON Polygon feature'larini (ucak sekilleri) STIL'lendiren fonksiyon
+# -- Leaflet'in GeoJSON "style" callback'i. Kose noktalari (rotasyon
+# dahil) zaten Python'da hesaplanmis geliyor, burasi SADECE renk/opaklik
+# atiyor ve TUM sekilleri ayni paylasilan canvas renderer'a bagliyor
+# (window.__aircraftCanvasRenderer -- modul-seviyesi tekil nesne, her
+# cagride yeniden OLUSTURULMUYOR, aksi halde her tick'te YENI bir canvas
+# acilir/eskisi terk edilirdi).
+_GEOJSON_STYLE_JS = assign("""
+function(feature, context){
+    if (!window.__aircraftCanvasRenderer) {
+        window.__aircraftCanvasRenderer = L.canvas({padding: 0.5});
+    }
     const p = feature.properties;
-    const heading = p.track || 0;
     const color = p.color || '#00b4d8';
     const opacity = (p.opacity === undefined || p.opacity === null) ? 1 : p.opacity;
-    const html = '<div style="transform: rotate(' + heading + 'deg); ' +
-        'transform-origin: center; width: 22px; height: 22px; opacity: ' + opacity + ';">' +
-        '<svg width="22" height="22" viewBox="0 0 24 24">' +
-        '<path d="M12 1 L15 13 L23 18 L15 16 L15 20.5 L18.5 22.5 L12 21 ' +
-        'L5.5 22.5 L9 20.5 L9 16 L1 18 L9 13 Z" fill="' + color + '" ' +
-        'stroke="#07070e" stroke-width="0.5"/></svg></div>';
-    const icon = L.divIcon({html: html, className: '', iconSize: [22, 22], iconAnchor: [11, 11]});
-    return L.marker(latlng, {icon: icon});
+    return {
+        fillColor: color, fillOpacity: opacity,
+        color: '#07070e', weight: 0.6, opacity: opacity,
+        renderer: window.__aircraftCanvasRenderer,
+    };
 }
 """)
 
@@ -603,7 +783,7 @@ function(feature, latlng, context){
 _ON_EACH_FEATURE_JS = assign("""
 function(feature, layer, context){
     const p = feature.properties;
-    if(!p.icao24){ return; }  // cluster balonu -- ucak degil, tooltip yok
+    if(!p.icao24){ return; }  // guvenlik icin birakildi, artik hep dolu (kumeleme kalkti)
     let signalRow = '';
     if(p.signal_age_text){
         signalRow = '<div style="grid-column: 1 / -1;"><span style="color:#666">' +
@@ -657,21 +837,6 @@ app_dash.index_string = '''
             .leaflet-tooltip-bottom:before{ border-bottom-color: #2a2a4a !important; }
             .leaflet-tooltip-left:before  { border-left-color: #2a2a4a !important; }
             .leaflet-tooltip-right:before { border-right-color: #2a2a4a !important; }
-
-            /* Tarayicinin kendi (native) sayi giris +/- oklarini gizliyoruz --
-               bunlarin tiklaninca "siyahta takili kalma" sorunu vardi, artik
-               yerlerine kendi html.Button'larimizi (trace-hours-minus/plus)
-               kullaniyoruz, native oklara gerek yok. */
-            input[type=number]::-webkit-inner-spin-button,
-            input[type=number]::-webkit-outer-spin-button {
-                -webkit-appearance: none !important;
-                appearance: none !important;
-                margin: 0 !important;
-            }
-            input[type=number] {
-                -moz-appearance: textfield !important;
-                appearance: textfield !important;
-            }
 
             /* Saat dilimi secimi: dcc.Dropdown eski react-select tabanli,
                varsayilan beyaz/acik tema kullaniyor. Kapali kutu, acik
@@ -757,9 +922,19 @@ LEFT_PANEL_BASE = {
     "transition": "transform 0.3s ease",
     "zIndex": 800, "padding": "18px", "overflowY": "auto",
 }
+# "Onceki Ucuslar" listesindeki her satir icin -- secili olan (haritada
+# su an gosterilen segment) FILTER_BTN'lerle AYNI aktif/pasif desenini
+# kullanir (bkz. style_flight_segment_buttons).
+FLIGHT_SEGMENT_BTN_STYLE = {
+    "width": "100%", "textAlign": "left", "padding": "6px 8px",
+    "borderRadius": "5px", "border": "1px solid #2a2a4a",
+    "backgroundColor": "#161625", "cursor": "pointer", "marginBottom": "4px",
+}
+FLIGHT_SEGMENT_BTN_ACTIVE_STYLE = {**FLIGHT_SEGMENT_BTN_STYLE,
+    "border": "1px solid #00b4d8", "backgroundColor": "#0d2830"}
 HISTORY_PANEL_BASE = {
     "position": "absolute", "bottom": 0, "right": 0,
-    "width": "460px", "height": "260px",
+    "width": "540px", "height": "300px",
     "backgroundColor": "rgba(15,15,25,0.97)",
     "boxShadow": "-2px -2px 24px rgba(0,0,0,0.6)",
     "borderTopLeftRadius": "10px",
@@ -775,16 +950,40 @@ SETTINGS_PANEL_BASE = {
     "boxShadow": "0 8px 24px rgba(0,0,0,0.5)",
     "padding": "14px", "zIndex": 900,
 }
+STATS_PANEL_BASE = {
+    "position": "absolute", "top": "60px", "right": "60px",
+    "width": "420px", "height": "260px",
+    "backgroundColor": "rgba(15,15,25,0.97)",
+    "border": "1px solid #2a2a4a",
+    "borderRadius": "10px",
+    "boxShadow": "0 8px 24px rgba(0,0,0,0.5)",
+    "padding": "14px", "zIndex": 900,
+}
 
-DEFAULT_TRACE_HOURS = 6
 DEFAULT_TIMEZONE = 3  # UTC+3, Turkiye -- dropdown "value" olarak int kullanilir
 
-STEPPER_BTN_STYLE = {
-    "width": "28px", "height": "28px", "borderRadius": "5px",
-    "border": "1px solid #2a2a4a", "backgroundColor": "#161625",
-    "color": "#c8d0e0", "fontSize": "16px", "cursor": "pointer",
-    "display": "flex", "alignItems": "center", "justifyContent": "center",
-    "padding": 0, "lineHeight": "1", "flexShrink": 0,
+# Haritadaki rota izi (polyline) artik sabit saat degil, "son ucus" --
+# gercek ucus/blok verisi olmadigi icin bir HEURISTIK: ardisik iki konum
+# noktasi arasinda bu esikten (dakika) BUYUK bir bosluk, "onceki ucus
+# bitti, yenisi basladi" sayilir (bkz. update_flight_path). Normal ucus
+# icinde ardisik nokta araligi (~15-90sn, producer cycle suresine bagli)
+# bu esigin COK altinda kalir.
+FLIGHT_GAP_THRESHOLD_MIN = 20
+
+# Gecmis grafigi tarih araligi secicisi icin saat secenekleri (0-23) --
+# sabit, dile/tarihe bagli degil, gun secenekleri gibi callback'te
+# yeniden hesaplanmasina gerek yok.
+HISTORY_HOUR_OPTIONS = [{"label": f"{h:02d}", "value": h} for h in range(24)]
+
+# Gecmis grafigi "Hesapla" butonu -- tarih araligi dropdown'lari artik
+# Input DEGIL State (bkz. update_history) -- secim yapmak TEK BASINA
+# grafigi guncellemiyor, kullanici bu butona basana kadar bekliyor.
+# Boylece 4 dropdown'u tek tek secerken (gun/saat x baslangic/bitis) her
+# ara adimda gereksiz sorgu atilmiyor, sadece kullanici hazir oldugunda.
+HISTORY_CALC_BTN_STYLE = {
+    "padding": "6px 12px", "borderRadius": "5px", "border": "1px solid #00b4d8",
+    "backgroundColor": "#00b4d8", "color": "#07070e", "fontSize": "11px",
+    "fontWeight": "700", "cursor": "pointer", "flexShrink": 0, "whiteSpace": "nowrap",
 }
 
 # Dil secim butonlari (TR/EN) -- iki durumlu (aktif/pasif) stil, hangisinin
@@ -812,6 +1011,13 @@ ALERT_COLOR = "#e63946"
 # "Yerde" etiketi ekler (bkz. update_map) -- ayri bir renk yerine filtre
 # butonunun kendisi (asagida) tarafsiz bir kum/toprak tonu kullanir.
 GROUND_COLOR = "#e0a458"
+# Ucus izi (flight-path-layer, gercek GPS izi) -- kullanici geri bildirimi:
+# eski renk (#00b4d8, ucak ikonuyla AYNI mavi) haritada yeterince
+# gozukmuyordu. Canli/parlak bir magenta secildi -- ne kirmizi (alarm),
+# ne kehribar (rota referans cizgisi, #f7b731), ne zeytin (askeri) ile
+# karisir, hem koyu sokak temasinda hem uydu goruntusunde (yesil/kahve
+# dogal tonlar) yuksek kontrastla ayirt edilir.
+FLIGHT_PATH_COLOR = "#ff2ea6"
 
 # Sol-ust askeri/sivil filtre butonlari -- haritanin kendi zoom (+/-)
 # kontrolu de sol-ustte oldugu icin (Leaflet varsayilani, ~10px kenar
@@ -842,6 +1048,17 @@ app_dash.layout = html.Div(id="app-root", style={
 
     dcc.Interval(id="tick", interval=15000, n_intervals=0),
     dcc.Store(id="aircraft-select", data=None),  # secili ucak (gorunmez state)
+    # Python'un doldurdugu HAM nokta verisi (lat/lon/track) -- gercek
+    # poligon geometrisi clientside_callback'te (JS, sayfa sonunda)
+    # hesaplanip "aircraft-geojson"a yaziliyor, bkz. update_map yorumu.
+    dcc.Store(id="aircraft-raw", data={"type": "FeatureCollection", "features": []}),
+    # "Onceki Ucuslar" listesi -- HAM segment verisi (start/end/duration,
+    # bkz. /api/flight_segments) burada tutuluyor, gorunen liste (butonlar)
+    # bunun uzerinden index'le esleniyor. Secili segment (haritada su an
+    # cizilen ucus) -- None ise update_flight_path VARSAYILANA (son ucus,
+    # gap-tabanli) doner.
+    dcc.Store(id="flight-segments-store", data=[]),
+    dcc.Store(id="selected-flight-segment", data=None),
 
     # ------------------------------------------------ Tam ekran harita --
     dl.Map(
@@ -859,19 +1076,18 @@ app_dash.layout = html.Div(id="app-root", style={
             # cizgisi -- flight-path-layer'dan (GERCEK izlenen yol) ayri,
             # cunku bu "kus ucusu" bir referans, gercek rota degil.
             dl.LayerGroup(id="route-line-layer"),
-            # ONEMLI: eskiden dl.LayerGroup + N adet dl.DivMarker cocugu idi.
-            # Simdi TEK bir dl.GeoJSON, cluster=True ile -- render supercluster
-            # (JS) + _POINT_TO_LAYER_JS/_ON_EACH_FEATURE_JS tarafindan
-            # CLIENT-SIDE yapiliyor (bkz. yukaridaki yorum blogu). update_map
-            # callback'i artik Python component agaci degil, duz GeoJSON
-            # sozlugu donduruyor (Output("aircraft-geojson", "data")).
+            # ONEMLI: eskiden dl.LayerGroup + N adet dl.DivMarker, sonra
+            # dl.GeoJSON(cluster=True) + supercluster balonlari (bkz.
+            # yukaridaki buyuk yorum blogu). GUNCEL: kumeleme YOK -- her
+            # ucak GERCEK bir Polygon (Python'da onceden dondurulmus ok/dart
+            # sekli), TEK paylasilan canvas renderer'a (_GEOJSON_STYLE_JS)
+            # atanarak render ediliyor. update_map callback'i Python
+            # component agaci degil, duz GeoJSON sozlugu donduruyor
+            # (Output("aircraft-geojson", "data")).
             dl.GeoJSON(
                 id="aircraft-geojson",
-                data=dlx.dicts_to_geojson([]),
-                cluster=True,
-                superClusterOptions={"radius": 80, "maxZoom": 14},
-                zoomToBoundsOnClick=True,
-                pointToLayer=_POINT_TO_LAYER_JS,
+                data={"type": "FeatureCollection", "features": []},
+                style=_GEOJSON_STYLE_JS,
                 onEachFeature=_ON_EACH_FEATURE_JS,
             ),
         ],
@@ -915,6 +1131,36 @@ app_dash.layout = html.Div(id="app-root", style={
         "pointerEvents": "none",  # altindaki haritayi engellemesin
     }),
 
+    # ----------------------------- Cagri kodu arama cubugu (durum cubugunun ALTI) --
+    html.Div(style={
+        "position": "absolute", "top": "50px", "left": "50%",
+        "transform": "translateX(-50%)",
+        "display": "flex", "alignItems": "center", "gap": "6px",
+        "backgroundColor": "rgba(15,15,25,0.85)",
+        "padding": "6px 8px 6px 12px", "borderRadius": "20px", "zIndex": 500,
+    }, children=[
+        dcc.Input(id="callsign-search-input", type="text",
+                 placeholder="Çağrı kodu ara...", debounce=True, style={
+            "width": "150px", "padding": "5px 10px", "borderRadius": "14px",
+            "border": "1px solid #2a2a4a", "backgroundColor": "#161625",
+            "color": "#c8d0e0", "fontSize": "12px", "boxSizing": "border-box",
+            "outline": "none",
+        }),
+        html.Button("🔍", id="callsign-search-btn", n_clicks=0, style={
+            "width": "28px", "height": "28px", "borderRadius": "50%",
+            "border": "1px solid #2a2a4a", "backgroundColor": "#161625",
+            "color": "#c8d0e0", "fontSize": "13px", "cursor": "pointer",
+            "display": "flex", "alignItems": "center", "justifyContent": "center",
+            "padding": 0, "flexShrink": 0,
+        }),
+    ]),
+    html.Div(id="callsign-search-feedback", style={
+        "position": "absolute", "top": "90px", "left": "50%",
+        "transform": "translateX(-50%)",
+        "fontSize": "11px", "color": "#e63946", "zIndex": 500,
+        "pointerEvents": "none",
+    }),
+
     # ------------------------------------------- Ayarlar butonu (overlay) --
     html.Button("⚙", id="settings-btn", n_clicks=0, style={
         "position": "absolute", "top": "12px", "right": "12px",
@@ -922,6 +1168,37 @@ app_dash.layout = html.Div(id="app-root", style={
         "backgroundColor": "#000000", "border": "1px solid #2a2a4a",
         "color": "#c8d0e0", "fontSize": "18px", "cursor": "pointer", "zIndex": 900,
     }),
+
+    # -------------------------------------- Istatistik butonu (overlay) --
+    # Ayarlar diliginin HEMEN SOLUNDA (right: 60px = 12 + 40 + 8 bosluk) --
+    # ayni yukseklik/boyut, tutarli gorunum icin ayni stil.
+    html.Button("📊", id="stats-btn", n_clicks=0, style={
+        "position": "absolute", "top": "12px", "right": "60px",
+        "width": "40px", "height": "40px", "borderRadius": "50%",
+        "backgroundColor": "#000000", "border": "1px solid #2a2a4a",
+        "color": "#c8d0e0", "fontSize": "18px", "cursor": "pointer", "zIndex": 900,
+    }),
+
+    # -------------------------------------- Istatistik paneli (overlay) --
+    # Simdilik tek grafik: saat basina benzersiz ucak sayisi (son 24 saat)
+    # -- /api/traffic_stats zaten mevcuttu (eskiden arayuzden kaldirilmisti,
+    # bkz. FULL_PROJECT_HANDOFF.md Bolum 12), burada geri kullaniliyor.
+    html.Div(id="stats-panel", style={**STATS_PANEL_BASE, "display": "none"},
+             children=[
+        html.Div(style={"display": "flex", "justifyContent": "space-between",
+                        "alignItems": "center", "marginBottom": "10px"}, children=[
+            html.H4("İstatistikler", id="stats-title",
+                    style={"margin": 0, "fontSize": "14px", "color": "#00b4d8"}),
+            html.Button("×", id="close-stats-btn", n_clicks=0, style={
+                "background": "none", "border": "none", "color": "#888",
+                "fontSize": "20px", "cursor": "pointer", "lineHeight": "1",
+                "padding": "0 4px",
+            }),
+        ]),
+        dcc.Graph(id="stats-chart", style={"height": "200px"},
+                  config={"displayModeBar": False}),
+    ]),
+    dcc.Store(id="stats-open", data=False),
 
     # ------------------------------------------- Ayarlar paneli (overlay) --
     html.Div(id="settings-panel", style={**SETTINGS_PANEL_BASE, "display": "none"},
@@ -935,31 +1212,6 @@ app_dash.layout = html.Div(id="app-root", style={
                 "fontSize": "20px", "cursor": "pointer", "lineHeight": "1",
                 "padding": "0 4px",
             }),
-        ]),
-        html.Div(style={"marginBottom": "14px"}, children=[
-            html.Label("Rota izi (saat)", id="trace-hours-label",
-                       style={"fontSize": "12px", "color": "#888",
-                              "display": "block", "marginBottom": "5px"}),
-            html.Div(style={"display": "flex", "alignItems": "center", "gap": "6px"},
-                    children=[
-                html.Button("−", id="trace-hours-minus", n_clicks=0, style=STEPPER_BTN_STYLE),
-                # ONEMLI: type="text" (type="number" DEGIL) -- number input'un
-                # tarayici-native +/- spinner oklari CSS ile guvenilir sekilde
-                # gizlenemiyordu (bazi tarayicilarda hala gorunuyor, kendi
-                # butonlarimizla yan yana "2 cift +/-" gibi gorunuyordu, ustelik
-                # native olan daha yavas tepki veriyordu). type="text" +
-                # inputMode="numeric" ile native spinner hic olusmuyor,
-                # tek kontrol kendi -/+ butonlarimiz oluyor. Deger dogrulama
-                # (sayi mi, 1-24 araliginda mi) Python tarafinda yapiliyor.
-                dcc.Input(id="trace-hours-input", type="text", inputMode="numeric",
-                         value=str(DEFAULT_TRACE_HOURS), style={
-                    "flex": "1", "textAlign": "center", "padding": "6px 4px",
-                    "borderRadius": "5px", "border": "1px solid #2a2a4a",
-                    "backgroundColor": "#161625", "color": "#c8d0e0",
-                    "boxSizing": "border-box",
-                }),
-                html.Button("+", id="trace-hours-plus", n_clicks=0, style=STEPPER_BTN_STYLE),
-            ]),
         ]),
         html.Div(style={"marginBottom": "14px"}, children=[
             html.Label("Saat dilimi (UTC farkı)", id="timezone-label",
@@ -991,6 +1243,26 @@ app_dash.layout = html.Div(id="app-root", style={
                            style=LANG_BTN_INACTIVE_STYLE),
             ]),
         ]),
+        html.Div(style={"marginBottom": "14px"}, children=[
+            # ONEMLI: adsb.lol/OpenSky secimi digerlerinden (dil/harita/
+            # saat dilimi) FARKLI -- pure client-side bir dcc.Store degil,
+            # AYRI BIR PROCESS'E (adsb_producer.py) Redis uzerinden
+            # iletilen GERCEK/paylasilan bir ayar. Bu yuzden tik'te
+            # (15sn'de bir) backend'den okunup gosteriliyor -- bkz.
+            # manage_data_source callback'i.
+            html.Label("Veri Kaynağı", id="data-source-label",
+                       style={"fontSize": "12px", "color": "#888",
+                              "display": "block", "marginBottom": "6px"}),
+            html.Div(style={"display": "flex", "gap": "6px"}, children=[
+                html.Button("adsb.lol", id="data-source-adsblol-btn", n_clicks=0,
+                           style=LANG_BTN_ACTIVE_STYLE),
+                html.Button("OpenSky", id="data-source-opensky-btn", n_clicks=0,
+                           style=LANG_BTN_INACTIVE_STYLE),
+            ]),
+            html.Div(id="data-source-status", style={
+                "fontSize": "10px", "color": "#666", "marginTop": "5px",
+            }),
+        ]),
         html.Div(children=[
             html.Label("Dil", id="language-label",
                        style={"fontSize": "12px", "color": "#888",
@@ -1005,7 +1277,6 @@ app_dash.layout = html.Div(id="app-root", style={
     ]),
 
     dcc.Store(id="settings-open", data=False),
-    dcc.Store(id="trace-hours-setting", data=DEFAULT_TRACE_HOURS),
     dcc.Store(id="timezone-setting", data=DEFAULT_TIMEZONE),
     dcc.Store(id="language-setting", data=DEFAULT_LANGUAGE),
     dcc.Store(id="map-style-setting", data=DEFAULT_MAP_STYLE),
@@ -1026,26 +1297,111 @@ app_dash.layout = html.Div(id="app-root", style={
         html.Div(id="live-aircraft-panel"),
         html.Div(id="route-info", style={"marginTop": "10px"}),
         html.Div(id="aircraft-info", style={"marginTop": "10px"}),
+        html.Div(style={"marginTop": "14px"}, children=[
+            html.H4("Önceki Uçuşlar (7 gün)", id="previous-flights-title",
+                    style={"color": "#90e0ef", "margin": "0 0 8px 0", "fontSize": "13px"}),
+            html.Div(id="flight-segments-list"),
+        ]),
     ]),
 
     # --------------------------- Sag-alt gecmis paneli (varsayilan gizli) --
+    # ONEMLI: eskiden irtifa+hiz IKISI birden (cift eksenli) sabit son-24s
+    # cizdiriliyordu. Artik SADECE BIRI (varsayilan irtifa, sag-ustteki
+    # dropdown'dan degistirilebilir) ve tarih araligi gun+saat
+    # dropdown'lariyla SECILEBILIR (ikisi de bos birakilirsa varsayilan
+    # davranis -- son 24 saat -- korunur, bkz. update_history). Takvim
+    # (dcc.DatePickerRange) YERINE dropdown kullaniliyor -- kullanici
+    # istegi: "tıklayınca seçenekler çıksın", ayrica gun secenekleri zaten
+    # sadece bugun-7gun araligini (InfluxDB'nin 7 gunluk saklama suresi)
+    # kapsadigi icin bir takvimin sundugu serbestlik gereksiz.
+    #
+    # ONEMLI: gun/saat dropdown'lari update_history'de Input DEGIL State --
+    # secim yapmak TEK BASINA grafigi guncellemiyor (kullanici geri
+    # bildirimi: "tarih seçsek de bişey olmuyor" -- kafası karışıyordu,
+    # cunku 4 dropdown'u tek tek secerken her ara adimda farkli/gecici bir
+    # sorgu atiliyordu). Artik "Hesapla" butonuna basana kadar hicbir sey
+    # olmuyor, basinca O ANKI 4 secim BIRLIKTE uygulaniyor.
     html.Div(id="history-panel", style={**HISTORY_PANEL_BASE, "transform": "translateY(100%)"},
              children=[
-        html.H4("Geçmiş (son 24 saat)", id="history-panel-title",
-                style={"color": "#90e0ef", "marginTop": 0, "fontSize": "13px"}),
-        dcc.Graph(id="history-chart", style={"height": "200px"},
+        html.Div(style={"display": "flex", "justifyContent": "space-between",
+                        "alignItems": "center", "marginBottom": "10px"}, children=[
+            html.H4("Geçmiş", id="history-panel-title",
+                    style={"color": "#90e0ef", "margin": 0, "fontSize": "13px"}),
+            dcc.Dropdown(
+                id="history-metric-dropdown",
+                options=[{"label": "İrtifa", "value": "alt"}, {"label": "Hız", "value": "velocity"}],
+                value="alt", clearable=False, searchable=False,
+                className="dark-dropdown", style={"width": "110px", "fontSize": "12px", "flexShrink": 0},
+            ),
+        ]),
+        html.Div(style={"display": "flex", "alignItems": "flex-end", "gap": "10px",
+                        "marginBottom": "8px", "flexWrap": "nowrap"}, children=[
+            html.Div(style={"display": "flex", "alignItems": "center", "gap": "6px"}, children=[
+                html.Span("Başlangıç", id="history-start-label",
+                         style={"fontSize": "10px", "color": "#888", "whiteSpace": "nowrap"}),
+                dcc.Dropdown(id="history-start-day", options=[], value=None,
+                            placeholder="Gün", clearable=True, searchable=False,
+                            className="dark-dropdown", style={"width": "84px", "fontSize": "11px"}),
+                dcc.Dropdown(id="history-start-hour", options=HISTORY_HOUR_OPTIONS, value=None,
+                            placeholder="Saat", clearable=True, searchable=False,
+                            className="dark-dropdown", style={"width": "68px", "fontSize": "11px"}),
+            ]),
+            html.Div(style={"display": "flex", "alignItems": "center", "gap": "6px"}, children=[
+                html.Span("Bitiş", id="history-end-label",
+                         style={"fontSize": "10px", "color": "#888", "whiteSpace": "nowrap"}),
+                dcc.Dropdown(id="history-end-day", options=[], value=None,
+                            placeholder="Gün", clearable=True, searchable=False,
+                            className="dark-dropdown", style={"width": "84px", "fontSize": "11px"}),
+                dcc.Dropdown(id="history-end-hour", options=HISTORY_HOUR_OPTIONS, value=None,
+                            placeholder="Saat", clearable=True, searchable=False,
+                            className="dark-dropdown", style={"width": "68px", "fontSize": "11px"}),
+            ]),
+            html.Button("Hesapla", id="history-calculate-btn", n_clicks=0,
+                       style=HISTORY_CALC_BTN_STYLE),
+        ]),
+        dcc.Graph(id="history-chart", style={"height": "160px"},
                   config={"displayModeBar": False}),
     ]),
 ])
 
 
+# ONEMLI (GECMIS -- iki basarisiz deneme, bkz. proje sohbet gecmisi):
+# 1) Poligon kose noktalari Python'da, Input("map","zoom") ile HER zoom
+#    degisiminde SUNUCUDAN yeniden hesaplatildi -- calisiyordu ama her
+#    adimda bir ag gidis-donusu oldugu icin GOZLE GORULUR GECIKME vardi
+#    ("donma yok ama boyut degisimi yavas/kotu").
+# 2) SABIT bir referans zoom'a (5, dl.Map'in baslangic zoom'uyla ayni)
+#    gore hesaplanip Leaflet'in kendi native zoom-reprojeksiyonuna
+#    birakildi -- gecikme gitti ama kullanici "boyutlar hic degismiyor"
+#    bildirdi (Leaflet'in canvas Path reprojeksiyonu, dash-leaflet'in
+#    GeoJSON sarmalayicisi uzerinden guvenilir sekilde tetiklenmiyor
+#    olabilir -- kesin sebep dogrulanamadi, ama sonuc gozlemlenebilir
+#    sekilde calismiyordu).
+#
+# GUNCEL COZUM: geometri hesaplamasi TAMAMEN CLIENT-SIDE (JS) bir
+# clientside_callback'e tasindi (bkz. asagidaki app_dash.clientside_callback
+# cagrisi, sayfa sonunda) -- HEM sunucuya gitmiyor (sifir gecikme) HEM
+# de GERCEK GUNCEL zoom'u kullanir (dogru boyut). Python (update_map)
+# artik SADECE HAM nokta verisini (lat/lon/track + tum tooltip/renk
+# bilgisi) "aircraft-raw" store'una yaziyor; clientside callback bunu
+# ("aircraft-raw" VEYA "map"."zoom" degistiginde) donup poligona cevirip
+# "aircraft-geojson"a yaziyor -- boylece hem yeni veri geldiginde hem
+# zoom degistiginde HER ZAMAN o anki GERCEK zoom kullanilir, "eski
+# referansa donme" sorunu olmaz.
+
+
 @app_dash.callback(
-    [Output("aircraft-geojson", "data"), Output("status", "children")],
+    [Output("aircraft-raw", "data"), Output("status", "children")],
     [Input("tick", "n_intervals"), Input("timezone-setting", "data"),
      Input("language-setting", "data"), Input("show-civil", "data"),
      Input("show-military", "data"), Input("show-ground", "data")]
 )
 def update_map(n, tz_name, lang, show_civil, show_military, show_ground):
+    # ONEMLI: bu artik haritaya DOGRUDAN cizilen "aircraft-geojson"u degil,
+    # HAM nokta verisini ("aircraft-raw") dolduruyor -- ucak sekli/boyutu
+    # (poligon geometrisi) artik clientside_callback'te (asagida, sayfa
+    # sonunda) JS'de hesaplaniyor, bkz. yukaridaki buyuk yorum blogu
+    # (2 basarisiz Python-tarafi deneme sonrasi).
     tz = _resolve_tz(tz_name)
     t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
     cat_labels = CATEGORY_LABELS.get(lang, CATEGORY_LABELS[DEFAULT_LANGUAGE])
@@ -1087,7 +1443,7 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground):
     # hesaplayip duz bir sozluge koyuyoruz -- ceviri (t[...]) ve sayi
     # formatlama SADECE burada yapiliyor, JS tarafinda (_POINT_TO_LAYER_JS /
     # _ON_EACH_FEATURE_JS) tekrarlanmiyor, JS sadece bu degerleri yerlestiriyor.
-    points = []
+    features = []
     for f in flights:
         icao = f.get("icao24", "")
         is_military = bool(f.get("is_military"))
@@ -1125,32 +1481,41 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground):
             opacity = max(0.35, min(1.0, 1.0 - (signal_age - 10) / 30))
             signal_age_text = f"{signal_age:.0f}sn" if signal_age >= 10 else None
 
-        points.append(dict(
-            lat=f.get("lat", 39), lon=f.get("lon", 35),
-            icao24=icao,
-            callsign=callsign or icao.upper(),
-            color=color,
-            opacity=round(opacity, 2),
-            track=f.get("track") or 0,
-            subtitle=subtitle,
-            alt_text=f"{f.get('alt', 0):.0f} m",
-            speed_text=(f"{f.get('velocity'):.0f} m/s"
-                       if f.get('velocity') is not None else "—"),
-            track_text=(f"{f.get('track'):.0f}°"
-                       if f.get('track') is not None else "—"),
-            vspeed_text=(f"{f.get('vertical_rate'):+.1f} m/s"
-                        if f.get('vertical_rate') is not None else "—"),
-            lbl_alt=t["tooltip_alt"], lbl_speed=t["tooltip_speed"],
-            lbl_track=t["tooltip_track"], lbl_vspeed=t["tooltip_vspeed"],
-            signal_age_text=signal_age_text, lbl_signal_age=t["tooltip_signal_age"],
-        ))
+        lat, lon = f.get("lat", 39), f.get("lon", 35)
+        track = f.get("track") or 0
 
-    geojson_data = dlx.dicts_to_geojson(points)
+        # ONEMLI: geometri hala Point (Polygon DEGIL) -- ok/dart seklinin
+        # kose noktalarini clientside_callback (JS) hesaplayacak, "track"
+        # (heading) bu yuzden properties'te HAM olarak tasiniyor.
+        features.append({
+            "type": "Feature",
+            "geometry": {"type": "Point", "coordinates": [lon, lat]},
+            "properties": dict(
+                icao24=icao,
+                callsign=callsign or icao.upper(),
+                color=color,
+                opacity=round(opacity, 2),
+                track=track,
+                subtitle=subtitle,
+                alt_text=f"{f.get('alt', 0):.0f} m",
+                speed_text=(f"{f.get('velocity'):.0f} m/s"
+                           if f.get('velocity') is not None else "—"),
+                track_text=(f"{f.get('track'):.0f}°"
+                           if f.get('track') is not None else "—"),
+                vspeed_text=(f"{f.get('vertical_rate'):+.1f} m/s"
+                            if f.get('vertical_rate') is not None else "—"),
+                lbl_alt=t["tooltip_alt"], lbl_speed=t["tooltip_speed"],
+                lbl_track=t["tooltip_track"], lbl_vspeed=t["tooltip_vspeed"],
+                signal_age_text=signal_age_text, lbl_signal_age=t["tooltip_signal_age"],
+            ),
+        })
+
+    raw_data = {"type": "FeatureCollection", "features": features}
 
     ts = datetime.now(tz).strftime("%H:%M:%S")
     status = t["status_bar"].format(ts=ts, n=len(flights), a=len(alerts))
 
-    return geojson_data, status
+    return raw_data, status
 
 
 @app_dash.callback(
@@ -1168,10 +1533,8 @@ def select_or_close(geojson_clicks, close_clicks, feature):
     ONEMLI: eskiden pattern-matching marker id'leri (ALL) dinleniyordu,
     artik TEK bir dl.GeoJSON bileseninin n_clicks/clickData ciftini
     kullaniyoruz -- clickData, tiklanan GeoJSON feature'ini (properties
-    dahil) iceriyor. Cluster balonuna tiklanirsa feature'da "icao24"
-    property'si OLMAZ (supercluster'in sentetik grup feature'i) -- bu
-    durumda secim degistirmiyoruz, zoomToBoundsOnClick zaten kendiliginden
-    o kumeye yakinlastiriyor."""
+    dahil) iceriyor. Kumeleme kaldirildigi icin her feature artik gercek
+    bir ucak -- "icao24" hep dolu, guvenlik icin yine de kontrol ediliyor."""
     ctx = dash.callback_context
     if not ctx.triggered:
         return dash.no_update
@@ -1184,6 +1547,44 @@ def select_or_close(geojson_clicks, close_clicks, feature):
         return dash.no_update
     icao24 = (feature.get("properties") or {}).get("icao24")
     return icao24 if icao24 else dash.no_update
+
+
+@app_dash.callback(
+    [Output("aircraft-select", "data", allow_duplicate=True),
+     Output("callsign-search-feedback", "children")],
+    [Input("callsign-search-btn", "n_clicks"), Input("callsign-search-input", "n_submit")],
+    [State("callsign-search-input", "value"), State("language-setting", "data")],
+    prevent_initial_call=True,
+)
+def search_by_callsign(n_clicks, n_submit, query, lang):
+    """Cagri koduna gore arama -- tiklama secimiyle AYNI Output'u
+    (aircraft-select) yazdigi icin allow_duplicate=True gerekiyor (Dash,
+    ayni Output'u birden fazla callback'in yazmasina bunu isaretlersen
+    izin veriyor). Once TAM eslesme (bosluk/buyuk-kucuk harf normalize
+    edilerek -- adsb.lol callsign'lari bazen "VATOZ 16" gibi ic bosluklu
+    donuyor), yoksa KISMI eslesme (kullanici callsign'in bir kismini
+    yazmis olabilir) denenir. Bulunamazsa secim DEGISTIRILMEZ, sadece
+    kisa bir "bulunamadi" mesaji gosterilir."""
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
+    query = (query or "").strip().upper()
+    if not query:
+        return dash.no_update, ""
+
+    try:
+        flights = requests.get("http://localhost:8000/api/flights", timeout=3).json()
+    except Exception:
+        flights = []
+
+    def norm(cs):
+        return (cs or "").strip().upper()
+
+    match = next((f for f in flights if norm(f.get("callsign")) == query), None)
+    if not match:
+        match = next((f for f in flights if query in norm(f.get("callsign"))), None)
+
+    if match:
+        return match["icao24"], ""
+    return dash.no_update, t["callsign_not_found"].format(callsign=query)
 
 
 @app_dash.callback(
@@ -1236,48 +1637,74 @@ def show_settings_panel(is_open):
 
 
 @app_dash.callback(
-    Output("trace-hours-input", "value"),
-    [Input("trace-hours-minus", "n_clicks"), Input("trace-hours-plus", "n_clicks")],
-    State("trace-hours-input", "value"),
+    Output("stats-open", "data"),
+    [Input("stats-btn", "n_clicks"), Input("close-stats-btn", "n_clicks")],
+    State("stats-open", "data"),
     prevent_initial_call=True,
 )
-def step_trace_hours(minus_clicks, plus_clicks, current):
-    """Kendi +/- butonlarimiz -- tek kontrol bu, native tarayici spinner'i
-    input type="text" oldugu icin hic olusmuyor (eskiden type="number"
-    ile hem native ok hem bu butonlar birlikte gorunuyordu, "2 cift +/-"
-    izlenimi veriyordu, native olan da daha yavas tepki veriyordu).
-    Bu callback sadece input'un GORUNEN degerini (string) degistiriyor;
-    Store'a yazma islemini update_trace_hours_setting halleder."""
+def toggle_stats_open(stats_clicks, close_clicks, is_open):
+    """Ayarlar panelinin ac/kapa deseniyle BIREBIR ayni (bkz.
+    toggle_settings_open) -- ayri bir Store/panel oldugu icin
+    birbirinden bagimsiz calisiyorlar, ikisi ayni anda acik kalabilir."""
     ctx = dash.callback_context
     if not ctx.triggered:
         return dash.no_update
     trigger = ctx.triggered[0]["prop_id"]
-    try:
-        current_val = int(current)
-    except (TypeError, ValueError):
-        current_val = DEFAULT_TRACE_HOURS
-    if trigger == "trace-hours-minus.n_clicks":
-        return str(max(1, current_val - 1))
-    if trigger == "trace-hours-plus.n_clicks":
-        return str(min(24, current_val + 1))
+    if trigger == "close-stats-btn.n_clicks":
+        return False
+    if trigger == "stats-btn.n_clicks":
+        return not is_open
     return dash.no_update
 
 
 @app_dash.callback(
-    Output("trace-hours-setting", "data"),
-    Input("trace-hours-input", "value"),
-    prevent_initial_call=True,
+    Output("stats-panel", "style"),
+    Input("stats-open", "data"),
 )
-def update_trace_hours_setting(value):
-    # value artik string (type="text") -- gecerli bir tam sayi degilse
-    # (kullanici elle harf/bos deger girdiyse) Store'u bozmadan yok sayiyoruz.
+def show_stats_panel(is_open):
+    style = dict(STATS_PANEL_BASE)
+    style["display"] = "block" if is_open else "none"
+    return style
+
+
+@app_dash.callback(
+    Output("stats-chart", "figure"),
+    [Input("tick", "n_intervals"), Input("stats-open", "data"),
+     Input("timezone-setting", "data"), Input("language-setting", "data")],
+)
+def update_stats_chart(n, is_open, tz_name, lang):
+    """Saat basina benzersiz ucak sayisi (son 24 saat) -- panel KAPALIYKEN
+    hicbir sey sorgulamiyoruz (is_open=False ise erken donuyor), her
+    15sn'de bir gereksiz InfluxDB sorgusu atmayalim."""
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
+    tz = _resolve_tz(tz_name)
+    fig = go.Figure()
+    fig.update_layout(paper_bgcolor="#0f0f19", plot_bgcolor="#0f0f19",
+                      font=dict(color="#c8d0e0", size=10),
+                      margin=dict(t=10, b=30, l=50, r=10))
+
+    if not is_open:
+        return fig
+
     try:
-        parsed = int(value)
-    except (TypeError, ValueError):
-        return dash.no_update
-    if parsed < 1 or parsed > 24:
-        return dash.no_update
-    return parsed
+        data = requests.get("http://localhost:8000/api/traffic_stats",
+                            params={"hours": 24}, timeout=10).json()
+    except Exception:
+        data = []
+
+    if not data or isinstance(data, dict):
+        fig.add_annotation(text=t["no_data"], showarrow=False,
+                           font=dict(color="#666"))
+        return fig
+
+    df = pd.DataFrame(data)
+    df["time"] = pd.to_datetime(df["time"]).dt.tz_convert(tz)
+
+    fig.add_trace(go.Scatter(x=df["time"], y=df["unique_aircraft"],
+                             mode="lines+markers",
+                             line=dict(color="#00b4d8", width=1.5)))
+    fig.update_layout(yaxis=dict(title=t["stats_yaxis_label"]))
+    return fig
 
 
 @app_dash.callback(
@@ -1366,6 +1793,59 @@ def update_map_style_buttons(style):
 
 
 @app_dash.callback(
+    [Output("data-source-adsblol-btn", "style"), Output("data-source-opensky-btn", "style"),
+     Output("data-source-status", "children")],
+    [Input("tick", "n_intervals"), Input("data-source-adsblol-btn", "n_clicks"),
+     Input("data-source-opensky-btn", "n_clicks"), Input("language-setting", "data")],
+)
+def manage_data_source(n, adsblol_clicks, opensky_clicks, lang):
+    """Diger ayarlardan (dil/harita/saat dilimi) FARKLI -- bu, AYRI BIR
+    PROCESS'in (adsb_producer.py) okudugu paylasilan bir ayar, pure
+    client-side degil. Butona basilinca ONCE backend'e YAZIYORUZ
+    (POST /api/data_source -- Redis'e yaziyor), SONRA (butonlar da dahil
+    her tetiklemede) GERCEK durumu OKUYUP gosteriyoruz -- boylece "istenen"
+    ile "producer'in su an gercekten kullandigi" (henuz bir sonraki
+    cycle'a -- 60/300sn -- gecmemis olabilir) birbirinden AYRI gosterilir,
+    kullanici "tikladim ama degismedi" sanip yanilmaz."""
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]["prop_id"] if ctx.triggered else ""
+    if trigger == "data-source-adsblol-btn.n_clicks":
+        try:
+            requests.post("http://localhost:8000/api/data_source",
+                          params={"source": "adsblol"}, timeout=3)
+        except Exception:
+            pass
+    elif trigger == "data-source-opensky-btn.n_clicks":
+        try:
+            requests.post("http://localhost:8000/api/data_source",
+                          params={"source": "opensky"}, timeout=3)
+        except Exception:
+            pass
+
+    try:
+        info = requests.get("http://localhost:8000/api/data_source", timeout=3).json()
+    except Exception:
+        info = {}
+
+    requested = info.get("requested", "adsblol")
+    active = info.get("active") or {}
+    active_source = active.get("source")
+
+    adsblol_style = LANG_BTN_ACTIVE_STYLE if requested == "adsblol" else LANG_BTN_INACTIVE_STYLE
+    opensky_style = LANG_BTN_ACTIVE_STYLE if requested == "opensky" else LANG_BTN_INACTIVE_STYLE
+
+    if active_source and active_source != requested:
+        status = t["data_source_pending"].format(requested=requested, active=active_source)
+    elif active_source:
+        status = t["data_source_active"].format(source=active_source)
+    else:
+        status = ""
+
+    return adsblol_style, opensky_style, status
+
+
+@app_dash.callback(
     [Output("base-tile-layer", "url"), Output("base-tile-layer", "attribution")],
     Input("map-style-setting", "data"),
 )
@@ -1382,13 +1862,21 @@ def update_base_tile_layer(style):
 
 
 @app_dash.callback(
-    [Output("settings-title", "children"), Output("trace-hours-label", "children"),
+    [Output("settings-title", "children"),
      Output("timezone-label", "children"), Output("language-label", "children"),
      Output("aircraft-info-title", "children"), Output("history-panel-title", "children"),
      Output("filter-civil-btn", "children"), Output("filter-military-btn", "children"),
      Output("filter-ground-btn", "children"),
      Output("map-style-label", "children"), Output("map-style-street-btn", "children"),
-     Output("map-style-satellite-btn", "children")],
+     Output("map-style-satellite-btn", "children"),
+     Output("history-start-label", "children"), Output("history-end-label", "children"),
+     Output("history-start-day", "placeholder"), Output("history-end-day", "placeholder"),
+     Output("history-start-hour", "placeholder"), Output("history-end-hour", "placeholder"),
+     Output("history-calculate-btn", "children"),
+     Output("callsign-search-input", "placeholder"),
+     Output("stats-title", "children"),
+     Output("data-source-label", "children"),
+     Output("previous-flights-title", "children")],
     Input("language-setting", "data"),
 )
 def update_static_texts(lang):
@@ -1396,10 +1884,15 @@ def update_static_texts(lang):
     dinamik metinler (panel icerikleri, tooltip, grafik) kendi
     callback'lerinde language-setting'i dogrudan Input olarak aliyor."""
     t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
-    return (t["settings_title"], t["trace_hours_label"], t["timezone_label"],
+    return (t["settings_title"], t["timezone_label"],
             t["language_label"], t["aircraft_info_title"], t["history_panel_title"],
             t["filter_civil_label"], t["filter_military_label"], t["filter_ground_label"],
-            t["map_style_label"], t["map_style_street"], t["map_style_satellite"])
+            t["map_style_label"], t["map_style_street"], t["map_style_satellite"],
+            t["history_range_placeholder_start"], t["history_range_placeholder_end"],
+            t["history_day_placeholder"], t["history_day_placeholder"],
+            t["history_hour_placeholder"], t["history_hour_placeholder"],
+            t["history_calculate_label"], t["callsign_search_placeholder"],
+            t["stats_title"], t["data_source_label"], t["previous_flights_title"])
 
 
 @app_dash.callback(
@@ -1460,31 +1953,167 @@ def style_ground_filter_btn(visible):
 @app_dash.callback(
     Output("flight-path-layer", "children"),
     [Input("tick", "n_intervals"), Input("aircraft-select", "data"),
-     Input("trace-hours-setting", "data")]
+     Input("selected-flight-segment", "data")]
 )
-def update_flight_path(n, icao24, trace_hours):
-    """Secili ucagin son N saatlik konum gecmisini haritada cizgi olarak
-    cizer (N, ayarlar panelinden degistirilebilir, varsayilan 2 saat).
-    Mevcut /api/history endpoint'ini aynen kullaniyor (lat/lon zaten
-    donuyordu), backend'e hic dokunmadan calisir."""
+def update_flight_path(n, icao24, segment):
+    """Haritada cizgi olarak gosterilecek ucus: "Onceki Ucuslar"
+    listesinden bir segment SECILMISSE (bkz. update_selected_segment)
+    TAM O ucusun konum gecmisini ceker (start/end ile /api/history).
+    SECILI DEGILSE (varsayilan, segment=None) eskisi gibi "SON UCUS"
+    HEURISTIGINE doner -- son 24 saatlik gecmisi cekip, EN SON noktadan
+    GERIYE dogru tarayarak ardisik iki nokta arasinda
+    FLIGHT_GAP_THRESHOLD_MIN (20 dakika) esigini asan ilk bosluga kadar
+    devam eder (bir bosluk = "onceki ucus bitti, yenisi basladi")."""
     if not icao24:
         return []
-    hours = trace_hours or DEFAULT_TRACE_HOURS
+
+    if segment and segment.get("start") and segment.get("end"):
+        try:
+            data = requests.get(f"http://localhost:8000/api/history/{icao24}",
+                                params={"start": segment["start"], "end": segment["end"]},
+                                timeout=5).json()
+        except Exception:
+            data = []
+        if not data or isinstance(data, dict):
+            return []
+        positions = [[d["lat"], d["lon"]] for d in data
+                     if d.get("lat") is not None and d.get("lon") is not None]
+        if len(positions) < 2:
+            return []
+        return [dl.Polyline(positions=positions, color=FLIGHT_PATH_COLOR,
+                            weight=3, opacity=0.85)]
+
     try:
         data = requests.get(f"http://localhost:8000/api/history/{icao24}",
-                            params={"hours": hours}, timeout=5).json()
+                            params={"hours": 24}, timeout=5).json()
     except Exception:
         data = []
     if not data or isinstance(data, dict):
         return []
 
-    positions = [[d["lat"], d["lon"]] for d in data
-                 if d.get("lat") is not None and d.get("lon") is not None]
+    df = pd.DataFrame(data)
+    df["_time"] = pd.to_datetime(df["_time"])
+    df = df.sort_values("_time").reset_index(drop=True)
+
+    gap = pd.Timedelta(minutes=FLIGHT_GAP_THRESHOLD_MIN)
+    gap_positions = df.index[df["_time"].diff() > gap]
+    cutoff_idx = gap_positions[-1] if len(gap_positions) else 0
+    last_flight = df.iloc[cutoff_idx:]
+
+    positions = [[row.lat, row.lon] for row in last_flight.itertuples()
+                 if pd.notna(row.lat) and pd.notna(row.lon)]
     if len(positions) < 2:
         return []
 
-    return [dl.Polyline(positions=positions, color="#00b4d8",
-                        weight=3, opacity=0.6)]
+    return [dl.Polyline(positions=positions, color=FLIGHT_PATH_COLOR,
+                        weight=3, opacity=0.85)]
+
+
+@app_dash.callback(
+    [Output("flight-segments-list", "children"), Output("flight-segments-store", "data")],
+    [Input("aircraft-select", "data"), Input("language-setting", "data"),
+     Input("timezone-setting", "data"), Input("selected-flight-segment", "data")],
+)
+def update_flight_segments(icao24, lang, tz_name, selected):
+    """Sol paneldeki 'Onceki Ucuslar' listesini doldurur --
+    /api/flight_segments/{icao24}'ten gelen HAM (UTC) segmentleri
+    kullanicinin sectigi saat dilimine cevirip goruntuluyor. Her satir
+    pattern-matching bir id tasiyor ({"type":"flight-segment-btn",
+    "index":i}) -- update_selected_segment hangisine tiklandigini bu
+    index'le buluyor, "flight-segments-store"taki HAM veriden start/end
+    okuyor.
+
+    ONEMLI: "aktif" (haritada su an cizilen) satirin stili AYRI bir
+    Output({"type":...,"index":ALL}, "style") callback'i OLARAK degil,
+    BURADA (liste OLUSTURULURKEN) belirleniyor -- ALL-pattern bir Output,
+    layout'taki GERCEK bilesen SAYISIYLA (o an DOM'da kac tane
+    "flight-segment-btn" varsa) tam eslesmezse Dash "IndexError: list
+    index out of range" hatasi veriyor (bkz. proje sohbet gecmisi, canli
+    tespit edildi) -- iki AYRI callback (liste olusturan + stilleyen)
+    arasinda bu sayi senkron kalmayabiliyordu. Tek callback'te
+    birlestirmek bu riski TAMAMEN ortadan kaldiriyor."""
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
+    if not icao24:
+        return [], []
+
+    tz = _resolve_tz(tz_name)
+    try:
+        segments = requests.get(f"http://localhost:8000/api/flight_segments/{icao24}",
+                                timeout=5).json()
+    except Exception:
+        segments = []
+    if not segments or isinstance(segments, dict):
+        return html.Div(t["no_previous_flights"],
+                        style={"color": "#666", "fontSize": "12px"}), []
+
+    rows = []
+    for i, seg in enumerate(segments):
+        start_local = pd.to_datetime(seg["start"]).tz_convert(tz)
+        end_local = pd.to_datetime(seg["end"]).tz_convert(tz)
+        same_day = start_local.date() == end_local.date()
+        date_label = start_local.strftime("%d.%m.%Y")
+        time_label = (f"{start_local.strftime('%H:%M')} → {end_local.strftime('%H:%M')}"
+                     if same_day else
+                     f"{start_local.strftime('%d.%m %H:%M')} → {end_local.strftime('%d.%m %H:%M')}")
+        duration_text = t["flight_duration_min"].format(min=f"{seg['duration_min']:.0f}")
+
+        # ONEMLI: yer adi bulunamadiysa (Nominatim'e hic sorulmadi -- bkz.
+        # GEOCODE_MAX_LOOKUPS_PER_REQUEST -- veya sorulup sonuc gelmedi)
+        # KOORDINATA duseriz, bos birakmayiz -- "mumkunse" isteniyordu,
+        # tam olmasa da HER ZAMAN bir konum bilgisi gosterilsin diye.
+        def _place_or_coords(place, lat, lon):
+            return place if place else f"{lat:.1f}°,{lon:.1f}°"
+        start_place = _place_or_coords(seg.get("start_place"), seg["start_lat"], seg["start_lon"])
+        end_place = _place_or_coords(seg.get("end_place"), seg["end_lat"], seg["end_lon"])
+        place_text = f"{start_place} → {end_place}"
+
+        # secim YOKSA (None, varsayilan "son ucus" gosteriliyor demektir)
+        # listedeki EN YENI (index 0) satiri aktif gosteriyoruz -- segmentler
+        # de ayni gap-esigiyle hesaplandigi icin normalde ayni ucusa denk gelir.
+        if selected:
+            is_active = (selected.get("start") == seg["start"]
+                        and selected.get("end") == seg["end"])
+        else:
+            is_active = (i == 0)
+
+        rows.append(html.Button(
+            [
+                html.Div(f"{date_label}  ·  {time_label}",
+                        style={"fontSize": "12px", "color": "#c8d0e0"}),
+                html.Div(place_text, style={"fontSize": "11px", "color": "#00b4d8",
+                                            "marginTop": "2px"}),
+                html.Div(duration_text, style={"fontSize": "10px", "color": "#888",
+                                               "marginTop": "2px"}),
+            ],
+            id={"type": "flight-segment-btn", "index": i}, n_clicks=0,
+            style=FLIGHT_SEGMENT_BTN_ACTIVE_STYLE if is_active else FLIGHT_SEGMENT_BTN_STYLE,
+        ))
+    return rows, segments
+
+
+@app_dash.callback(
+    Output("selected-flight-segment", "data"),
+    [Input("aircraft-select", "data"),
+     Input({"type": "flight-segment-btn", "index": ALL}, "n_clicks")],
+    State("flight-segments-store", "data"),
+    prevent_initial_call=True,
+)
+def update_selected_segment(icao24, segment_clicks, segments):
+    """Yeni bir ucak SECILINCE segment secimini SIFIRLAR (None ->
+    update_flight_path varsayilana, "son ucus"a doner) -- eski ucagin
+    secili segmenti yeni ucak icin anlamsiz kalirdi. Listeden bir
+    satira TIKLANINCA o segmentin start/end'ini dondurur."""
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+    triggered_id = ctx.triggered_id
+    if triggered_id == "aircraft-select":
+        return None
+    if isinstance(triggered_id, dict) and triggered_id.get("type") == "flight-segment-btn":
+        idx = triggered_id["index"]
+        if segments and 0 <= idx < len(segments):
+            return {"start": segments[idx]["start"], "end": segments[idx]["end"]}
+    return dash.no_update
 
 
 def _bearing_deg(lat1, lon1, lat2, lon2):
@@ -1695,20 +2324,6 @@ def update_route_info(icao24, lang):
     dest = f"{route.get('dest_city','?')} ({route.get('dest_iata','—')})"
     airline = route.get("airline")
 
-    # ONEMLI: IKI sinyali birlikte kullaniyoruz -- (1) adsb.lol'un route'u
-    # KENDI SUNUCUSUNDA zaten olasilik filtresinden gecirmis olabilir
-    # (bkz. "source_plausible" -- adsbdb.com fallback'inde bu alan yok,
-    # o zaman varsayilan True), (2) bizim KENDI ucak-yonu tutarlilik
-    # kontrolumuz (bkz. _route_is_plausible() docstring'i, WZZ43 ornegi).
-    # Ikisinden BIRI supheli derse, supheli sayiyoruz. Rotayi
-    # GIZLEMIYORUZ (belki dogrudur, heuristik kesin degil), sadece
-    # supheli oldugunu isaretliyoruz.
-    plausible = route.get("source_plausible", True)
-    d_lat, d_lon = route.get("dest_lat"), route.get("dest_lon")
-    if match and d_lat is not None and d_lon is not None:
-        plausible = plausible and _route_is_plausible(
-            match.get("lat"), match.get("lon"), match.get("track"), d_lat, d_lon)
-
     return html.Div(style={
         "background": "#161625", "padding": "8px 10px",
         "borderRadius": "6px", "fontSize": "13px",
@@ -1720,9 +2335,6 @@ def update_route_info(icao24, lang):
             html.Span("  →  ", style={"color": "#666"}),
             html.Span(dest, style={"color": "#00b4d8"}),
         ]),
-        html.Div(t["route_uncertain"], style={
-            "color": "#f7b731", "fontSize": "11px", "marginTop": "4px",
-        }) if not plausible else None,
     ])
 
 
@@ -1865,13 +2477,44 @@ def update_live_panel(n, icao24, tz_name, lang):
 
 
 @app_dash.callback(
+    Output("history-metric-dropdown", "options"),
+    Input("language-setting", "data"),
+)
+def update_history_metric_options(lang):
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
+    return [{"label": t["field_alt"], "value": "alt"},
+            {"label": t["field_speed"], "value": "velocity"}]
+
+
+@app_dash.callback(
+    [Output("history-start-day", "options"), Output("history-end-day", "options")],
+    [Input("tick", "n_intervals"), Input("timezone-setting", "data")],
+)
+def update_history_day_options(n, tz_name):
+    """Gun secenekleri (bugun -> 7 gun once) her tick'te YENIDEN
+    hesaplanir -- InfluxDB bucket'i zaten 7 gunden fazlasini tutmuyor,
+    ve gece yarisi gecince ("bugun" degisince) sayfa yenilenmeden kendini
+    duzeltsin diye sabit/bir kerelik hesaplanmiyor. Kullanicinin SU AN
+    sectigi saat dilimine gore -- UTC'ye gore hesaplansaydi "bugun" sinir
+    kullanicinin yerel gece yarisindan saatlerce once/sonra kayardi."""
+    tz = _resolve_tz(tz_name)
+    today = datetime.now(tz).date()
+    days = [today - timedelta(days=i) for i in range(7, -1, -1)]
+    options = [{"label": d.strftime("%d.%m"), "value": d.isoformat()} for d in days]
+    return options, options
+
+
+@app_dash.callback(
     Output("history-chart", "figure"),
     [Input("tick", "n_intervals"), Input("aircraft-select", "data"),
-     Input("timezone-setting", "data"), Input("language-setting", "data")]
+     Input("timezone-setting", "data"), Input("language-setting", "data"),
+     Input("history-metric-dropdown", "value"), Input("history-calculate-btn", "n_clicks")],
+    [State("history-start-day", "value"), State("history-start-hour", "value"),
+     State("history-end-day", "value"), State("history-end-hour", "value")]
 )
-def update_history(n, icao24, tz_name, lang):
-    HOURS_DEFAULT = 24  # sabit -- bu grafik "rota izi" ayarindan bagimsiz,
-                        # her zaman son 24 saati gosterir
+def update_history(n, icao24, tz_name, lang, metric, calc_clicks,
+                    start_day, start_hour, end_day, end_hour):
+    HOURS_DEFAULT = 24  # tarih araligi secilmemisse (varsayilan) kullanilir
 
     t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
     tz = _resolve_tz(tz_name)
@@ -1883,9 +2526,31 @@ def update_history(n, icao24, tz_name, lang):
     if not icao24:
         return fig  # panel zaten gizli, bos figure yeterli
 
+    # ONEMLI: gun+saat DORDU DE secilmisse (baslangic gun/saat, bitis
+    # gun/saat) kullanicinin SU AN sectigi saat dilimine gore YEREL
+    # zamani hesaplayip UTC'ye ceviriyoruz, InfluxDB'ye o gidiyor.
+    # Dorduncuden biri bile eksikse (varsayilan, kullanici hic secim
+    # yapmadiysa VEYA sadece kismen sectiyse) eski davranis -- son 24 saat.
+    params = {"hours": HOURS_DEFAULT}
+    if None not in (start_day, start_hour, end_day, end_hour):
+        # ONEMLI (duzeltildi -- kullanici geri bildirimi: "11 ile 12 arasi
+        # istedim ama 11.40-12.40 geldi"): eskiden bitis saatine +1 SAAT
+        # ekleniyordu ("o saatin TAMAMINI kapsasin" niyetiyle), yani
+        # start=11/end=12 secince aslinda 11:00-13:00 sorgulaniyordu --
+        # "su an" (ornegin 12:42) bu araligin ICINDE kaldigi icin veri
+        # "su ana kadar" kesiliyor, kullaniciya sanki yanlis/kaymis bir
+        # aralik gibi gorunuyordu. Artik end_hour TAM SINIR -- "11 ile 12
+        # arasi" = tam olarak 11:00-12:00, +1 saat YOK.
+        start_utc = datetime.fromisoformat(start_day).replace(hour=start_hour, tzinfo=tz) \
+                            .astimezone(timezone.utc)
+        end_utc = datetime.fromisoformat(end_day).replace(hour=end_hour, tzinfo=tz) \
+                          .astimezone(timezone.utc)
+        params = {"start": start_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                  "end": end_utc.strftime("%Y-%m-%dT%H:%M:%SZ")}
+
     try:
         data = requests.get(f"http://localhost:8000/api/history/{icao24}",
-                            params={"hours": HOURS_DEFAULT}, timeout=10).json()
+                            params=params, timeout=10).json()
     except Exception:
         data = []
 
@@ -1897,17 +2562,99 @@ def update_history(n, icao24, tz_name, lang):
     df = pd.DataFrame(data)
     df["_time"] = pd.to_datetime(df["_time"]).dt.tz_convert(tz)
 
-    fig.add_trace(go.Scatter(x=df["_time"], y=df["alt"], name=t["history_alt_label"],
-                             line=dict(color="#00b4d8", width=1.5), yaxis="y1"))
-    fig.add_trace(go.Scatter(x=df["_time"], y=df["velocity"], name=t["history_speed_label"],
-                             line=dict(color="#f77f00", width=1.5), yaxis="y2"))
+    # ONEMLI: eskiden irtifa+hiz IKISI birden cift eksenli cizdiriliyordu --
+    # kullanici istegiyle artik SADECE SECILI OLAN TEKI (bkz. sag-ustteki
+    # "history-metric-dropdown") cizdiriliyor.
+    if metric == "velocity":
+        col, label, color = "velocity", t["history_speed_label"], "#f77f00"
+    else:
+        col, label, color = "alt", t["history_alt_label"], "#00b4d8"
 
-    fig.update_layout(
-        yaxis=dict(title=t["history_alt_label"], side="left"),
-        yaxis2=dict(title=t["history_speed_label"], side="right", overlaying="y"),
-        legend=dict(orientation="h", font=dict(size=9), y=1.15),
-    )
+    fig.add_trace(go.Scatter(x=df["_time"], y=df[col], name=label,
+                             line=dict(color=color, width=1.5)))
+    fig.update_layout(yaxis=dict(title=label), showlegend=False)
     return fig
+
+
+# ONEMLI: bu callback CLIENTSIDE (JS, tarayicida calisir, Python'a HIC
+# UGRAMAZ) -- ucak sekli/boyutu (yon + zoom'a gore olcek) burada
+# hesaplanip "aircraft-geojson"a yaziliyor. Iki tetikleyicisi var:
+# "aircraft-raw" (her tick'te yeni veri) VEYA "map"."zoom" (kullanici
+# yakinlasip/uzaklastiginda) -- HANGISI degisirse degissin, HER ZAMAN
+# o anki GERCEK zoom'u kullanir, boylece "eski referans zoom'a donme"
+# sorunu olmaz VE ag gidis-donusu olmadigi icin gecikme SIFIRDIR (bkz.
+# update_map yorumundaki iki basarisiz Python-tarafi deneme). Matematik
+# Python'daki (kaldirilan) _rotated_aircraft_polygon() ile BIREBIR AYNI
+# -- sadece JS'e tasindi.
+app_dash.clientside_callback(
+    """
+    function(rawData, zoom) {
+        if (!rawData || !rawData.features) {
+            return window.dash_clientside.no_update;
+        }
+        const z = (zoom === null || zoom === undefined) ? 5 : zoom;
+        const features = rawData.features.map(function(f) {
+            const p = f.properties;
+            const lon = f.geometry.coordinates[0];
+            const lat = f.geometry.coordinates[1];
+            const heading = p.track || 0;
+
+            const latRad = lat * Math.PI / 180;
+            const mpp = 156543.03392 * Math.cos(latRad) / Math.pow(2, z);
+            // ONEMLI: 9 -> 11px hedef "yaricap" -- kullanici geri bildirimi
+            // "uçaklara tıklamak zor" idi, biraz daha buyuk hem daha
+            // tiklanabilir hem eski DOM ikonun (~11px yari-boyut) gercek
+            // olcusune daha yakin.
+            const unitM = 11 * mpp;
+
+            // ONEMLI: eskiden 4 noktali basit ok/dart sekliydi -- kullanici
+            // istegi uzerine ESKI DOM/SVG ucak siluetiyle (burun+kanatlar+
+            // kuyruk) AYNI oranlarda 12 noktali sekle cevrildi (asagidaki
+            // oranlar, orijinal SVG path'in 24x24 viewBox'ndan MERKEZE
+            // GORE normalize edilerek turetildi -- bkz. proje sohbet
+            // gecmisi). Daha genis kanatlar (once ±0.55 iken simdi ±0.96)
+            // AYRICA tiklama alanini da buyutuyor.
+            const localPts = [
+                [0.0000 * unitM, 0.9565 * unitM],    // burun
+                [0.2609 * unitM, -0.0870 * unitM],   // burun-sag govde
+                [0.9565 * unitM, -0.5217 * unitM],   // sag kanat ucu
+                [0.2609 * unitM, -0.3478 * unitM],   // sag govde-kuyruk
+                [0.2609 * unitM, -0.7391 * unitM],   // sag kuyruk govde
+                [0.5652 * unitM, -0.9130 * unitM],   // sag kuyruk kanadi
+                [0.0000 * unitM, -0.7826 * unitM],   // kuyruk merkez
+                [-0.5652 * unitM, -0.9130 * unitM],  // sol kuyruk kanadi
+                [-0.2609 * unitM, -0.7391 * unitM],  // sol kuyruk govde
+                [-0.2609 * unitM, -0.3478 * unitM],  // sol govde-kuyruk
+                [-0.9565 * unitM, -0.5217 * unitM],  // sol kanat ucu
+                [-0.2609 * unitM, -0.0870 * unitM],  // burun-sol govde
+            ];
+
+            const hRad = heading * Math.PI / 180;
+            const cosH = Math.cos(hRad), sinH = Math.sin(hRad);
+            const cosLat = Math.max(Math.abs(Math.cos(latRad)), 1e-6);
+
+            const ring = localPts.map(function(pt) {
+                const east = pt[0], north = pt[1];
+                const rEast = east * cosH + north * sinH;
+                const rNorth = -east * sinH + north * cosH;
+                const dLat = rNorth / 111320.0;
+                const dLon = rEast / (111320.0 * cosLat);
+                return [lon + dLon, lat + dLat];
+            });
+            ring.push(ring[0]);
+
+            return {
+                type: 'Feature',
+                geometry: {type: 'Polygon', coordinates: [ring]},
+                properties: p,
+            };
+        });
+        return {type: 'FeatureCollection', features: features};
+    }
+    """,
+    Output("aircraft-geojson", "data"),
+    [Input("aircraft-raw", "data"), Input("map", "zoom")],
+)
 
 
 if __name__ == "__main__":

@@ -19,15 +19,24 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
       CLUSTER_ID: tV5djcsiQ1ql2me9Hh6M_Q
       # Iki ayri client listener zorunlu: container'lar birbirine
-      # "kafka:9092" ile baglanir, host (Windows) tarafi "localhost:29092"
-      # kullanir. Tek listener (eskiden PLAINTEXT://localhost:9092)
-      # container-ici client'lari kirar -- broker metadata'da "localhost"
-      # dondugunde producer/consumer container'lari KENDI icini isaret
-      # eder, broker'a degil (klasik Kafka+Docker hatasi). CONTROLLER,
-      # KRaft'in kendi ic haberlesmesi icin -- ayri, client'lara kapali.
+      # "kafka:9092" ile baglanir, host/LAN tarafi PLAINTEXT_HOST'u kullanir.
+      # Tek listener (eskiden PLAINTEXT://localhost:9092) container-ici
+      # client'lari kirar -- broker metadata'da "localhost" dondugunde
+      # producer/consumer container'lari KENDI icini isaret eder, broker'a
+      # degil (klasik Kafka+Docker hatasi). CONTROLLER, KRaft'in kendi ic
+      # haberlesmesi icin -- ayri, client'lara kapali.
+      #
+      # ONEMLI: PLAINTEXT_HOST artik "localhost" DEGIL, KAFKA_LAN_HOST
+      # (repo kokundeki .env dosyasindan, varsayilan localhost) -- boylece
+      # ayni Wi-Fi/LAN'daki baska bir makine (orn. takim arkadasi) de bu
+      # Kafka'ya "iki kere adsb.lol'e istek atmadan" baglanabiliyor
+      # (bkz. proje sohbet gecmisi -- ayni agdan iki bagimsiz producer
+      # adsb.lol'u zorluyordu). "localhost" ile denemek YEREL makineden
+      # HALA calisir (Windows kendi LAN IP'sine kendi kendine baglanabilir),
+      # bu yuzden .env yoksa/bos ise eski davranis (localhost) korunur.
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://${KAFKA_LAN_HOST:-localhost}:29092
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -107,8 +116,18 @@ services:
     restart: unless-stopped
     environment:
       KAFKA_BOOTSTRAP: kafka:9092
+      # ONEMLI: veri kaynagi (adsb.lol/OpenSky) dashboard'dan canli
+      # degistirilebilsin diye -- producer bunu opsiyonel bir kontrol
+      # kanali olarak kullaniyor, erisilemezse sessizce yok sayiyor
+      # (bkz. adsb_producer.py modul docstring'i).
+      REDIS_HOST: redis
+      # OpenSky OAuth2 -- .env dosyasindan (GIT'E GITMEZ, bkz. .gitignore).
+      # Bos/yanlissa producer SESSIZCE anonim erisime duser.
+      OPENSKY_CLIENT_ID: ${OPENSKY_CLIENT_ID:-}
+      OPENSKY_CLIENT_SECRET: ${OPENSKY_CLIENT_SECRET:-}
     depends_on:
       - kafka
+      - redis
     command: ["python", "adsb_producer.py"]
 
   dashboard-consumer:
