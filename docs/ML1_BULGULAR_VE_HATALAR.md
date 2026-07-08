@@ -494,6 +494,46 @@ kategori-aday skoru olarak kayıtlı. Doğrulama: Gate B/C sayıları ham
 `category_metrics.csv`/`metrics.csv`'den bağımsız yeniden türetildi, gates.json ile bire bir
 örtüştü; tam pytest 190 geçti + bilinen 4 MinIO.
 
+## ML-13 sonuçları — iki ayrı alarm kanalı mimarisi (2026-07-07, `docs/ML13_KANAL_MIMARISI_PLAN.md` ön-kayıtlı)
+
+**Ne denedik:** H30'daki "kategori uzmanı max-füzyonda eriyor" bulgusuna karşı, skorları
+karıştırmadan iki bağımsız alarm kanalı kuruldu: `sistem = existing_fusion` (donmuş ML-9 modelleri)
+ve `mekanik = itki_komutu` (ML-12'nin kayıtlı split modelleri). Hiçbir skorlayıcı model yeniden
+eğitilmedi; iki kanal yalnız kendi FA paylarıyla validation-normal üzerinde aynı decision policy
+türüne kalibre edildi ve testte 1 s karar kovalarında onset OR'u ile tek operatör bildirimi sayıldı.
+Üç bütçe bölüşümü plana sabit kaldı: advisory 10+2 / 8+4 / 6+6 ve critical 1.67+0.33 /
+1.33+0.67 / 1+1. Artifact: `artifacts/ml13/uav_sead/full_matrix/`.
+
+- **H31 — Ayrı kanal mimarisi recall'u artırdı ama FA şişirme freni nedeniyle Gate B KALDI.**
+  Birleşik kanal en iyi tek-kanal baseline'a karşı birçok satırda pozitif recall kazancı verdi:
+  `dengeli` CUSUM/advisory **0.291 vs 0.217** (+0.074, 5/5 seed), CUSUM/critical **0.212 vs
+  0.137** (+0.075, 5/5), K-of-N/advisory **0.122 vs 0.016** (+0.105, 5/5). Ancak bu kazanımlar
+  FA'yı baseline'ın 1.10 katı sınırının çok üstüne taşıdı: CUSUM/advisory **44.70 vs 23.70
+  FA-saat** (1.89x), CUSUM/critical **27.49 vs 12.98** (2.12x), K-of-N/advisory **12.60 vs 3.29**
+  (3.83x). Ön-kayıtlı ek şart tam olarak bu durumu engellemek içindi; sonuç "recall satın alındı,
+  mimari geçmedi" olarak kaydedildi.
+- **Gate C1 yine KALDI; holdout açılmadı.** En yüksek birleşik advisory recall `dengeli`
+  CUSUM'da **0.291 / 44.70 FA-saat** (hedef ≥0.50 @ ≤12); en iyi bütçe-içi advisory satır
+  `esit` threshold'da **0.106 / 11.16** kaldı. Critical tarafta en yüksek recall **0.212 / 27.49**;
+  bütçe yakınındaki satır **0.034 / 2.15** ile hem recall düşük hem FA >2.
+- **Gate C2 de KALDI, ama mekanik monitör sınırı ölçüldü.** Mekanik kanal tek başına
+  Actuator Outputs+Controls için iki satırda eşiğe yaklaştı fakat ön-kayıtlı iddiayı geçemedi:
+  `dengeli` K-of-N/advisory **0.541 recall / 12.60 FA-saat** (recall geçiyor, FA 12'yi aşıyor);
+  `esit` threshold/advisory **0.498 / 11.16** (FA geçiyor, recall 0.50'nin az altında). Bu nedenle
+  "mekanik-özel monitör" iddiası development'ta kanıtlanmış sayılmadı; C2 zaten C1'i ikame etmiyordu.
+- **Val→test FA kayması çözülmedi; kanal bazında görünür hale geldi.** Mekanik kanalın test FA'sı
+  payına göre büyük kaydı: örneğin 4 FA advisory payında `dengeli` K-of-N **12.60 FA-saat**, 6 FA
+  payında `esit` K-of-N **13.88 FA-saat** bıraktı. İki kanalı OR'lamak bu kaymayı azaltmadı; sadece
+  sistem ve mekanik alarm yükünü ayrı ölçülebilir yaptı.
+
+**Gate kararı:** Gate A GEÇTİ (ML-9/ML-12 manifest checksum doğrulaması, 131 holdout izolasyonu,
+model eğitimi yok statik testi, karar katmanı/event_metrics identity ve onset-OR dedupe testi).
+Gate B KALDI, Gate C1 KALDI, Gate C2 KALDI. Blind holdout AÇILMADI; üretim alarm mimarisi
+değişmedi. Doğrulama: `tests/test_ml13.py` 8/8 geçti; smoke (`split_00`) ve tam 5-seed koşu
+tamamlandı; Gate B/C sayıları ham CSV'lerden runner fonksiyonları çağrılmadan yeniden türetildi ve
+`gates.json` ile örtüştü. MinIO hariç geniş test: 186 geçti, 22 MinIO-related deselected (sandbox
+tmp ACL problemi nedeniyle pytest sandbox dışı çalıştırıldı).
+
 ## ML-2/ML-3'e devredilen iş listesi
 
 | # | İş | Adres |

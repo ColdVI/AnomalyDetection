@@ -178,6 +178,18 @@ normal uçuşlarda 38.1 FA-saat bırakan bir **kategori uzmanı**; max-füzyon b
 bütçede kullanamıyor. Kategori-bazlı ayrı alarm kanalı gibi bir mimari değişiklik ancak yeni
 ön-kayıtlı fazla değerlendirilir. Holdout kapalı.
 
+### C.8 — ML-13: iki ayrı alarm kanalı recall kazandırdı ama FA şartında kaldı (✅ Tur tamamlandı, ADR-013)
+
+ML-12'nin H30 hipotezi ön-kayıtlı iki-kanal mimariyle test edildi: `sistem=existing_fusion`,
+`mekanik=itki_komutu`, model eğitimi yok, kanal onset'leri 1 s kovada boolean OR. Recall gerçekten
+arttı (`dengeli` CUSUM/advisory 0.217→0.291, +0.074, 5/5 seed; K-of-N/advisory 0.016→0.122,
++0.105, 5/5), ama FA şişirme freni tüm anlamlı kazanımları reddetti: CUSUM/advisory 23.70→44.70
+FA-saat (1.89x), K-of-N/advisory 3.29→12.60 (3.83x). Gate C1 yine kaldı. Gate C2 de geçmedi:
+mekanik kanal `dengeli` K-of-N/advisory'de Actuator O+C recall 0.541 üretti ama 12.60 FA-saat ile
+12 sınırını aştı; `esit` threshold/advisory 0.498 / 11.16 ile recall eşiğinin az altında kaldı.
+Sonuç: ayrı kanal mimarisi bu development protokolünde production ya da mekanik-monitör iddiası
+üretmez; holdout kapalı kalır.
+
 ---
 
 ## D. Metodolojik / istatistiksel sınırlamalar
@@ -226,16 +238,16 @@ listesinde (#4), platform-bazlı ayrı kalibrasyon önerisi var.
 
 ### E.1 — SEAD zayıf kategoriler için hiçbir policy kritik/advisory bütçeyi karşılamıyor (🔴 Güncel durum)
 
-ML-7'den ML-12'ye kadar hiçbir fusion/policy konfigürasyonu Position.Z veya Actuator Outputs+Controls için
+ML-7'den ML-13'e kadar hiçbir fusion/policy konfigürasyonu Position.Z veya Actuator Outputs+Controls için
 ≤2 FA/saat @ ≥0.30 recall (kritik) ya da ≤12 FA/saat @ ≥0.50 recall (advisory) hedefini
 karşılamadı. Kategori skoru iki turda üst üste belirgin iyileşti (ML-10 `chronos_motor` 0.390,
-ML-12 `itki_komutu` **0.459** CUSUM/advisory recall) ama füzyonlar hep aynı bantta kaldı
-(0.212-0.217 recall / ~24 FA-saat — advisory FA bütçesinin ~2 katı). ML-12 kök nedeni ölçtü:
-kategori-uzmanı skorlar normal uçuşlarda yüksek FA bırakıyor ve max-füzyon bunları hedef bütçede
-kullanamıyor. Dolayısıyla kategori sinyali fazlasıyla var, operasyonel bütün-sistem açığı
-mimariden kaynaklı; kategori-bazlı ayrı alarm kanalı gibi bir değişiklik ancak yeni ön-kayıtlı
-fazla, yeni veri veya ayrı füzyon hipoteziyle ele alınır — mevcut development sonucuna tuning
-yapılmayacak.
+ML-12 `itki_komutu` **0.459** CUSUM/advisory recall) ve ML-13'te iki ayrı kanal recall'u daha da
+yukarı taşıyabildi (`dengeli` CUSUM/advisory 0.291 birleşik recall), ama FA şartı bozuldu
+(44.70 FA-saat). ML-13'ün sınırlı mekanik-monitör C2 iddiası da kıl payı kaldı: 0.541 recall /
+12.60 FA-saat veya 0.498 / 11.16. Dolayısıyla kategori sinyali var; operasyonel bütün-sistem açığı
+FA kayması ve alarm bütçesi problemine takılıyor. Mevcut development sonucuna tuning yapılmayacak;
+yeniden açılma ancak yeni veri, farklı ön-kayıtlı FA-kalibrasyon hipotezi veya başka bağımsız
+protokolle mümkün.
 
 ### E.2 — Blind holdout (131 SEAD uçuşu) hiç açılmadı — gerçek "nihai" sayı yok (⚪ Bilinçli, doğru davranış)
 
@@ -302,7 +314,8 @@ bilerek ML kapsamının dışında tutuluyor.
 | C.1 | ML-8A LightGBM Gate B/C kaldı | ADR-008 | ✅ Kapandı | ML-8C/başka model ailesi (planlanmadı) |
 | C.2 | ML-9 kategori residual Gate B/C kaldı | ADR-009 | ✅ Kapandı | **ML-10 planlandı** (`docs/ML10_PLAN.md`) |
 | C.6 | ML-10 mechanical Gate B geçti, fusion Gate C kaldı | H22-H24, ADR-010 | ✅ Pilot tamamlandı | Yeni bağımsız protokol olmadan tuning/holdout yok |
-| C.7 | ML-12 ince-modül Gate B geçti (B1+B2), fusion Gate C kaldı | H29-H30, ADR-012 | ✅ Tur tamamlandı | Kategori-bazlı alarm kanalı ancak yeni ön-kayıtlı fazla |
+| C.7 | ML-12 ince-modül Gate B geçti (B1+B2), fusion Gate C kaldı | H29-H30, ADR-012 | ✅ Tur tamamlandı | ML-13 denendi; production'a dönüşmedi |
+| C.8 | ML-13 iki kanal recall kazandı ama FA şartında kaldı | H31, ADR-013 | ✅ Tur tamamlandı | Yeni bağımsız FA-kalibrasyon/veri hipotezi olmadan tuning yok |
 | C.3 | USAD < LSTM-AE | ML-3 | ✅ Kapandı | — (karar verildi) |
 | C.4 | IF-füzyon heterojen normale kırılgan | B3 | 🟡 Açık iş | nav_info'suz uçuşları val'den ayır |
 | C.5 | Oran-skoru max'tan kötü | H10 | ✅ Kapandı | — (hipotez reddedildi) |
@@ -310,7 +323,7 @@ bilerek ML kapsamının dışında tutuluyor.
 | D.2 | Küçük-n kırılganlık (yaygın) | A.1/A.4/A.6 | ⚪ Bilinçli | Her raporda n belirtilir |
 | D.3 | Enjeksiyon şiddet taraması yok | H12 | 🟡 Açık iş | 2→20 m/s taraması (devir #7) |
 | D.4 | SITL/live domain karışması | H4 | 🟡 Açık iş | Platform-bazlı kalibrasyon (devir #4) |
-| E.1 | Kritik/advisory bütçe karşılanmıyor (SEAD zayıf) | H20, H24 | 🔴 Güncel | Yeni veri veya ayrı ön-kayıtlı fusion hipotezi |
+| E.1 | Kritik/advisory bütçe karşılanmıyor (SEAD zayıf) | H20, H24, H31 | 🔴 Güncel | Yeni veri veya ayrı ön-kayıtlı FA-kalibrasyon hipotezi |
 | E.2 | Blind holdout hiç açılmadı | metodoloji | ⚪ Bilinçli | Gate B/C geçmeden açılmaz (doğru) |
 | E.3 | ALFA'daki tek geçiş karar katmanına ait | ADR-008 | ✅ Not edildi | Raporda ayrım netleştirilir |
 | F.1 | `.gitignore` `data/` bug'ı | bu oturum | ✅ Kapandı | Düzeltildi |
@@ -318,5 +331,5 @@ bilerek ML kapsamının dışında tutuluyor.
 | F.3 | 4 MinIO SDK test hatası | — | ⚪ Bilinçli | Kapsam dışı, minio paketi güncellenirse kapanır |
 | F.4 | MOMENT bu ortamda kurulamıyor | bu oturum | 🔴 Yapısal | Ayrı Python 3.10/3.11 ortamı (orantısız) |
 
-**Sayaç:** 30 madde — 8 🔴 yapısal sınır, 5 🟡 gerçek açık iş, 8 ⚪ bilinçli kapsam dışı,
-9 ✅ kapandı/telafi edildi.
+**Sayaç:** 31 madde — 8 🔴 yapısal sınır, 5 🟡 gerçek açık iş, 8 ⚪ bilinçli kapsam dışı,
+10 ✅ kapandı/telafi edildi.

@@ -24,6 +24,7 @@ import logging
 from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -89,11 +90,146 @@ def _anomaly_dev_holdout(anomalous: list[str], *, by_session: bool,
     return sorted(f for f in anomalous if f not in final_set), sorted(final)
 
 
+def _normalise_frozen_holdout(spec: Any) -> dict[str, set[str]] | None:
+    """Return previous final/development/known flights for incremental holdout.
+
+    ML-14 passes the previous source manifest config, but accepting a plain
+    final_holdout list keeps the public parameter small for simpler callers.
+    With only a list we can preserve old final flights, while full old-dev
+    contamination asserts require the previous split/source metadata.
+    """
+    if spec is None:
+        return None
+    if isinstance(spec, dict):
+        if "splits" in spec:
+            split = spec["splits"]["split_00"]
+            final = set(split.get("final_holdout", []))
+            exploration = set(split.get("exploration", []))
+            labels = set(spec.get("flight_labels", {}))
+            development = labels - final - exploration if labels else set().union(
+                *(set(split.get(part, [])) for part in ("train", "val", "test"))
+            )
+            known = labels or development | final | exploration
+            return {
+                "final": final,
+                "development": development,
+                "known": known,
+            }
+        final = set(spec.get("final_holdout", spec.get("old_final_holdout", [])))
+        development = set(spec.get(
+            "development",
+            spec.get("old_development", spec.get("development_flights", [])),
+        ))
+        known = set(spec.get("known", spec.get("old_known_flights", [])))
+        if not known:
+            known = final | development
+        return {
+            "final": final,
+            "development": development,
+            "known": known,
+        }
+    final = set(spec)
+    return {"final": final, "development": set(), "known": set(final)}
+
+
+def _partition_holdout(
+    normal: list[str],
+    all_anomalous: list[str],
+    *,
+    by_session: bool,
+    holdout_fraction: float,
+    holdout_seed: int,
+    frozen_holdout: Any = None,
+) -> tuple[list[str], list[str], set[str], dict[str, set[str]] | None]:
+    frozen = _normalise_frozen_holdout(frozen_holdout)
+    if frozen is None:
+        anomalous, final_anomalous = _anomaly_dev_holdout(
+            all_anomalous,
+            by_session=by_session,
+            holdout_fraction=holdout_fraction,
+            holdout_seed=holdout_seed,
+        )
+        final_groups = (
+            {session_of(f) for f in final_anomalous}
+            if by_session else set(final_anomalous)
+        )
+        return anomalous, final_anomalous, final_groups, None
+
+    current = set(normal) | set(all_anomalous)
+    missing = frozen["final"] - current
+    if missing:
+        raise AssertionError(
+            "Frozen holdout flights are missing from the refreshed table: "
+            f"{sorted(missing)}"
+        )
+
+    if by_session:
+        frozen_groups = {session_of(f) for f in frozen["final"]}
+        known_groups = (
+            {session_of(f) for f in frozen["known"]}
+            if frozen["known"] else set(frozen_groups)
+        )
+        frozen_final = [
+            f for f in all_anomalous if session_of(f) in frozen_groups
+        ]
+        old_development = [
+            f for f in all_anomalous
+            if session_of(f) in known_groups and session_of(f) not in frozen_groups
+        ]
+        new_anomalous = [
+            f for f in all_anomalous if session_of(f) not in known_groups
+        ]
+        new_dev, new_final = _anomaly_dev_holdout(
+            new_anomalous,
+            by_session=True,
+            holdout_fraction=holdout_fraction,
+            holdout_seed=holdout_seed,
+        )
+        final_groups = frozen_groups | {session_of(f) for f in new_final}
+        return (
+            sorted(old_development + new_dev),
+            sorted(frozen_final + new_final),
+            final_groups,
+            frozen,
+        )
+
+    frozen_final = [f for f in all_anomalous if f in frozen["final"]]
+    old_development = [
+        f for f in all_anomalous if f in frozen["known"] and f not in frozen["final"]
+    ]
+    new_anomalous = [f for f in all_anomalous if f not in frozen["known"]]
+    new_dev, new_final = _anomaly_dev_holdout(
+        new_anomalous,
+        by_session=False,
+        holdout_fraction=holdout_fraction,
+        holdout_seed=holdout_seed,
+    )
+    final_groups = set(frozen["final"]) | set(new_final)
+    return sorted(old_development + new_dev), sorted(frozen_final + new_final), final_groups, frozen
+
+
+def _assert_frozen_holdout_contract(split: dict, frozen: dict[str, set[str]] | None) -> None:
+    if frozen is None:
+        return
+    final = set(split["final_holdout"])
+    development = set(split["train"]) | set(split["val"]) | set(split["test"])
+    if not frozen["final"] <= final:
+        missing = sorted(frozen["final"] - final)
+        raise AssertionError(f"Old final_holdout is not preserved: {missing}")
+    if frozen["development"] & final:
+        overlap = sorted(frozen["development"] & final)
+        raise AssertionError(f"Old development leaked into new holdout: {overlap}")
+    if final & development:
+        overlap = sorted(final & development)
+        raise AssertionError(f"New final_holdout overlaps development: {overlap}")
+
+
 def make_group_split(flights: pd.DataFrame, *, seed: int,
                      n_val: int = 1, n_test_normal: int = 1,
                      by_session: bool = False,
                      final_holdout_fraction: float = 0.0,
-                     holdout_seed: int = 20260703) -> dict:
+                     holdout_seed: int = 20260703,
+                     frozen_holdout: Any = None) -> dict:
     """Tek bir seed icin ucus-bazli (veya oturum-bazli) split sozlugu uretir.
 
     Normal ucuslar karistirilip val/test-normal ayrilir, kalani train olur.
@@ -107,9 +243,14 @@ def make_group_split(flights: pd.DataFrame, *, seed: int,
     normal = flights[flights["flight_label"] == "normal"]["source_id"].tolist()
     all_anomalous = flights[~flights["flight_label"].isin(["normal", "unknown"])]["source_id"].tolist()
     exploration = flights[flights["flight_label"] == "unknown"]["source_id"].tolist()
-    anomalous, final_anomalous = _anomaly_dev_holdout(
-        all_anomalous, by_session=by_session,
-        holdout_fraction=final_holdout_fraction, holdout_seed=holdout_seed)
+    anomalous, final_anomalous, final_groups, frozen = _partition_holdout(
+        normal,
+        all_anomalous,
+        by_session=by_session,
+        holdout_fraction=final_holdout_fraction,
+        holdout_seed=holdout_seed,
+        frozen_holdout=frozen_holdout,
+    )
 
     if len(normal) < n_val + n_test_normal + 1:
         raise ValueError(
@@ -126,7 +267,7 @@ def make_group_split(flights: pd.DataFrame, *, seed: int,
         final_normal: list[str] = []
     else:
         dev_anomalous_sessions = {session_of(f) for f in anomalous}
-        final_anomalous_sessions = {session_of(f) for f in final_anomalous}
+        final_anomalous_sessions = set(final_groups)
         anomalous_sessions = dev_anomalous_sessions | final_anomalous_sessions
         # Anomalili oturumdaki normaller train/val'e giremez. Development
         # anomaly kardesleri test-normal, final anomaly kardesleri blind final olur.
@@ -152,7 +293,7 @@ def make_group_split(flights: pd.DataFrame, *, seed: int,
         if not train or not val:
             raise ValueError("Oturum-bazli split icin yeterli temiz oturum yok")
 
-    return {
+    split = {
         "seed": seed,
         "train": train,
         "val": val,
@@ -165,11 +306,14 @@ def make_group_split(flights: pd.DataFrame, *, seed: int,
         "final_holdout_anomalous": sorted(final_anomalous),
         "exploration": sorted(exploration),
     }
+    _assert_frozen_holdout_contract(split, frozen)
+    return split
 
 
 def make_lofo_splits(flights: pd.DataFrame, *, by_session: bool = False,
                      final_holdout_fraction: float = 0.0,
-                     holdout_seed: int = 20260703) -> list[dict]:
+                     holdout_seed: int = 20260703,
+                     frozen_holdout: Any = None) -> list[dict]:
     """Normal validation fold'lari uret.
 
     ``by_session=False`` klasik leave-one-flight-out'tur. SEAD icin
@@ -178,12 +322,17 @@ def make_lofo_splits(flights: pd.DataFrame, *, by_session: bool = False,
     """
     normal = sorted(flights[flights["flight_label"] == "normal"]["source_id"].tolist())
     all_anomalous = sorted(flights[~flights["flight_label"].isin(["normal", "unknown"])]["source_id"].tolist())
-    anomalous, final_anomalous = _anomaly_dev_holdout(
-        all_anomalous, by_session=by_session,
-        holdout_fraction=final_holdout_fraction, holdout_seed=holdout_seed)
+    anomalous, final_anomalous, final_groups, _ = _partition_holdout(
+        normal,
+        all_anomalous,
+        by_session=by_session,
+        holdout_fraction=final_holdout_fraction,
+        holdout_seed=holdout_seed,
+        frozen_holdout=frozen_holdout,
+    )
     if by_session:
         dev_sessions = {session_of(f) for f in anomalous}
-        final_sessions = {session_of(f) for f in final_anomalous}
+        final_sessions = set(final_groups)
         tainted = sorted(f for f in normal if session_of(f) in dev_sessions)
         final_normal = sorted(f for f in normal if session_of(f) in final_sessions)
         clean = [f for f in normal if session_of(f) not in dev_sessions | final_sessions]
@@ -221,6 +370,9 @@ def make_lofo_splits(flights: pd.DataFrame, *, by_session: bool = False,
 # Kaynak basina (n_val, n_test_normal) kotalari -- PIPELINE karari (GPT/FableChat):
 # ALFA 10 normal ucus -> 6 train / 2 val / 2 test-normal; UAV Attack 6 benign ->
 # 4/1/1; UAV-SEAD (ML-4 buyutmesi sonrasi ~60 normal) -> 40/10/10.
+# ML-14 yenilemesinde uav_sead icin bu deger rebuild oncesi
+# development-normal sayisindan n_val=n_test_normal=max(30, round(0.15 * dev_normal))
+# olarak guncellenir ve rebuild_report.json'a yazilir.
 # Listede olmayan kaynak icin (1, 1).
 SPLIT_QUOTAS: dict[str, tuple[int, int]] = {
     "alfa": (2, 2),
@@ -235,7 +387,8 @@ FINAL_HOLDOUT_FRACTIONS: dict[str, float] = {"uav_sead": 0.30}
 
 
 def build_split_manifest(feature_tables: dict[str, pd.DataFrame], *,
-                         quotas: dict[str, tuple[int, int]] | None = None) -> dict:
+                         quotas: dict[str, tuple[int, int]] | None = None,
+                         frozen_holdout: dict[str, Any] | None = None) -> dict:
     """Kaynak basina seed'li split'ler + LOFO listesi iceren manifest."""
     quotas = quotas or SPLIT_QUOTAS
     manifest: dict = {
@@ -250,9 +403,11 @@ def build_split_manifest(feature_tables: dict[str, pd.DataFrame], *,
         n_val, n_test_normal = quotas.get(source, (1, 1))
         by_session = source in SESSION_SPLIT_SOURCES
         holdout_fraction = FINAL_HOLDOUT_FRACTIONS.get(source, 0.0)
+        frozen_spec = (frozen_holdout or {}).get(source)
         seeds = [make_group_split(flights, seed=s, n_val=n_val, n_test_normal=n_test_normal,
                                   by_session=by_session,
-                                  final_holdout_fraction=holdout_fraction)
+                                  final_holdout_fraction=holdout_fraction,
+                                  frozen_holdout=frozen_spec)
                  for s in range(N_SEEDS)]
         manifest["sources"][source] = {
             "n_flights": len(flights),
@@ -263,7 +418,8 @@ def build_split_manifest(feature_tables: dict[str, pd.DataFrame], *,
             "splits": {f"split_{s['seed']:02d}": s for s in seeds},
             "lofo": make_lofo_splits(
                 flights, by_session=by_session,
-                final_holdout_fraction=holdout_fraction),
+                final_holdout_fraction=holdout_fraction,
+                frozen_holdout=frozen_spec),
         }
         n_normal = int((flights["flight_label"] == "normal").sum())
         logger.info("%s: %d ucus (%d normal), %d seed split + %d %s fold",

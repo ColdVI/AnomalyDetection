@@ -3,6 +3,19 @@
 venv/
 /data/
 *.parquet
+# individual/metehan_geo/viz/data/*.geojson (density/heatmap/MLAT layers) --
+# pipeline ciktisi, kaynak kod degil. Lokalde uretmek icin:
+#   python -m individual.metehan_geo.main
+#   python -m individual.metehan_geo.build_flight_density
+#   python -m individual.metehan_geo.build_heatmap_points
+#   python -m individual.metehan_geo.build_mlat_layer
+**/data/*.geojson
+# individual/metehan_geo_country/data/aircraft_dump_*.csv[.gz] -- hocanin
+# verdigi ham kaynak veri (~124MB .csv, ~36MB .gz), GitHub'in 100MB limitini
+# asiyor ve zaten "veri" (kod degil). Drive'dan ayrica indirilip data/
+# klasorune konmali (bkz. individual/metehan_geo_country/README.md).
+individual/metehan_geo_country/data/aircraft_dump_*.csv
+individual/metehan_geo_country/data/aircraft_dump_*.csv.gz
 *.tar
 *.tar.gz
 *.tgz

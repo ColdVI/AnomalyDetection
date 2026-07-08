@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<title>Metehan — ADS-B Yoğunluk / Rota Haritası</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  #map { position: absolute; inset: 0; }
+
+  #panel {
+    position: absolute; top: 16px; left: 16px; z-index: 1;
+    width: 270px;
+    background: rgba(16, 16, 20, 0.7);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    color: #e9e9ee;
+    font: 13px/1.4 -apple-system, "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+    transition: width 0.18s ease;
+  }
+  #panel.collapsed { width: 42px; }
+  #panel.collapsed .panel-body, #panel.collapsed #status { display: none; }
+
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 8px 12px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .panel-header h1 {
+    font-size: 12.5px; font-weight: 700; margin: 0; letter-spacing: 0.3px;
+    text-transform: uppercase; color: #cfd0d8; white-space: nowrap; overflow: hidden;
+  }
+  .icon-btn {
+    width: 24px; height: 24px; border-radius: 7px; border: none; flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.07); color: #e9e9ee; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1;
+  }
+  .icon-btn:hover { background: rgba(255, 255, 255, 0.14); }
+
+  .panel-body { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+
+  .field label {
+    display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.7px;
+    color: #93939f; margin-bottom: 6px; font-weight: 700;
+  }
+  .field select {
+    width: 100%; background: rgba(255, 255, 255, 0.06); color: #e9e9ee;
+    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 7px 8px;
+    font-size: 12.5px; cursor: pointer; appearance: none;
+  }
+  .field select:hover { border-color: rgba(255, 255, 255, 0.22); }
+  .field select:focus { outline: 2px solid #3b6fe0; outline-offset: 1px; }
+
+  .segmented { display: flex; background: rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 3px; gap: 2px; }
+  .segmented button {
+    flex: 1; border: none; background: transparent; color: #9d9da8;
+    padding: 6px 4px; font-size: 12px; border-radius: 6px; cursor: pointer; font-weight: 600;
+    transition: background 0.15s, color 0.15s; font-family: inherit;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  /* 4 secenekli (zaman araligi) segmented kontrolde daha az yer var --
+     kucuk fontla tut, taskmasin. */
+  #timeRangeSegmented button { font-size: 10.5px; padding: 6px 2px; }
+  .segmented button.active { background: #3b6fe0; color: #fff; }
+  .segmented button:not(.active):hover { background: rgba(255, 255, 255, 0.07); color: #e9e9ee; }
+
+  .slider-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+  .slider-row label { margin: 0; }
+  .slider-row .value { font-variant-numeric: tabular-nums; color: #e9e9ee; font-weight: 700; font-size: 12px; }
+  input[type="range"] { width: 100%; accent-color: #3b6fe0; }
+
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 3px 0; }
+  .toggle-row span { font-size: 12.5px; color: #d4d4dc; }
+  .switch { position: relative; width: 34px; height: 19px; flex-shrink: 0; display: inline-block; }
+  .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .switch .slider {
+    position: absolute; inset: 0; background: rgba(255, 255, 255, 0.14);
+    border-radius: 999px; cursor: pointer; transition: background 0.15s;
+  }
+  .switch .slider::before {
+    content: ""; position: absolute; width: 15px; height: 15px; left: 2px; top: 2px;
+    background: #fff; border-radius: 50%; transition: transform 0.15s;
+  }
+  .switch input:checked + .slider { background: #3b6fe0; }
+  .switch input:checked + .slider::before { transform: translateX(15px); }
+
+  .legend-swatch { height: 10px; border-radius: 5px; margin-bottom: 4px; }
+  .legend-scale { display: flex; justify-content: space-between; font-size: 10.5px; color: #93939f; font-variant-numeric: tabular-nums; }
+
+  #realtimeHint {
+    font-size: 10.5px; line-height: 1.5; color: #9d9da8;
+    background: rgba(59, 111, 224, 0.12); border: 1px solid rgba(59, 111, 224, 0.3);
+    border-radius: 8px; padding: 8px 10px;
+  }
+  #realtimeHint b { color: #cfd6f5; }
+
+  #status {
+    font-size: 10.5px; color: #6d6d78; padding: 8px 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06); font-variant-numeric: tabular-nums;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="panel">
+  <div class="panel-header">
+    <h1>ADS-B Yoğunluk</h1>
+    <button class="icon-btn" id="collapseBtn" aria-label="Paneli daralt">−</button>
+  </div>
+  <div class="panel-body" id="panelBody">
+    <div class="field">
+      <label>Taban Harita</label>
+      <select id="styleSelect">
+        <option value="minimal">Minimal Koyu</option>
+        <option value="dark">CARTO Dark Matter</option>
+        <option value="light">CARTO Positron</option>
+        <option value="liberty">OpenFreeMap Liberty</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Zaman Aralığı</label>
+      <div class="segmented" id="timeRangeSegmented">
+        <button type="button" data-value="historical" class="active">Tarihsel</button>
+        <button type="button" data-value="live">Canlı</button>
+        <button type="button" data-value="24h">24 Saat</button>
+        <button type="button" data-value="7d">7 Gün</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Görselleştirme</label>
+      <div class="segmented" id="renderModeSegmented">
+        <button type="button" data-value="hexagon" class="active">Hexagon</button>
+        <button type="button" data-value="heatmap">Heatmap</button>
+      </div>
+    </div>
+
+    <div class="field" id="realtimeHint" style="display:none">
+      <b>Canlı modda</b> yalnızca "benzersiz uçuş" metriği kullanılır ve gün
+      filtresi/heatmap görünümü yoktur — pencere zaten kısa (son birkaç dakika
+      / 24 saat / 7 gün), bu ayrımlar anlamsız. Veri InfluxDB'den ~15sn'de bir
+      otomatik tazelenir.
+    </div>
+
+    <div class="field" id="metricField">
+      <label>Metrik</label>
+      <div class="segmented" id="metricSegmented">
+        <button type="button" data-value="flight" class="active">Uçuş sayısı</button>
+        <button type="button" data-value="point">Ham nokta</button>
+      </div>
+    </div>
+
+    <div class="field" id="dayCountField">
+      <div class="slider-row">
+        <label>Min. gün sayısı</label>
+        <span class="value" id="dayCountValue">0</span>
+      </div>
+      <input type="range" id="dayCountSlider" min="0" max="20" value="0" />
+    </div>
+
+    <div class="field">
+      <label>Yoğunluk Skalası</label>
+      <div class="legend-swatch" id="legendSwatch"></div>
+      <div class="legend-scale"><span id="legendMin"></span><span id="legendMax"></span></div>
+    </div>
+
+    <div class="field">
+      <div class="toggle-row">
+        <span>Fiziki (hillshade)</span>
+        <label class="switch"><input type="checkbox" id="hillshadeToggle" /><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span>3D Küre</span>
+        <label class="switch"><input type="checkbox" id="globeToggle" /><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span>MLAT kapsama</span>
+        <label class="switch"><input type="checkbox" id="mlatToggle" /><span class="slider"></span></label>
+      </div>
+    </div>
+  </div>
+  <div id="status">yükleniyor...</div>
+</div>
+<script>
+// --- Bölüm 5.1 kararı: MapLibre GL JS, vanilla, CDN, Node.js/build yok. ---
+
+// NASA Black Marble (foto-gercekci gece isiklari) DENENDI, kullanici geri
+// bildirdi: "adamin resmini alip ustune isi seyi koymussun" -- foto basemap +
+// heatmap kombinasyonu "üstüne yapıştırılmış filtre" gibi görünüyor, marksblogg'un
+// kendi QGIS render'indaki entegre/tasarlanmis gorunum degil (2026-07-07).
+// KALDIRILDI. Yerine: duz/minimal koyu taban -- sadece ulke sinirlari, ince
+// cizgiler, foto dokusu YOK. Heatmap kendi isigini "bosluga" yayiyor, foto ile
+// rekabet etmiyor -- veri gorsellestirmede yaygin "glow on black" estetigi.
+// Ulke sinirlari: Natural Earth 110m (public domain, GeoJSON source'un data'si
+// dogrudan URL -- MapLibre kendi indirip parse ediyor, elle fetch gerekmiyor).
+const MINIMAL_DARK_STYLE = {
+  version: 8,
+  sources: {
+    countries: {
+      type: "geojson",
+      data: "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson",
+    },
+  },
+  layers: [
+    { id: "background", type: "background", paint: { "background-color": "#030304" } },
+    { id: "land-fill", type: "fill", source: "countries", paint: { "fill-color": "#0d0d10" } },
+    { id: "land-border", type: "line", source: "countries", paint: { "line-color": "#3a3a42", "line-width": 0.6 } },
+  ],
+};
+
+const STYLES = {
+  minimal: MINIMAL_DARK_STYLE,
+  dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+  light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+  liberty: "https://tiles.openfreemap.org/styles/liberty",
+};
+
+let currentStyleKey = "minimal"; // varsayilan: heatmap/glow icin en temiz taban (2026-07-07 karari)
+let hillshadeOn = false;
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: STYLES[currentStyleKey],
+  center: [35, 39], // Turkiye civari baslangic, veri global
+  zoom: 3,
+});
+
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+// NOT: maplibre-gl 4.7.1'de hem GlobeControl hem setProjection YOKTU (5.x'te
+// eklendi) -- ikisi de TypeError firlatip script'in geri kalanini durduruyordu.
+// CDN 5.24.0'a yukseltildi (ikisi de .d.ts'de dogrulandi). Kendi manuel toggle
+// butonumuzu (asagida) kullanmaya devam ediyoruz, GlobeControl'e gerek yok.
+let currentProjection = "mercator";
+
+// Sessizce patlayip "sonsuza kadar yukleniyor" gibi gorunmesin diye: JS
+// hatalarini status kutusuna da yazdir.
+window.addEventListener("error", (e) => {
+  const el = document.getElementById("status");
+  if (el) el.textContent = `JS hatasi: ${e.message}`;
+});
+
+// --- Metrik secimi -- SADECE res5 (2026-07-07 karari) ---
+// Onceki tasarim zoom'a gore res3/4/5 arasi gecis yapiyordu ("hex icinde
+// hex"). ?forceRes=5 debug testinde, duzeltilmis flight_count + log-scale
+// dunya zoom'unda bile yeterince ayirt edici ciktigi icin kullanici res3/4
+// tier sistemini tamamen birakip HER ZAMAN res5 kullanmaya karar verdi --
+// daha basit, ve zaten tam-cozunurluk veri kaybi yok.
+const METRICS = {
+  flight: {
+    file: "data/density_flights_res5.geojson",
+    pointsFile: "data/heatmap_points_flight.geojson",
+    colorBreaks: [2, 49, 289, 959, 2916],
+    hasDayCount: true,
+  },
+  point: {
+    file: "data/density_res5.geojson",
+    pointsFile: "data/heatmap_points_point.geojson",
+    colorBreaks: [5, 233, 1635, 6625, 56214],
+    hasDayCount: false,
+  },
+};
+
+let currentMetric = "flight"; // varsayilan: duzeltilmis metrik (2026-07-07 karari)
+let renderMode = "hexagon"; // "hexagon" | "heatmap" (2026-07-07 eklendi)
+let minDayCount = 0;
+
+// --- Realtime (--live/--24h/--7d) katmani (2026-07-07 eklendi) ---
+// docs/realtime_pipeline_prompt.md: InfluxDB'den (Dashboard/dashboard_consumer.py
+// zaten yaziyor) individual/metehan_geo/realtime_density.py ile hesaplanan
+// GeoJSON'lar. AYNI flight_count tanimi (historical ile tutarli), ama tek
+// metrik var (point/flight toggle yok) ve day_count/heatmap-nokta dosyasi
+// henuz yok -- bu yuzden realtime secilince metrik/gun-filtresi gizlenir,
+// heatmap modu devre disi birakilir (asagida).
+let currentTimeRange = "historical"; // "historical" | "live" | "24h" | "7d"
+const REALTIME_FILES = {
+  live: "data/density_realtime_live.geojson",
+  "24h": "data/density_realtime_24h.geojson",
+  "7d": "data/density_realtime_7d.geojson",
+};
+
+// Realtime dosyalari surekli degisen/kucuk olcekli veri oldugu icin sabit
+// colorBreaks kalibre etmek anlamsiz (historical'in aksine) -- her yuklemede
+// KENDI point_count dagilimindan (p10/p50/p75/p90/p99) dinamik hesaplaniyor.
+function computeBreaksFromFeatures(geojson) {
+  const values = geojson.features.map(f => f.properties.point_count).sort((a, b) => a - b);
+  if (values.length === 0) return [1, 1, 1, 1, 1];
+  const pct = (p) => values[Math.min(values.length - 1, Math.floor(p * values.length))];
+  return [pct(0.10), pct(0.50), pct(0.75), pct(0.90), pct(0.99)];
+}
+
+// Heatmap "glow" rengi -- matplotlib "magma" colormap'ine yakin bir yaklasim.
+// IKI KATMANLI teknik: genis/yumusak "hale" (glow) + dar/parlak "cekirdek"
+// (core) ust uste -- gercek bloom/isik-patlamasi efektleri de boyle sahtelenir.
+const HEATMAP_COLOR_CORE = [
+  "interpolate", ["linear"], ["heatmap-density"],
+  0, "rgba(0,0,4,0)",
+  0.1, "#1b0c41",
+  0.2, "#4a0c6b",
+  0.3, "#781c6d",
+  0.4, "#a52c60",
+  0.5, "#cf4446",
+  0.6, "#ed6925",
+  0.7, "#fb9b06",
+  0.8, "#f7d03c",
+  0.9, "#fcffa4",
+  1.0, "#ffffff",
+];
+const HEATMAP_COLOR_GLOW = [
+  "interpolate", ["linear"], ["heatmap-density"],
+  0, "rgba(0,0,4,0)",
+  0.2, "rgba(27,12,65,0.25)",
+  0.4, "rgba(120,28,109,0.35)",
+  0.6, "rgba(205,68,70,0.45)",
+  0.8, "rgba(251,155,6,0.5)",
+  1.0, "rgba(255,220,140,0.55)",
+];
+
+function heatmapWeightExpression(breaks) {
+  return [
+    "interpolate", ["linear"], ["log10", ["max", ["get", "weight"], 1]],
+    Math.log10(Math.max(breaks[0], 1)), 0,
+    Math.log10(Math.max(breaks[4], 1)), 1,
+  ];
+}
+
+// Log-scale renk ifadesi: input (point_count -- her iki metrik de bu kolon
+// adini kullanir, bkz. build_density_geojson) log10'a cevrilip, breakpoint'ler
+// de log10'a cevrilip interpolate ediliyor -- carpik dagilimda (birkac hub
+// cok yuksek, cogu hucre dusuk) linear skaladan cok daha ayirt edici.
+const HEX_COLORS = ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"];
+function log10ColorExpression(breaks) {
+  const stops = [];
+  breaks.forEach((b, i) => stops.push(Math.log10(Math.max(b, 1)), HEX_COLORS[i]));
+  return ["interpolate", ["linear"], ["log10", ["max", ["get", "point_count"], 1]], ...stops];
+}
+
+// Kompakt renk-skalasi legend'i (eski uzun aciklama metni yerine, 2026-07-07) --
+// mevcut metrik + goruntuleme moduna gore gradient + min/max sayilari.
+// currentLegendBreaks: render() tarafindan set edilir -- historical'da
+// METRICS[..].colorBreaks (sabit, gercek dagilimdan onceden hesaplandi),
+// realtime'da her yuklemede computeBreaksFromFeatures() ile DINAMIK.
+let currentLegendBreaks = METRICS.flight.colorBreaks;
+
+function updateLegend() {
+  const breaks = currentLegendBreaks;
+  const colors = renderMode === "heatmap"
+    ? ["#1b0c41", "#781c6d", "#cf4446", "#fb9b06", "#fcffa4", "#ffffff"]
+    : HEX_COLORS;
+  document.getElementById("legendSwatch").style.background = `linear-gradient(to right, ${colors.join(",")})`;
+  document.getElementById("legendMin").textContent = breaks[0].toLocaleString("tr-TR");
+  document.getElementById("legendMax").textContent = breaks[4].toLocaleString("tr-TR");
+}
+
+const geojsonCache = new Map(); // metrik -> parsed hex-polygon GeoJSON
+const pointsCache = new Map(); // metrik -> parsed centroid-nokta GeoJSON (heatmap icin)
+
+async function fetchJsonCached(cache, key, url) {
+  if (cache.has(key)) return cache.get(key);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`${url} yuklenemedi: ${res.status}`);
+  const json = await res.json();
+  cache.set(key, json);
+  return json;
+}
+
+// Realtime dosyalari arka planda surekli degisiyor (realtime_density.py
+// --loop-seconds) -- gecmis'in aksine BURADA cache YOK, her cagride hem JS
+// tarafinda hem tarayici HTTP cache'inde bypass (cache-busting query param +
+// no-store) taze veri cekilir. (2026-07-07: "Canli sekmesi gercekten taze
+// mi" sorusuna yanit -- onceki halde sourceKey degismedigi surece hic yeniden
+// fetch edilmiyordu, bu yuzden ilk yuklemeden sonra donuk kaliyordu.)
+async function fetchJsonFresh(url) {
+  const res = await fetch(`${url}?t=${Date.now()}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`${url} yuklenemedi: ${res.status}`);
+  return res.json();
+}
+
+function addDensityLayers(geojson, colorExpr) {
+  if (map.getSource("density")) return; // zaten ekli
+  map.addSource("density", { type: "geojson", data: geojson });
+  map.addLayer({
+    id: "density-fill",
+    type: "fill",
+    source: "density",
+    paint: { "fill-color": colorExpr, "fill-opacity": 0.55 },
+  });
+  map.addLayer({
+    id: "density-outline",
+    type: "line",
+    source: "density",
+    paint: { "line-color": "#000000", "line-opacity": 0.08, "line-width": 0.5 },
+  });
+}
+
+// Heatmap layer -- Point geometry + weight property bekliyor (bkz.
+// build_heatmap_points.py). Ayni "density-points" source'undan IKI katman:
+// once genis/yumusak "glow" (altta), sonra dar/parlak "core" (ustte).
+function addHeatmapLayer(geojson, breaks) {
+  if (map.getSource("density-points")) return; // zaten ekli
+  map.addSource("density-points", { type: "geojson", data: geojson });
+  const weightExpr = heatmapWeightExpression(breaks);
+
+  map.addLayer({
+    id: "density-heatmap-glow",
+    type: "heatmap",
+    source: "density-points",
+    paint: {
+      "heatmap-weight": weightExpr,
+      "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 0, 0.6, 9, 1.8],
+      "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 14, 9, 70],
+      "heatmap-color": HEATMAP_COLOR_GLOW,
+      "heatmap-opacity": 0.85,
+    },
+  });
+
+  map.addLayer({
+    id: "density-heatmap-core",
+    type: "heatmap",
+    source: "density-points",
+    paint: {
+      "heatmap-weight": weightExpr,
+      "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 0, 2, 9, 5],
+      "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 2, 9, 14],
+      "heatmap-color": HEATMAP_COLOR_CORE,
+      "heatmap-opacity": 0.95,
+    },
+  });
+}
+
+const HEATMAP_LAYER_IDS = ["density-heatmap-glow", "density-heatmap-core"];
+
+function applyDayCountFilter() {
+  const hasDayCount = METRICS[currentMetric].hasDayCount;
+  const filter = hasDayCount && minDayCount > 0
+    ? [">=", ["get", "day_count"], minDayCount]
+    : null; // "point" metrigi day_count tasimiyor, filtre uygulanamaz
+  if (map.getLayer("density-fill")) {
+    map.setFilter("density-fill", filter);
+    map.setFilter("density-outline", filter);
+  }
+  for (const id of HEATMAP_LAYER_IDS) {
+    if (map.getLayer(id)) map.setFilter(id, filter);
+  }
+}
+
+function setRenderModeVisibility() {
+  const hexVisible = renderMode === "hexagon" ? "visible" : "none";
+  const heatVisible = renderMode === "heatmap" ? "visible" : "none";
+  if (map.getLayer("density-fill")) map.setLayoutProperty("density-fill", "visibility", hexVisible);
+  if (map.getLayer("density-outline")) map.setLayoutProperty("density-outline", "visibility", hexVisible);
+  for (const id of HEATMAP_LAYER_IDS) {
+    if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", heatVisible);
+  }
+}
+
+// currentMetric+renderMode kombinasyonu icin ayri yukleme durumu -- boylece
+// hexagon<->heatmap arasinda GIDIP GELMEK (metrik ayni kalirken) tekrar fetch
+// gerektirmez, sadece visibility degisir.
+let loadedHexMetric = null;
+let loadedHeatmapMetric = null;
+
+// Hizli ardisik degisikliklerde (metrik/mod) cevaplar sirasiz donebilir --
+// sequence guard.
+let requestSeq = 0;
+
+async function render() {
+  const isHistorical = currentTimeRange === "historical";
+  const sourceKey = isHistorical ? `hist:${currentMetric}` : `rt:${currentTimeRange}`;
+  const mySeq = ++requestSeq;
+  try {
+    if (renderMode === "hexagon") {
+      // Historical: sourceKey degismedigi surece cache'ten kullan (sabit
+      // veri, tekrar fetch anlamsiz). Realtime: HER render() cagrisinda taze
+      // veri cek -- sourceKey (rt:live/24h/7d) ayni kalsa bile arkadaki
+      // GeoJSON dosyasi surekli degisiyor.
+      if (isHistorical ? loadedHexMetric !== sourceKey : true) {
+        const file = isHistorical ? METRICS[currentMetric].file : REALTIME_FILES[currentTimeRange];
+        const geojson = isHistorical
+          ? await fetchJsonCached(geojsonCache, sourceKey, file)
+          : await fetchJsonFresh(file);
+        if (mySeq !== requestSeq) return;
+        const breaks = isHistorical ? METRICS[currentMetric].colorBreaks : computeBreaksFromFeatures(geojson);
+        const colorExpr = log10ColorExpression(breaks);
+        const source = map.getSource("density");
+        if (source) {
+          source.setData(geojson);
+          map.setPaintProperty("density-fill", "fill-color", colorExpr);
+        } else {
+          addDensityLayers(geojson, colorExpr);
+        }
+        loadedHexMetric = sourceKey;
+        currentLegendBreaks = breaks;
+        const suffix = isHistorical ? "" : ` (guncellendi: ${new Date().toLocaleTimeString("tr-TR")})`;
+        document.getElementById("status").textContent = `hexagon/${sourceKey}: ${geojson.features.length} hex${suffix}`;
+      }
+    } else if (!isHistorical) {
+      // Heatmap (nokta+weight) dosyalari henuz sadece historical icin uretiliyor
+      // (build_heatmap_points.py) -- realtime'da hexagon moduna zorla don.
+      renderMode = "hexagon";
+      for (const b of document.querySelectorAll("#renderModeSegmented button")) {
+        b.classList.toggle("active", b.dataset.value === "hexagon");
+      }
+      return render();
+    } else {
+      const metricKey = currentMetric;
+      if (loadedHeatmapMetric !== metricKey) {
+        const geojson = await fetchJsonCached(pointsCache, metricKey, METRICS[metricKey].pointsFile);
+        if (mySeq !== requestSeq) return;
+        const source = map.getSource("density-points");
+        if (source) {
+          source.setData(geojson);
+          const weightExpr = heatmapWeightExpression(METRICS[metricKey].colorBreaks);
+          for (const id of HEATMAP_LAYER_IDS) {
+            map.setPaintProperty(id, "heatmap-weight", weightExpr);
+          }
+        } else {
+          addHeatmapLayer(geojson, METRICS[metricKey].colorBreaks);
+        }
+        loadedHeatmapMetric = metricKey;
+        currentLegendBreaks = METRICS[metricKey].colorBreaks;
+        document.getElementById("status").textContent = `heatmap/${metricKey}: ${geojson.features.length} nokta`;
+      }
+    }
+    setRenderModeVisibility();
+    applyDayCountFilter();
+    updateLegend();
+  } catch (err) {
+    if (mySeq === requestSeq) {
+      document.getElementById("status").textContent = `Hata: ${err.message}`;
+    }
+  }
+}
+
+// --- MLAT kapsama katmani (kullanicinin onerisi, 2026-07-07) ---
+// Silver'daki ads_source_type alanindan (Gold'da yok, bkz. Bolum 2 istisnasi)
+// hesaplandi -- hangi hex'lerde multilateration kapsamayi genislettigini
+// gosterir. mlat_ratio yuksek olan hex'ler tek-istasyon kapsaminin
+// sinirinda/disinda demek (kiyi/ada istasyon kumeleri civari).
+let mlatOn = false;
+let mlatGeoJSON = null;
+
+async function loadMlatGeoJSON() {
+  if (mlatGeoJSON) return mlatGeoJSON;
+  const res = await fetch("data/mlat_density.geojson");
+  if (!res.ok) throw new Error(`mlat_density.geojson yuklenemedi: ${res.status}`);
+  mlatGeoJSON = await res.json();
+  return mlatGeoJSON;
+}
+
+function addMlatLayer(geojson) {
+  if (map.getSource("mlat")) return;
+  map.addSource("mlat", { type: "geojson", data: geojson });
+  map.addLayer({
+    id: "mlat-fill",
+    type: "fill",
+    source: "mlat",
+    paint: {
+      "fill-color": "#3b82f6", // mavi -- yogunluk katmanindan (sari-kirmizi) ayirt edilsin
+      "fill-opacity": [
+        "interpolate", ["linear"], ["get", "mlat_ratio"],
+        0, 0.05,
+        0.5, 0.35,
+        1, 0.7,
+      ],
+    },
+  });
+}
+
+function removeMlatLayer() {
+  if (map.getLayer("mlat-fill")) map.removeLayer("mlat-fill");
+  if (map.getSource("mlat")) map.removeSource("mlat");
+}
+
+function addHillshadeLayer() {
+  if (map.getSource("terrarium")) return;
+  map.addSource("terrarium", {
+    type: "raster-dem",
+    tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+    tileSize: 256,
+    encoding: "terrarium",
+    maxzoom: 15,
+  });
+  // Yogunluk katmaninin ALTINA ekle -- ama renderMode'a gore density-fill
+  // veya heatmap katmanlari hicbiri henuz eklenmemis olabilir (lazy-load), o
+  // yuzden beforeId'yi var olan katmana gore sec, hicbiri yoksa en uste ekle.
+  const beforeId = map.getLayer("density-fill") ? "density-fill"
+    : map.getLayer("density-heatmap-glow") ? "density-heatmap-glow"
+    : undefined;
+  map.addLayer(
+    { id: "hillshade", type: "hillshade", source: "terrarium", paint: { "hillshade-exaggeration": 0.4 } },
+    beforeId
+  );
+}
+
+// map.setStyle(...) tum custom source/layer'lari siler -- her stil
+// degisiminde bunlari YENIDEN eklemek gerekiyor (source/layer kaybolur, ama
+// geojsonCache JS bellekte kaldigi icin tekrar fetch gerekmez). En sik
+// yapilan hata burasi.
+map.on("style.load", async () => {
+  map.setProjection({ type: currentProjection });
+  loadedHexMetric = null; // source/layer'lar stil degisince silindi, yeniden ekle
+  loadedHeatmapMetric = null;
+  await render();
+  if (hillshadeOn) addHillshadeLayer();
+  if (mlatOn) addMlatLayer(await loadMlatGeoJSON());
+});
+
+// --- Panel kontrolleri (2026-07-07 yeniden tasarim: segmented control +
+// toggle switch, uzun aciklama metni kaldirildi, kompakt gradient legend) ---
+
+document.getElementById("collapseBtn").addEventListener("click", () => {
+  const panel = document.getElementById("panel");
+  const collapsed = panel.classList.toggle("collapsed");
+  document.getElementById("collapseBtn").textContent = collapsed ? "+" : "−";
+});
+
+document.getElementById("styleSelect").addEventListener("change", (e) => {
+  currentStyleKey = e.target.value;
+  map.setStyle(STYLES[currentStyleKey]); // style.load handler katmanlari yeniden ekler
+});
+
+// Realtime secilince metrik/gun-filtresi kontrolleri anlamsiz (tek metrik
+// var, day_count yok) -- gizle. Tarihsel'e donunce geri goster.
+function updateFieldVisibilityForTimeRange() {
+  const isHistorical = currentTimeRange === "historical";
+  document.getElementById("metricField").style.display = isHistorical ? "block" : "none";
+  document.getElementById("dayCountField").style.display =
+    isHistorical && METRICS[currentMetric].hasDayCount ? "block" : "none";
+  document.getElementById("realtimeHint").style.display = isHistorical ? "none" : "block";
+}
+
+// Realtime sekmesi acikken sayfayi elle yenilemeye gerek kalmasin diye
+// periyodik otomatik yeniden-render -- render() kendisi zaten realtime icin
+// her seferinde taze fetch yapiyor (yukarida), bu sadece tetikleyici.
+// Kafka uretici dongusu ~15sn hedefli (KAFKA_SCHEMA.md) -- ondan daha sik
+// sormanin faydasi yok.
+const REALTIME_REFRESH_MS = 15000;
+let realtimeRefreshTimer = null;
+
+function startRealtimeAutoRefresh() {
+  if (realtimeRefreshTimer) return;
+  realtimeRefreshTimer = setInterval(() => {
+    if (currentTimeRange !== "historical") render();
+  }, REALTIME_REFRESH_MS);
+}
+
+function stopRealtimeAutoRefresh() {
+  if (realtimeRefreshTimer) clearInterval(realtimeRefreshTimer);
+  realtimeRefreshTimer = null;
+}
+
+document.getElementById("timeRangeSegmented").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-value]");
+  if (!btn) return;
+  currentTimeRange = btn.dataset.value;
+  for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
+  updateFieldVisibilityForTimeRange();
+  if (currentTimeRange === "historical") stopRealtimeAutoRefresh();
+  else startRealtimeAutoRefresh();
+  render();
+});
+
+document.getElementById("renderModeSegmented").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-value]");
+  if (!btn) return;
+  renderMode = btn.dataset.value;
+  for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
+  render();
+});
+
+document.getElementById("metricSegmented").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-value]");
+  if (!btn) return;
+  currentMetric = btn.dataset.value;
+  for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
+  updateFieldVisibilityForTimeRange();
+  render();
+});
+
+document.getElementById("dayCountSlider").addEventListener("input", (e) => {
+  minDayCount = Number(e.target.value);
+  document.getElementById("dayCountValue").textContent = minDayCount;
+  applyDayCountFilter();
+});
+
+// Baslangic durumu (varsayilan: historical/flight, gun-filtresi gorunur).
+updateFieldVisibilityForTimeRange();
+
+document.getElementById("globeToggle").addEventListener("change", (e) => {
+  currentProjection = e.target.checked ? "globe" : "mercator";
+  map.setProjection({ type: currentProjection });
+});
+
+document.getElementById("mlatToggle").addEventListener("change", async (e) => {
+  mlatOn = e.target.checked;
+  if (mlatOn) {
+    try {
+      addMlatLayer(await loadMlatGeoJSON());
+    } catch (err) {
+      document.getElementById("status").textContent = `Hata: ${err.message}`;
+      mlatOn = false;
+      e.target.checked = false;
+    }
+  } else {
+    removeMlatLayer();
+  }
+});
+
+document.getElementById("hillshadeToggle").addEventListener("change", (e) => {
+  hillshadeOn = e.target.checked;
+  if (hillshadeOn) {
+    addHillshadeLayer();
+  } else if (map.getLayer("hillshade")) {
+    map.removeLayer("hillshade");
+    map.removeSource("terrarium");
+  }
+});
+</script>
+</body>
+</html>

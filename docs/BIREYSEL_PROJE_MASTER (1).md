@@ -37,12 +37,17 @@ başlıklara referans ver ama okumayı kullanıcı yapacak):
 ## 2. Veri kaynağı ve bağlantı
 
 - **Konum:** MinIO `gold` bucket, `unified/*.parquet` objeleri.
-- **MinIO şu an native Windows process olarak çalışıyor** (Docker değil —
-  altyapı sorunları nedeniyle geçici olarak `minio.exe` ile ayakta).
-  Bağlantı bilgisi değişmedi: `.env`'de `MINIO_ENDPOINT=localhost:9000`,
-  `MINIO_ACCESS_KEY`/`MINIO_SECRET_KEY` aynı. Kod tarafında hiçbir fark
-  yok — `src/common/minio_io.py`'deki `get_minio_client()` aynı şekilde
-  çalışır.
+- **MinIO artık Docker'da çalışıyor** (`docker compose up -d minio`) —
+  yukarıdaki "native Windows process" notu 2026-07-07'de Docker'a geri
+  dönülünce güncelliğini yitirdi. Bağlantı bilgisi değişmedi:
+  `MINIO_ENDPOINT=localhost:9000` vb.
+- **İstisna — MLAT katmanı Silver'dan okur, Gold'dan DEĞİL:** Gold'un ortak
+  7+3 şeması `ads_source_type` (adsb_icao/mlat/tisb_icao/...) kolonunu
+  taşımıyor (ADR-003, kaynağa-özel kolonlar Silver'da kalır). MLAT kapsama
+  katmanı (`build_mlat_layer.py`) bu yüzden bilinçli olarak
+  `silver/adsblol_historical/`'ı doğrudan tarar. Yoğunluk haritası ve
+  kümeleme akışı yine Gold'dan okumaya devam ediyor — bu tek özellik için
+  belgelenmiş bir istisna.
 - **Filtre:** `source_type` kolonu `adsblol_historical` / `adsblol_hist` /
   `adsblol_realtime` / `adsblol_rt` olan satırlar (isimlendirme geçiş
   sürecinde iki varyant da olabilir, ikisini de kapsa).
@@ -82,7 +87,15 @@ individual/metehan_geo/
 ├── viz.py              # Bolum 5, Adim 7-8 (GeoJSON export, Folium DEGIL -- bkz 5.1)
 ├── viz/
 │   ├── index.html        # MapLibre GL JS vanilla viewer (CDN, build gerektirmez)
-│   └── data/              # viz.py'nin urettigi *.geojson dosyalari
+│   └── data/              # *.geojson (viz.py/build_flight_density.py/build_heatmap_points.py/
+│                          # build_mlat_layer.py ciktilari) -- GIT'TE TUTULMUYOR (2026-07-07,
+│                          # bkz. .gitignore "data/*.geojson"). En buyugu (density_flights_res5.geojson)
+│                          # ~109MB, GitHub'in 100MB sert limitini asiyordu. Lokalde uretmek icin:
+│                          #   python -m individual.metehan_geo.main
+│                          #   python -m individual.metehan_geo.build_flight_density
+│                          #   python -m individual.metehan_geo.build_heatmap_points
+│                          #   python -m individual.metehan_geo.build_mlat_layer
+│                          # (hepsi MinIO Gold'a erisim gerektirir, sirayla ~1-1.5 saat surer)
 ├── clustering.py        # Bolum 5, Adim 9-13
 ├── routes.py             # Bolum 6 (rota sapmasi tespiti)
 ├── build_baseline.py     # Bolum 6, tek seferlik baseline kurulumu
@@ -131,6 +144,40 @@ JS, CDN'den MapLibre GL JS) bu dosyaları `fetch()` ile okuyup çizer.
   H3 yoğunluk katmanı ve rota çizgileri `style.load` event'ine bağlı bir
   fonksiyon olarak yazılmalı, her stil değişiminde yeniden eklenmeli.
 
+**Çoklu-çözünürlük H3 — denendi, sonra TERK EDİLDİ (2026-07-07):**
+İlk denemede tek çözünürlük (5) yerine 3 kademe (`res3`/`res4`/`res5`,
+zoom'a göre `source.setData()` ile geçiş) kuruldu. `?forceRes=5` debug
+parametresiyle test edilince (düzeltilmiş `flight_count` + log-scale ile)
+res5'in dünya zoom'unda bile yeterince ayırt edici kaldığı görüldü —
+kullanıcı kademe sistemini tamamen bırakıp **her zoom seviyesinde sadece
+res5** kullanmaya karar verdi (`index.html`'de `METRICS` artık tek dosya:
+`density_flights_res5.geojson` / `density_res5.geojson`, zoom-bağımlı
+kademe/`pickResolutionTier`/debounce kodu kaldırıldı). `density_res3/4*`
+dosyaları diskte duruyor (referans/gelecekte lazım olursa), ama frontend
+artık onları kullanmıyor. Daha ince çözünürlük (6+) hâlâ ham veriyi (1
+milyar satır) tekrar taramayı gerektirir — bu ileride ayrı bir karar.
+
+**Heatmap "glow" modu + Minimal Koyu taban (2026-07-07 eklendi):** Hexagon
+dolgu moduna alternatif olarak MapLibre'nin native `heatmap` layer'ı eklendi
+(`build_heatmap_points.py`, hex merkezleri + weight=metrik). İlk denemede
+taban harita olarak NASA Black Marble (foto-gerçekçi gece ışıkları)
+kullanıldı ama kullanıcı geri bildirdi: foto + heatmap kombinasyonu "resmin
+üstüne yapıştırılmış filtre" gibi durdu, marksblogg'un kendi QGIS render'ı
+gibi entegre görünmedi. **Black Marble kaldırıldı**, yerine sadece ülke
+sınırları içeren düz/minimal koyu bir taban (`MINIMAL_DARK_STYLE`, Natural
+Earth 110m sınırları) varsayılan yapıldı — heatmap kendi ışığını "boşluğa"
+yayıyor, foto dokusuyla rekabet etmiyor. Ayrıca heatmap tek katman yerine
+**iki katman** oldu: geniş/yumuşak "glow" (hale) + dar/parlak "core"
+(çekirdek) — matplotlib "magma" colormap'ine yakın renklerle gerçek bir
+bloom/ışık-patlaması hissi veriyor.
+
+**MLAT kapsama katmanı (2026-07-07 eklendi):** `build_mlat_layer.py`,
+Silver'daki `ads_source_type` alanını kullanarak (bkz. Bölüm 2 istisnası)
+her hex için MLAT-kaynaklı nokta oranını hesaplar (`mlat_density.geojson`).
+Gerçek veride MLAT ~%1.3 (kıyı/ada istasyon kümeleri civarında kapsamayı
+genişletiyor) — açık okyanusta senkronize istasyon olmadığı için MLAT da
+işe yaramıyor, bu bilinen/kabul edilmiş bir sınır.
+
 **Performans kuralı — asla ham nokta verisini tarayıcıya gönderme:**
 1. Yoğunluk haritası: Python'da H3 hex'e göre önceden agregat et
    (`compute_hex_density`), sadece `{hex_id, point_count}` çiftlerini
@@ -144,14 +191,21 @@ JS, CDN'den MapLibre GL JS) bu dosyaları `fetch()` ile okuyup çizer.
 4. Büyük veriyi asla HTML içine gömülü `<script>` JSON'u olarak yazma —
    ayrı `.geojson`/`.json` dosyasından `fetch()` ile yükle.
 
-### 1. `load_adsb_gold_data(client=None) -> pd.DataFrame`
-MinIO Gold'dan `adsblol_hist`/`adsblol_historical`/`adsblol_rt`/`adsblol_realtime`
-satırlarını çeker, birleştirir. `src/common/minio_io.py`'deki
-`get_minio_client()`/`read_layer()`'ı çağır, yeniden yazma.
+### 1. `load_adsb_gold_data(client=None) -> Iterator[pd.DataFrame]`
+**DEĞİŞTİ (2026-07-07):** Gerçek veri **1.006.744.756 satır** (adsb historical,
+2.500 Gold parçası) çıktı — 16GB RAM'e tek DataFrame olarak sığmaz. Bu yüzden
+`read_layer()` (hepsini `pd.concat` eden) KULLANILMAZ. Bunun yerine bir
+**generator**: `list_layer_objects(client, gold_bucket, "unified")` ile parça
+listesini al, her parçayı `read_parquet_object` ile TEK TEK oku, `source_type`
+kolonu `adsblol_historical`/`adsblol_hist`/`adsblol_realtime`/`adsblol_rt`
+olan satırları filtrele, `yield` et. Çağıran taraf (`compute_hex_density`,
+örnekleme adımı) bu generator'ı tüketir, hiçbir zaman tüm veri aynı anda
+bellekte olmaz.
 
 ### 2. `clean_coordinates(df) -> pd.DataFrame`
 Null `lat`/`lon` at, geçersiz aralık dışını (`lat` -90/90, `lon` -180/180)
-filtrele. Kaç satır silindiğini logla.
+filtrele. Kaç satır silindiğini logla. Değişmedi — ama artık `load_adsb_gold_data()`'nin
+her tek chunk'ına ayrı ayrı uygulanır (generator'ı tüketen döngü içinde).
 
 ### 3. `filter_bbox(df, min_lat, max_lat, min_lon, max_lon) -> pd.DataFrame`
 İsteğe bağlı bölgesel filtre (senin analiz kararın, pipeline'da yok).
@@ -164,8 +218,56 @@ ekle. `resolution`'ı CLI argümanı yap, sabit yazma.
 `h3.cell_to_boundary(hex_id)` ile hex sınır koordinatlarını GeoJSON
 `Polygon` `coordinates` formatına ([lon, lat] sırası, ring kapalı) çevir.
 
-### 6. `compute_hex_density(df) -> pd.DataFrame`
-`.groupby("h3_cell").size().reset_index(name="point_count")`.
+### 6. `compute_hex_density(chunks: Iterator[pd.DataFrame]) -> pd.DataFrame`
+**DEĞİŞTİ:** Tek `df` almaz, `load_adsb_gold_data()`'den gelen (clean+h3
+uygulanmış) chunk generator'ını tüketir. Her chunk için `.groupby("h3_cell").size()`
+yapıp sonucu bir `collections.Counter`'da biriktirir (benzersiz hex sayısı
+-- resolution'a göre birkaç bin ile birkaç milyon arası -- rahatça bellekte
+tutulabilir, çünkü toplam SATIR sayısı değil toplam benzersiz HEX sayısı bu.
+Sonunda `Counter`'ı `pd.DataFrame(..., columns=["h3_cell","point_count"])`'e çevirip döner.
+
+**ÖNEMLİ METODOLOJİK DÜZELTME (2026-07-07, kullanıcı buldu):** `point_count`
+(ham trace nokta sayısı) **YANLIŞ metrik** — ADS-B saniyede birkaç kez pozisyon
+üretiyor, havaalanı/bekleme bölgesindeki yavaş bir uçak aynı hex'te onlarca
+nokta bırakırken cruise hızındaki bir uçak birkaç nokta bırakıyor. Bu "en sık
+kullanılan ROTA" sorusuna yanlış cevap veriyor (havaalanı çevresi yapay
+şişiyor). Gerçek veride bazı hex'lerde `point_count`/`flight_count` oranı
+**~4867'ye kadar çıktı**.
+
+Doğru metrik `flight_count` — `build_flight_density.py` (yeni script,
+`individual/metehan_geo/` altında) her hex için **benzersiz (source_id, date)**
+sayısını hesaplar (aynı uçağın aynı hex'teki tüm noktaları 1 sayılır). Ek
+metrik `day_count` — hex'in kaç farklı takvim gününde trafik gördüğü (11
+tar'ın rolling-history penceresi çakışmadığı için 11'den fazla olabilir, ör.
+res5'te medyan 9, maks 41) — "kalıcı koridor" ile "tek seferlik" ayrımı için.
+
+**Kritik uyarı — parent'a toplama flight_count için YANLIŞ:** `point_count`
+`h3.cell_to_parent()` ile üst çözünürlüğe toplanabilir (matematiksel olarak
+doğru, toplam nokta = alt hücrelerin toplamı). Ama `flight_count`'ta bu
+YANLIŞ — aynı uçak 3 farklı res5 hex'inden geçip hepsi aynı res4 ebeveynine
+bağlıysa, çocukları toplamak o uçağı 3 kez sayar. Bu yüzden `flight_count`/
+`day_count` **her resolution (3/4/5) için ayrı ayrı, doğrudan** hesaplandı —
+tek streaming geçişte (satır başına 3 kat `h3.latlng_to_cell` + dedup, ama 3
+ayrı 1-milyar-satır taramasından çok daha ucuz).
+
+`viz/index.html`'de iki metrik de mevcut (varsayılan: `flight`, düzeltilmiş
+metrik), kullanıcı dropdown'dan `point` (eski/ham) ile karşılaştırabiliyor;
+`day_count` için bir min-eşik slider'ı var (filtre olarak).
+
+### 6.1 Kümeleme için örnekleme (yeni adım, 9'dan önce)
+
+1 milyar noktada DBSCAN çalıştırmak hesaplama açısından imkansız. Bu yüzden
+`compute_hex_density` ile **aynı streaming geçişte** (chunk'ları ikinci kez
+okumaya gerek kalmadan) bir rezervuar örneği de biriktirilir:
+
+`reservoir_sample_chunks(chunks: Iterator[pd.DataFrame], max_points: int) -> pd.DataFrame`
+— her chunk'tan `max_points / toplam_chunk_sayısı` kadar rastgele satır alıp
+biriktirir (toplam chunk sayısı bilinmiyorsa `np.random.choice` ile chunk
+başına sabit bir oranda örnekleme de kabul edilebilir, hassas rezervuar
+algoritması şart değil). Çıktı boyutu (`max_points`, CLI argümanı, örn.
+2-5 milyon) sklearn DBSCAN'in haversine metric ile makul sürede çalışacağı
+bir ölçek olmalı. Kümeleme (Adım 9-13) bu örnek üzerinde çalışır, tüm veri
+üzerinde DEĞİL.
 
 ### 7. `build_density_geojson(density_df) -> dict`
 Her hex'i `h3_cell_to_polygon` ile bir GeoJSON `Feature` (`properties.point_count`

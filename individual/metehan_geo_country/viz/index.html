@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<title>Metehan — ICAO Hex / Ülke Haritası</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: #08080a; }
+  #map { position: absolute; inset: 0; }
+
+  #panel {
+    position: absolute; top: 16px; left: 16px; z-index: 1;
+    width: 270px;
+    background: rgba(16, 16, 20, 0.7);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    color: #e9e9ee;
+    font: 13px/1.4 -apple-system, "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  }
+  .panel-header { padding: 12px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+  .panel-header h1 {
+    font-size: 12.5px; font-weight: 700; margin: 0; letter-spacing: 0.3px;
+    text-transform: uppercase; color: #cfd0d8;
+  }
+  .panel-body { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+
+  .field label {
+    display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.7px;
+    color: #93939f; margin-bottom: 6px; font-weight: 700;
+  }
+  .field select {
+    width: 100%; background: rgba(255, 255, 255, 0.06); color: #e9e9ee;
+    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 7px 8px;
+    font-size: 12.5px; cursor: pointer; font-family: inherit;
+  }
+  .field select:hover { border-color: rgba(255, 255, 255, 0.22); }
+  .field select:focus { outline: 2px solid #3b6fe0; outline-offset: 1px; }
+
+  .segmented { display: flex; background: rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 3px; gap: 2px; }
+  .segmented button {
+    flex: 1; border: none; background: transparent; color: #9d9da8;
+    padding: 7px 4px; font-size: 11px; border-radius: 6px; cursor: pointer; font-weight: 600;
+    transition: background 0.15s, color 0.15s; font-family: inherit;
+  }
+  /* 4 secenekli (zaman araligi) segmented kontrolde daha az yer var. */
+  #timeRangeSegmented button { font-size: 10px; padding: 7px 2px; }
+  .segmented button.active { background: #3b6fe0; color: #fff; }
+  .segmented button:not(.active):hover { background: rgba(255, 255, 255, 0.07); color: #e9e9ee; }
+
+  .legend-swatch { height: 10px; border-radius: 5px; margin-bottom: 4px; }
+  .legend-scale { display: flex; justify-content: space-between; font-size: 10.5px; color: #93939f; font-variant-numeric: tabular-nums; }
+
+  #limitNote {
+    font-size: 10.5px; line-height: 1.5; color: #9d9da8;
+    background: rgba(59, 111, 224, 0.12); border: 1px solid rgba(59, 111, 224, 0.3);
+    border-radius: 8px; padding: 8px 10px;
+  }
+  #limitNote b { color: #cfd6f5; }
+
+  #status {
+    font-size: 10.5px; color: #6d6d78; padding: 8px 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06); font-variant-numeric: tabular-nums;
+  }
+
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 3px 0; }
+  .toggle-row span { font-size: 12.5px; color: #d4d4dc; }
+  .switch { position: relative; width: 34px; height: 19px; flex-shrink: 0; display: inline-block; }
+  .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .switch .slider {
+    position: absolute; inset: 0; background: rgba(255, 255, 255, 0.14);
+    border-radius: 999px; cursor: pointer; transition: background 0.15s;
+  }
+  .switch .slider::before {
+    content: ""; position: absolute; width: 15px; height: 15px; left: 2px; top: 2px;
+    background: #fff; border-radius: 50%; transition: transform 0.15s;
+  }
+  .switch input:checked + .slider { background: #3b6fe0; }
+  .switch input:checked + .slider::before { transform: translateX(15px); }
+
+  .maplibregl-popup-content {
+    background: rgba(20, 20, 24, 0.92); color: #e9e9ee; font: 12px/1.5 -apple-system, "Segoe UI", system-ui, sans-serif;
+    border-radius: 8px; padding: 10px 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .maplibregl-popup-tip { border-top-color: rgba(20, 20, 24, 0.92) !important; border-bottom-color: rgba(20, 20, 24, 0.92) !important; }
+  .popup-title { font-weight: 700; margin-bottom: 4px; }
+  .popup-row { color: #b7b7c2; }
+  .popup-row b { color: #e9e9ee; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<div id="map"></div>
+<div id="panel">
+  <div class="panel-header"><h1>ICAO Hex → Ülke (H3)</h1></div>
+  <div class="panel-body">
+    <div class="field">
+      <label>Zaman Aralığı</label>
+      <div class="segmented" id="timeRangeSegmented">
+        <button type="button" data-value="1d">1 Gün</button>
+        <button type="button" data-value="7d">1 Hafta</button>
+        <button type="button" data-value="30d" class="active">30 Gün</button>
+        <button type="button" data-value="all">Tümü</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Ülke Seçimi</label>
+      <select id="countrySelect">
+        <option value="">Tüm Ülkeler</option>
+      </select>
+    </div>
+
+    <div id="limitNote">
+      Bu harita, uçağın <b>tescilli olduğu</b> ülkeyi gösterir — o an
+      <b>hangi ülke üzerinde uçtuğunu değil</b>. Bir ülke seçildiğinde, o
+      ülkeye tescilli uçakların <b>geçtiği tüm hex'ler</b> gösterilir (sadece
+      baskın olduğu hex'ler değil). Zaman aralığı, verinin kendi son kaydına
+      (2026-07-07) göre hesaplanır.
+    </div>
+
+    <div class="field">
+      <label>Benzersiz Uçak Sayısı</label>
+      <div class="legend-swatch" id="legendSwatch"></div>
+      <div class="legend-scale"><span id="legendMin"></span><span id="legendMax"></span></div>
+    </div>
+
+    <div class="field">
+      <div class="toggle-row">
+        <span>Fiziki (hillshade)</span>
+        <label class="switch"><input type="checkbox" id="hillshadeToggle" /><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span>3D Küre</span>
+        <label class="switch"><input type="checkbox" id="globeToggle" /><span class="slider"></span></label>
+      </div>
+    </div>
+  </div>
+  <div id="status">yükleniyor...</div>
+</div>
+
+<script>
+const HEX_COLORS = ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"];
+// Ana projedeki (individual/metehan_geo) ayni sequential rampanin tekrar
+// kullanimi -- iki kardes gorsellestirme arasinda tutarlilik (2026-07-08,
+// dataviz skill: sequential = tek hue, magnitude icin doğru is).
+// `valueExpr`, bir alan adi DEGIL, dogrudan bir MapLibre expression'i --
+// boylece hem "total_hex_count" (varsayilan) hem de dinamik "secili ulkenin
+// bu hucredeki sayisi" (["get", ["literal", ulke], ["get","per_country_counts"]])
+// ayni fonksiyonla renklendirilebiliyor.
+function log10ColorExpression(valueExpr, breaks) {
+  // MapLibre'nin interpolate ifadesi kesinlikle artan (strictly ascending)
+  // stop anahtarlari bekler -- kucuk/seyrek pencerelerde (ör. "1 Gün")
+  // quantile breaks'in bir kismi ayni degere denk gelebiliyor (ör. [1,1,1,2,6]),
+  // bu da log10 sonrasi ayni x degerine ("Input/output values must be
+  // strictly ascending" hatasi) yol aciyordu -- her adimi bir onceki
+  // adimdan en az 1 buyuk olacak sekilde duzeltiyoruz.
+  const sanitized = breaks.slice();
+  for (let i = 1; i < sanitized.length; i++) {
+    if (sanitized[i] <= sanitized[i - 1]) sanitized[i] = sanitized[i - 1] + 1;
+  }
+  const stops = [];
+  sanitized.forEach((b, i) => stops.push(Math.log10(Math.max(b, 1)), HEX_COLORS[i]));
+  return ["interpolate", ["linear"], ["log10", ["max", valueExpr, 1]], ...stops];
+}
+
+// Yogunluk opaklik olcegi (2026-07-08 kullanici geri bildirimi: "2-3 ucak
+// gecenler cok daha silik, digerleri daha baskin olmali") -- sabit 0.8
+// opaklik dusuk/yuksek yogunlugu ayirt etmiyordu, ayni log10 skalasinda
+// opakligi da 0.12 (en soluk) - 0.95 (en baskin) araliginda interpolate
+// ediyoruz, renk ile AYNI breaks/valueExpr kullanarak ikisi tutarli kalsin.
+function log10OpacityExpression(valueExpr, breaks) {
+  const sanitized = breaks.slice();
+  for (let i = 1; i < sanitized.length; i++) {
+    if (sanitized[i] <= sanitized[i - 1]) sanitized[i] = sanitized[i - 1] + 1;
+  }
+  const OPACITY_LEVELS = [0.12, 0.32, 0.55, 0.78, 0.95];
+  const stops = [];
+  sanitized.forEach((b, i) => stops.push(Math.log10(Math.max(b, 1)), OPACITY_LEVELS[i]));
+  return ["interpolate", ["linear"], ["log10", ["max", valueExpr, 1]], ...stops];
+}
+
+// Renk/opaklik HER ZAMAN bu tek, DUZ (primitive) alandan okunuyor --
+// per-view GeoJSON'u biz kendimiz kuruyoruz (bkz. buildViewGeojson), MapLibre
+// hicbir zaman ic ice (nested) "per_country_counts"/"countries" gormuyor.
+const COLOR_FIELD = ["get", "color_value"];
+
+// h3_{window}.geojson'un kendi ust-seviye "breaks" alani (p10/50/75/90/99,
+// step2_build_country_layers.py'de hesaplandi) -- her zaman penceresi kendi
+// dagilimina gore kalibre. Bir ulke secilince ayrica DINAMIK breaks
+// hesaplanir (asagida computeBreaksFromFeatures), ana projenin realtime
+// mantigiyla ayni yaklasim (sabit veri degil, degisken alt-kume).
+function computeBreaksFromValues(values) {
+  const sorted = [...values].sort((a, b) => a - b);
+  if (sorted.length === 0) return [1, 1, 1, 1, 1];
+  const pct = (p) => sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))];
+  return [pct(0.10), pct(0.50), pct(0.75), pct(0.90), pct(0.99)];
+}
+
+// Ana projedeki (individual/metehan_geo) ayni 3D-kure + fiziki-yuzey
+// ozellikleri (2026-07-08, kullanici istegi: "bizim orijinal projede olan
+// seyler"). maplibre-gl 5.24.0 -- setProjection bu versiyonda var.
+let currentProjection = "mercator";
+let hillshadeOn = false;
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: {
+    version: 8,
+    sources: {},
+    layers: [{ id: "bg", type: "background", paint: { "background-color": "#08080a" } }],
+  },
+  center: [10, 20],
+  zoom: 1.3,
+});
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+
+function addHillshadeLayer() {
+  if (map.getSource("terrarium")) return;
+  map.addSource("terrarium", {
+    type: "raster-dem",
+    tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+    tileSize: 256,
+    encoding: "terrarium",
+    maxzoom: 15,
+  });
+  const beforeId = map.getLayer("basemap-fill") ? "basemap-fill"
+    : map.getLayer("h3-fill") ? "h3-fill"
+    : undefined;
+  map.addLayer(
+    { id: "hillshade", type: "hillshade", source: "terrarium", paint: { "hillshade-exaggeration": 0.4 } },
+    beforeId
+  );
+}
+
+async function fetchJson(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`${url} yuklenemedi: ${res.status}`);
+  return res.json();
+}
+
+let popup = null;
+let h3Data = null;          // su an yuklu zaman penceresinin PRISTINE GeoJSON'u (h3_cell -> tum ozellikler)
+let h3ByCell = new Map();   // h3_cell -> properties (popup icin -- MapLibre'ye hic verilmez, JS'te kalir)
+let currentTimeRange = "30d";
+let currentCountry = "";    // "" = Tum Ulkeler
+
+const H3_FILES = { "1d": "data/h3_1d.geojson", "7d": "data/h3_7d.geojson", "30d": "data/h3_30d.geojson", "all": "data/h3_all.geojson" };
+const geojsonCache = new Map();
+
+function setLegend(breaks) {
+  document.getElementById("legendSwatch").style.background = `linear-gradient(to right, ${HEX_COLORS.join(",")})`;
+  document.getElementById("legendMin").textContent = breaks[0].toLocaleString("tr-TR");
+  document.getElementById("legendMax").textContent = breaks[4].toLocaleString("tr-TR");
+}
+
+function bboxOfFeatures(features) {
+  let minLon = Infinity, minLat = Infinity, maxLon = -Infinity, maxLat = -Infinity;
+  for (const f of features) {
+    for (const [lon, lat] of f.geometry.coordinates[0]) {
+      if (lon < minLon) minLon = lon;
+      if (lon > maxLon) maxLon = lon;
+      if (lat < minLat) minLat = lat;
+      if (lat > maxLat) maxLat = lat;
+    }
+  }
+  if (!isFinite(minLon)) return null;
+  return [[minLon, minLat], [maxLon, maxLat]];
+}
+
+function populateCountrySelect() {
+  const select = document.getElementById("countrySelect");
+  const countries = new Set();
+  for (const f of h3Data.features) {
+    for (const c of f.properties.countries) countries.add(c);
+  }
+  const previous = select.value;
+  select.innerHTML = '<option value="">Tüm Ülkeler</option>';
+  for (const country of [...countries].sort((a, b) => a.localeCompare(b, "tr"))) {
+    const opt = document.createElement("option");
+    opt.value = country;
+    opt.textContent = country;
+    select.appendChild(opt);
+  }
+  // Zaman araligi degisince, secili ulke bu pencerede hala mevcutsa koru.
+  select.value = countries.has(previous) ? previous : "";
+  currentCountry = select.value;
+}
+
+// MapLibre'ye verilecek "gorunum" GeoJSON'unu biz kendimiz kuruyoruz --
+// SADECE gerekli, DUZ (primitive) alanlar: h3_cell (string) + color_value
+// (number). "countries"/"per_country_counts" gibi ic ice yapilar buraya HIC
+// girmiyor (2026-07-08 duzeltmesi -- neden: asagidaki not).
+function buildViewGeojson() {
+  if (!currentCountry) {
+    return {
+      type: "FeatureCollection",
+      features: h3Data.features.map((f) => ({
+        type: "Feature",
+        properties: { h3_cell: f.properties.h3_cell, color_value: f.properties.total_hex_count },
+        geometry: f.geometry,
+      })),
+    };
+  }
+  // Ulke secili: SADECE baskin oldugu degil, UGRADIGI TUM hexler (2026-07-08
+  // kullanici duzeltmesi) -- "countries" dizisinde gecen her hucre.
+  return {
+    type: "FeatureCollection",
+    features: h3Data.features
+      .filter((f) => f.properties.countries.includes(currentCountry))
+      .map((f) => ({
+        type: "Feature",
+        properties: { h3_cell: f.properties.h3_cell, color_value: f.properties.per_country_counts[currentCountry] || 0 },
+        geometry: f.geometry,
+      })),
+  };
+}
+
+function applyView() {
+  const source = map.getSource("h3");
+  if (!source) return;
+
+  const viewGeojson = buildViewGeojson();
+  source.setData(viewGeojson);
+
+  const breaks = currentCountry
+    // Renk: TOPLAM degil, SECILI ULKENIN o hucredeki kendi sayisi -- dinamik
+    // breaks (ana projenin realtime mantigi ile ayni yaklasim, sabit dagilim
+    // yerine anlik alt-kumeden hesaplaniyor).
+    ? computeBreaksFromValues(viewGeojson.features.map((f) => f.properties.color_value))
+    // Varsayilan: TUM hexler, renk = toplam benzersiz ucak (bu pencerenin
+    // kendi onceden hesaplanmis breaks'i ile).
+    : h3Data.breaks;
+
+  map.setPaintProperty("h3-fill", "fill-color", log10ColorExpression(COLOR_FIELD, breaks));
+  map.setPaintProperty("h3-fill", "fill-opacity", log10OpacityExpression(COLOR_FIELD, breaks));
+  setLegend(breaks);
+
+  if (!currentCountry) {
+    document.getElementById("status").textContent = `${currentTimeRange}: ${viewGeojson.features.length} hex`;
+    return;
+  }
+
+  const bbox = bboxOfFeatures(viewGeojson.features);
+  if (bbox) map.fitBounds(bbox, { padding: 60, duration: 800 });
+  document.getElementById("status").textContent = `${currentCountry}: ${viewGeojson.features.length} hex (uğradığı tüm hexler)`;
+}
+
+async function loadTimeRange(range) {
+  currentTimeRange = range;
+  h3Data = await fetchJson(H3_FILES[range]).then((data) => {
+    geojsonCache.set(range, data);
+    return data;
+  }).catch(async (err) => {
+    if (geojsonCache.has(range)) return geojsonCache.get(range);
+    throw err;
+  });
+  h3ByCell = new Map(h3Data.features.map((f) => [f.properties.h3_cell, f.properties]));
+
+  if (!map.getSource("h3")) {
+    map.addSource("h3", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+    map.addLayer({
+      id: "h3-fill",
+      type: "fill",
+      source: "h3",
+      paint: { "fill-color": HEX_COLORS[0], "fill-opacity": 0.5 },
+    });
+    wireHoverPopup();
+  }
+
+  populateCountrySelect();
+  applyView();
+}
+
+// Tek "en baskin ulke" yerine EN BASKIN 3 ULKE (2026-07-08 kullanici
+// istegi) -- ozellikle sinir/havalimani yakini hexlerde tek ulke yaniltici
+// olabiliyor (ör. %55 A / %45 B), top-3 gercek kompozisyonu gosterir.
+function topCountries(properties, n = 3) {
+  return Object.entries(properties.per_country_counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, n);
+}
+
+function wireHoverPopup() {
+  map.on("mousemove", "h3-fill", (e) => {
+    map.getCanvas().style.cursor = "pointer";
+    // e.features[0].properties SADECE h3_cell/color_value tasir (MapLibre'ye
+    // verilen lean gorunum) -- zengin veri (per_country_counts vb.) icin
+    // PRISTINE JS nesnesine (h3ByCell) h3_cell ile geri donuyoruz.
+    const props = h3ByCell.get(e.features[0].properties.h3_cell);
+    if (!props) return;
+    if (!popup) popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false });
+    const top3 = topCountries(props);
+    const rows = top3
+      .map(([country, count], i) => {
+        const isSelected = country === currentCountry;
+        return `<div class="popup-row">${i + 1}. ${isSelected ? `<b>${country}</b>` : country}: <b>${count}</b></div>`;
+      })
+      .join("");
+    let selectedNote = "";
+    if (currentCountry && !top3.some(([c]) => c === currentCountry)) {
+      const own = props.per_country_counts[currentCountry] || 0;
+      selectedNote = `<div class="popup-row">… ${currentCountry}: <b>${own}</b></div>`;
+    }
+    const html = `<div class="popup-title">Toplam: ${props.total_hex_count} uçak</div>${rows}${selectedNote}`;
+    popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+  });
+  map.on("mouseleave", "h3-fill", () => {
+    map.getCanvas().style.cursor = "";
+    if (popup) { popup.remove(); popup = null; }
+  });
+}
+
+async function init() {
+  const basemap = await fetchJson("data/country_basemap.geojson");
+  map.addSource("countries", { type: "geojson", data: basemap });
+  map.addLayer({ id: "basemap-fill", type: "fill", source: "countries", paint: { "fill-color": "#1c1c22" } });
+
+  await loadTimeRange("30d");
+
+  map.addLayer({
+    id: "basemap-line",
+    type: "line",
+    source: "countries",
+    paint: { "line-color": "rgba(255,255,255,0.18)", "line-width": 0.5 },
+  });
+  map.moveLayer("basemap-line"); // en ustte kalsin
+}
+
+document.getElementById("timeRangeSegmented").addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-value]");
+  if (!btn) return;
+  for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
+  document.getElementById("status").textContent = "yükleniyor...";
+  await loadTimeRange(btn.dataset.value);
+});
+
+document.getElementById("countrySelect").addEventListener("change", (e) => {
+  currentCountry = e.target.value;
+  if (!currentCountry) map.flyTo({ center: [10, 20], zoom: 1.3, duration: 800 });
+  applyView();
+});
+
+document.getElementById("globeToggle").addEventListener("change", (e) => {
+  currentProjection = e.target.checked ? "globe" : "mercator";
+  map.setProjection({ type: currentProjection });
+});
+
+document.getElementById("hillshadeToggle").addEventListener("change", (e) => {
+  hillshadeOn = e.target.checked;
+  if (hillshadeOn) {
+    addHillshadeLayer();
+  } else if (map.getLayer("hillshade")) {
+    map.removeLayer("hillshade");
+    map.removeSource("terrarium");
+  }
+});
+
+init().catch((err) => {
+  document.getElementById("status").textContent = `Hata: ${err.message}`;
+});
+</script>
+</html>
