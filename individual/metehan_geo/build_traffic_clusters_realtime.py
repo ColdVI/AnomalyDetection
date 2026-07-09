@@ -41,10 +41,23 @@ EPS_KM = 50
 MIN_SAMPLES = 15  # tarihseldeki 30'un yarisi -- toplam veri hacmi de kucuk
 
 
+# 2026-07-09 (kullanici karari + olcumle dogrulandi): sunucu-tarafi
+# aggregateWindow ile 7d sorgusunu hafiflet. ONCE 2dk denendi ama -6h'lik bir
+# pencerede ham veriyle KARSILASTIRINCA kuresel flight_count farki %25.6
+# cikti (HER buyuklukteki hex'te tutarli ~%25-27 kayip -- producer ~60sn'de
+# bir yazdigi icin 2dk pencere ham noktalarin YARISINI atiyor) VE regional
+# mask esigini gecen hex sayisi 6391 -> 6006'ya dustu (1043 hex kayboldu,
+# 658 yeni/gurultu hex girdi -- DBSCAN girdisini gercekten degistirecek
+# kadar buyuk bir fark). 1dk'ya dusurulunce kuresel fark -%0.25'e (ihmal
+# edilebilir) indi, mask esigini gecen hex kumesi de neredeyse sabit kaldi
+# (6408 -> 6383, sadece 47 kayip + 22 yeni, ortak 6361). SONUC: 1dk kullan.
+AGG_WINDOW = "1m"
+
+
 def build_hex_density_from_realtime(range_start: str = "-7d") -> "pd.DataFrame":
     import pandas as pd  # noqa: F401 (tip ipucu icin, gercek import zaten pandas'ta)
 
-    df = load_realtime_window(range_start)
+    df = load_realtime_window(range_start, agg_every=AGG_WINDOW)
     cleaned = clean_coordinates(df)
     chunk = assign_h3_cell(cleaned, H3_RESOLUTION)
     grouped = chunk.groupby("h3_cell").agg(flight_count=("source_id", "nunique")).reset_index()

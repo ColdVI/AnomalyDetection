@@ -24,6 +24,8 @@ import json
 import logging
 import os
 import re
+from datetime import datetime, timezone
+from pathlib import Path
 
 import pandas as pd
 
@@ -40,6 +42,25 @@ logger = logging.getLogger(__name__)
 SOURCE_TYPE = "adsblol_realtime"
 _LANDING_PREFIX = "adsblol_realtime/_landing/"
 _TS_RE = re.compile(r"states-(\d{8}T\d{6})")
+
+# 2026-07-09 (kullanici istegi): --loop GUNLUK araliga cekilince ("son basarili
+# calisma zamani"ni gormeden gunlerce fark etmeden veri kaybi) riski sorulunca
+# eklendi -- her BASARILI (exception firlatmayan) run() cagrisindan SONRA bu
+# dosyaya UTC zaman damgasi + kisa sonuc yazilir. Dosyanin GUNCELLENMEMESI
+# (mtime bir gunden eski kalmasi) loop'un sessizce durdugunun/crash oldugunun
+# veya surekli exception yiyip HICBIR basariya ulasamadiginin isaretidir --
+# basarisiz bir run() bu dosyaya YAZMAZ (bkz. asagidaki except bloguı).
+_HEARTBEAT_PATH = Path("data/state/silver_realtime_heartbeat.txt")
+
+
+def _write_heartbeat(detail: str) -> None:
+    try:
+        _HEARTBEAT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        ts = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        _HEARTBEAT_PATH.write_text(f"{ts} {detail}\n", encoding="utf-8")
+    except OSError:
+        logger.exception("Heartbeat dosyasi yazilamadi (%s) -- bu run'in KENDISI basarili, "
+                          "sadece izleme kaydi basarisiz", _HEARTBEAT_PATH)
 
 
 def _batch_timestamp(object_name: str) -> float | None:
@@ -216,33 +237,75 @@ if __name__ == "__main__":
     parser.add_argument(
         "--bronze-prefix", default=_LANDING_PREFIX, help="MinIO Bronze prefix for JSONL files"
     )
-    # ONEMLI: bu script'i "make silver-adsb-rt" ile ELLE calistirmak, Bronze'daki
-    # 7 gunluk lifecycle kuralindan (bkz. Dashboard/minio_archiver.py ensure_lifecycle)
-    # once unutulursa veri KALICI OLARAK kaybolabiliyordu (bkz. proje sohbet gecmisi).
-    # --loop, bu script'i minio_archiver.py'nin kendi dongusuyle AYNI desende
-    # (sonsuz dongu + sabit bekleme) surekli calisir hale getiriyor -- elle
-    # hatirlamaya bagimli olmadan Bronze duzenli aralikla Silver'a bosaltiliyor.
+    # ONEMLI: MinIO'da artik bir silme/lifecycle kurali YOK (2026-07-09 karari,
+    # bkz. Dashboard/minio_archiver.py modul docstring'i) -- Bronze'daki realtime
+    # landing verisi silinmiyor, sadece bu script calisip Silver'a "islemedigi"
+    # surece BIRIKIYOR (zararsiz, sadece disk kullanir). --loop bu script'i
+    # minio_archiver.py'nin kendi dongusuyle AYNI desende (sonsuz dongu + sabit
+    # bekleme) surekli calisir hale getiriyor -- elle hatirlamaya bagimli
+    # olmadan Bronze duzenli araliklarla Silver'a bosaltiliyor.
     parser.add_argument(
         "--loop", action="store_true",
         help="Tek seferlik calismak yerine --interval saniyede bir surekli calis",
     )
     parser.add_argument(
-        "--interval", type=int, default=int(os.environ.get("SILVER_INTERVAL", "3600")),
-        help="--loop ile birlikte iki calisma arasi bekleme (sn). Varsayilan: 3600 "
-             "(1 saat) -- ortam degiskeni: SILVER_INTERVAL",
+        "--interval", type=int, default=int(os.environ.get("SILVER_INTERVAL", "86400")),
+        help="--loop ile birlikte iki calisma arasi SABIT bekleme (sn). --daily-at "
+             "verilmisse YOK SAYILIR. Varsayilan: 86400 (1 gun) -- ortam degiskeni: "
+             "SILVER_INTERVAL",
+    )
+    # 2026-07-09 (kullanici durumu): PC sadece mesai saatlerinde (orn. 08-18)
+    # ACIK -- sabit --interval (86400sn), PC HER GUN KAPANIP ACILDIGI icin
+    # ISE YARAMAZ: sayac PC kapaliyken donuyor, ertesi gun giriste kaldigi
+    # yerden DEGIL sifirdan baslar, "her gun saat 17:00'de calis" gibi bir
+    # SAAT-BAZLI garanti VEREMEZ. --daily-at bunun yerine HER GUN belirli bir
+    # SAATTE (yerel saat) calisir -- giris/baslangicta HEMEN bir kez (birikmis
+    # varsa yakalamak icin), sonra o gunun (gecmisse ertesi gunun) hedef
+    # saatine kadar uyur. PC 18:00'de kapanip ertesi 08:00'de acilirsa, o gun
+    # 17:00'deki calisma zaten TAMAMLANMIS olur (17:00 < 18:00 kapanma), yeni
+    # gun basinda bir catch-up + yeni 17:00 hedefi kurulur.
+    parser.add_argument(
+        "--daily-at", default=None, metavar="HH:MM",
+        help="Her gun bu YEREL saatte calis (orn. 17:00) -- --interval'i gecersiz "
+             "kilar, --loop'u zimnen acar. Baslangicta HEMEN bir catch-up calismasi "
+             "da yapilir.",
     )
     args = parser.parse_args()
 
-    if not args.loop:
-        run(args.bronze_prefix)
+    def _seconds_until(hhmm: str) -> float:
+        from datetime import datetime, timedelta
+        hour, minute = map(int, hhmm.split(":"))
+        now = datetime.now()
+        target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+        if target <= now:
+            target += timedelta(days=1)
+        return (target - now).total_seconds()
+
+    def _run_once_with_heartbeat() -> None:
+        try:
+            uris = run(args.bronze_prefix)
+            _write_heartbeat(f"basarili -- {len(uris)} parca yazildi")
+        except Exception:
+            # ONEMLI: adsb_producer.py/minio_archiver.py ile AYNI ilke -- gecici
+            # bir hata (orn. MinIO o an erisilemez) TUM dongunun crash olmasina
+            # sebep olmamali, bir sonraki denemede devam edilmeli. Heartbeat
+            # BILEREK yazilmiyor -- dosyanin "son basarili" anlami korunuyor,
+            # sessiz basarisizlik dosyanin ESKI kalmasiyla fark edilir.
+            logger.exception("Calisma sirasinda hata -- bir sonraki denemede devam edilecek")
+
+    if args.daily_at:
+        logger.info("Gunluk-saat modu: hemen bir catch-up, sonra her gun %s'de (durdurmak icin Ctrl+C)", args.daily_at)
+        _run_once_with_heartbeat()
+        while True:
+            wait_s = _seconds_until(args.daily_at)
+            logger.info("Bir sonraki calisma: %.0f saniye sonra (hedef %s)", wait_s, args.daily_at)
+            time.sleep(wait_s)
+            _run_once_with_heartbeat()
+    elif not args.loop:
+        uris = run(args.bronze_prefix)
+        _write_heartbeat(f"tek seferlik -- {len(uris)} parca yazildi")
     else:
         logger.info("Loop modu: her %ds bir calisacak (durdurmak icin Ctrl+C)", args.interval)
         while True:
-            try:
-                run(args.bronze_prefix)
-            except Exception:
-                # ONEMLI: adsb_producer.py/minio_archiver.py ile AYNI ilke -- gecici
-                # bir hata (orn. MinIO o an erisilemez) TUM dongunun crash olmasina
-                # sebep olmamali, bir sonraki denemede devam edilmeli.
-                logger.exception("Calisma sirasinda hata -- bir sonraki denemede devam edilecek")
+            _run_once_with_heartbeat()
             time.sleep(args.interval)

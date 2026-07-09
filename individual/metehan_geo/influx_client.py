@@ -52,13 +52,23 @@ def get_influx_client() -> InfluxDBClient:
     return InfluxDBClient(url=INFLUX_HOST, token=_load_token(), org=INFLUX_ORG, timeout=240_000)
 
 
-def load_realtime_window(range_start: str, client: InfluxDBClient | None = None) -> pd.DataFrame:
+def load_realtime_window(
+    range_start: str, client: InfluxDBClient | None = None, *, agg_every: str | None = None,
+) -> pd.DataFrame:
     """InfluxDB'den `range_start` (Flux relatif sure, ör. "-2m"/"-24h"/"-7d")
     kadar geriye giden pencereyi ceker, tek bir DataFrame dondurur.
 
     Kolonlar: source_id (icao24 -- historical Gold ile AYNI isim, boylece
     clean_coordinates/assign_h3_cell/flight_count mantigi degismeden calisir),
     lat, lon, _time.
+
+    agg_every: verilirse (ör. "2m") SUNUCU-TARAFI aggregateWindow(fn: last)
+    uygulanir -- her ucak+alan (lat/lon) icin pencere basina TEK (son) deger
+    doner, InfluxDB'den cekilen ham satir sayisini azaltir. 1-2 dakika araligi
+    KASITLI: producer zaten ~60sn'de bir yaziyor (bkz. Dashboard/adsb_producer.py
+    SOURCE_INTERVALS), yani 1-2dk pencere ham cozunurlugu pratikte KAYBETMEZ --
+    5-10dk gibi genis bir pencere ise hizli bir ucagin pencere icinde gectigi
+    ARA hex'leri (sadece son nokta tutuldugu icin) sessizce dusurebilirdi.
     """
     client = client or get_influx_client()
     # Flux'un SUNUCU-TARAFI pivot()'u BUYUK pencerelerde (2026-07-09: 7d
@@ -66,12 +76,13 @@ def load_realtime_window(range_start: str, client: InfluxDBClient | None = None)
     # istemci timeout'unu bile asiyordu). Duzeltme: pivot'u InfluxDB'ye
     # YAPTIRMAK yerine (lat, lon) satirlarini DUZ (long-format) cekip
     # pandas.pivot_table ile YERELDE (cok daha hizli) genisletiyoruz.
+    agg_stage = f'|> aggregateWindow(every: {agg_every}, fn: last, createEmpty: false)\n      ' if agg_every else ""
     query = f'''
     from(bucket: "{INFLUX_BUCKET}")
       |> range(start: {range_start})
       |> filter(fn: (r) => r._measurement == "flights")
       |> filter(fn: (r) => r._field == "lat" or r._field == "lon")
-      |> keep(columns: ["_time", "icao24", "_field", "_value"])
+      {agg_stage}|> keep(columns: ["_time", "icao24", "_field", "_value"])
     '''
     result = client.query_api().query_data_frame(query, org=INFLUX_ORG)
     long_df = pd.concat(result, ignore_index=True) if isinstance(result, list) else result
