@@ -100,9 +100,9 @@
     <div class="field">
       <label>Zaman Aralığı</label>
       <div class="segmented" id="timeRangeSegmented">
-        <button type="button" data-value="1d">1 Gün</button>
+        <button type="button" data-value="1d" class="active">1 Gün</button>
         <button type="button" data-value="7d">1 Hafta</button>
-        <button type="button" data-value="30d" class="active">30 Gün</button>
+        <button type="button" data-value="30d">30 Gün</button>
         <button type="button" data-value="all">Tümü</button>
       </div>
     </div>
@@ -245,7 +245,10 @@ async function fetchJson(url) {
 let popup = null;
 let h3Data = null;          // su an yuklu zaman penceresinin PRISTINE GeoJSON'u (h3_cell -> tum ozellikler)
 let h3ByCell = new Map();   // h3_cell -> properties (popup icin -- MapLibre'ye hic verilmez, JS'te kalir)
-let currentTimeRange = "30d";
+// Varsayilan "1 Gun" (30d yerine) -- ilk acilis yuklemesini hizlandirmak
+// icin (2026-07-09, hocanin geri bildirimi): h3_30d.geojson 45.78MB/80.648
+// hex iken h3_1d.geojson sadece 6.11MB/10.951 hex, ilk render COK daha hizli.
+let currentTimeRange = "1d";
 let currentCountry = "";    // "" = Tum Ulkeler
 
 const H3_FILES = { "1d": "data/h3_1d.geojson", "7d": "data/h3_7d.geojson", "30d": "data/h3_30d.geojson", "all": "data/h3_all.geojson" };
@@ -419,7 +422,7 @@ async function init() {
   map.addSource("countries", { type: "geojson", data: basemap });
   map.addLayer({ id: "basemap-fill", type: "fill", source: "countries", paint: { "fill-color": "#1c1c22" } });
 
-  await loadTimeRange("30d");
+  await loadTimeRange("1d");
 
   map.addLayer({
     id: "basemap-line",
