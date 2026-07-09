@@ -1,400 +1,400 @@
-country,pair,flight_count,origin_icao,dest_icao,rank,is_top
-Argentina,AR-0115->SABE,2,AR-0115,SABE,1,True
-Australia,YSCB->YSSY,24,YSCB,YSSY,1,True
-Australia,YSSY->YSCB,16,YSSY,YSCB,2,False
-Australia,AU-0751->YPEA,15,AU-0751,YPEA,3,False
-Australia,YAMB->YSRI,8,YAMB,YSRI,4,False
-Australia,YSCB->YSRI,8,YSCB,YSRI,5,False
-Australia,YTAM->YAMB,7,YTAM,YAMB,6,False
-Australia,YBBN->YSCB,6,YBBN,YSCB,7,False
-Australia,YYRM->YMES,6,YYRM,YMES,8,False
-Australia,YGSD->YDWU,5,YGSD,YDWU,9,False
-Australia,YMML->YSCB,5,YMML,YSCB,10,False
-Australia,YPED->YAMB,5,YPED,YAMB,11,False
-Australia,YSCB->YBBN,5,YSCB,YBBN,12,False
-Australia,YSCB->YMML,5,YSCB,YMML,13,False
-Australia,YSCB->YSTW,5,YSCB,YSTW,14,False
-Australia,YSNW->YSWG,5,YSNW,YSWG,15,False
-Austria,LOGK->LOXT,3,LOGK,LOXT,1,True
-Austria,LOGT->LOXT,3,LOGT,LOXT,2,False
-Austria,AT-0024->LOXT,2,AT-0024,LOXT,3,False
-Austria,DE-0354->LOGK,2,DE-0354,LOGK,4,False
-Austria,LOGK->LOXN,2,LOGK,LOXN,5,False
-Austria,LOWI->LOIK,2,LOWI,LOIK,6,False
-Austria,LOXT->LOGT,2,LOXT,LOGT,7,False
-Austria,LOXT->LOWL,2,LOXT,LOWL,8,False
-Austria,LSZE->LOSM,2,LSZE,LOSM,9,False
-Belgium,EBMB->EPRZ,4,EBMB,EPRZ,1,True
-Belgium,EBGB->EBUL,3,EBGB,EBUL,2,False
-Belgium,EBMB->EBFS,3,EBMB,EBFS,3,False
-Belgium,LGRX->EBMB,3,LGRX,EBMB,4,False
-Belgium,EBBE->EBMO,2,EBBE,EBMO,5,False
-Belgium,EBMB->EBZW,2,EBMB,EBZW,6,False
-Belgium,EBMB->EETN,2,EBMB,EETN,7,False
-Belgium,EBMB->ETAR,2,EBMB,ETAR,8,False
-Belgium,EBMB->PT-0092,2,EBMB,PT-0092,9,False
-Belgium,EBOS->EBBE,2,EBOS,EBBE,10,False
-Belgium,EBUL->EBMB,2,EBUL,EBMB,11,False
-Belgium,EPRJ->EBMB,2,EPRJ,EBMB,12,False
-Belgium,EPRZ->EBMB,2,EPRZ,EBMB,13,False
-Belgium,EYKA->EBMB,2,EYKA,EBMB,14,False
-Belgium,EYMM->EBMB,2,EYMM,EBMB,15,False
-Brazil,BR-2299->SBUR,12,BR-2299,SBUR,1,True
-Brazil,SBSP->BR-1470,4,SBSP,BR-1470,2,False
-Brazil,SSMV->SDLU,4,SSMV,SDLU,3,False
-Brazil,BR-0001->BR-1305,3,BR-0001,BR-1305,4,False
-Brazil,BR-0717->SSEF,3,BR-0717,SSEF,5,False
-Brazil,BR-2299->BR-2756,3,BR-2299,BR-2756,6,False
-Brazil,BR-2299->SDLL,3,BR-2299,SDLL,7,False
-Brazil,BR-2299->SDWK,3,BR-2299,SDWK,8,False
-Brazil,SBMT->BR-1470,3,SBMT,BR-1470,9,False
-Brazil,SDPD->BR-1305,3,SDPD,BR-1305,10,False
-Brazil,SSMV->BR-2269,3,SSMV,BR-2269,11,False
-Brazil,SWKY->BR-2299,3,SWKY,BR-2299,12,False
-Brazil,BR-0121->SBGL,2,BR-0121,SBGL,13,False
-Brazil,BR-0717->SBSP,2,BR-0717,SBSP,14,False
-Brazil,BR-0850->SBBR,2,BR-0850,SBBR,15,False
-Bulgaria,EBBR->LBSF,2,EBBR,LBSF,1,True
-Bulgaria,LBGR->BG-0046,2,LBGR,BG-0046,2,False
-Canada,CYMJ->CYXE,11,CYMJ,CYXE,1,True
-Canada,CYXE->CYMJ,10,CYXE,CYMJ,2,False
-Canada,CJR5->CYPG,5,CJR5,CYPG,3,False
-Canada,CYMJ->CYWG,5,CYMJ,CYWG,4,False
-Canada,CYWG->CYQT,5,CYWG,CYQT,5,False
-Canada,CJN4->CYMJ,4,CJN4,CYMJ,6,False
-Canada,CWL4->CYPG,4,CWL4,CYPG,7,False
-Canada,CYOW->CYHZ,4,CYOW,CYHZ,8,False
-Canada,CYMJ->CYQR,3,CYMJ,CYQR,9,False
-Canada,CYOW->CYQB,3,CYOW,CYQB,10,False
-Canada,CYRP->CYYZ,3,CYRP,CYYZ,11,False
-Canada,CYWG->CYMJ,3,CYWG,CYMJ,12,False
-Canada,CYWG->CYOW,3,CYWG,CYOW,13,False
-Canada,CYYZ->CYOW,3,CYYZ,CYOW,14,False
-Canada,EBMB->EPRZ,3,EBMB,EPRZ,15,False
-China,CN-0184->CN-0054,2,CN-0184,CN-0054,1,True
-Colombia,SK-213->SKMP,2,SK-213,SKMP,1,True
-Colombia,SKBO->SK-350,2,SKBO,SK-350,2,False
-Colombia,SKBO->SKMP,2,SKBO,SKMP,3,False
-Croatia,LDZD->LDSP,2,LDZD,LDSP,1,True
-Czech Republic,LKKB->EBBR,5,LKKB,EBBR,1,True
-Czech Republic,EBBR->LKKB,4,EBBR,LKKB,2,False
-Czech Republic,LKKB->LKNA,4,LKKB,LKNA,3,False
-Czech Republic,CZ-0164->LKPO,3,CZ-0164,LKPO,4,False
-Czech Republic,CZ-0148->LKKB,2,CZ-0148,LKKB,5,False
-Czech Republic,CZ-0177->LKKB,2,CZ-0177,LKKB,6,False
-Czech Republic,LKKB->ENGM,2,LKKB,ENGM,7,False
-Czech Republic,LKKB->EPLB,2,LKKB,EPLB,8,False
-Czech Republic,LKKB->LCLK,2,LKKB,LCLK,9,False
-Czech Republic,LKKB->LKHK,2,LKKB,LKHK,10,False
-Czech Republic,LKKB->LKKU,2,LKKB,LKKU,11,False
-Czech Republic,LKKB->LKPD,2,LKKB,LKPD,12,False
-Czech Republic,LKKM->LKPD,2,LKKM,LKPD,13,False
-Czech Republic,LKNA->LKKB,2,LKNA,LKKB,14,False
-Czech Republic,LKTC->LKRY,2,LKTC,LKRY,15,False
-Denmark,EKYT->EKKA,7,EKYT,EKKA,1,True
-Denmark,EKYT->EKRK,6,EKYT,EKRK,2,False
-Denmark,EKSV->EKYT,5,EKSV,EKYT,3,False
-Denmark,EKRK->EKYT,4,EKRK,EKYT,4,False
-Denmark,EKYT->EKCH,4,EKYT,EKCH,5,False
-Denmark,DK-0003->EKYT,3,DK-0003,EKYT,6,False
-Denmark,DK-0045->EKYT,3,DK-0045,EKYT,7,False
-Denmark,EKYT->EKVB,3,EKYT,EKVB,8,False
-Denmark,DK-0003->DK-0023,2,DK-0003,DK-0023,9,False
-Denmark,DK-0016->EKYT,2,DK-0016,EKYT,10,False
-Denmark,DK-0023->EKRK,2,DK-0023,EKRK,11,False
-Denmark,EKHK->EKYT,2,EKHK,EKYT,12,False
-Denmark,EKVD->EKCR,2,EKVD,EKCR,13,False
-Denmark,EKVD->EKYT,2,EKVD,EKYT,14,False
-Finland,EFRO->EFTP,3,EFRO,EFTP,1,True
-Finland,EFHK->EFTP,2,EFHK,EFTP,2,False
-Finland,EFKU->EFTP,2,EFKU,EFTP,3,False
-Finland,EFTP->EFHK,2,EFTP,EFHK,4,False
-Finland,EFTP->EFKU,2,EFTP,EFKU,5,False
-Finland,SE-0060->EFTP,2,SE-0060,EFTP,6,False
-France,FR-0951->LFBG,20,FR-0951,LFBG,1,True
-France,FR-0984->LFBG,12,FR-0984,LFBG,2,False
-France,LFRN->LFPV,12,LFRN,LFPV,3,False
-France,FR-0970->LFBG,10,FR-0970,LFBG,4,False
-France,FR-0523->LFBG,8,FR-0523,LFBG,5,False
-France,FR-0974->LFBG,7,FR-0974,LFBG,6,False
-France,FR-0976->FR-0936,6,FR-0976,FR-0936,7,False
-France,FR-0980->LFBG,6,FR-0980,LFBG,8,False
-France,FR-0995->LFBG,6,FR-0995,LFBG,9,False
-France,LFBD->LFPV,6,LFBD,LFPV,10,False
-France,FR-0973->FR-0992,5,FR-0973,FR-0992,11,False
-France,FR-0976->LFBN,5,FR-0976,LFBN,12,False
-France,FR-1103->LFBG,5,FR-1103,LFBG,13,False
-France,LFBC->LFMI,5,LFBC,LFMI,14,False
-France,LFBG->FR-0951,5,LFBG,FR-0951,15,False
-Germany,EDDK->EDDB,38,EDDK,EDDB,1,True
-Germany,EDDB->EDDK,30,EDDB,EDDK,2,False
-Germany,EDDH->EDDK,11,EDDH,EDDK,3,False
-Germany,DE-0626->EDDB,8,DE-0626,EDDB,4,False
-Germany,EDDM->EDDK,8,EDDM,EDDK,5,False
-Germany,EDKU->EDDB,7,EDKU,EDDB,6,False
-Germany,EDXN->EDXH,7,EDXN,EDXH,7,False
-Germany,DE-0192->EDDB,6,DE-0192,EDDB,8,False
-Germany,EPRZ->EDDK,6,EPRZ,EDDK,9,False
-Germany,ETHL->ETNW,6,ETHL,ETNW,10,False
-Germany,ETNW->ETHL,6,ETNW,ETHL,11,False
-Germany,EYVI->ETNW,6,EYVI,ETNW,12,False
-Germany,EDCS->EDDK,5,EDCS,EDDK,13,False
-Germany,ETNW->EYVI,5,ETNW,EYVI,14,False
-Germany,EDDK->EDDH,4,EDDK,EDDH,15,False
-Greece,LGEL->LGSO,19,LGEL,LGSO,1,True
-Greece,LGSO->LGEL,9,LGSO,LGEL,2,False
-Greece,LGEL->LGTS,5,LGEL,LGTS,3,False
-Greece,LGEL->LGMK,3,LGEL,LGMK,4,False
-Greece,LGPA->LGEL,3,LGPA,LGEL,5,False
-Greece,EBMB->LGEL,2,EBMB,LGEL,6,False
-Greece,GR-0016->GR-0002,2,GR-0016,GR-0002,7,False
-Greece,LGEL->LGSY,2,LGEL,LGSY,8,False
-Greece,LGHI->LGEL,2,LGHI,LGEL,9,False
-Greece,LGIK->LGEL,2,LGIK,LGEL,10,False
-Greece,LGMK->LGEL,2,LGMK,LGEL,11,False
-Greece,LGRX->LGMG,2,LGRX,LGMG,12,False
-Greece,LYTV->LGEL,2,LYTV,LGEL,13,False
-Guatemala,MGGT->MGCB,2,MGGT,MGCB,1,True
-Hungary,SE-0055->LHTM,2,SE-0055,LHTM,1,True
-India,IN-0392->VIDX,2,IN-0392,VIDX,1,True
-India,VEBA->VIDP,2,VEBA,VIDP,2,False
-Ireland,EICK->EIME,5,EICK,EIME,1,True
-Ireland,EBBR->EIME,3,EBBR,EIME,2,False
-Ireland,EIME->IE-0040,3,EIME,IE-0040,3,False
-Ireland,IE-0002->EICK,3,IE-0002,EICK,4,False
-Ireland,EGKB->EIME,2,EGKB,EIME,5,False
-Ireland,EIGN->EICK,2,EIGN,EICK,6,False
-Ireland,EIME->EBBR,2,EIME,EBBR,7,False
-Ireland,EIME->EGKB,2,EIME,EGKB,8,False
-Ireland,EIME->IE-0036,2,EIME,IE-0036,9,False
-Ireland,EISG->EIME,2,EISG,EIME,10,False
-Ireland,FR-0933->EIME,2,FR-0933,EIME,11,False
-Ireland,IE-0023->EIME,2,IE-0023,EIME,12,False
-Ireland,IE-0027->EISG,2,IE-0027,EISG,13,False
-Ireland,IE-0027->IE-0056,2,IE-0027,IE-0056,14,False
-Ireland,IE-0044->EIME,2,IE-0044,EIME,15,False
-Italy,IT-0769->LIPB,5,IT-0769,LIPB,1,True
-Italy,LIBF->LIBD,5,LIBF,LIBD,2,False
-Italy,IT-0154->LIRE,4,IT-0154,LIRE,3,False
-Italy,IT-0409->LIRE,4,IT-0409,LIRE,4,False
-Italy,LICC->LICP,4,LICC,LICP,5,False
-Italy,LICR->IT-0027,4,LICR,IT-0027,6,False
-Italy,LIEA->LIRE,4,LIEA,LIRE,7,False
-Italy,LIRA->LIML,4,LIRA,LIML,8,False
-Italy,IT-0188->LIRE,3,IT-0188,LIRE,9,False
-Italy,IT-0456->LIMC,3,IT-0456,LIMC,10,False
-Italy,IT-0494->LIRE,3,IT-0494,LIRE,11,False
-Italy,LIBD->LIRE,3,LIBD,LIRE,12,False
-Italy,LICP->LICC,3,LICP,LICC,13,False
-Italy,LIED->LIRE,3,LIED,LIRE,14,False
-Italy,LIEE->LIRE,3,LIEE,LIRE,15,False
-Japan,JP-0363->RJTJ,6,JP-0363,RJTJ,1,True
-Japan,RJTL->RJTA,6,RJTL,RJTA,2,False
-Japan,JP-1679->RJNA,3,JP-1679,RJNA,3,False
-Japan,RJSN->RJTA,3,RJSN,RJTA,4,False
-Japan,RJTA->JP-0095,3,RJTA,JP-0095,5,False
-Japan,RJTA->RJTL,3,RJTA,RJTL,6,False
-Japan,RJTO->RJTA,3,RJTO,RJTA,7,False
-Japan,EHAM->EBMB,2,EHAM,EBMB,8,False
-Japan,JP-0095->RJTO,2,JP-0095,RJTO,9,False
-Japan,JP-0112->RJNA,2,JP-0112,RJNA,10,False
-Japan,JP-0423->RJTA,2,JP-0423,RJTA,11,False
-Japan,JP-0449->RJTJ,2,JP-0449,RJTJ,12,False
-Japan,JP-1900->RJTA,2,JP-1900,RJTA,13,False
-Japan,RJCC->RJTJ,2,RJCC,RJTJ,14,False
-Japan,RJOI->RJTJ,2,RJOI,RJTJ,15,False
-Kenya,KE-0099->HKNW,2,KE-0099,HKNW,1,True
-Kenya,KE-0126->HKNW,2,KE-0126,HKNW,2,False
-Kuwait,26N->EGPK,2,26N,EGPK,1,True
-Lithuania,EYPR->EYSA,3,EYPR,EYSA,1,True
-Lithuania,LT-0024->EYVI,2,LT-0024,EYVI,2,False
-Luxembourg,ETNG->LT-0032,2,ETNG,LT-0032,1,True
-Mexico,MMVR->MX-2122,7,MMVR,MX-2122,1,True
-Mexico,MMIO->MMAN,2,MMIO,MMAN,2,False
-Mexico,MMMX->MMVR,2,MMMX,MMVR,3,False
-Mexico,MMMY->MX-1355,2,MMMY,MX-1355,4,False
-Mexico,MMTO->MX-0349,2,MMTO,MX-0349,5,False
-Mexico,MX-0730->MMZC,2,MX-0730,MMZC,6,False
-Mexico,MX-2122->MMAN,2,MX-2122,MMAN,7,False
-Morocco,GMFO->GMFM,2,GMFO,GMFM,1,True
-Netherlands,EDDK->EHEH,5,EDDK,EHEH,1,True
-Netherlands,EDDB->EPRZ,4,EDDB,EPRZ,2,False
-Netherlands,EPRZ->EDDB,4,EPRZ,EDDB,3,False
-Netherlands,EPRZ->EDDK,4,EPRZ,EDDK,4,False
-Netherlands,EBMB->EHEH,3,EBMB,EHEH,5,False
-Netherlands,EDDB->EHEH,3,EDDB,EHEH,6,False
-Netherlands,EHEH->LKPR,3,EHEH,LKPR,7,False
-Netherlands,EDDB->EDDK,2,EDDB,EDDK,8,False
-Netherlands,EDDK->EETN,2,EDDK,EETN,9,False
-Netherlands,EDDK->LFMI,2,EDDK,LFMI,10,False
-Netherlands,EDDK->PL-0232,2,EDDK,PL-0232,11,False
-Netherlands,EHEH->EBMB,2,EHEH,EBMB,12,False
-Netherlands,EHEH->EDDB,2,EHEH,EDDB,13,False
-New Zealand,NZWP->NZOH,16,NZWP,NZOH,1,True
-New Zealand,NZCH->NZOH,6,NZCH,NZOH,2,False
-New Zealand,NZOH->NZWP,5,NZOH,NZWP,3,False
-New Zealand,NZWU->NZWP,5,NZWU,NZWP,4,False
-New Zealand,NZDV->NZOH,4,NZDV,NZOH,5,False
-New Zealand,NZOH->NZNP,4,NZOH,NZNP,6,False
-New Zealand,NZOH->NZWN,4,NZOH,NZWN,7,False
-New Zealand,NZCH->NZPM,3,NZCH,NZPM,8,False
-New Zealand,NZFP->NZCH,3,NZFP,NZCH,9,False
-New Zealand,NZNP->NZOH,3,NZNP,NZOH,10,False
-New Zealand,NZWN->NZFP,3,NZWN,NZFP,11,False
-New Zealand,NZWP->NZWU,3,NZWP,NZWU,12,False
-New Zealand,07AA->US-8026,2,07AA,US-8026,13,False
-New Zealand,NZ-0016->NZCH,2,NZ-0016,NZCH,14,False
-New Zealand,NZCH->NZFP,2,NZCH,NZFP,15,False
-Norway,ENAT->ENTC,2,ENAT,ENTC,1,True
-Norway,ENBR->NO-0042,2,ENBR,NO-0042,2,False
-Norway,ENHS->ENRY,2,ENHS,ENRY,3,False
-Norway,ENKJ->ENRY,2,ENKJ,ENRY,4,False
-Norway,ENSN->ENRY,2,ENSN,ENRY,5,False
-Norway,NO-0086->NO-0031,2,NO-0086,NO-0031,6,False
-Oman,OOMS->OOIZ,12,OOMS,OOIZ,1,True
-Oman,OOIA->OOMS,2,OOIA,OOMS,2,False
-Peru,SPCG->PE-0010,3,SPCG,PE-0010,1,True
-Philippines,RPSB->RPVM,4,RPSB,RPVM,1,True
-Philippines,PH-0005->RPUL,3,PH-0005,RPUL,2,False
-Philippines,RPLL->RP12,3,RPLL,RP12,3,False
-Philippines,RPVM->RPLL,2,RPVM,RPLL,4,False
-Poland,PL-0248->EPRA,7,PL-0248,EPRA,1,True
-Poland,EPGD->EPWA,5,EPGD,EPWA,2,False
-Poland,EPKK->PL-0117,5,EPKK,PL-0117,3,False
-Poland,EPKK->PL-0077,4,EPKK,PL-0077,4,False
-Poland,PL-0234->PL-0117,4,PL-0234,PL-0117,5,False
-Poland,EPBC->EPGD,3,EPBC,EPGD,6,False
-Poland,EPKK->PL-0179,3,EPKK,PL-0179,7,False
-Poland,EPWA->EPKK,3,EPWA,EPKK,8,False
-Poland,PL-0161->PL-0272,3,PL-0161,PL-0272,9,False
-Poland,EBBR->EPWA,2,EBBR,EPWA,10,False
-Poland,EPBC->EPPR,2,EPBC,EPPR,11,False
-Poland,EPGS->PL-0272,2,EPGS,PL-0272,12,False
-Poland,EPIR->EPWA,2,EPIR,EPWA,13,False
-Poland,EPKK->EPGS,2,EPKK,EPGS,14,False
-Poland,EPKT->EPWA,2,EPKT,EPWA,15,False
-Portugal,PT-0039->LPPT,4,PT-0039,LPPT,1,True
-Portugal,PT-0035->LPOV,3,PT-0035,LPOV,2,False
-Portugal,LPMR->EEEI,2,LPMR,EEEI,3,False
-Portugal,LPMR->LPOV,2,LPMR,LPOV,4,False
-Portugal,LPMT->LPOV,2,LPMT,LPOV,5,False
-Portugal,LPOV->PT-0151,2,LPOV,PT-0151,6,False
-Portugal,LPPT->LPBJ,2,LPPT,LPBJ,7,False
-Portugal,LPVL->LPOV,2,LPVL,LPOV,8,False
-Portugal,LPVL->LPPT,2,LPVL,LPPT,9,False
-Portugal,PT-0056->LPMT,2,PT-0056,LPMT,10,False
-Portugal,PT-0065->LPBJ,2,PT-0065,LPBJ,11,False
-Qatar,OEDF->OTBD,3,OEDF,OTBD,1,True
-Qatar,QA-0001->OTBH,3,QA-0001,OTBH,2,False
-Romania,RO-0014->LRBS,4,RO-0014,LRBS,1,True
-Romania,LRBS->BG-0090,3,LRBS,BG-0090,2,False
-Romania,LR80->LRBS,2,LR80,LRBS,3,False
-Romania,LRBS->RO-0006,2,LRBS,RO-0006,4,False
-Romania,LRCL->RO-0008,2,LRCL,RO-0008,5,False
-Romania,RO-0008->LROP,2,RO-0008,LROP,6,False
-Romania,RO-0014->LROP,2,RO-0014,LROP,7,False
-Romania,RO-0024->LRBS,2,RO-0024,LRBS,8,False
-Romania,RO-0025->LRBS,2,RO-0025,LRBS,9,False
-Russia,RU-0845->UUWW,3,RU-0845,UUWW,1,True
-Russia,KJFK->KIAD,2,KJFK,KIAD,2,False
-Russia,KW41->KNHK,2,KW41,KNHK,3,False
-Russia,RU-0412->RU-0375,2,RU-0412,RU-0375,4,False
-Russia,ULLI->UUWW,2,ULLI,UUWW,5,False
-Saudi Arabia,LGAV->LSZH,2,LGAV,LSZH,1,True
-Senegal,GBYD->GOOY,2,GBYD,GOOY,1,True
-Singapore,AU-0751->YPEA,21,AU-0751,YPEA,1,True
-Singapore,AU-0565->YPEA,6,AU-0565,YPEA,2,False
-Singapore,AU-0037->YPEA,3,AU-0037,YPEA,3,False
-Slovakia,LZIB->EBBR,4,LZIB,EBBR,1,True
-Slovakia,EBBR->LZIB,3,EBBR,LZIB,2,False
-Slovakia,LZIB->LKPR,3,LZIB,LKPR,3,False
-Slovakia,CY-0006->LZIB,2,CY-0006,LZIB,4,False
-Slovakia,EBMB->LZIB,2,EBMB,LZIB,5,False
-Slovakia,LKPR->LZIB,2,LKPR,LZIB,6,False
-Slovakia,LZIB->SK-0040,2,LZIB,SK-0040,7,False
-Slovenia,LBPD->LJCE,2,LBPD,LJCE,1,True
-Slovenia,SI-0014->LJCE,2,SI-0014,LJCE,2,False
-Spain,ES-0036->LELC,10,ES-0036,LELC,1,True
-Spain,LEBL->LETO,4,LEBL,LETO,2,False
-Spain,LELC->LEZG,4,LELC,LEZG,3,False
-Spain,LEVX->LETO,4,LEVX,LETO,4,False
-Spain,ES-0055->LEGA,3,ES-0055,LEGA,5,False
-Spain,LEGT->LERI,3,LEGT,LERI,6,False
-Spain,LETO->LEZG,3,LETO,LEZG,7,False
-Spain,CY-0006->LETO,2,CY-0006,LETO,8,False
-Spain,CYOW->CYYZ,2,CYOW,CYYZ,9,False
-Spain,EBBR->LEGT,2,EBBR,LEGT,10,False
-Spain,EBBR->LETO,2,EBBR,LETO,11,False
-Spain,EDDB->LEGT,2,EDDB,LEGT,12,False
-Spain,EDDB->LETO,2,EDDB,LETO,13,False
-Spain,ES-0019->LEZG,2,ES-0019,LEZG,14,False
-Spain,ES-0092->LELC,2,ES-0092,LELC,15,False
-Sweden,ESFR->ESCF,4,ESFR,ESCF,1,True
-Sweden,ESDF->ESIB,3,ESDF,ESIB,2,False
-Sweden,ESPA->ESCF,3,ESPA,ESCF,3,False
-Sweden,EDDK->ESCF,2,EDDK,ESCF,4,False
-Sweden,ESCF->ESPA,2,ESCF,ESPA,5,False
-Sweden,ESDF->ESSP,2,ESDF,ESSP,6,False
-Sweden,ESIB->ESCF,2,ESIB,ESCF,7,False
-Sweden,ESMT->ESCF,2,ESMT,ESCF,8,False
-Sweden,ESSP->ESDF,2,ESSP,ESDF,9,False
-Sweden,EYVI->ESSA,2,EYVI,ESSA,10,False
-Switzerland,LSZM->LSME,8,LSZM,LSME,1,True
-Switzerland,LSGG->LSZB,4,LSGG,LSZB,2,False
-Switzerland,LSMD->LSTB,3,LSMD,LSTB,3,False
-Switzerland,LSVD->LSMM,3,LSVD,LSMM,4,False
-Switzerland,LSZB->LSGG,3,LSZB,LSGG,5,False
-Switzerland,LSZB->LSZH,3,LSZB,LSZH,6,False
-Switzerland,LSZN->LSZB,3,LSZN,LSZB,7,False
-Switzerland,EDDB->LSZB,2,EDDB,LSZB,8,False
-Switzerland,EDXM->EDWM,2,EDXM,EDWM,9,False
-Switzerland,IT-0322->LILC,2,IT-0322,LILC,10,False
-Switzerland,IT-0340->LILC,2,IT-0340,LILC,11,False
-Switzerland,LBPD->LSMD,2,LBPD,LSMD,12,False
-Switzerland,LBPD->LSZB,2,LBPD,LSZB,13,False
-Switzerland,LSGE->LSMM,2,LSGE,LSMM,14,False
-Switzerland,LSGN->LSMM,2,LSGN,LSMM,15,False
-Taiwan (unofficial),RCSS->TW-0034,2,RCSS,TW-0034,1,True
-Thailand,TH-0014->TH-0017,2,TH-0014,TH-0017,1,True
-Thailand,TH-0015->VTBD,2,TH-0015,VTBD,2,False
-Thailand,TH-0040->TH-0005,2,TH-0040,TH-0005,3,False
-Thailand,VTBD->VTCC,2,VTBD,VTCC,4,False
-Thailand,VTCC->TH-0062,2,VTCC,TH-0062,5,False
-Thailand,VTCY->VTBD,2,VTCY,VTBD,6,False
-Turkey,LTBA->LTAE,4,LTBA,LTAE,1,True
-Turkey,EBMB->LTAE,2,EBMB,LTAE,2,False
-Turkey,LTAE->LTBL,2,LTAE,LTBL,3,False
-Turkey,LTFM->LTAE,2,LTFM,LTAE,4,False
-Ukraine,EPKP->EPRJ,2,EPKP,EPRJ,1,True
-Ukraine,EPRZ->EPKK,2,EPRZ,EPKK,2,False
-United Arab Emirates,OMAA->OBBI,2,OMAA,OBBI,1,True
-United Kingdom,LCRA->EGVN,25,LCRA,EGVN,1,True
-United Kingdom,EGVN->LCRA,14,EGVN,LCRA,2,False
-United Kingdom,EPRZ->EGVN,9,EPRZ,EGVN,3,False
-United Kingdom,EGCK->EGOS,8,EGCK,EGOS,4,False
-United Kingdom,EGPK->EGVN,7,EGPK,EGVN,5,False
-United Kingdom,EDDM->EGVN,5,EDDM,EGVN,6,False
-United Kingdom,EGFD->EGOV,5,EGFD,EGOV,7,False
-United Kingdom,EGNY->EGXC,5,EGNY,EGXC,8,False
-United Kingdom,GB-0024->EGVN,5,GB-0024,EGVN,9,False
-United Kingdom,LCRA->OJAI,5,LCRA,OJAI,10,False
-United Kingdom,BIKF->EGVN,4,BIKF,EGVN,11,False
-United Kingdom,EGCV->EGCK,4,EGCV,EGCK,12,False
-United Kingdom,GB-0263->EGBP,4,GB-0263,EGBP,13,False
-United Kingdom,GB-0500->EGXC,4,GB-0500,EGXC,14,False
-United Kingdom,GB-0533->EGOS,4,GB-0533,EGOS,15,False
-United States,KDRA->KLAS,84,KDRA,KLAS,1,True
-United States,TA31->KDLF,69,TA31,KDLF,2,False
-United States,0XS8->KDLF,64,0XS8,KDLF,3,False
-United States,2TS8->KRND,57,2TS8,KRND,4,False
-United States,0XS7->KDLF,56,0XS7,KDLF,5,False
-United States,US-4412->KRND,54,US-4412,KRND,6,False
-United States,42XS->KNQI,46,42XS,KNQI,7,False
-United States,2TA8->KNQI,34,2TA8,KNQI,8,False
-United States,8TE1->KRND,33,8TE1,KRND,9,False
-United States,KLAS->KDRA,33,KLAS,KDRA,10,False
-United States,3TA6->KDLF,32,3TA6,KDLF,11,False
-United States,KAFF->KPUB,32,KAFF,KPUB,12,False
-United States,US-2445->KDLF,32,US-2445,KDLF,13,False
-United States,2TE6->KRND,30,2TE6,KRND,14,False
-United States,NV11->KLAS,30,NV11,KLAS,15,False
+country,pair,flight_count,origin_icao,dest_icao,rank,is_top,low_confidence
+Argentina,AR-0115->SABE,2,AR-0115,SABE,1,True,True
+Australia,YSCB->YSSY,24,YSCB,YSSY,1,True,False
+Australia,YSSY->YSCB,16,YSSY,YSCB,2,False,False
+Australia,AU-0751->YPEA,15,AU-0751,YPEA,3,False,False
+Australia,YAMB->YSRI,8,YAMB,YSRI,4,False,True
+Australia,YSCB->YSRI,8,YSCB,YSRI,5,False,True
+Australia,YTAM->YAMB,7,YTAM,YAMB,6,False,True
+Australia,YBBN->YSCB,6,YBBN,YSCB,7,False,True
+Australia,YYRM->YMES,6,YYRM,YMES,8,False,True
+Australia,YGSD->YDWU,5,YGSD,YDWU,9,False,True
+Australia,YMML->YSCB,5,YMML,YSCB,10,False,True
+Australia,YPED->YAMB,5,YPED,YAMB,11,False,True
+Australia,YSCB->YBBN,5,YSCB,YBBN,12,False,True
+Australia,YSCB->YMML,5,YSCB,YMML,13,False,True
+Australia,YSCB->YSTW,5,YSCB,YSTW,14,False,True
+Australia,YSNW->YSWG,5,YSNW,YSWG,15,False,True
+Austria,LOGK->LOXT,3,LOGK,LOXT,1,True,True
+Austria,LOGT->LOXT,3,LOGT,LOXT,2,False,True
+Austria,AT-0024->LOXT,2,AT-0024,LOXT,3,False,True
+Austria,DE-0354->LOGK,2,DE-0354,LOGK,4,False,True
+Austria,LOGK->LOXN,2,LOGK,LOXN,5,False,True
+Austria,LOWI->LOIK,2,LOWI,LOIK,6,False,True
+Austria,LOXT->LOGT,2,LOXT,LOGT,7,False,True
+Austria,LOXT->LOWL,2,LOXT,LOWL,8,False,True
+Austria,LSZE->LOSM,2,LSZE,LOSM,9,False,True
+Belgium,EBMB->EPRZ,4,EBMB,EPRZ,1,True,True
+Belgium,EBGB->EBUL,3,EBGB,EBUL,2,False,True
+Belgium,EBMB->EBFS,3,EBMB,EBFS,3,False,True
+Belgium,LGRX->EBMB,3,LGRX,EBMB,4,False,True
+Belgium,EBBE->EBMO,2,EBBE,EBMO,5,False,True
+Belgium,EBMB->EBZW,2,EBMB,EBZW,6,False,True
+Belgium,EBMB->EETN,2,EBMB,EETN,7,False,True
+Belgium,EBMB->ETAR,2,EBMB,ETAR,8,False,True
+Belgium,EBMB->PT-0092,2,EBMB,PT-0092,9,False,True
+Belgium,EBOS->EBBE,2,EBOS,EBBE,10,False,True
+Belgium,EBUL->EBMB,2,EBUL,EBMB,11,False,True
+Belgium,EPRJ->EBMB,2,EPRJ,EBMB,12,False,True
+Belgium,EPRZ->EBMB,2,EPRZ,EBMB,13,False,True
+Belgium,EYKA->EBMB,2,EYKA,EBMB,14,False,True
+Belgium,EYMM->EBMB,2,EYMM,EBMB,15,False,True
+Brazil,BR-2299->SBUR,12,BR-2299,SBUR,1,True,True
+Brazil,SBSP->BR-1470,4,SBSP,BR-1470,2,False,True
+Brazil,SSMV->SDLU,4,SSMV,SDLU,3,False,True
+Brazil,BR-0001->BR-1305,3,BR-0001,BR-1305,4,False,True
+Brazil,BR-0717->SSEF,3,BR-0717,SSEF,5,False,True
+Brazil,BR-2299->BR-2756,3,BR-2299,BR-2756,6,False,True
+Brazil,BR-2299->SDLL,3,BR-2299,SDLL,7,False,True
+Brazil,BR-2299->SDWK,3,BR-2299,SDWK,8,False,True
+Brazil,SBMT->BR-1470,3,SBMT,BR-1470,9,False,True
+Brazil,SDPD->BR-1305,3,SDPD,BR-1305,10,False,True
+Brazil,SSMV->BR-2269,3,SSMV,BR-2269,11,False,True
+Brazil,SWKY->BR-2299,3,SWKY,BR-2299,12,False,True
+Brazil,BR-0121->SBGL,2,BR-0121,SBGL,13,False,True
+Brazil,BR-0717->SBSP,2,BR-0717,SBSP,14,False,True
+Brazil,BR-0850->SBBR,2,BR-0850,SBBR,15,False,True
+Bulgaria,EBBR->LBSF,2,EBBR,LBSF,1,True,True
+Bulgaria,LBGR->BG-0046,2,LBGR,BG-0046,2,False,True
+Canada,CYMJ->CYXE,11,CYMJ,CYXE,1,True,True
+Canada,CYXE->CYMJ,10,CYXE,CYMJ,2,False,True
+Canada,CJR5->CYPG,5,CJR5,CYPG,3,False,True
+Canada,CYMJ->CYWG,5,CYMJ,CYWG,4,False,True
+Canada,CYWG->CYQT,5,CYWG,CYQT,5,False,True
+Canada,CJN4->CYMJ,4,CJN4,CYMJ,6,False,True
+Canada,CWL4->CYPG,4,CWL4,CYPG,7,False,True
+Canada,CYOW->CYHZ,4,CYOW,CYHZ,8,False,True
+Canada,CYMJ->CYQR,3,CYMJ,CYQR,9,False,True
+Canada,CYOW->CYQB,3,CYOW,CYQB,10,False,True
+Canada,CYRP->CYYZ,3,CYRP,CYYZ,11,False,True
+Canada,CYWG->CYMJ,3,CYWG,CYMJ,12,False,True
+Canada,CYWG->CYOW,3,CYWG,CYOW,13,False,True
+Canada,CYYZ->CYOW,3,CYYZ,CYOW,14,False,True
+Canada,EBMB->EPRZ,3,EBMB,EPRZ,15,False,True
+China,CN-0184->CN-0054,2,CN-0184,CN-0054,1,True,True
+Colombia,SK-213->SKMP,2,SK-213,SKMP,1,True,True
+Colombia,SKBO->SK-350,2,SKBO,SK-350,2,False,True
+Colombia,SKBO->SKMP,2,SKBO,SKMP,3,False,True
+Croatia,LDZD->LDSP,2,LDZD,LDSP,1,True,True
+Czech Republic,LKKB->EBBR,5,LKKB,EBBR,1,True,True
+Czech Republic,EBBR->LKKB,4,EBBR,LKKB,2,False,True
+Czech Republic,LKKB->LKNA,4,LKKB,LKNA,3,False,True
+Czech Republic,CZ-0164->LKPO,3,CZ-0164,LKPO,4,False,True
+Czech Republic,CZ-0148->LKKB,2,CZ-0148,LKKB,5,False,True
+Czech Republic,CZ-0177->LKKB,2,CZ-0177,LKKB,6,False,True
+Czech Republic,LKKB->ENGM,2,LKKB,ENGM,7,False,True
+Czech Republic,LKKB->EPLB,2,LKKB,EPLB,8,False,True
+Czech Republic,LKKB->LCLK,2,LKKB,LCLK,9,False,True
+Czech Republic,LKKB->LKHK,2,LKKB,LKHK,10,False,True
+Czech Republic,LKKB->LKKU,2,LKKB,LKKU,11,False,True
+Czech Republic,LKKB->LKPD,2,LKKB,LKPD,12,False,True
+Czech Republic,LKKM->LKPD,2,LKKM,LKPD,13,False,True
+Czech Republic,LKNA->LKKB,2,LKNA,LKKB,14,False,True
+Czech Republic,LKTC->LKRY,2,LKTC,LKRY,15,False,True
+Denmark,EKYT->EKKA,7,EKYT,EKKA,1,True,True
+Denmark,EKYT->EKRK,6,EKYT,EKRK,2,False,True
+Denmark,EKSV->EKYT,5,EKSV,EKYT,3,False,True
+Denmark,EKRK->EKYT,4,EKRK,EKYT,4,False,True
+Denmark,EKYT->EKCH,4,EKYT,EKCH,5,False,True
+Denmark,DK-0003->EKYT,3,DK-0003,EKYT,6,False,True
+Denmark,DK-0045->EKYT,3,DK-0045,EKYT,7,False,True
+Denmark,EKYT->EKVB,3,EKYT,EKVB,8,False,True
+Denmark,DK-0003->DK-0023,2,DK-0003,DK-0023,9,False,True
+Denmark,DK-0016->EKYT,2,DK-0016,EKYT,10,False,True
+Denmark,DK-0023->EKRK,2,DK-0023,EKRK,11,False,True
+Denmark,EKHK->EKYT,2,EKHK,EKYT,12,False,True
+Denmark,EKVD->EKCR,2,EKVD,EKCR,13,False,True
+Denmark,EKVD->EKYT,2,EKVD,EKYT,14,False,True
+Finland,EFRO->EFTP,3,EFRO,EFTP,1,True,True
+Finland,EFHK->EFTP,2,EFHK,EFTP,2,False,True
+Finland,EFKU->EFTP,2,EFKU,EFTP,3,False,True
+Finland,EFTP->EFHK,2,EFTP,EFHK,4,False,True
+Finland,EFTP->EFKU,2,EFTP,EFKU,5,False,True
+Finland,SE-0060->EFTP,2,SE-0060,EFTP,6,False,True
+France,FR-0951->LFBG,20,FR-0951,LFBG,1,True,False
+France,FR-0984->LFBG,12,FR-0984,LFBG,2,False,True
+France,LFRN->LFPV,12,LFRN,LFPV,3,False,True
+France,FR-0970->LFBG,10,FR-0970,LFBG,4,False,True
+France,FR-0523->LFBG,8,FR-0523,LFBG,5,False,True
+France,FR-0974->LFBG,7,FR-0974,LFBG,6,False,True
+France,FR-0976->FR-0936,6,FR-0976,FR-0936,7,False,True
+France,FR-0980->LFBG,6,FR-0980,LFBG,8,False,True
+France,FR-0995->LFBG,6,FR-0995,LFBG,9,False,True
+France,LFBD->LFPV,6,LFBD,LFPV,10,False,True
+France,FR-0973->FR-0992,5,FR-0973,FR-0992,11,False,True
+France,FR-0976->LFBN,5,FR-0976,LFBN,12,False,True
+France,FR-1103->LFBG,5,FR-1103,LFBG,13,False,True
+France,LFBC->LFMI,5,LFBC,LFMI,14,False,True
+France,LFBG->FR-0951,5,LFBG,FR-0951,15,False,True
+Germany,EDDK->EDDB,38,EDDK,EDDB,1,True,False
+Germany,EDDB->EDDK,30,EDDB,EDDK,2,False,False
+Germany,EDDH->EDDK,11,EDDH,EDDK,3,False,True
+Germany,DE-0626->EDDB,8,DE-0626,EDDB,4,False,True
+Germany,EDDM->EDDK,8,EDDM,EDDK,5,False,True
+Germany,EDKU->EDDB,7,EDKU,EDDB,6,False,True
+Germany,EDXN->EDXH,7,EDXN,EDXH,7,False,True
+Germany,DE-0192->EDDB,6,DE-0192,EDDB,8,False,True
+Germany,EPRZ->EDDK,6,EPRZ,EDDK,9,False,True
+Germany,ETHL->ETNW,6,ETHL,ETNW,10,False,True
+Germany,ETNW->ETHL,6,ETNW,ETHL,11,False,True
+Germany,EYVI->ETNW,6,EYVI,ETNW,12,False,True
+Germany,EDCS->EDDK,5,EDCS,EDDK,13,False,True
+Germany,ETNW->EYVI,5,ETNW,EYVI,14,False,True
+Germany,EDDK->EDDH,4,EDDK,EDDH,15,False,True
+Greece,LGEL->LGSO,19,LGEL,LGSO,1,True,False
+Greece,LGSO->LGEL,9,LGSO,LGEL,2,False,True
+Greece,LGEL->LGTS,5,LGEL,LGTS,3,False,True
+Greece,LGEL->LGMK,3,LGEL,LGMK,4,False,True
+Greece,LGPA->LGEL,3,LGPA,LGEL,5,False,True
+Greece,EBMB->LGEL,2,EBMB,LGEL,6,False,True
+Greece,GR-0016->GR-0002,2,GR-0016,GR-0002,7,False,True
+Greece,LGEL->LGSY,2,LGEL,LGSY,8,False,True
+Greece,LGHI->LGEL,2,LGHI,LGEL,9,False,True
+Greece,LGIK->LGEL,2,LGIK,LGEL,10,False,True
+Greece,LGMK->LGEL,2,LGMK,LGEL,11,False,True
+Greece,LGRX->LGMG,2,LGRX,LGMG,12,False,True
+Greece,LYTV->LGEL,2,LYTV,LGEL,13,False,True
+Guatemala,MGGT->MGCB,2,MGGT,MGCB,1,True,True
+Hungary,SE-0055->LHTM,2,SE-0055,LHTM,1,True,True
+India,IN-0392->VIDX,2,IN-0392,VIDX,1,True,True
+India,VEBA->VIDP,2,VEBA,VIDP,2,False,True
+Ireland,EICK->EIME,5,EICK,EIME,1,True,True
+Ireland,EBBR->EIME,3,EBBR,EIME,2,False,True
+Ireland,EIME->IE-0040,3,EIME,IE-0040,3,False,True
+Ireland,IE-0002->EICK,3,IE-0002,EICK,4,False,True
+Ireland,EGKB->EIME,2,EGKB,EIME,5,False,True
+Ireland,EIGN->EICK,2,EIGN,EICK,6,False,True
+Ireland,EIME->EBBR,2,EIME,EBBR,7,False,True
+Ireland,EIME->EGKB,2,EIME,EGKB,8,False,True
+Ireland,EIME->IE-0036,2,EIME,IE-0036,9,False,True
+Ireland,EISG->EIME,2,EISG,EIME,10,False,True
+Ireland,FR-0933->EIME,2,FR-0933,EIME,11,False,True
+Ireland,IE-0023->EIME,2,IE-0023,EIME,12,False,True
+Ireland,IE-0027->EISG,2,IE-0027,EISG,13,False,True
+Ireland,IE-0027->IE-0056,2,IE-0027,IE-0056,14,False,True
+Ireland,IE-0044->EIME,2,IE-0044,EIME,15,False,True
+Italy,IT-0769->LIPB,5,IT-0769,LIPB,1,True,True
+Italy,LIBF->LIBD,5,LIBF,LIBD,2,False,True
+Italy,IT-0154->LIRE,4,IT-0154,LIRE,3,False,True
+Italy,IT-0409->LIRE,4,IT-0409,LIRE,4,False,True
+Italy,LICC->LICP,4,LICC,LICP,5,False,True
+Italy,LICR->IT-0027,4,LICR,IT-0027,6,False,True
+Italy,LIEA->LIRE,4,LIEA,LIRE,7,False,True
+Italy,LIRA->LIML,4,LIRA,LIML,8,False,True
+Italy,IT-0188->LIRE,3,IT-0188,LIRE,9,False,True
+Italy,IT-0456->LIMC,3,IT-0456,LIMC,10,False,True
+Italy,IT-0494->LIRE,3,IT-0494,LIRE,11,False,True
+Italy,LIBD->LIRE,3,LIBD,LIRE,12,False,True
+Italy,LICP->LICC,3,LICP,LICC,13,False,True
+Italy,LIED->LIRE,3,LIED,LIRE,14,False,True
+Italy,LIEE->LIRE,3,LIEE,LIRE,15,False,True
+Japan,JP-0363->RJTJ,6,JP-0363,RJTJ,1,True,True
+Japan,RJTL->RJTA,6,RJTL,RJTA,2,False,True
+Japan,JP-1679->RJNA,3,JP-1679,RJNA,3,False,True
+Japan,RJSN->RJTA,3,RJSN,RJTA,4,False,True
+Japan,RJTA->JP-0095,3,RJTA,JP-0095,5,False,True
+Japan,RJTA->RJTL,3,RJTA,RJTL,6,False,True
+Japan,RJTO->RJTA,3,RJTO,RJTA,7,False,True
+Japan,EHAM->EBMB,2,EHAM,EBMB,8,False,True
+Japan,JP-0095->RJTO,2,JP-0095,RJTO,9,False,True
+Japan,JP-0112->RJNA,2,JP-0112,RJNA,10,False,True
+Japan,JP-0423->RJTA,2,JP-0423,RJTA,11,False,True
+Japan,JP-0449->RJTJ,2,JP-0449,RJTJ,12,False,True
+Japan,JP-1900->RJTA,2,JP-1900,RJTA,13,False,True
+Japan,RJCC->RJTJ,2,RJCC,RJTJ,14,False,True
+Japan,RJOI->RJTJ,2,RJOI,RJTJ,15,False,True
+Kenya,KE-0099->HKNW,2,KE-0099,HKNW,1,True,True
+Kenya,KE-0126->HKNW,2,KE-0126,HKNW,2,False,True
+Kuwait,26N->EGPK,2,26N,EGPK,1,True,True
+Lithuania,EYPR->EYSA,3,EYPR,EYSA,1,True,True
+Lithuania,LT-0024->EYVI,2,LT-0024,EYVI,2,False,True
+Luxembourg,ETNG->LT-0032,2,ETNG,LT-0032,1,True,True
+Mexico,MMVR->MX-2122,7,MMVR,MX-2122,1,True,True
+Mexico,MMIO->MMAN,2,MMIO,MMAN,2,False,True
+Mexico,MMMX->MMVR,2,MMMX,MMVR,3,False,True
+Mexico,MMMY->MX-1355,2,MMMY,MX-1355,4,False,True
+Mexico,MMTO->MX-0349,2,MMTO,MX-0349,5,False,True
+Mexico,MX-0730->MMZC,2,MX-0730,MMZC,6,False,True
+Mexico,MX-2122->MMAN,2,MX-2122,MMAN,7,False,True
+Morocco,GMFO->GMFM,2,GMFO,GMFM,1,True,True
+Netherlands,EDDK->EHEH,5,EDDK,EHEH,1,True,True
+Netherlands,EDDB->EPRZ,4,EDDB,EPRZ,2,False,True
+Netherlands,EPRZ->EDDB,4,EPRZ,EDDB,3,False,True
+Netherlands,EPRZ->EDDK,4,EPRZ,EDDK,4,False,True
+Netherlands,EBMB->EHEH,3,EBMB,EHEH,5,False,True
+Netherlands,EDDB->EHEH,3,EDDB,EHEH,6,False,True
+Netherlands,EHEH->LKPR,3,EHEH,LKPR,7,False,True
+Netherlands,EDDB->EDDK,2,EDDB,EDDK,8,False,True
+Netherlands,EDDK->EETN,2,EDDK,EETN,9,False,True
+Netherlands,EDDK->LFMI,2,EDDK,LFMI,10,False,True
+Netherlands,EDDK->PL-0232,2,EDDK,PL-0232,11,False,True
+Netherlands,EHEH->EBMB,2,EHEH,EBMB,12,False,True
+Netherlands,EHEH->EDDB,2,EHEH,EDDB,13,False,True
+New Zealand,NZWP->NZOH,16,NZWP,NZOH,1,True,False
+New Zealand,NZCH->NZOH,6,NZCH,NZOH,2,False,True
+New Zealand,NZOH->NZWP,5,NZOH,NZWP,3,False,True
+New Zealand,NZWU->NZWP,5,NZWU,NZWP,4,False,True
+New Zealand,NZDV->NZOH,4,NZDV,NZOH,5,False,True
+New Zealand,NZOH->NZNP,4,NZOH,NZNP,6,False,True
+New Zealand,NZOH->NZWN,4,NZOH,NZWN,7,False,True
+New Zealand,NZCH->NZPM,3,NZCH,NZPM,8,False,True
+New Zealand,NZFP->NZCH,3,NZFP,NZCH,9,False,True
+New Zealand,NZNP->NZOH,3,NZNP,NZOH,10,False,True
+New Zealand,NZWN->NZFP,3,NZWN,NZFP,11,False,True
+New Zealand,NZWP->NZWU,3,NZWP,NZWU,12,False,True
+New Zealand,07AA->US-8026,2,07AA,US-8026,13,False,True
+New Zealand,NZ-0016->NZCH,2,NZ-0016,NZCH,14,False,True
+New Zealand,NZCH->NZFP,2,NZCH,NZFP,15,False,True
+Norway,ENAT->ENTC,2,ENAT,ENTC,1,True,True
+Norway,ENBR->NO-0042,2,ENBR,NO-0042,2,False,True
+Norway,ENHS->ENRY,2,ENHS,ENRY,3,False,True
+Norway,ENKJ->ENRY,2,ENKJ,ENRY,4,False,True
+Norway,ENSN->ENRY,2,ENSN,ENRY,5,False,True
+Norway,NO-0086->NO-0031,2,NO-0086,NO-0031,6,False,True
+Oman,OOMS->OOIZ,12,OOMS,OOIZ,1,True,True
+Oman,OOIA->OOMS,2,OOIA,OOMS,2,False,True
+Peru,SPCG->PE-0010,3,SPCG,PE-0010,1,True,True
+Philippines,RPSB->RPVM,4,RPSB,RPVM,1,True,True
+Philippines,PH-0005->RPUL,3,PH-0005,RPUL,2,False,True
+Philippines,RPLL->RP12,3,RPLL,RP12,3,False,True
+Philippines,RPVM->RPLL,2,RPVM,RPLL,4,False,True
+Poland,PL-0248->EPRA,7,PL-0248,EPRA,1,True,True
+Poland,EPGD->EPWA,5,EPGD,EPWA,2,False,True
+Poland,EPKK->PL-0117,5,EPKK,PL-0117,3,False,True
+Poland,EPKK->PL-0077,4,EPKK,PL-0077,4,False,True
+Poland,PL-0234->PL-0117,4,PL-0234,PL-0117,5,False,True
+Poland,EPBC->EPGD,3,EPBC,EPGD,6,False,True
+Poland,EPKK->PL-0179,3,EPKK,PL-0179,7,False,True
+Poland,EPWA->EPKK,3,EPWA,EPKK,8,False,True
+Poland,PL-0161->PL-0272,3,PL-0161,PL-0272,9,False,True
+Poland,EBBR->EPWA,2,EBBR,EPWA,10,False,True
+Poland,EPBC->EPPR,2,EPBC,EPPR,11,False,True
+Poland,EPGS->PL-0272,2,EPGS,PL-0272,12,False,True
+Poland,EPIR->EPWA,2,EPIR,EPWA,13,False,True
+Poland,EPKK->EPGS,2,EPKK,EPGS,14,False,True
+Poland,EPKT->EPWA,2,EPKT,EPWA,15,False,True
+Portugal,PT-0039->LPPT,4,PT-0039,LPPT,1,True,True
+Portugal,PT-0035->LPOV,3,PT-0035,LPOV,2,False,True
+Portugal,LPMR->EEEI,2,LPMR,EEEI,3,False,True
+Portugal,LPMR->LPOV,2,LPMR,LPOV,4,False,True
+Portugal,LPMT->LPOV,2,LPMT,LPOV,5,False,True
+Portugal,LPOV->PT-0151,2,LPOV,PT-0151,6,False,True
+Portugal,LPPT->LPBJ,2,LPPT,LPBJ,7,False,True
+Portugal,LPVL->LPOV,2,LPVL,LPOV,8,False,True
+Portugal,LPVL->LPPT,2,LPVL,LPPT,9,False,True
+Portugal,PT-0056->LPMT,2,PT-0056,LPMT,10,False,True
+Portugal,PT-0065->LPBJ,2,PT-0065,LPBJ,11,False,True
+Qatar,OEDF->OTBD,3,OEDF,OTBD,1,True,True
+Qatar,QA-0001->OTBH,3,QA-0001,OTBH,2,False,True
+Romania,RO-0014->LRBS,4,RO-0014,LRBS,1,True,True
+Romania,LRBS->BG-0090,3,LRBS,BG-0090,2,False,True
+Romania,LR80->LRBS,2,LR80,LRBS,3,False,True
+Romania,LRBS->RO-0006,2,LRBS,RO-0006,4,False,True
+Romania,LRCL->RO-0008,2,LRCL,RO-0008,5,False,True
+Romania,RO-0008->LROP,2,RO-0008,LROP,6,False,True
+Romania,RO-0014->LROP,2,RO-0014,LROP,7,False,True
+Romania,RO-0024->LRBS,2,RO-0024,LRBS,8,False,True
+Romania,RO-0025->LRBS,2,RO-0025,LRBS,9,False,True
+Russia,RU-0845->UUWW,3,RU-0845,UUWW,1,True,True
+Russia,KJFK->KIAD,2,KJFK,KIAD,2,False,True
+Russia,KW41->KNHK,2,KW41,KNHK,3,False,True
+Russia,RU-0412->RU-0375,2,RU-0412,RU-0375,4,False,True
+Russia,ULLI->UUWW,2,ULLI,UUWW,5,False,True
+Saudi Arabia,LGAV->LSZH,2,LGAV,LSZH,1,True,True
+Senegal,GBYD->GOOY,2,GBYD,GOOY,1,True,True
+Singapore,AU-0751->YPEA,21,AU-0751,YPEA,1,True,False
+Singapore,AU-0565->YPEA,6,AU-0565,YPEA,2,False,True
+Singapore,AU-0037->YPEA,3,AU-0037,YPEA,3,False,True
+Slovakia,LZIB->EBBR,4,LZIB,EBBR,1,True,True
+Slovakia,EBBR->LZIB,3,EBBR,LZIB,2,False,True
+Slovakia,LZIB->LKPR,3,LZIB,LKPR,3,False,True
+Slovakia,CY-0006->LZIB,2,CY-0006,LZIB,4,False,True
+Slovakia,EBMB->LZIB,2,EBMB,LZIB,5,False,True
+Slovakia,LKPR->LZIB,2,LKPR,LZIB,6,False,True
+Slovakia,LZIB->SK-0040,2,LZIB,SK-0040,7,False,True
+Slovenia,LBPD->LJCE,2,LBPD,LJCE,1,True,True
+Slovenia,SI-0014->LJCE,2,SI-0014,LJCE,2,False,True
+Spain,ES-0036->LELC,10,ES-0036,LELC,1,True,True
+Spain,LEBL->LETO,4,LEBL,LETO,2,False,True
+Spain,LELC->LEZG,4,LELC,LEZG,3,False,True
+Spain,LEVX->LETO,4,LEVX,LETO,4,False,True
+Spain,ES-0055->LEGA,3,ES-0055,LEGA,5,False,True
+Spain,LEGT->LERI,3,LEGT,LERI,6,False,True
+Spain,LETO->LEZG,3,LETO,LEZG,7,False,True
+Spain,CY-0006->LETO,2,CY-0006,LETO,8,False,True
+Spain,CYOW->CYYZ,2,CYOW,CYYZ,9,False,True
+Spain,EBBR->LEGT,2,EBBR,LEGT,10,False,True
+Spain,EBBR->LETO,2,EBBR,LETO,11,False,True
+Spain,EDDB->LEGT,2,EDDB,LEGT,12,False,True
+Spain,EDDB->LETO,2,EDDB,LETO,13,False,True
+Spain,ES-0019->LEZG,2,ES-0019,LEZG,14,False,True
+Spain,ES-0092->LELC,2,ES-0092,LELC,15,False,True
+Sweden,ESFR->ESCF,4,ESFR,ESCF,1,True,True
+Sweden,ESDF->ESIB,3,ESDF,ESIB,2,False,True
+Sweden,ESPA->ESCF,3,ESPA,ESCF,3,False,True
+Sweden,EDDK->ESCF,2,EDDK,ESCF,4,False,True
+Sweden,ESCF->ESPA,2,ESCF,ESPA,5,False,True
+Sweden,ESDF->ESSP,2,ESDF,ESSP,6,False,True
+Sweden,ESIB->ESCF,2,ESIB,ESCF,7,False,True
+Sweden,ESMT->ESCF,2,ESMT,ESCF,8,False,True
+Sweden,ESSP->ESDF,2,ESSP,ESDF,9,False,True
+Sweden,EYVI->ESSA,2,EYVI,ESSA,10,False,True
+Switzerland,LSZM->LSME,8,LSZM,LSME,1,True,True
+Switzerland,LSGG->LSZB,4,LSGG,LSZB,2,False,True
+Switzerland,LSMD->LSTB,3,LSMD,LSTB,3,False,True
+Switzerland,LSVD->LSMM,3,LSVD,LSMM,4,False,True
+Switzerland,LSZB->LSGG,3,LSZB,LSGG,5,False,True
+Switzerland,LSZB->LSZH,3,LSZB,LSZH,6,False,True
+Switzerland,LSZN->LSZB,3,LSZN,LSZB,7,False,True
+Switzerland,EDDB->LSZB,2,EDDB,LSZB,8,False,True
+Switzerland,EDXM->EDWM,2,EDXM,EDWM,9,False,True
+Switzerland,IT-0322->LILC,2,IT-0322,LILC,10,False,True
+Switzerland,IT-0340->LILC,2,IT-0340,LILC,11,False,True
+Switzerland,LBPD->LSMD,2,LBPD,LSMD,12,False,True
+Switzerland,LBPD->LSZB,2,LBPD,LSZB,13,False,True
+Switzerland,LSGE->LSMM,2,LSGE,LSMM,14,False,True
+Switzerland,LSGN->LSMM,2,LSGN,LSMM,15,False,True
+Taiwan (unofficial),RCSS->TW-0034,2,RCSS,TW-0034,1,True,True
+Thailand,TH-0014->TH-0017,2,TH-0014,TH-0017,1,True,True
+Thailand,TH-0015->VTBD,2,TH-0015,VTBD,2,False,True
+Thailand,TH-0040->TH-0005,2,TH-0040,TH-0005,3,False,True
+Thailand,VTBD->VTCC,2,VTBD,VTCC,4,False,True
+Thailand,VTCC->TH-0062,2,VTCC,TH-0062,5,False,True
+Thailand,VTCY->VTBD,2,VTCY,VTBD,6,False,True
+Turkey,LTBA->LTAE,4,LTBA,LTAE,1,True,True
+Turkey,EBMB->LTAE,2,EBMB,LTAE,2,False,True
+Turkey,LTAE->LTBL,2,LTAE,LTBL,3,False,True
+Turkey,LTFM->LTAE,2,LTFM,LTAE,4,False,True
+Ukraine,EPKP->EPRJ,2,EPKP,EPRJ,1,True,True
+Ukraine,EPRZ->EPKK,2,EPRZ,EPKK,2,False,True
+United Arab Emirates,OMAA->OBBI,2,OMAA,OBBI,1,True,True
+United Kingdom,LCRA->EGVN,25,LCRA,EGVN,1,True,False
+United Kingdom,EGVN->LCRA,14,EGVN,LCRA,2,False,True
+United Kingdom,EPRZ->EGVN,9,EPRZ,EGVN,3,False,True
+United Kingdom,EGCK->EGOS,8,EGCK,EGOS,4,False,True
+United Kingdom,EGPK->EGVN,7,EGPK,EGVN,5,False,True
+United Kingdom,EDDM->EGVN,5,EDDM,EGVN,6,False,True
+United Kingdom,EGFD->EGOV,5,EGFD,EGOV,7,False,True
+United Kingdom,EGNY->EGXC,5,EGNY,EGXC,8,False,True
+United Kingdom,GB-0024->EGVN,5,GB-0024,EGVN,9,False,True
+United Kingdom,LCRA->OJAI,5,LCRA,OJAI,10,False,True
+United Kingdom,BIKF->EGVN,4,BIKF,EGVN,11,False,True
+United Kingdom,EGCV->EGCK,4,EGCV,EGCK,12,False,True
+United Kingdom,GB-0263->EGBP,4,GB-0263,EGBP,13,False,True
+United Kingdom,GB-0500->EGXC,4,GB-0500,EGXC,14,False,True
+United Kingdom,GB-0533->EGOS,4,GB-0533,EGOS,15,False,True
+United States,KDRA->KLAS,84,KDRA,KLAS,1,True,False
+United States,TA31->KDLF,69,TA31,KDLF,2,False,False
+United States,0XS8->KDLF,64,0XS8,KDLF,3,False,False
+United States,2TS8->KRND,57,2TS8,KRND,4,False,False
+United States,0XS7->KDLF,56,0XS7,KDLF,5,False,False
+United States,US-4412->KRND,54,US-4412,KRND,6,False,False
+United States,42XS->KNQI,46,42XS,KNQI,7,False,False
+United States,2TA8->KNQI,34,2TA8,KNQI,8,False,False
+United States,8TE1->KRND,33,8TE1,KRND,9,False,False
+United States,KLAS->KDRA,33,KLAS,KDRA,10,False,False
+United States,3TA6->KDLF,32,3TA6,KDLF,11,False,False
+United States,KAFF->KPUB,32,KAFF,KPUB,12,False,False
+United States,US-2445->KDLF,32,US-2445,KDLF,13,False,False
+United States,2TE6->KRND,30,2TE6,KRND,14,False,False
+United States,NV11->KLAS,30,NV11,KLAS,15,False,False

@@ -21,7 +21,7 @@ import h3
 
 from individual.metehan_geo.data import clean_coordinates
 from individual.metehan_geo.geo import assign_h3_cell, h3_cell_to_polygon
-from individual.metehan_geo.geo_clustering import compute_regional_mask, run_dbscan, summarize_clusters
+from individual.metehan_geo.geo_clustering import compute_regional_mask, run_dbscan_two_pass, summarize_clusters
 from individual.metehan_geo.influx_client import load_realtime_window
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -38,7 +38,12 @@ PERCENTILE = 0.95
 MIN_ABSOLUTE = 5
 MIN_CELL_HEXES = 15
 EPS_KM = 50
-MIN_SAMPLES = 15  # tarihseldeki 30'un yarisi -- toplam veri hacmi de kucuk
+MIN_SAMPLES = 15           # Pass 1 (siki) -- tarihseldeki 30'un yarisi, kucuk veri hacmi
+MIN_SAMPLES_RELAXED = 7    # Pass 2 (gevsek, SADECE Pass-1 gurultusu uzerinde) -- ayni oran (15'in yarisi)
+# 2026-07-09 (kullanici bulgusu, tarihsel veride Istanbul/Bukres ornegiyle
+# tespit edildi): tek-gecisli DBSCAN, yayilmis-ama-gercek hub'lari kaybediyordu
+# -- bkz. build_traffic_clusters.py ve geo_clustering.run_dbscan_two_pass
+# docstring'i. Ayni iki-gecisli duzeltme burada da uygulaniyor.
 
 
 # 2026-07-09 (kullanici karari + olcumle dogrulandi): sunucu-tarafi
@@ -73,7 +78,9 @@ def build_and_save() -> None:
         density_df, grid_deg=GRID_DEG, percentile=PERCENTILE,
         min_absolute=MIN_ABSOLUTE, min_cell_hexes=MIN_CELL_HEXES,
     )
-    clustered = run_dbscan(density_df[mask], eps_km=EPS_KM, min_samples=MIN_SAMPLES)
+    clustered = run_dbscan_two_pass(
+        density_df[mask], eps_km=EPS_KM, min_samples_strict=MIN_SAMPLES, min_samples_relaxed=MIN_SAMPLES_RELAXED,
+    )
     summary = summarize_clusters(clustered)
 
     features = []
@@ -94,7 +101,7 @@ def build_and_save() -> None:
         "params": {
             "grid_deg": GRID_DEG, "percentile": PERCENTILE,
             "min_absolute": MIN_ABSOLUTE, "min_cell_hexes": MIN_CELL_HEXES,
-            "eps_km": EPS_KM, "min_samples": MIN_SAMPLES,
+            "eps_km": EPS_KM, "min_samples": MIN_SAMPLES, "min_samples_relaxed": MIN_SAMPLES_RELAXED,
         },
     }
 

@@ -41,6 +41,15 @@
   }
   .field select:hover { border-color: rgba(255, 255, 255, 0.22); }
   .field select:focus { outline: 2px solid #3b6fe0; outline-offset: 1px; }
+  /* ONEMLI: <select>'in kendi arka plani/rengi acik dropdown LISTESINI
+     (option'lar) etkilemiyor -- tarayici bunu genelde platform-native
+     (BEYAZ) bir yuzeyde ciziyor, sadece "color" miras kaldigi icin acik
+     renkli yazi beyaz zemin uzerinde OKUNMUYORDU (2026-07-09 kullanici
+     bildirimi). option'lara ACIKCA koyu zemin veriyoruz. */
+  .field select option {
+    background: #1a1a1f;
+    color: #e9e9ee;
+  }
 
   .segmented { display: flex; background: rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 3px; gap: 2px; }
   .segmented button {
@@ -140,6 +149,10 @@
       hesaplanmıştır — soldaki "Zaman Aralığı" sadece Yoğunluk görünümünü
       etkiler, kısa bir aralıkta (ör. "1 Gün") görünmeyen bir hex, rotalarda
       yine de görünebilir (o rota geçmişte başka bir günde uçulmuş olabilir).
+      <br><br><b>Dikkat:</b> "en sık rota" her ülke için her zaman BİR
+      kazanan seçer, örneklem büyüklüğüne bakmaksızın — birçok ülkede bu
+      sadece birkaç uçuşa dayanıyor (⚠ işaretli rotalara bakın). Az veri
+      olan ülkelerde bu sıralama tesadüfi olabilir.
     </div>
 
     <div class="field" id="densityLegendField">
@@ -417,11 +430,22 @@ function addRouteLayers() {
   wireRouteHoverPopup("route-corridors-fill");
 }
 
+// 2026-07-09 (kullanici geri bildirimi): rank==1 HER ZAMAN bir "kazanan"
+// secer, ornek buyuklugune bakmaksizin -- 4 ucusla rank=1 olan bir rota,
+// 400 ucusla rank=1 olanla AYNI turuncu vurguyu alirdi. flight_count zaten
+// gosteriliyordu ama "bu az veriyle mi belirlendi" ayrimi YOKTU -- simdi
+// low_confidence (bkz. step3_build_country_routes.py, <15 ucus esigi,
+// bireysel projedeki route_deviation ile ayni esik) acikca uyari olarak
+// ekleniyor.
 function routePopupHtml(props) {
+  const confidenceWarning = props.low_confidence
+    ? `<div class="popup-row" style="color:#ffb84d">⚠ Düşük örneklem -- bu sıralama az sayıda uçuşla belirlendi, tesadüfi olabilir</div>`
+    : "";
   return `<div class="popup-title">${props.pair}</div>
     <div class="popup-row">Sıra: <b>#${props.rank}</b>${props.is_top ? " (en sık rota)" : ""}</div>
     <div class="popup-row">Uçuş sayısı: <b>${props.flight_count.toLocaleString("tr-TR")}</b></div>
-    ${props.ratio !== undefined ? `<div class="popup-row">Koridor oranı: <b>%${Math.round(props.ratio * 100)}</b></div>` : ""}`;
+    ${props.ratio !== undefined ? `<div class="popup-row">Koridor oranı: <b>%${Math.round(props.ratio * 100)}</b></div>` : ""}
+    ${confidenceWarning}`;
 }
 
 function wireRouteHoverPopup(layerId) {

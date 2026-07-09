@@ -117,6 +117,72 @@ def run_dbscan(dense: pd.DataFrame, *, eps_km: float, min_samples: int) -> pd.Da
     return dense
 
 
+def run_dbscan_two_pass(
+    dense: pd.DataFrame, *, eps_km: float, min_samples_strict: int, min_samples_relaxed: int,
+) -> pd.DataFrame:
+    """Tek gecisli DBSCAN'in COZEMEDIGI bir gerginligi cozer (2026-07-09,
+    kullanici bulgusu: "Istanbul gorunmuyor, Bukres gorunuyor, mantik
+    yanlis"): Istanbul gibi COK BUYUK/YAYILMIS ama gercek hub'lar (iki kita,
+    Bogaz'in iki yakasi), min_samples SIKI (30) iken HICBIR hex kendi 50km
+    cevresinde yeterli komsu BULAMADIGI icin tamamen "gurultu" (-1) sayilip
+    kayboluyordu -- oysa o bolgede toplamda esigi gecen 38 hex vardi, sadece
+    birbirlerinden DBSCAN'in "cekirdek nokta" tanimini karsilayacak kadar
+    yakin degillerdi. min_samples'i GLOBAL olarak gevsetmek (ör. 30->20)
+    Istanbul'u yakaladi AMA Bati Avrupa'nin (Londra/Paris/Frankfurt/Brüksel)
+    onceden AYRI ayrilan kumelerini de TEK bir 600km+ yaricapli mega-blob'a
+    geri birlestirdi -- yani tek bir global parametre HEM kompakt (Bukres)
+    HEM yayilmis (Istanbul) hub'lari ayni anda dogru cozemiyor.
+
+    Cozum -- IKI GECIS:
+      1) SIKI parametrelerle (min_samples_strict) normal DBSCAN -- kompakt
+         hub'lar (cogu sehir) burada ZATEN dogru ayriliyor, bu kumeler
+         SONRAKI adimda HIC DOKUNULMUYOR (Bati Avrupa bozulmuyor).
+      2) Pass 1'de "gurultu" (-1) kalan hex'ler uzerinde, SADECE o alt-kume
+         icinde, GEVSEK parametrelerle (min_samples_relaxed) IKINCI bir
+         DBSCAN -- Istanbul gibi yayilmis ama GERCEKTEN yogun hub'lar burada
+         yakalanir, cunku artik rakip/komsu YOGUN bolgelerle (ör. Bukres,
+         zaten kendi kumesini Pass 1'de almisti) REKABET ETMIYOR, sadece
+         kendi aralarinda degerlendiriliyorlar.
+    Pass 2'nin kume ID'leri Pass 1'inkilerle CAKISMAMASI icin offsetleniyor.
+    Ampirik dogrulama (2026-07-09): Istanbul kendi kumesini aldi (34 hex,
+    86km yaricap), Bukres FARKLI bir kumede kaldi, Bati Avrupa'nin en buyuk
+    kumesi (432 hex, 335km) Pass 1'den DEGISMEDEN geldi, ve Pass 2 ayrica
+    120 baska gercekci hub yakaladi (Viyana, Zurih, Madrid, Tokyo, KL vb.)
+    -- hepsi Istanbul'la AYNI "sprawling ama gercek" kategorisindeydi.
+    """
+    dense = dense.copy()
+    if dense.empty:
+        dense["cluster"] = pd.Series(dtype=int)
+        return dense
+
+    eps_rad = eps_km / EARTH_RADIUS_KM
+    coords_rad = np.radians(dense[["lat", "lon"]].to_numpy())
+
+    db1 = DBSCAN(eps=eps_rad, min_samples=min_samples_strict, metric="haversine").fit(coords_rad)
+    dense["cluster"] = db1.labels_
+    n_pass1 = len(set(db1.labels_) - {-1})
+
+    noise_mask = (dense["cluster"] == -1).to_numpy()
+    n_pass2 = 0
+    if noise_mask.sum() >= min_samples_relaxed:
+        db2 = DBSCAN(eps=eps_rad, min_samples=min_samples_relaxed, metric="haversine").fit(coords_rad[noise_mask])
+        offset = int(dense["cluster"].max()) + 1
+        new_labels = np.where(db2.labels_ == -1, -1, db2.labels_ + offset)
+        dense.loc[noise_mask, "cluster"] = new_labels
+        n_pass2 = len(set(new_labels) - {-1})
+
+    n_clusters = dense["cluster"].nunique() - (1 if (dense["cluster"] == -1).any() else 0)
+    n_noise = int((dense["cluster"] == -1).sum())
+    logger.info(
+        "run_dbscan_two_pass: %d hex, eps=%gkm -- Pass1(min_samples=%d): %d kume; "
+        "Pass2(min_samples=%d, sadece %d Pass1-gurultusu hex uzerinde): %d YENI kume; "
+        "toplam %d kume, %d hex hala gurultu (%.1f%%)",
+        len(dense), eps_km, min_samples_strict, n_pass1, min_samples_relaxed,
+        int(noise_mask.sum()), n_pass2, n_clusters, n_noise, 100 * n_noise / len(dense),
+    )
+    return dense
+
+
 def summarize_clusters(clustered: pd.DataFrame) -> pd.DataFrame:
     """Her kume icin: merkez (flight_count agirlikli), toplam ucus, hex
     sayisi, yaklasik yaricap (merkeze en uzak hex mesafesi)."""

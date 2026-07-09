@@ -178,9 +178,20 @@ def rank_routes(legs: pd.DataFrame) -> pd.DataFrame:
     counts["rank"] = counts.groupby("country")["flight_count"].rank(method="first", ascending=False).astype(int)
     counts = counts[counts["rank"] <= TOP_N_PER_COUNTRY]
     counts["is_top"] = counts["rank"] == 1
+    # 2026-07-09 (kullanici geri bildirimi): rank==1 HER ZAMAN bir "kazanan"
+    # secer, alttaki ornek buyuklugune BAKMAKSIZIN -- az veri olan bir ulkede
+    # (ör. Turkiye, 4 ucusla rank=1) bu, 4 ile 2 ucus arasindaki ISTATISTIKSEL
+    # OLARAK ANLAMSIZ farki "guclu bir bulgu" gibi gosterebilir. Bireysel
+    # projedeki (route_deviation, artik kaldirilmis) ayni AYNI esik (>=15
+    # ucus) burada da "dusuk guven" bayragi olarak kullaniliyor -- rota
+    # ELENMIYOR (kullanici kendi karar versin diye), sadece isaretleniyor.
+    MIN_CONFIDENT_FLIGHTS = 15
+    counts["low_confidence"] = counts["flight_count"] < MIN_CONFIDENT_FLIGHTS
     logger.info(
-        "Rota siralama: %d (ulke,pair) -> MIN_FLIGHTS_PER_PAIR=%d ve TOP_N=%d sonrasi %d",
+        "Rota siralama: %d (ulke,pair) -> MIN_FLIGHTS_PER_PAIR=%d ve TOP_N=%d sonrasi %d "
+        "(bunlarin %d'i dusuk guven, <%d ucus)",
         before, MIN_FLIGHTS_PER_PAIR, TOP_N_PER_COUNTRY, len(counts),
+        int(counts["low_confidence"].sum()), MIN_CONFIDENT_FLIGHTS,
     )
     return counts.sort_values(["country", "rank"]).reset_index(drop=True)
 
@@ -216,7 +227,7 @@ def build_corridor_geojson(points_df: pd.DataFrame, legs: pd.DataFrame, ranked: 
     per_hex["ratio"] = per_hex["flight_count_hex"] / per_hex["total_flights"]
     logger.info("Koridor: %d (ulke,pair,hex) toplam hucre (filtresiz, tam yol)", len(per_hex))
 
-    rank_lookup = ranked.set_index(["country", "pair"])[["rank", "is_top", "flight_count"]]
+    rank_lookup = ranked.set_index(["country", "pair"])[["rank", "is_top", "flight_count", "low_confidence"]]
     features = []
     for row in per_hex.itertuples(index=False):
         ring = h3_cell_to_polygon(row.h3_cell)
@@ -229,6 +240,7 @@ def build_corridor_geojson(points_df: pd.DataFrame, legs: pd.DataFrame, ranked: 
                 "country": row.country, "pair": row.pair, "h3_cell": row.h3_cell,
                 "ratio": round(float(row.ratio), 3),
                 "flight_count": int(meta["flight_count"]), "rank": int(meta["rank"]), "is_top": bool(meta["is_top"]),
+                "low_confidence": bool(meta["low_confidence"]),
             },
             "geometry": {"type": "Polygon", "coordinates": [ring]},
         })
