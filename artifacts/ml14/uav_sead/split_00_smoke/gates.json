@@ -1,0 +1,200 @@
+{
+  "gate_d1": {
+    "status": "passed",
+    "parse_coverage_note": "2 ULogs did not yield Silver rows; listed explicitly. No holdout rows were read.",
+    "development_normal_sessions_minimum": 110,
+    "development_normal_sessions": 115
+  },
+  "gate_d2": {
+    "status": "smoke_only",
+    "rule": "median CUSUM test_FA_per_hour/budget drops by >=15% vs frozen ML9/ML12 references",
+    "old_median_shift_ratio": 5.20677327971917,
+    "new_median_shift_ratio": 2.223909459537181,
+    "relative_drop": 0.572881448823689,
+    "cells": [
+      {
+        "score_source": "existing_fusion",
+        "budget": "advisory",
+        "old_mean_fa_per_hour": 23.626550164087583,
+        "old_shift_ratio": 1.9688791803406318,
+        "new_mean_fa_per_hour": 3.2205819929666255,
+        "new_shift_ratio": 0.2683818327472188
+      },
+      {
+        "score_source": "existing_fusion",
+        "budget": "critical",
+        "old_mean_fa_per_hour": 12.868154589884123,
+        "old_shift_ratio": 6.434077294942061,
+        "new_mean_fa_per_hour": 0.0,
+        "new_shift_ratio": 0.0
+      },
+      {
+        "score_source": "itki_komutu",
+        "budget": "advisory",
+        "old_mean_fa_per_hour": 47.753631173955334,
+        "old_shift_ratio": 3.9794692644962777,
+        "new_mean_fa_per_hour": 50.15324503592572,
+        "new_shift_ratio": 4.179437086327144
+      },
+      {
+        "score_source": "itki_komutu",
+        "budget": "critical",
+        "old_mean_fa_per_hour": 20.534989939039114,
+        "old_shift_ratio": 10.267494969519557,
+        "new_mean_fa_per_hour": 14.375506895878301,
+        "new_shift_ratio": 7.1877534479391505
+      }
+    ]
+  },
+  "gate_d3": {
+    "status": "smoke_only",
+    "rule": "any row critical recall >=0.30 @ FA<=2 or advisory recall >=0.50 @ FA<=12",
+    "evaluated_seed_count": 1,
+    "candidates": [
+      {
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.005089058524173028,
+        "mean_false_alarms_per_hour": 3.2205819929666255,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.10941475826972011,
+        "mean_false_alarms_per_hour": 50.15324503592572,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.022900763358778626,
+        "mean_false_alarms_per_hour": 14.375506895878301,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.005089058524173028,
+        "mean_false_alarms_per_hour": 3.2205819929666255,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      }
+    ]
+  }
+}

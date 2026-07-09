@@ -42,6 +42,7 @@ LISTING_STATE = LISTING_DIR / "kaggle_listing_state.json"
 MANIFEST = BRONZE / "manifest.json"
 
 ESSENTIAL_SUFFIXES = (".ulg", "TestInfo.csv")
+ESSENTIAL_PREFIXES = ("TestInfo_",)
 RETRY_SLEEPS = [30, 60, 120, 300, 600]
 
 
@@ -131,6 +132,15 @@ def _case_id(name: str) -> str:
     return "/".join(parts[:-1])
 
 
+def is_essential_file(name: str) -> bool:
+    """Return whether a RflyMAD object is needed for the first Bronze pass."""
+    filename = name.rsplit("/", 1)[-1]
+    return (
+        name.endswith(ESSENTIAL_SUFFIXES)
+        or (filename.startswith(ESSENTIAL_PREFIXES) and filename.endswith(".xlsx"))
+    )
+
+
 def do_download(subsets: list[str], *, essential_only: bool = True,
                 limit_cases: int | None = None) -> None:
     api = _api()
@@ -138,7 +148,7 @@ def do_download(subsets: list[str], *, essential_only: bool = True,
     wanted = [
         (name, size) for name, size in rows
         if name.split("/", 1)[0] in subsets
-        and (not essential_only or name.endswith(ESSENTIAL_SUFFIXES))
+        and (not essential_only or is_essential_file(name))
     ]
     by_case: dict[str, list[tuple[str, int]]] = defaultdict(list)
     for name, size in wanted:

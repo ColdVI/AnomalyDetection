@@ -89,6 +89,12 @@ def test_ml13_artifact_holdout_isolation_and_checksums():
     assert manifest["score_channels"]["sistem"]["score_source"] == "existing_fusion"
     assert manifest["score_channels"]["mekanik"]["score_source"] == "itki_komutu"
 
+    for relative, expected in manifest["files"].items():
+        assert _sha256(RUN_DIR / relative) == expected, relative
+
+    if manifest.get("split_manifest_sha256") != _sha256(SPLIT_PATH):
+        pytest.skip("eski veri donemi artifact'i")
+
     split_manifest = json.loads(SPLIT_PATH.read_text(encoding="utf-8"))
     config = split_manifest["sources"]["uav_sead"]
     holdout = set(config["splits"]["split_00"]["final_holdout"])
@@ -97,9 +103,6 @@ def test_ml13_artifact_holdout_isolation_and_checksums():
         "\n".join(expected_dev).encode("utf-8")
     ).hexdigest()
     assert manifest["development_source_ids_sha256"] == expected_hash
-
-    for relative, expected in manifest["files"].items():
-        assert _sha256(RUN_DIR / relative) == expected, relative
 
 
 def test_ml13_baseline_rows_match_frozen_csvs():

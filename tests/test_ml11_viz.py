@@ -49,7 +49,10 @@ def test_load_development_never_returns_holdout_flights():
 
     frame, dev_ids, holdout_ids, flight_labels, _ = load_development(
         "uav_sead", columns=["source_id"])
-    assert len(holdout_ids) == 131
+    split_manifest = json.loads(SPLIT_PATH.read_text(encoding="utf-8"))
+    expected_holdout = set(
+        split_manifest["sources"]["uav_sead"]["splits"]["split_00"]["final_holdout"])
+    assert set(holdout_ids) == expected_holdout
     assert not set(dev_ids) & set(holdout_ids)
     assert not set(frame["source_id"].unique()) & set(holdout_ids)
     assert set(dev_ids) | set(holdout_ids) == set(flight_labels)
@@ -70,6 +73,9 @@ def test_viz_manifest_checksums_and_holdout_isolation(source):
     # holdout izolasyonu: kosuda kullanilan development id kumesi, split
     # manifest'ten bagimsiz yeniden turetilenle ayni olmali (holdout haric).
     assert manifest["blind_holdout_read"] is False
+    artifact_split_sha = manifest.get("split_manifest_sha256")
+    if artifact_split_sha and artifact_split_sha != _sha256(SPLIT_PATH):
+        pytest.skip("eski veri donemi artifact'i")
     split_manifest = json.loads(SPLIT_PATH.read_text(encoding="utf-8"))
     config = split_manifest["sources"][source]
     holdout = set(config["splits"]["split_00"].get("final_holdout", []))

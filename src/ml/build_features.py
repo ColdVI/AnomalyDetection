@@ -24,7 +24,12 @@ from pathlib import Path
 import pandas as pd
 
 from src.ml.data.scaling import fit_scaler_params, write_scaler_params
-from src.ml.data.splits import assert_no_flight_overlap, build_split_manifest, write_manifest
+from src.ml.data.splits import (
+    SPLIT_QUOTAS,
+    assert_no_flight_overlap,
+    build_split_manifest,
+    write_manifest,
+)
 from src.ml.features.alfa_features import CUSUM_SOURCE_COLUMNS as ALFA_CUSUM_COLUMNS
 from src.ml.features.alfa_features import build_alfa_features
 from src.ml.features.alfa_features import feature_columns as alfa_feature_columns
@@ -85,6 +90,84 @@ def rebuild_uav_sead_with_frozen_manifest(manifest_path: Path) -> None:
     )
 
 
+def rebuild_only_uav_sead_with_frozen_holdout(previous_manifest_path: Path) -> dict:
+    """ML-14 refresh path: rewrite only SEAD-derived outputs.
+
+    ALFA/UAV Attack feature parquet files are read only so their split content can
+    remain in the single global manifest, but their bytes and scalers are not
+    rewritten.
+    """
+    previous_manifest = json.loads(previous_manifest_path.read_text(encoding="utf-8"))
+    previous_sources = previous_manifest["sources"]
+    old_sead = previous_sources["uav_sead"]
+
+    tables: dict[str, pd.DataFrame] = {}
+    for source in ("alfa", "uav_attack"):
+        path = OUT_DIR / source / f"{source}_ml_features.parquet"
+        if path.exists() and source in previous_sources:
+            tables[source] = pd.read_parquet(path)
+
+    silver = pd.read_parquet(SILVER_DIR / "uav_sead_silver.parquet")
+    provisional = build_px4_features(silver)
+    provisional_tables = {**tables, "uav_sead": provisional}
+    provisional_manifest = build_split_manifest(
+        provisional_tables,
+        frozen_holdout={"uav_sead": old_sead},
+    )
+    provisional_split = provisional_manifest["sources"]["uav_sead"]["splits"]["split_00"]
+    labels = provisional_manifest["sources"]["uav_sead"]["flight_labels"]
+    development = (
+        set(provisional_split["train"])
+        | set(provisional_split["val"])
+        | set(provisional_split["test"])
+    )
+    development_normal = [
+        source_id for source_id in development
+        if labels.get(source_id) == "normal"
+    ]
+    ml14_quota = max(30, round(0.15 * len(development_normal)))
+    quotas = dict(SPLIT_QUOTAS)
+    quotas["uav_sead"] = (ml14_quota, ml14_quota)
+
+    final_manifest = build_split_manifest(
+        provisional_tables,
+        quotas=quotas,
+        frozen_holdout={"uav_sead": old_sead},
+    )
+    final_split = final_manifest["sources"]["uav_sead"]["splits"]["split_00"]
+    train_ids = set(final_split["train"])
+    train = provisional[provisional["source_id"].isin(train_ids)]
+    baselines = fit_cusum_baselines(train, PX4_CUSUM_COLUMNS)
+    write_cusum_baselines(baselines, CUSUM_DIR / "uav_sead_cusum_baseline.json")
+
+    features = build_px4_features(silver, cusum_baselines=baselines)
+    _write(features, "uav_sead")
+    final_tables = {**tables, "uav_sead": features}
+    final_manifest = build_split_manifest(
+        final_tables,
+        quotas=quotas,
+        frozen_holdout={"uav_sead": old_sead},
+    )
+    for source, entry in final_manifest["sources"].items():
+        for split in entry["splits"].values():
+            assert_no_flight_overlap(split)
+    write_manifest(final_manifest, OUT_DIR / "split_manifest.json")
+
+    final_split = final_manifest["sources"]["uav_sead"]["splits"]["split_00"]
+    scaler = fit_scaler_params(
+        features[features["source_id"].isin(final_split["train"])],
+        px4_feature_columns(features),
+    )
+    write_scaler_params(scaler, SCALER_DIR / "uav_sead_robust_scaler.json")
+
+    return {
+        "ml14_split_quota": ml14_quota,
+        "development_normal_flights": len(development_normal),
+        "uav_sead_feature_rows": int(len(features)),
+        "uav_sead_feature_flights": int(features["source_id"].nunique()),
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Silver -> ML feature tablolari (ML-0)")
     parser.add_argument("--skip-uav-sead", action="store_true",
@@ -93,10 +176,25 @@ def main() -> None:
         "--uav-sead-only-frozen-manifest", action="store_true",
         help="Yalniz SEAD'i mevcut split_manifest ile yeniden kur; split uretme/yazma",
     )
+    parser.add_argument(
+        "--only-uav-sead", action="store_true",
+        help="ML-14: yalniz SEAD Silver/feature/split/scaler/CUSUM yenile",
+    )
+    parser.add_argument(
+        "--frozen-holdout-manifest",
+        default="artifacts/ml14/uav_sead/previous_split_manifest.json",
+        help="ML-14 eski split manifest kopyasi",
+    )
     args = parser.parse_args()
 
     if args.uav_sead_only_frozen_manifest:
         rebuild_uav_sead_with_frozen_manifest(OUT_DIR / "split_manifest.json")
+        return
+    if args.only_uav_sead:
+        summary = rebuild_only_uav_sead_with_frozen_holdout(
+            Path(args.frozen_holdout_manifest)
+        )
+        logger.info("ML-14 only-uav-sead rebuild summary: %s", summary)
         return
 
     # CUSUM baseline'i train-normal veriden ogrenildigi icin iki gecis gerekir:
@@ -136,6 +234,16 @@ def main() -> None:
         cusum_cols["uav_sead"] = PX4_CUSUM_COLUMNS
     else:
         logger.warning("UAV-SEAD Silver yok/atlandi (%s) -- leave-dataset-out icin sonra eklenebilir", sead_path)
+
+    rfly_path = SILVER_DIR / "rflymad_silver.parquet"
+    if rfly_path.exists():
+        rfly_silver = pd.read_parquet(rfly_path)
+        silver_tables["rflymad"] = rfly_silver
+        tables["rflymad"] = build_px4_features(rfly_silver)
+        col_fns["rflymad"] = px4_feature_columns
+        cusum_cols["rflymad"] = PX4_CUSUM_COLUMNS
+    else:
+        logger.info("RflyMAD Silver yok (%s) -- RFLY-0 indirme/parse sonrasi eklenir", rfly_path)
 
     # Provisional manifest yalnizca ucus kimligi/etiketi icin kullanilir.
     manifest = build_split_manifest(tables)

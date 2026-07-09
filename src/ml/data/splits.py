@@ -62,6 +62,15 @@ def session_of(source_id: str) -> str:
     biri train'e biri test'e duserse sizintiya benzer iyimserlik dogar).
     Klasorsuz id'ler (ALFA, UAV Attack, SEAD'in '00_02_49' gibi kokleri) kendi
     baslarina oturumdur (davranis ucus-bazli split'e esdeger kalir)."""
+    parts = source_id.split("/")
+    if parts and parts[0] in {
+        "SampleData", "Real-NoFault", "Real-No_Fault", "Real-Motor", "Real-Sensors"
+    }:
+        for i, part in enumerate(parts):
+            if part.startswith("TestCase"):
+                return "/".join(parts[: i + 1])
+        if len(parts) >= 3:
+            return "/".join(parts[:3])
     return source_id.split("/")[0] if "/" in source_id else source_id
 
 
@@ -378,12 +387,13 @@ SPLIT_QUOTAS: dict[str, tuple[int, int]] = {
     "alfa": (2, 2),
     "uav_attack": (1, 1),
     "uav_sead": (10, 10),
+    "rflymad": (30, 30),
 }
 
 # Oturum-bazli split kullanan kaynaklar (bkz. session_of): UAV-SEAD ucus id'leri
 # "tarih/saat" formatinda -- ayni gunun ucuslari tek split tarafinda kalmali.
-SESSION_SPLIT_SOURCES = {"uav_sead"}
-FINAL_HOLDOUT_FRACTIONS: dict[str, float] = {"uav_sead": 0.30}
+SESSION_SPLIT_SOURCES = {"uav_sead", "rflymad"}
+FINAL_HOLDOUT_FRACTIONS: dict[str, float] = {"uav_sead": 0.30, "rflymad": 0.30}
 
 
 def build_split_manifest(feature_tables: dict[str, pd.DataFrame], *,
