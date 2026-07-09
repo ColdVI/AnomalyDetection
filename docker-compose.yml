@@ -48,7 +48,12 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1g
+          # ONEMLI: 1g -> 2g (bkz. proje sohbet gecmisi) -- Kafka surekli
+          # %94-97 doluluk civarinda seyrediyordu (JVM heap + off-heap
+          # page cache/network buffer'lar 1GB'a fazla sikisiyor), OOM-kill
+          # riski yakindi. Host'ta bolca bos kapasite var (o an sadece
+          # ~1.9GB/33.7GB kullanimdaydi), bu yuzden guvenli bir artis.
+          memory: 2g
 
   redis:
     image: redis:7-alpine

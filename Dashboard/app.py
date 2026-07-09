@@ -1222,20 +1222,59 @@ LANG_BTN_INACTIVE_STYLE = {**LANG_BTN_BASE_STYLE,
 DEFAULT_AIRCRAFT_COLOR = "#00b4d8"
 MILITARY_COLOR = "#8a9a5b"
 ALERT_COLOR = "#e63946"
+
+# ONEMLI: adsb.lol/tar1090'daki irtifa renk semasi (kullanicinin verdigi
+# legend goruntusuyle uyumlu) -- (irtifa_ft, hex) duraklari, ikisi
+# arasinda DOGRUSAL RGB interpolasyonu yapiliyor (bkz. _altitude_to_color).
+# Duraklarin SIKLIGI dusuk irtifada YUKSEK (0-10000ft arasi 7 durak),
+# yuksek irtifada DUSUK (10000-40000ft arasi 3 durak) -- bu, legend
+# goruntusundeki (esit araliklarli DEGIL) tik isaretleriyle birebir ayni,
+# alcak irtifadaki (havaalani yakini, trafik yogun) renk degisimini daha
+# hassas gostermek icin.
+ALTITUDE_COLOR_STOPS = [
+    (0,     "#e8551f"),
+    (500,   "#ed7a1f"),
+    (1000,  "#f0971f"),
+    (2000,  "#e8c81f"),
+    (4000,  "#c8d820"),
+    (6000,  "#78c840"),
+    (8000,  "#38b868"),
+    (10000, "#20a8a0"),
+    (20000, "#2078c8"),
+    (30000, "#3050d8"),
+    (40000, "#9040c8"),  # 40000ft+ -- legend'de "40 000+" olarak sabit
+]
+_ALT_STOP_FT = [s[0] for s in ALTITUDE_COLOR_STOPS]
+_ALT_STOP_RGB = [tuple(int(hexc[i:i + 2], 16) for i in (1, 3, 5)) for _, hexc in ALTITUDE_COLOR_STOPS]
+
+
+def _altitude_to_color(alt_m):
+    """Metre cinsinden irtifayi (bizim ic semamiz metre kullanir, bkz.
+    _normalize_common) ALTITUDE_COLOR_STOPS'a (ft) gore bir hex renge
+    cevirir. None/eksikse (kaynak saglamiyorsa) notr bir gri doner --
+    sahte bir irtifa varsaymiyoruz."""
+    if alt_m is None:
+        return "#888888"
+    alt_ft = max(0.0, alt_m / 0.3048)
+    if alt_ft >= _ALT_STOP_FT[-1]:
+        r, g, b = _ALT_STOP_RGB[-1]
+        return f"#{r:02x}{g:02x}{b:02x}"
+    i = 0
+    while i < len(_ALT_STOP_FT) - 1 and alt_ft > _ALT_STOP_FT[i + 1]:
+        i += 1
+    lo_ft, hi_ft = _ALT_STOP_FT[i], _ALT_STOP_FT[i + 1]
+    lo_rgb, hi_rgb = _ALT_STOP_RGB[i], _ALT_STOP_RGB[i + 1]
+    frac = (alt_ft - lo_ft) / (hi_ft - lo_ft) if hi_ft > lo_ft else 0.0
+    r = round(lo_rgb[0] + (hi_rgb[0] - lo_rgb[0]) * frac)
+    g = round(lo_rgb[1] + (hi_rgb[1] - lo_rgb[1]) * frac)
+    b = round(lo_rgb[2] + (hi_rgb[2] - lo_rgb[2]) * frac)
+    return f"#{r:02x}{g:02x}{b:02x}"
 # ONEMLI: yerde/havada askeri-sivil ekseninden BAGIMSIZ, ayri bir boyut --
 # bir ucak ayni anda hem askeri hem yerde olabilir. Bu yuzden GROUND_COLOR
 # rengi DEGISTIRMEZ (oncelik hala alarm > askeri > sivil), sadece tooltip'e
 # "Yerde" etiketi ekler (bkz. update_map) -- ayri bir renk yerine filtre
 # butonunun kendisi (asagida) tarafsiz bir kum/toprak tonu kullanir.
 GROUND_COLOR = "#e0a458"
-# Ucus izi (flight-path-layer, gercek GPS izi) -- kullanici geri bildirimi:
-# eski renk (#00b4d8, ucak ikonuyla AYNI mavi) haritada yeterince
-# gozukmuyordu. Canli/parlak bir magenta secildi -- ne kirmizi (alarm),
-# ne kehribar (rota referans cizgisi, #f7b731), ne zeytin (askeri) ile
-# karisir, hem koyu sokak temasinda hem uydu goruntusunde (yesil/kahve
-# dogal tonlar) yuksek kontrastla ayirt edilir.
-FLIGHT_PATH_COLOR = "#ff2ea6"
-
 # Sol-ust askeri/sivil filtre butonlari -- haritanin kendi zoom (+/-)
 # kontrolu de sol-ustte oldugu icin (Leaflet varsayilani, ~10px kenar
 # bosluklu, iki dugme ~52px yukseklik), bu butonlar bilerek onun ALTINA
@@ -1850,12 +1889,15 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_
     for f in flights:
         icao = f.get("icao24", "")
         is_military = bool(f.get("is_military"))
+        # ONEMLI: adsb.lol/tar1090 gibi -- varsayilan renk artik IRTIFAYA
+        # gore (bkz. _altitude_to_color), askeri/sivil ayrimi RENKTE
+        # ARTIK YOK (kullanici karariyla -- "adsb.lol'daki gibi olsun").
+        # Acil durum (ALERT_COLOR) TEK istisna, guvenlik-kritik oldugu
+        # icin irtifa renginin USTUNE geciyor.
         if icao in alert_icaos:
             color = ALERT_COLOR
-        elif is_military:
-            color = MILITARY_COLOR
         else:
-            color = DEFAULT_AIRCRAFT_COLOR
+            color = _altitude_to_color(f.get("alt"))
         callsign = f.get("callsign", "").strip()
         category_label = cat_labels.get(f.get("category", ""), None)
         subtitle_parts = [icao.upper()]
@@ -2472,6 +2514,30 @@ def style_ground_filter_btn(visible):
     return FILTER_BTN_GROUND_ACTIVE_STYLE if visible else FILTER_BTN_INACTIVE_STYLE
 
 
+def _altitude_colored_segments(points, weight=3, opacity=0.85):
+    """points: ardisik zaman sirali lat/lon/alt kayitlari (dict, "lat"/
+    "lon"/"alt" anahtarlariyla). adsb.lol/tar1090'daki gibi "iz boyunca
+    irtifaya gore renk degisen" gorunum icin, dash-leaflet'in Polyline'i
+    TEK renk destekledigi icin ardisik her nokta CIFTINI, o ciftin
+    ORTALAMA irtifasina gore renklendirilmis AYRI/kucuk bir dl.Polyline
+    olarak dondurur."""
+    segments = []
+    for i in range(len(points) - 1):
+        p1, p2 = points[i], points[i + 1]
+        if p1["lat"] is None or p1["lon"] is None or p2["lat"] is None or p2["lon"] is None:
+            continue
+        alt1, alt2 = p1.get("alt"), p2.get("alt")
+        if alt1 is not None and alt2 is not None:
+            avg_alt = (alt1 + alt2) / 2
+        else:
+            avg_alt = alt1 if alt1 is not None else alt2
+        segments.append(dl.Polyline(
+            positions=[[p1["lat"], p1["lon"]], [p2["lat"], p2["lon"]]],
+            color=_altitude_to_color(avg_alt), weight=weight, opacity=opacity,
+        ))
+    return segments
+
+
 @app_dash.callback(
     Output("flight-path-layer", "children"),
     [Input("tick", "n_intervals"), Input("aircraft-select", "data"),
@@ -2498,12 +2564,10 @@ def update_flight_path(n, icao24, segment):
             data = []
         if not data or isinstance(data, dict):
             return []
-        positions = [[d["lat"], d["lon"]] for d in data
-                     if d.get("lat") is not None and d.get("lon") is not None]
-        if len(positions) < 2:
+        points = [d for d in data if d.get("lat") is not None and d.get("lon") is not None]
+        if len(points) < 2:
             return []
-        return [dl.Polyline(positions=positions, color=FLIGHT_PATH_COLOR,
-                            weight=3, opacity=0.85)]
+        return _altitude_colored_segments(points)
 
     try:
         data = requests.get(f"http://localhost:8000/api/history/{icao24}",
@@ -2522,13 +2586,13 @@ def update_flight_path(n, icao24, segment):
     cutoff_idx = gap_positions[-1] if len(gap_positions) else 0
     last_flight = df.iloc[cutoff_idx:]
 
-    positions = [[row.lat, row.lon] for row in last_flight.itertuples()
-                 if pd.notna(row.lat) and pd.notna(row.lon)]
-    if len(positions) < 2:
+    points = [{"lat": row.lat, "lon": row.lon, "alt": row.alt}
+              for row in last_flight.itertuples()
+              if pd.notna(row.lat) and pd.notna(row.lon)]
+    if len(points) < 2:
         return []
 
-    return [dl.Polyline(positions=positions, color=FLIGHT_PATH_COLOR,
-                        weight=3, opacity=0.85)]
+    return _altitude_colored_segments(points)
 
 
 @app_dash.callback(
@@ -3366,7 +3430,7 @@ def render_replay_frame(index, data, lang):
             "type": "Feature",
             "geometry": {"type": "Point", "coordinates": [lon, lat]},
             "properties": dict(
-                icao24=icao, callsign=icao.upper(), color=REPLAY_COLOR, opacity=0.9,
+                icao24=icao, callsign=icao.upper(), color=_altitude_to_color(f.get("alt")), opacity=0.9,
                 track=track, subtitle=f"{icao.upper()}  ·  REPLAY",
                 alt_text=(f"{f.get('alt'):.0f} m" if f.get("alt") is not None else "—"),
                 speed_text=(f"{f.get('velocity'):.0f} m/s"
