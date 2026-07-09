@@ -137,6 +137,16 @@ def main() -> None:
     else:
         logger.warning("UAV-SEAD Silver yok/atlandi (%s) -- leave-dataset-out icin sonra eklenebilir", sead_path)
 
+    rfly_path = SILVER_DIR / "rflymad_silver.parquet"
+    if rfly_path.exists():
+        rfly_silver = pd.read_parquet(rfly_path)
+        silver_tables["rflymad"] = rfly_silver
+        tables["rflymad"] = build_px4_features(rfly_silver)
+        col_fns["rflymad"] = px4_feature_columns
+        cusum_cols["rflymad"] = PX4_CUSUM_COLUMNS
+    else:
+        logger.info("RflyMAD Silver yok (%s) -- RFLY-0 indirme/parse sonrasi eklenir", rfly_path)
+
     # Provisional manifest yalnizca ucus kimligi/etiketi icin kullanilir.
     manifest = build_split_manifest(tables)
 
