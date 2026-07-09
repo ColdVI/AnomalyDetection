@@ -337,9 +337,34 @@ function heatmapWeightExpression(breaks) {
 // de log10'a cevrilip interpolate ediliyor -- carpik dagilimda (birkac hub
 // cok yuksek, cogu hucre dusuk) linear skaladan cok daha ayirt edici.
 const HEX_COLORS = ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"];
+// breaks'i kesinlikle artan (strictly ascending) hale getirir -- bazi
+// dagilimlarda (ör. az veri iceren realtime pencereleri) yuzdelik dilimler
+// ayni degere denk gelebiliyor, bu da log10 sonrasi MapLibre'nin interpolate
+// ifadesini kirıyordu ("Input/output values must be strictly ascending",
+// bkz. individual/metehan_geo_country projesindeki ayni duzeltme, 2026-07-08).
+function sanitizeBreaks(breaks) {
+  const b = breaks.slice();
+  for (let i = 1; i < b.length; i++) {
+    if (b[i] <= b[i - 1]) b[i] = b[i - 1] + 1;
+  }
+  return b;
+}
 function log10ColorExpression(breaks) {
+  const sanitized = sanitizeBreaks(breaks);
   const stops = [];
-  breaks.forEach((b, i) => stops.push(Math.log10(Math.max(b, 1)), HEX_COLORS[i]));
+  sanitized.forEach((b, i) => stops.push(Math.log10(Math.max(b, 1)), HEX_COLORS[i]));
+  return ["interpolate", ["linear"], ["log10", ["max", ["get", "point_count"], 1]], ...stops];
+}
+
+// Yogunluk opaklik olcegi (metehan_geo_country projesinden tasindi,
+// 2026-07-08: "daha gercekci ve iyi" -- sabit 0.55 opaklik dusuk/yuksek
+// yogunlugu ayirt etmiyordu; 2-3 nokta iceren hucreler artik cok daha
+// SOLUK, yogun hub'lar cok daha BASKIN gorunuyor, ayni log10 skalasinda.
+const OPACITY_LEVELS = [0.12, 0.32, 0.55, 0.78, 0.95];
+function log10OpacityExpression(breaks) {
+  const sanitized = sanitizeBreaks(breaks);
+  const stops = [];
+  sanitized.forEach((b, i) => stops.push(Math.log10(Math.max(b, 1)), OPACITY_LEVELS[i]));
   return ["interpolate", ["linear"], ["log10", ["max", ["get", "point_count"], 1]], ...stops];
 }
 
@@ -384,14 +409,14 @@ async function fetchJsonFresh(url) {
   return res.json();
 }
 
-function addDensityLayers(geojson, colorExpr) {
+function addDensityLayers(geojson, colorExpr, opacityExpr) {
   if (map.getSource("density")) return; // zaten ekli
   map.addSource("density", { type: "geojson", data: geojson });
   map.addLayer({
     id: "density-fill",
     type: "fill",
     source: "density",
-    paint: { "fill-color": colorExpr, "fill-opacity": 0.55 },
+    paint: { "fill-color": colorExpr, "fill-opacity": opacityExpr },
   });
   map.addLayer({
     id: "density-outline",
@@ -490,12 +515,14 @@ async function render() {
         if (mySeq !== requestSeq) return;
         const breaks = isHistorical ? METRICS[currentMetric].colorBreaks : computeBreaksFromFeatures(geojson);
         const colorExpr = log10ColorExpression(breaks);
+        const opacityExpr = log10OpacityExpression(breaks);
         const source = map.getSource("density");
         if (source) {
           source.setData(geojson);
           map.setPaintProperty("density-fill", "fill-color", colorExpr);
+          map.setPaintProperty("density-fill", "fill-opacity", opacityExpr);
         } else {
-          addDensityLayers(geojson, colorExpr);
+          addDensityLayers(geojson, colorExpr, opacityExpr);
         }
         loadedHexMetric = sourceKey;
         currentLegendBreaks = breaks;
