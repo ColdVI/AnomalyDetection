@@ -31,8 +31,9 @@ class _FakeGetResponse:
 class _FakeObject:
     """Minimal stand-in for the minio.Object entries minio.list_objects yields."""
 
-    def __init__(self, object_name: str) -> None:
+    def __init__(self, object_name: str, size: int | None = None) -> None:
         self.object_name = object_name
+        self.size = size
 
 
 class FakeMinioClient:
@@ -66,10 +67,11 @@ class FakeMinioClient:
         return sorted(self.buckets.get(bucket_name, {}).keys())
 
     def list_objects(self, bucket_name: str, prefix: str | None = None, recursive: bool = False) -> list[_FakeObject]:
-        names = self.buckets.get(bucket_name, {}).keys()
+        contents = self.buckets.get(bucket_name, {})
+        names = contents.keys()
         if prefix:
             names = [n for n in names if n.startswith(prefix)]
-        return [_FakeObject(n) for n in sorted(names)]
+        return [_FakeObject(n, size=len(contents[n])) for n in sorted(names)]
 
     def set_bucket_lifecycle(self, bucket_name: str, config) -> None:
         for rule in config.rules:
