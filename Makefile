@@ -3,7 +3,7 @@
 	bronze-uav-sead \
 	silver-uav-sead-local ml7-candidate \
 	silver-adsb-hist silver-adsb-rt silver-alfa silver-attack silver-uav-sead silver-generic gold \
-	ml-features ml6-evaluate ml6-package adsb-watch process-tars
+	ml-features ml6-evaluate ml6-package adsb-watch bronze-watch process-tars
 
 # MinIO only — use for Silver parsing / Gold unify (saves ~2GB RAM vs full stack)
 up-storage:
@@ -46,6 +46,12 @@ silver-adsb-hist:
 silver-adsb-rt:
 	python -m src.silver.parse_adsblol_realtime
 
+# Surekli calisir (varsayilan: saatte bir) -- elle "make silver-adsb-rt" calistirmayi
+# unutup Bronze'daki 7 gunluk lifecycle kuralinin islenmemis veriyi silmesini onlemek
+# icin. Durdurmak icin Ctrl+C.
+silver-adsb-rt-loop:
+	python -m src.silver.parse_adsblol_realtime --loop
+
 silver-alfa:
 	python -m src.silver.parse_alfa
 
@@ -87,6 +93,12 @@ ml6-package:
 
 adsb-watch:
 	python -m src.ingestion.adsb_watcher
+
+# alfa/uav_attack/uav_sead icin: Bronze'da yeni/degisen veri gorunce otomatik
+# Silver+Gold tetikler (bkz. src/ingestion/bronze_watcher.py). Bronze'a hic
+# yazmaz/silmez -- adsb-watch'tan farkli olarak yerel dosya degil MinIO izler.
+bronze-watch:
+	python -m src.ingestion.bronze_watcher
 
 process-tars:
 	python scripts/process_tars_sequential.py

@@ -39,6 +39,7 @@ import pandas as pd
 
 from src.common.minio_io import (
     ObjectStoreClient,
+    delete_layer_objects,
     download_raw_bytes,
     get_minio_client,
     write_silver,
@@ -336,6 +337,16 @@ def run(
     if not objects:
         logger.warning("No objects found under %s/%s", bronze_bucket, bronze_prefix)
         return []
+
+    # ONEMLI: bkz. parse_alfa.py/parse_uav_attack.py/parse_uav_sead.py'deki ayni
+    # yorum -- write_silver append-only, tekrar calistirmadan once bu source_type'in
+    # ESKI Silver ciktisini (bir onceki run()'dan kalma) temizliyoruz (Bronze'a
+    # DOKUNULMUYOR). Dongu BASLAMADAN once, TEK seferlik -- yoksa bu run'in kendi
+    # yazdigi parcalari da silerdik.
+    silver_bucket = os.getenv("MINIO_SILVER_BUCKET", "silver")
+    cleared = delete_layer_objects(client, silver_bucket, source_type)
+    if cleared:
+        logger.info("Onceki calismadan %d Silver parcasi temizlendi (yeniden uretiliyor)", cleared)
 
     logger.info("Found %d object(s) under %s/%s", len(objects), bronze_bucket, bronze_prefix)
     all_uris: list[str] = []

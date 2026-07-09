@@ -38,6 +38,7 @@ Kullanim:
 from __future__ import annotations
 
 import logging
+import os
 import re
 import zipfile
 from collections import defaultdict
@@ -49,6 +50,7 @@ import pandas as pd
 
 from src.common.minio_io import (
     ObjectStoreClient,
+    delete_layer_objects,
     download_raw_bytes,
     get_minio_client,
     list_layer_objects,
@@ -272,6 +274,14 @@ def main() -> None:
     if silver.empty:
         logger.error("Nothing to write: UAV Attack Silver is empty")
         return
+
+    # ONEMLI: bkz. parse_alfa.py'deki ayni yorum -- write_silver'in append-only
+    # olmasi yuzunden tekrar calistirmadan once kendi Silver ciktimizi temizliyoruz
+    # (Bronze'daki ham zip'e DOKUNULMUYOR).
+    silver_bucket = os.getenv("MINIO_SILVER_BUCKET", "silver")
+    cleared = delete_layer_objects(client, silver_bucket, SOURCE_TYPE)
+    if cleared:
+        logger.info("Onceki calismadan %d Silver parcasi temizlendi (yeniden uretiliyor)", cleared)
 
     uri = write_silver(silver, SOURCE_TYPE, client=client)
     logger.info("Wrote UAV Attack Silver -> %s", uri)

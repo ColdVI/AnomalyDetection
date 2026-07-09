@@ -30,8 +30,11 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+import os
+
 from src.common.minio_io import (
     ObjectStoreClient,
+    delete_layer_objects,
     download_raw_bytes,
     get_minio_client,
     list_layer_objects,
@@ -315,6 +318,18 @@ def main() -> None:
     if silver.empty:
         logger.error("Nothing to write: ALFA Silver is empty")
         return
+
+    # ONEMLI: write_silver HER cagrida yeni bir parca ekliyor, hicbir zaman
+    # UZERINE yazmiyor -- bu script tekrar calistirilirsa (orn. Bronze'a yeni
+    # sequence eklendiginde) once kendi ESKI Silver ciktisini temizlemezsek
+    # Gold'da satirlar KATLANIR (bkz. parse_adsblol_historical.py'deki ayni
+    # desen, docs/ML_YETERSIZLIKLER_KAYDI.md F.2). SADECE Silver temizleniyor --
+    # Bronze'daki ham zip'e DOKUNULMUYOR, bu katmanin butun amaci ham veriyi
+    # kalici tutmak.
+    silver_bucket = os.getenv("MINIO_SILVER_BUCKET", "silver")
+    cleared = delete_layer_objects(client, silver_bucket, SOURCE_TYPE)
+    if cleared:
+        logger.info("Onceki calismadan %d Silver parcasi temizlendi (yeniden uretiliyor)", cleared)
 
     uri = write_silver(silver, SOURCE_TYPE, client=client)
     logger.info("Wrote ALFA Silver -> %s", uri)

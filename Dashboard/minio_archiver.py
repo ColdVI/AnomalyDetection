@@ -7,9 +7,16 @@ okur -- dashboard_consumer'ı etkilemez.
 
 Her BATCH_SIZE mesajda bir (ya da FLUSH_SECS saniye geçince) JSONL dosyası
 MinIO bronze/adsblol_realtime/_landing/states-<timestamp>.jsonl olarak yazar.
-parse_adsblol_realtime.py bu dosyaları Silver Parquet'e çevirir.
+parse_adsblol_realtime.py bu dosyaları Silver Parquet'e çevirir VE ISLENEN
+dosyalari Bronze'dan siler (bkz. o script'teki _delete_processed).
 
-7 günlük saklama: MinIO bucket'ına lifecycle kural ile ayarlanır (bkz. main()).
+2026-07-09 KARARI: MinIO'da 7 GUNLUK OTOMATIK SILME KURALI YOK/KALDIRILDI --
+sadece InfluxDB'de (adsb-history bucket, 168h retention) gecici 7 gunluk
+saklama var. MinIO'daki realtime landing verisi (bu dosya) kalici olmali:
+parse_adsblol_realtime.py --loop calisir durumda tutularak duzenli araliklarla
+Silver'a (ve oradan Gold'a) islenip KALICI hale getirilir -- silinmez, sadece
+"islendi" (Bronze landing'den Silver'a tasindi) olur. --loop calismiyorsa
+Bronze'da JSONL birikir (bu ZARARSIZ, sadece disk kullanir) ama KAYBOLMAZ.
 
 Kullanim:
     python minio_archiver.py
@@ -45,23 +52,15 @@ def get_minio() -> Minio:
     )
 
 
-def ensure_lifecycle(client: Minio, bucket: str) -> None:
-    """7 günlük silme kuralı — sadece adsblol_realtime/_landing/ prefix'i için."""
-    from minio.lifecycleconfig import LifecycleConfig, Rule, Expiration
-    from minio.commonconfig import Filter
+def remove_lifecycle_if_present(client: Minio, bucket: str) -> None:
+    """MinIO'da otomatik silme kurali OLMAMALI (2026-07-09 karari, bkz. modul
+    docstring) -- daha once ensure_lifecycle() ile ayarlanmis "rt-7day-expire"
+    kurali varsa kaldirir. Kural hic yoksa sessizce gecer."""
     try:
-        cfg = LifecycleConfig([
-            Rule(
-                "Enabled",
-                rule_filter=Filter(prefix=BRONZE_PREFIX),
-                rule_id="rt-7day-expire",
-                expiration=Expiration(days=7),
-            )
-        ])
-        client.set_bucket_lifecycle(bucket, cfg)
-        print(f"Lifecycle kural ayarlandi: {BRONZE_PREFIX} -> 7 gun sonra silinir")
+        client.delete_bucket_lifecycle(bucket)
+        print(f"Lifecycle kurali kaldirildi (varsa): {bucket}")
     except Exception as e:
-        print(f"[uyari] lifecycle ayarlanamadi (elle yapilabilir): {e}")
+        print(f"[bilgi] lifecycle kaldirma atlandi (muhtemelen zaten yoktu): {e}")
 
 
 def flush(client: Minio, bucket: str, lines: list[str]) -> None:
@@ -77,7 +76,7 @@ def main() -> None:
     client = get_minio()
     if not client.bucket_exists(BUCKET):
         client.make_bucket(BUCKET)
-    ensure_lifecycle(client, BUCKET)
+    remove_lifecycle_if_present(client, BUCKET)
 
     consumer = Consumer({
         "bootstrap.servers": BOOTSTRAP,

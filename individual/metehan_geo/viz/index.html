@@ -70,6 +70,9 @@
   #timeRangeSegmented button { font-size: 10.5px; padding: 6px 2px; }
   .segmented button.active { background: #3b6fe0; color: #fff; }
   .segmented button:not(.active):hover { background: rgba(255, 255, 255, 0.07); color: #e9e9ee; }
+  .segmented button:disabled {
+    opacity: 0.35; cursor: not-allowed; pointer-events: none;
+  }
 
   .slider-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
   .slider-row label { margin: 0; }
@@ -100,6 +103,21 @@
     border-radius: 8px; padding: 8px 10px;
   }
   #realtimeHint b { color: #cfd6f5; }
+
+  #clustersHint {
+    font-size: 10.5px; line-height: 1.5; color: #9d9da8;
+    background: rgba(59, 111, 224, 0.12); border: 1px solid rgba(59, 111, 224, 0.3);
+    border-radius: 8px; padding: 8px 10px;
+  }
+
+  .maplibregl-popup-content {
+    background: rgba(20, 20, 24, 0.92); color: #e9e9ee; font: 12px/1.5 -apple-system, "Segoe UI", system-ui, sans-serif;
+    border-radius: 8px; padding: 10px 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .maplibregl-popup-tip { border-top-color: rgba(20, 20, 24, 0.92) !important; border-bottom-color: rgba(20, 20, 24, 0.92) !important; }
+  .popup-title { font-weight: 700; margin-bottom: 4px; }
+  .popup-row { color: #b7b7c2; }
+  .popup-row b { color: #e9e9ee; font-variant-numeric: tabular-nums; }
 
   #status {
     font-size: 10.5px; color: #6d6d78; padding: 8px 14px;
@@ -141,7 +159,14 @@
       <div class="segmented" id="renderModeSegmented">
         <button type="button" data-value="hexagon" class="active">Hexagon</button>
         <button type="button" data-value="heatmap">Heatmap</button>
+        <button type="button" data-value="clusters">Trafik Kümeleri</button>
       </div>
+    </div>
+
+    <div class="field" id="clustersHint" style="display:none">
+      DBSCAN ile bulunan hava trafiği hub'ları — ülke/şehir sınırı önceden
+      verilmedi, sadece hex başına düşen benzersiz uçuş yoğunluğuna bakılarak
+      keşfedildi. Bu bir "sapma/anomali" analizi değil, coğrafi kümeleme.
     </div>
 
     <div class="field" id="realtimeHint" style="display:none">
@@ -167,7 +192,7 @@
       <input type="range" id="dayCountSlider" min="0" max="20" value="0" />
     </div>
 
-    <div class="field">
+    <div class="field" id="densityLegendField">
       <label>Yoğunluk Skalası</label>
       <div class="legend-swatch" id="legendSwatch"></div>
       <div class="legend-scale"><span id="legendMin"></span><span id="legendMax"></span></div>
@@ -376,6 +401,7 @@ function log10OpacityExpression(breaks) {
 let currentLegendBreaks = METRICS.flight.colorBreaks;
 
 function updateLegend() {
+  if (renderMode === "clusters") return; // kategorik kumeler icin gradient legend anlamsiz, alan zaten gizli
   const breaks = currentLegendBreaks;
   const colors = renderMode === "heatmap"
     ? ["#1b0c41", "#781c6d", "#cf4446", "#fb9b06", "#fcffa4", "#ffffff"]
@@ -463,6 +489,61 @@ function addHeatmapLayer(geojson, breaks) {
 
 const HEATMAP_LAYER_IDS = ["density-heatmap-glow", "density-heatmap-core"];
 
+// --- Trafik Kumeleri (dbscan_geo_hotspot_prompt.md, 2026-07-09) ---
+// Kategorik renklendirme (sequential DEGIL -- her kume ayri bir "kimlik",
+// buyukluk/sira degil). 15 renk, 31 kume icin bazi renkler tekrar eder ama
+// kumeler cografi olarak uzak oldugundan (DBSCAN eps=50km) komsu iki kume
+// ayni renge denk gelmez.
+const CLUSTER_COLORS = [
+  "#5b8cff", "#ff6b6b", "#4ecdc4", "#f472b6", "#a78bfa",
+  "#06d6a0", "#fb923c", "#ffd166", "#38bdf8", "#c084fc",
+  "#84cc16", "#f43f5e", "#22d3ee", "#eab308", "#8b5cf6",
+];
+function clusterColorExpression() {
+  const stops = [];
+  for (let i = 0; i < 40; i++) stops.push(i, CLUSTER_COLORS[i % CLUSTER_COLORS.length]);
+  return ["match", ["get", "cluster"], ...stops, "#888888"];
+}
+
+function addClusterLayers(geojson) {
+  if (map.getSource("clusters")) return; // zaten ekli
+  map.addSource("clusters", { type: "geojson", data: geojson });
+  const colorExpr = clusterColorExpression();
+  map.addLayer({
+    id: "clusters-fill",
+    type: "fill",
+    source: "clusters",
+    paint: { "fill-color": colorExpr, "fill-opacity": 0.55 },
+  });
+  map.addLayer({
+    id: "clusters-outline",
+    type: "line",
+    source: "clusters",
+    paint: { "line-color": colorExpr, "line-width": 0.6, "line-opacity": 0.85 },
+  });
+  wireClusterHoverPopup();
+}
+
+function wireClusterHoverPopup() {
+  map.on("mousemove", "clusters-fill", (e) => {
+    map.getCanvas().style.cursor = "pointer";
+    const clusterId = e.features[0].properties.cluster;
+    const stats = clustersData?.clusters.find((c) => c.cluster === clusterId);
+    if (!popup) popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false });
+    const html = stats
+      ? `<div class="popup-title">Trafik Hub'ı #${clusterId}</div>
+        <div class="popup-row">Hex sayısı: <b>${stats.n_hexes.toLocaleString("tr-TR")}</b></div>
+        <div class="popup-row">Toplam uçuş: <b>${stats.total_flight_count.toLocaleString("tr-TR")}</b></div>
+        <div class="popup-row">Yaklaşık yarıçap: <b>${Math.round(stats.radius_km)} km</b></div>`
+      : `<div class="popup-title">Küme #${clusterId}</div>`;
+    popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+  });
+  map.on("mouseleave", "clusters-fill", () => {
+    map.getCanvas().style.cursor = "";
+    if (popup) { popup.remove(); popup = null; }
+  });
+}
+
 function applyDayCountFilter() {
   const hasDayCount = METRICS[currentMetric].hasDayCount;
   const filter = hasDayCount && minDayCount > 0
@@ -480,11 +561,14 @@ function applyDayCountFilter() {
 function setRenderModeVisibility() {
   const hexVisible = renderMode === "hexagon" ? "visible" : "none";
   const heatVisible = renderMode === "heatmap" ? "visible" : "none";
+  const clustersVisible = renderMode === "clusters" ? "visible" : "none";
   if (map.getLayer("density-fill")) map.setLayoutProperty("density-fill", "visibility", hexVisible);
   if (map.getLayer("density-outline")) map.setLayoutProperty("density-outline", "visibility", hexVisible);
   for (const id of HEATMAP_LAYER_IDS) {
     if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", heatVisible);
   }
+  if (map.getLayer("clusters-fill")) map.setLayoutProperty("clusters-fill", "visibility", clustersVisible);
+  if (map.getLayer("clusters-outline")) map.setLayoutProperty("clusters-outline", "visibility", clustersVisible);
 }
 
 // currentMetric+renderMode kombinasyonu icin ayri yukleme durumu -- boylece
@@ -492,6 +576,9 @@ function setRenderModeVisibility() {
 // gerektirmez, sadece visibility degisir.
 let loadedHexMetric = null;
 let loadedHeatmapMetric = null;
+let loadedClusters = null; // "clusters:historical" | "clusters:7d" | null
+let clustersData = null; // dbscan_geo_hotspot_prompt.md -- su an yuklu kume GeoJSON'u (popup icin)
+let popup = null; // Trafik Kumeleri hover popup'i icin (bu proje daha once hover popup kullanmiyordu)
 
 // Hizli ardisik degisikliklerde (metrik/mod) cevaplar sirasiz donebilir --
 // sequence guard.
@@ -528,6 +615,43 @@ async function render() {
         currentLegendBreaks = breaks;
         const suffix = isHistorical ? "" : ` (guncellendi: ${new Date().toLocaleTimeString("tr-TR")})`;
         document.getElementById("status").textContent = `hexagon/${sourceKey}: ${geojson.features.length} hex${suffix}`;
+      }
+    } else if (renderMode === "clusters") {
+      // Trafik Kumeleri (dbscan_geo_hotspot_prompt.md) -- DBSCAN'in ONCEDEN
+      // hesaplanmis ciktisi. Tarihsel: build_traffic_clusters.py (11 gunluk
+      // birikmis Gold verisi). "7 Gun": build_traffic_clusters_realtime.py
+      // (InfluxDB -7d penceresi) -- 2026-07-09 eklendi. "Canli"/"24 Saat"
+      // icin YETERLI veri birikmiyor (DBSCAN'in "hub" bulmasi icin), bu
+      // yuzden bu iki secenekte buton zaten devre disi birakiliyor
+      // (updateRenderModeAvailability) -- buraya hic ulasilmamasi beklenir,
+      // ama savunma amacli yine de hexagon'a zorla don.
+      const clustersFile = isHistorical ? "data/traffic_clusters.geojson"
+        : currentTimeRange === "7d" ? "data/traffic_clusters_7d.geojson"
+        : null;
+      if (!clustersFile) {
+        renderMode = "hexagon";
+        for (const b of document.querySelectorAll("#renderModeSegmented button")) {
+          b.classList.toggle("active", b.dataset.value === "hexagon");
+        }
+        updateFieldVisibilityForTimeRange(); // clustersHint/realtimeHint durumu renderMode degisince tutarsiz kalmasin
+        return render();
+      }
+      const clustersKey = isHistorical ? "clusters:historical" : "clusters:7d";
+      if (loadedClusters !== clustersKey) {
+        const geojson = isHistorical
+          ? await fetchJsonCached(geojsonCache, clustersKey, clustersFile)
+          : await fetchJsonFresh(clustersFile); // 7d dosyasi periyodik yenileniyor, tarayici cache'ini bypass et
+        if (mySeq !== requestSeq) return;
+        clustersData = geojson;
+        const clusterSource = map.getSource("clusters");
+        if (clusterSource) {
+          clusterSource.setData(geojson);
+        } else {
+          addClusterLayers(geojson);
+        }
+        loadedClusters = clustersKey;
+        document.getElementById("status").textContent =
+          `trafik kümeleri (${currentTimeRange}): ${geojson.clusters.length} hub, ${geojson.features.length} hex`;
       }
     } else if (!isHistorical) {
       // Heatmap (nokta+weight) dosyalari henuz sadece historical icin uretiliyor
@@ -656,13 +780,32 @@ document.getElementById("styleSelect").addEventListener("change", (e) => {
 });
 
 // Realtime secilince metrik/gun-filtresi kontrolleri anlamsiz (tek metrik
-// var, day_count yok) -- gizle. Tarihsel'e donunce geri goster.
+// var, day_count yok) -- gizle. Trafik Kumeleri modu da ayni sekilde metrik/
+// gun-filtresi/yogunluk-legend'i kullanmiyor (kategorik, sabit veri) --
+// onun yerine clustersHint gosterilir. Tarihsel+hexagon'a donunce hepsi
+// geri gelir.
 function updateFieldVisibilityForTimeRange() {
   const isHistorical = currentTimeRange === "historical";
-  document.getElementById("metricField").style.display = isHistorical ? "block" : "none";
+  const isClusters = renderMode === "clusters";
+  document.getElementById("metricField").style.display = (isHistorical && !isClusters) ? "block" : "none";
   document.getElementById("dayCountField").style.display =
-    isHistorical && METRICS[currentMetric].hasDayCount ? "block" : "none";
-  document.getElementById("realtimeHint").style.display = isHistorical ? "none" : "block";
+    (isHistorical && !isClusters && METRICS[currentMetric].hasDayCount) ? "block" : "none";
+  document.getElementById("densityLegendField").style.display = isClusters ? "none" : "block";
+  document.getElementById("realtimeHint").style.display = (!isHistorical && !isClusters) ? "block" : "none";
+  document.getElementById("clustersHint").style.display = isClusters ? "block" : "none";
+}
+
+// Trafik Kumeleri SADECE Tarihsel ve 7 Gun'de mevcut -- DBSCAN'in anlamli
+// hub bulmasi icin yeterli birikmis veri gerekiyor, "Canli" (~3dk) ve
+// "24 Saat" pencereleri bunun icin yetersiz (bkz. build_traffic_clusters_
+// realtime.py docstring). Bu iki secenekte buton GORSEL OLARAK devre disi
+// birakiliyor (2026-07-09 kullanici istegi: sessizce hexagon'a donmek
+// yerine, secilemez oldugunu ACIKCA gostermek).
+function updateRenderModeAvailability() {
+  const clustersBtn = document.querySelector('#renderModeSegmented button[data-value="clusters"]');
+  const available = currentTimeRange === "historical" || currentTimeRange === "7d";
+  clustersBtn.disabled = !available;
+  clustersBtn.title = available ? "" : "Trafik Kümeleri sadece Tarihsel ve 7 Gün'de mevcut (yeterli veri birikimi gerekiyor)";
 }
 
 // Realtime sekmesi acikken sayfayi elle yenilemeye gerek kalmasin diye
@@ -691,6 +834,7 @@ document.getElementById("timeRangeSegmented").addEventListener("click", (e) => {
   currentTimeRange = btn.dataset.value;
   for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
   updateFieldVisibilityForTimeRange();
+  updateRenderModeAvailability();
   if (currentTimeRange === "historical") stopRealtimeAutoRefresh();
   else startRealtimeAutoRefresh();
   render();
@@ -701,6 +845,7 @@ document.getElementById("renderModeSegmented").addEventListener("click", (e) => 
   if (!btn) return;
   renderMode = btn.dataset.value;
   for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
+  updateFieldVisibilityForTimeRange();
   render();
 });
 
@@ -721,6 +866,7 @@ document.getElementById("dayCountSlider").addEventListener("input", (e) => {
 
 // Baslangic durumu (varsayilan: historical/flight, gun-filtresi gorunur).
 updateFieldVisibilityForTimeRange();
+updateRenderModeAvailability();
 
 document.getElementById("globeToggle").addEventListener("change", (e) => {
   currentProjection = e.target.checked ? "globe" : "mercator";

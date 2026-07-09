@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from io import BytesIO
 from pathlib import Path
 
@@ -29,6 +30,7 @@ import pandas as pd
 
 from src.common.minio_io import (
     ObjectStoreClient,
+    delete_layer_objects,
     download_raw_bytes,
     get_minio_client,
     list_layer_objects,
@@ -283,6 +285,14 @@ def main() -> None:
         return
 
     if not args.local_bronze_dir:
+        # ONEMLI: bkz. parse_alfa.py/parse_uav_attack.py'deki ayni yorum --
+        # write_silver append-only, tekrar calistirmadan once kendi Silver
+        # ciktimizi temizliyoruz (Bronze'daki ham .ulg dosyalarina DOKUNULMUYOR).
+        silver_bucket = os.getenv("MINIO_SILVER_BUCKET", "silver")
+        cleared = delete_layer_objects(client, silver_bucket, SOURCE_TYPE)
+        if cleared:
+            logger.info("Onceki calismadan %d Silver parcasi temizlendi (yeniden uretiliyor)", cleared)
+
         uri = write_silver(silver, SOURCE_TYPE, client=client)
         logger.info("Wrote UAV-SEAD Silver -> %s", uri)
     if args.local_out:
