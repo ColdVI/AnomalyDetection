@@ -33,6 +33,33 @@ SECTIONS = {
     "s4_model": "Model Tanılama",
 }
 
+# Grafik turu: bolum (s1-s4) klasor kodlarindan daha okunakli, dosya adi
+# kalibina gore turetilen ikinci filtreleme ekseni. Sira = chip sirasi.
+GRAPH_TYPES: list[tuple[str, str, tuple[str, ...]]] = [
+    ("portfolio", "Envanter / Dağılım",
+     ("class_counts", "flight_duration_hist", "session_histogram", "annotation_event_counts")),
+    ("completeness", "Doluluk Haritası",
+     ("completeness_heatmap", "completeness_matrix")),
+    ("pca", "PCA Projeksiyonu", ("pca_",)),
+    ("tsne", "t-SNE Projeksiyonu", ("tsne_",)),
+    ("feature_sep", "Feature Ayrıştırma (AUC / q99)",
+     ("feature_auc_heatmap", "feature_auc_matrix", "feature_q99_heatmap")),
+    ("correlation", "Korelasyon", ("spearman_heatmap", "redundant_pairs")),
+    ("score_dist", "Skor Dağılımı (violin)", ("score_violin",)),
+    ("roc_pr", "ROC / PR", ("roc_pr_flight",)),
+    ("confusion", "Karar Matrisi", ("confusion",)),
+    ("timeseries", "Tek Uçuş Zaman Serisi (örnek)", ("timeseries_",)),
+]
+GRAPH_TYPE_LABELS = {key: label for key, label, _ in GRAPH_TYPES}
+
+
+def _graph_type(stem: str) -> str:
+    for key, _, prefixes in GRAPH_TYPES:
+        if any(p in stem for p in prefixes):
+            return key
+    return "other"
+
+
 # ---------------------------------------------------------------------------
 # Kurasyonlu aciklamalar. Anahtar: "<dataset>/<bolum>/<dosya>".
 # Sayilar dogrudan calisma ciktilarindan (H25-H30, viz_manifest'ler).
@@ -222,20 +249,22 @@ TS_ALFA = ("Zaman Serisi: {cat} — {flight}",
            "muhafazakârlığının (H28) uçuş içindeki görünümü.")
 
 
-def _timeseries_entry(dataset: str, rel: str) -> tuple[str, str]:
+def _timeseries_entry(dataset: str, rel: str) -> tuple[str, str, str]:
     name = Path(rel).stem  # timeseries_<cat>_<flight>
     body = name[len("timeseries_"):]
     if dataset == "uav_sead":
         match = re.match(r"(.+?)_(\d{4}-\d{2}-\d{2}__.+|log_.+)$", body)
-        cat = (match.group(1) if match else body).replace("_", " ")
+        cat_raw = match.group(1) if match else body
+        cat = cat_raw.replace("_", " ")
         flight = (match.group(2) if match else "").replace("__", "/")
         tpl = TS_SEAD
     else:
         parts = body.split("_carbonZ_", 1)
-        cat = parts[0]
+        cat_raw = parts[0]
+        cat = cat_raw
         flight = "carbonZ_" + parts[1] if len(parts) == 2 else body
         tpl = TS_ALFA
-    return tpl[0].format(cat=cat, flight=flight), tpl[1]
+    return tpl[0].format(cat=cat, flight=flight), tpl[1], cat_raw
 
 
 def collect_items() -> list[dict]:
@@ -248,17 +277,21 @@ def collect_items() -> list[dict]:
                 continue
             rel = str(path.relative_to(base)).replace("\\", "/")
             section = rel.split("/", 1)[0]
+            stem = Path(rel).name
+            category = None
             key = f"{dataset}/{rel}"
-            if key in E:
+            if stem.startswith("timeseries_"):
+                title, text, category = _timeseries_entry(dataset, rel)
+            elif key in E:
                 title, text = E[key]
-            elif Path(rel).name.startswith("timeseries_"):
-                title, text = _timeseries_entry(dataset, rel)
             else:
                 missing.append(key)
                 title, text = Path(rel).stem, ""
             items.append({
                 "dataset": dataset,
                 "section": section,
+                "graph_type": _graph_type(stem),
+                "category": category,
                 "path": f"{dataset}/{rel}",
                 "kind": "csv" if path.suffix == ".csv" else "png",
                 "title": title,
@@ -302,6 +335,8 @@ header p  { margin:0; color:var(--muted); max-width:70ch; }
 .chip.on { background:var(--chip-on); color:var(--chip-on-ink);
            border-color:var(--chip-on); }
 .controls .sep { width:1px; height:22px; background:var(--line); margin:0 4px; }
+#catSel { padding:6px 10px; border:1px solid var(--line); border-radius:8px;
+          background:var(--card); color:var(--ink); font-size:13.5px; }
 #q { margin-left:auto; padding:6px 12px; border:1px solid var(--line);
      border-radius:8px; background:var(--card); color:var(--ink);
      min-width:230px; font-size:14px; }
@@ -349,7 +384,8 @@ tüm sayılar geliştirme kümesindendir ve deterministiktir (seed=42). Kaynak: 
 checksum: <code>viz_manifest.json</code>.</div>
 <div class="controls">
   <span id="dsChips"></span><span class="sep"></span>
-  <span id="secChips"></span>
+  <span id="gtChips"></span><span class="sep"></span>
+  <select id="catSel"><option value="all">Tüm kategoriler</option></select>
   <input id="q" type="search" placeholder="Ara: başlık/açıklama…">
   <span id="count"></span>
 </div>
@@ -363,8 +399,8 @@ checksum: <code>viz_manifest.json</code>.</div>
 <script>
 const ITEMS = __ITEMS__;
 const DS = __DS__;
-const SEC = __SEC__;
-let ds = "all", sec = "all", q = "";
+const GT = __GT__;
+let ds = "all", gt = "all", cat = "all", q = "";
 const grid = document.getElementById("grid");
 
 function chipbar(el, defs, get, set) {
@@ -378,16 +414,37 @@ function chipbar(el, defs, get, set) {
     el.appendChild(b);
   }
 }
+function catOptions() {
+  const pool = ITEMS.filter(it =>
+    (ds === "all" || it.dataset === ds) && (gt === "all" || it.graph_type === gt));
+  return [...new Set(pool.map(it => it.category).filter(Boolean))].sort((a, b) => a.localeCompare(b, "tr"));
+}
+function renderCatSelect() {
+  const sel = document.getElementById("catSel");
+  const opts = catOptions();
+  if (!opts.length) {
+    sel.style.display = "none";
+    cat = "all";
+    return;
+  }
+  sel.style.display = "";
+  const keep = opts.includes(cat) ? cat : "all";
+  sel.innerHTML = `<option value="all">Tüm kategoriler</option>` +
+    opts.map(o => `<option value="${o}"${o === keep ? " selected" : ""}>${o}</option>`).join("");
+  cat = keep;
+}
 function visible() {
   const needle = q.toLocaleLowerCase("tr");
   return ITEMS.filter(it =>
     (ds === "all" || it.dataset === ds) &&
-    (sec === "all" || it.section === sec) &&
+    (gt === "all" || it.graph_type === gt) &&
+    (cat === "all" || it.category === cat || it.category === null) &&
     (!needle || (it.title + " " + it.text).toLocaleLowerCase("tr").includes(needle)));
 }
 function render() {
   chipbar(document.getElementById("dsChips"), DS, () => ds, v => ds = v);
-  chipbar(document.getElementById("secChips"), SEC, () => sec, v => sec = v);
+  chipbar(document.getElementById("gtChips"), GT, () => gt, v => gt = v);
+  renderCatSelect();
   const rows = visible();
   document.getElementById("count").textContent = rows.length + " öğe";
   grid.innerHTML = "";
@@ -395,7 +452,8 @@ function render() {
     const card = document.createElement("div");
     card.className = "card" + (it.kind === "csv" ? " csvcard" : "");
     const tags = `<div class="tags"><span class="tag">${DS[it.dataset]}</span>` +
-                 `<span class="tag">${SEC[it.section]}</span></div>`;
+                 `<span class="tag">${GT[it.graph_type] || it.graph_type}</span>` +
+                 (it.category ? `<span class="tag">${it.category}</span>` : "") + `</div>`;
     if (it.kind === "png") {
       card.innerHTML = `<div class="imgwrap"><img loading="lazy" src="${it.path}" alt=""></div>` +
         `<div class="body"><h3>${it.title}</h3><p>${it.text}</p>${tags}</div>`;
@@ -429,6 +487,7 @@ document.addEventListener("keydown", e => {
   if (e.key === "ArrowRight") move(1);
 });
 document.getElementById("q").addEventListener("input", e => { q = e.target.value; render(); });
+document.getElementById("catSel").addEventListener("change", e => { cat = e.target.value; render(); });
 render();
 </script>
 </body>
@@ -438,10 +497,12 @@ render();
 
 def main() -> None:
     items = collect_items()
+    used_types = {it["graph_type"] for it in items}
+    gt_labels = {key: label for key, label in GRAPH_TYPE_LABELS.items() if key in used_types}
     page = (PAGE
             .replace("__ITEMS__", json.dumps(items, ensure_ascii=False))
             .replace("__DS__", json.dumps(DATASETS, ensure_ascii=False))
-            .replace("__SEC__", json.dumps(SECTIONS, ensure_ascii=False)))
+            .replace("__GT__", json.dumps(gt_labels, ensure_ascii=False)))
     OUT.write_text(page, encoding="utf-8")
     print(f"galeri yazildi: {OUT} ({len(items)} oge)")
 
