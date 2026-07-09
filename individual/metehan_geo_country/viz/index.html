@@ -114,6 +114,14 @@
       </select>
     </div>
 
+    <div class="field">
+      <label>Görünüm</label>
+      <div class="segmented" id="viewSegmented">
+        <button type="button" data-value="density" class="active">Yoğunluk</button>
+        <button type="button" data-value="routes">Rotalar</button>
+      </div>
+    </div>
+
     <div id="limitNote">
       Bu harita, uçağın <b>tescilli olduğu</b> ülkeyi gösterir — o an
       <b>hangi ülke üzerinde uçtuğunu değil</b>. Bir ülke seçildiğinde, o
@@ -122,7 +130,19 @@
       (2026-07-07) göre hesaplanır.
     </div>
 
-    <div class="field">
+    <div id="routesHint" style="display:none; font-size: 10.5px; line-height: 1.5; color: #9d9da8; background: rgba(255, 138, 61, 0.1); border: 1px solid rgba(255, 138, 61, 0.3); border-radius: 8px; padding: 8px 10px;">
+      Seçili ülkeye tescilli uçakların <b>en sık gittiği rotalar</b> (havalimanı
+      eşleştirmesi + zaman-boşluğu ile ayrılmış uçuş bacakları üzerinden), gerçek
+      uçuş yolu (H3 altıgen koridor) olarak gösterilir.
+      <b style="color:#ff8a3d">Turuncu, koyu</b> altıgenler o ülkenin en sık
+      rotasıdır, diğer rotalar soluk gösterilir. Ülke seçilmezse rota gösterilmez.
+      <br><br><b>Not:</b> rotalar verinin <b>tüm 62 günlük geçmişinden</b>
+      hesaplanmıştır — soldaki "Zaman Aralığı" sadece Yoğunluk görünümünü
+      etkiler, kısa bir aralıkta (ör. "1 Gün") görünmeyen bir hex, rotalarda
+      yine de görünebilir (o rota geçmişte başka bir günde uçulmuş olabilir).
+    </div>
+
+    <div class="field" id="densityLegendField">
       <label>Benzersiz Uçak Sayısı</label>
       <div class="legend-swatch" id="legendSwatch"></div>
       <div class="legend-scale"><span id="legendMin"></span><span id="legendMax"></span></div>
@@ -250,9 +270,20 @@ let h3ByCell = new Map();   // h3_cell -> properties (popup icin -- MapLibre'ye 
 // hex iken h3_1d.geojson sadece 6.11MB/10.951 hex, ilk render COK daha hizli.
 let currentTimeRange = "1d";
 let currentCountry = "";    // "" = Tum Ulkeler
+let currentView = "density";     // "density" | "routes"
 
 const H3_FILES = { "1d": "data/h3_1d.geojson", "7d": "data/h3_7d.geojson", "30d": "data/h3_30d.geojson", "all": "data/h3_all.geojson" };
 const geojsonCache = new Map();
+
+// step3_build_country_routes.py ciktisi -- TUM ulkeler tek dosyada bundle,
+// istemci tarafinda currentCountry'ye gore filtreleniyor (h3_{window}.geojson
+// ile ayni desen). Zaman araligindan BAGIMSIZ (rota rekonstruksiyonu TUM
+// 62 gunluk veriden, tek seferlik hesaplandi) -- bu yuzden currentTimeRange
+// degisince YENIDEN YUKLENMEZ (bkz. #routesHint aciklamasi).
+let routeCorridorsData = null;
+async function ensureRouteDataLoaded() {
+  if (!routeCorridorsData) routeCorridorsData = await fetchJson("data/route_corridors.geojson");
+}
 
 function setLegend(breaks) {
   document.getElementById("legendSwatch").style.background = `linear-gradient(to right, ${HEX_COLORS.join(",")})`;
@@ -260,10 +291,14 @@ function setLegend(breaks) {
   document.getElementById("legendMax").textContent = breaks[4].toLocaleString("tr-TR");
 }
 
+// Polygon ([coordinates][0] halka) VE LineString (coordinates duz nokta
+// dizisi) icin ortak bbox -- rota modu LineString/Polygon karisik
+// kullanabiliyor (duz cizgi vs koridor hex'i).
 function bboxOfFeatures(features) {
   let minLon = Infinity, minLat = Infinity, maxLon = -Infinity, maxLat = -Infinity;
   for (const f of features) {
-    for (const [lon, lat] of f.geometry.coordinates[0]) {
+    const coords = f.geometry.type === "LineString" ? f.geometry.coordinates : f.geometry.coordinates[0];
+    for (const [lon, lat] of coords) {
       if (lon < minLon) minLon = lon;
       if (lon > maxLon) maxLon = lon;
       if (lat < minLat) minLat = lat;
@@ -322,7 +357,7 @@ function buildViewGeojson() {
   };
 }
 
-function applyView() {
+function applyDensityView() {
   const source = map.getSource("h3");
   if (!source) return;
 
@@ -350,6 +385,106 @@ function applyView() {
   const bbox = bboxOfFeatures(viewGeojson.features);
   if (bbox) map.fitBounds(bbox, { padding: 60, duration: 800 });
   document.getElementById("status").textContent = `${currentCountry}: ${viewGeojson.features.length} hex (uğradığı tüm hexler)`;
+}
+
+// is_top (rank==1, secili ulkenin EN SIK rotasi) turuncu+kalin, digerleri
+// soluk gri-mavi+ince -- kullanicinin istedigi "digerlerinden ayirt edilsin"
+// vurgusu (bkz. 2026-07-09 istegi).
+const ROUTE_TOP_COLOR = "#ff8a3d";
+const ROUTE_OTHER_COLOR = "#7a8bbf";
+const ROUTE_COLOR_EXPR = ["case", ["get", "is_top"], ROUTE_TOP_COLOR, ROUTE_OTHER_COLOR];
+
+function addRouteLayers() {
+  map.addSource("route-corridors", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+  // Opaklik = (is_top ise 1.0, degilse 0.4 taban carpani) x (ratio'ya gore
+  // 0.15-0.85 arasi gradyan) -- "ratio" artik SERT bir filtre esigi degil
+  // (bkz. build_corridor_geojson, 2026-07-09 duzeltmesi), o yuzden burada
+  // GORSEL yogunluga ceviriyoruz: bir ucagin sadece SAPTIGI kenar hucreler
+  // soluk, cogunlugun izledigi "gercek cekirdek" hucreler baskin gorunur.
+  const CORRIDOR_RATIO_OPACITY = ["interpolate", ["linear"], ["get", "ratio"], 0, 0.15, 1, 0.85];
+  map.addLayer({
+    id: "route-corridors-fill", type: "fill", source: "route-corridors", layout: { visibility: "none" },
+    paint: {
+      "fill-color": ROUTE_COLOR_EXPR,
+      "fill-opacity": ["*", ["case", ["get", "is_top"], 1.0, 0.4], CORRIDOR_RATIO_OPACITY],
+    },
+  });
+  map.addLayer({
+    id: "route-corridors-line", type: "line", source: "route-corridors", layout: { visibility: "none" },
+    paint: { "line-color": ROUTE_COLOR_EXPR, "line-width": 0.6, "line-opacity": 0.8 },
+  });
+
+  wireRouteHoverPopup("route-corridors-fill");
+}
+
+function routePopupHtml(props) {
+  return `<div class="popup-title">${props.pair}</div>
+    <div class="popup-row">Sıra: <b>#${props.rank}</b>${props.is_top ? " (en sık rota)" : ""}</div>
+    <div class="popup-row">Uçuş sayısı: <b>${props.flight_count.toLocaleString("tr-TR")}</b></div>
+    ${props.ratio !== undefined ? `<div class="popup-row">Koridor oranı: <b>%${Math.round(props.ratio * 100)}</b></div>` : ""}`;
+}
+
+function wireRouteHoverPopup(layerId) {
+  map.on("mousemove", layerId, (e) => {
+    map.getCanvas().style.cursor = "pointer";
+    if (!popup) popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false });
+    popup.setLngLat(e.lngLat).setHTML(routePopupHtml(e.features[0].properties)).addTo(map);
+  });
+  map.on("mouseleave", layerId, () => {
+    map.getCanvas().style.cursor = "";
+    if (popup) { popup.remove(); popup = null; }
+  });
+}
+
+function setViewLayerVisibility() {
+  const densityVisible = currentView === "density" ? "visible" : "none";
+  map.setLayoutProperty("h3-fill", "visibility", densityVisible);
+  const routesVisible = currentView === "routes" ? "visible" : "none";
+  map.setLayoutProperty("route-corridors-fill", "visibility", routesVisible);
+  map.setLayoutProperty("route-corridors-line", "visibility", routesVisible);
+}
+
+function updateFieldVisibilityForView() {
+  const isRoutes = currentView === "routes";
+  document.getElementById("routesHint").style.display = isRoutes ? "block" : "none";
+  document.getElementById("densityLegendField").style.display = isRoutes ? "none" : "block";
+}
+
+async function applyRoutesView() {
+  if (!currentCountry) {
+    map.getSource("route-corridors").setData({ type: "FeatureCollection", features: [] });
+    document.getElementById("status").textContent = "rotalar için bir ülke seçin";
+    return;
+  }
+
+  document.getElementById("status").textContent = "rotalar yükleniyor...";
+  await ensureRouteDataLoaded();
+
+  const features = routeCorridorsData.features.filter((f) => f.properties.country === currentCountry);
+  map.getSource("route-corridors").setData({ type: "FeatureCollection", features });
+
+  if (features.length === 0) {
+    document.getElementById("status").textContent = `${currentCountry}: bu ülke için yeterli rota verisi yok (min. 2 uçuşluk eşleşen rota bulunamadı)`;
+    return;
+  }
+  // SADECE en sik rotaya (is_top) gore zoom -- TUM rotalarin (kisa yerel +
+  // uzun kita-arasi karisimi) birlestirilmis bbox'ina gore zoom, en sik
+  // rotayi ekranda GORULMEYECEK kadar ufacik gosterebiliyordu (2026-07-09
+  // kullanici geri bildirimi: "cizgiler ufacik").
+  const topFeatures = features.filter((f) => f.properties.is_top);
+  const bbox = bboxOfFeatures(topFeatures.length > 0 ? topFeatures : features);
+  if (bbox) map.fitBounds(bbox, { padding: 100, duration: 800, maxZoom: 9 });
+  const nRoutes = new Set(features.map((f) => f.properties.pair)).size;
+  document.getElementById("status").textContent = `${currentCountry}: ${nRoutes} rota (en sık rota turuncu)`;
+}
+
+function applyView() {
+  setViewLayerVisibility();
+  if (currentView === "density") {
+    applyDensityView();
+  } else {
+    applyRoutesView();
+  }
 }
 
 async function loadTimeRange(range) {
@@ -422,6 +557,7 @@ async function init() {
   map.addSource("countries", { type: "geojson", data: basemap });
   map.addLayer({ id: "basemap-fill", type: "fill", source: "countries", paint: { "fill-color": "#1c1c22" } });
 
+  addRouteLayers();
   await loadTimeRange("1d");
 
   map.addLayer({
@@ -444,6 +580,15 @@ document.getElementById("timeRangeSegmented").addEventListener("click", async (e
 document.getElementById("countrySelect").addEventListener("change", (e) => {
   currentCountry = e.target.value;
   if (!currentCountry) map.flyTo({ center: [10, 20], zoom: 1.3, duration: 800 });
+  applyView();
+});
+
+document.getElementById("viewSegmented").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-value]");
+  if (!btn) return;
+  for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
+  currentView = btn.dataset.value;
+  updateFieldVisibilityForView();
   applyView();
 });
 
