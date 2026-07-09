@@ -382,12 +382,14 @@ def make_lofo_splits(flights: pd.DataFrame, *, by_session: bool = False,
 # ML-14 yenilemesinde uav_sead icin bu deger rebuild oncesi
 # development-normal sayisindan n_val=n_test_normal=max(30, round(0.15 * dev_normal))
 # olarak guncellenir ve rebuild_report.json'a yazilir.
+# RFLY-0 amendmani (2026-07-09): Kaggle mirror Real-No_Fault tavani 51 normal
+# gorundugu icin resmi ilk kota 12/12 olarak donduruldu; 27 normal train kalir.
 # Listede olmayan kaynak icin (1, 1).
 SPLIT_QUOTAS: dict[str, tuple[int, int]] = {
     "alfa": (2, 2),
     "uav_attack": (1, 1),
     "uav_sead": (10, 10),
-    "rflymad": (30, 30),
+    "rflymad": (12, 12),
 }
 
 # Oturum-bazli split kullanan kaynaklar (bkz. session_of): UAV-SEAD ucus id'leri

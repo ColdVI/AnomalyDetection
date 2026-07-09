@@ -247,6 +247,11 @@
   ],
   "normal_count": 51,
   "official_rfly_normal_minimum": 61,
+  "official_amended_quota": {
+    "val_normal": 12,
+    "test_normal": 12,
+    "basis": "R1 amend: floor(15 * 51 / 61) with 27 train normals retained"
+  },
   "exploratory_quota": {
     "val_normal": 15,
     "test_normal": 15

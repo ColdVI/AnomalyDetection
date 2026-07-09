@@ -168,6 +168,57 @@ def rebuild_only_uav_sead_with_frozen_holdout(previous_manifest_path: Path) -> d
     }
 
 
+def append_rflymad_to_existing_gold(manifest_path: Path) -> dict:
+    """Add/update RflyMAD Gold while preserving existing source artifacts.
+
+    ML-14 has already refreshed SEAD with a frozen-holdout manifest. A plain full
+    rebuild would rewrite ALFA/UAV Attack/SEAD parquets and could regenerate
+    legacy quotas. This append path keeps existing source tables and manifest
+    entries byte-stable, then adds RFLY with the same two-pass CUSUM discipline.
+    """
+    previous_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    existing_sources = {
+        source: config
+        for source, config in previous_manifest["sources"].items()
+        if source != "rflymad"
+    }
+    rfly_silver = pd.read_parquet(SILVER_DIR / "rflymad_silver.parquet")
+    provisional = build_px4_features(rfly_silver)
+    provisional_manifest = build_split_manifest({"rflymad": provisional})
+    split0 = provisional_manifest["sources"]["rflymad"]["splits"]["split_00"]
+    train = provisional[provisional["source_id"].isin(split0["train"])]
+    baselines = fit_cusum_baselines(train, PX4_CUSUM_COLUMNS)
+    write_cusum_baselines(baselines, CUSUM_DIR / "rflymad_cusum_baseline.json")
+
+    features = build_px4_features(rfly_silver, cusum_baselines=baselines)
+    _write(features, "rflymad")
+    final_manifest = build_split_manifest({"rflymad": features})
+    for split in final_manifest["sources"]["rflymad"]["splits"].values():
+        assert_no_flight_overlap(split)
+
+    merged_manifest = dict(previous_manifest)
+    merged_manifest["created_utc"] = final_manifest["created_utc"]
+    merged_manifest["sources"] = {
+        **existing_sources,
+        "rflymad": final_manifest["sources"]["rflymad"],
+    }
+    write_manifest(merged_manifest, manifest_path)
+
+    final_split0 = final_manifest["sources"]["rflymad"]["splits"]["split_00"]
+    scaler = fit_scaler_params(
+        features[features["source_id"].isin(final_split0["train"])],
+        px4_feature_columns(features),
+    )
+    write_scaler_params(scaler, SCALER_DIR / "rflymad_robust_scaler.json")
+
+    return {
+        "rflymad_feature_rows": int(len(features)),
+        "rflymad_feature_flights": int(features["source_id"].nunique()),
+        "rflymad_split_quota": list(SPLIT_QUOTAS["rflymad"]),
+        "preserved_existing_sources": sorted(existing_sources),
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Silver -> ML feature tablolari (ML-0)")
     parser.add_argument("--skip-uav-sead", action="store_true",
@@ -195,6 +246,12 @@ def main() -> None:
             Path(args.frozen_holdout_manifest)
         )
         logger.info("ML-14 only-uav-sead rebuild summary: %s", summary)
+        return
+    rfly_path = SILVER_DIR / "rflymad_silver.parquet"
+    manifest_path = OUT_DIR / "split_manifest.json"
+    if rfly_path.exists() and manifest_path.exists():
+        summary = append_rflymad_to_existing_gold(manifest_path)
+        logger.info("RFLY append-to-existing-gold summary: %s", summary)
         return
 
     # CUSUM baseline'i train-normal veriden ogrenildigi icin iki gecis gerekir:
@@ -235,7 +292,6 @@ def main() -> None:
     else:
         logger.warning("UAV-SEAD Silver yok/atlandi (%s) -- leave-dataset-out icin sonra eklenebilir", sead_path)
 
-    rfly_path = SILVER_DIR / "rflymad_silver.parquet"
     if rfly_path.exists():
         rfly_silver = pd.read_parquet(rfly_path)
         silver_tables["rflymad"] = rfly_silver
@@ -264,6 +320,9 @@ def main() -> None:
     if "uav_sead" in silver_tables:
         tables["uav_sead"] = build_px4_features(
             silver_tables["uav_sead"], cusum_baselines=baselines["uav_sead"])
+    if "rflymad" in silver_tables:
+        tables["rflymad"] = build_px4_features(
+            silver_tables["rflymad"], cusum_baselines=baselines["rflymad"])
 
     for source, df in tables.items():
         _write(df, source)

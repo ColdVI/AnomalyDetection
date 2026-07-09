@@ -8,6 +8,7 @@ import pandas as pd
 from scripts.run_rfly0_exploratory_evaluation import (
     MODULE_HYPOTHESES,
     RFLY_EXPLORATORY_QUOTA,
+    RFLY_OFFICIAL_QUOTA,
     _build_rfly_splits,
     _dataset_group,
     _diagnosis_rows,
@@ -39,6 +40,37 @@ def test_rfly_exploratory_quota_fits_current_51_normal_shape():
     assert not set(split["train"]) & set(split["val"])
     assert not set(split["train"]) & set(split["test"])
     assert not set(split["val"]) & set(split["test"])
+
+
+def test_rfly_official_amended_quota_leaves_meaningful_train_normals():
+    rows = []
+    for i in range(51):
+        rows.append({
+            "source_id": f"Real-No_Fault/hover/{i:03d}/log",
+            "label": "normal",
+            "t_rel_s": 0.0,
+        })
+    for i in range(20):
+        rows.append({
+            "source_id": f"Real-Motor/hover/{i:03d}/log",
+            "label": "motor_fault",
+            "t_rel_s": 0.0,
+        })
+    features = pd.DataFrame(rows)
+    folds = _build_rfly_splits(
+        features,
+        quota=RFLY_OFFICIAL_QUOTA,
+        final_holdout_fraction=0.30,
+    )
+    split = folds["split_00"]
+    assert RFLY_OFFICIAL_QUOTA == (12, 12)
+    assert len(split["val"]) == 12
+    assert len(split["test_normal"]) == 12
+    assert len(split["train"]) == 27
+    assert len(split["final_holdout_anomalous"]) == round(20 * 0.30)
+    assert not set(split["final_holdout"]) & (
+        set(split["train"]) | set(split["val"]) | set(split["test"])
+    )
 
 
 def test_dataset_group_keeps_detection_and_diagnosis_labels_separate():

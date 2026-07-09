@@ -85,7 +85,12 @@ def _score_modules(fitted: dict, scaled: pd.DataFrame, val_ids: set[str]) -> pd.
     out = scaled[["source_id", "t_rel_s", "label"]].copy()
     val_mask = out["source_id"].isin(val_ids).to_numpy()
     for name, item in fitted.items():
-        raw = anomaly_scores(item["model"], scaled[item["feature_columns"]])
+        cols = item["feature_columns"]
+        values = scaled[cols]
+        finite_mask = values.notna().all(axis=1).to_numpy()
+        raw = np.full(len(scaled), np.nan)
+        if finite_mask.any():
+            raw[finite_mask] = anomaly_scores(item["model"], values.loc[finite_mask])
         out[name] = _empirical_probability(raw[val_mask], raw)
 
     existing = [name for name in PX4_ML7_CANDIDATE_MODULES if name in out]

@@ -43,6 +43,15 @@ Kabul: SampleData ile smoke (şema + kapsam raporu: kaç case parse edildi/atlan
 = 0.30 ilk günden** (SEAD'deki gibi; ALFA/UAT'ın holdout'suzluğu tekrarlanmaz).
 Holdout seed'i sabit; holdout hiç açılmaz.
 
+**Amendman R1 (2026-07-09, sonuçlar görülmeden):** RflyMAD Kaggle mirror ve
+essential-only Bronze/Silver sayımı `Real-No_Fault=51` normal uçuşta tavan
+gösteriyor; eski 30/30 kota 61 normal istediği için uygulanabilir değil.
+Bu nedenle ilk resmi RFLY-0 development kotası `n_val=12`, `n_test_normal=12`
+olarak donduruldu. Türetim: düşük-kota ön koşudaki 15/15 çalışma noktası,
+61→51 normal tavanına oransal indirilip aşağı yuvarlandı (`floor(15*51/61)=12`);
+böylece 27 normal train kalır. Bu amendman mevcut §3 kararını silmez; yalnız
+RFLY-0'ın ilk resmi koşusunda uygulanacak normal kota düzeltmesidir.
+
 ## §4 Değerlendirme (ayrı gate'ler, SEAD'e karışmaz)
 
 Mevcut kazanan kalıp aynen: modüler IF (PX4 modülleri) + ince-modül adayları +

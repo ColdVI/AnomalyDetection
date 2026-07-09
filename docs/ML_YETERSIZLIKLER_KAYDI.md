@@ -316,6 +316,7 @@ bilerek ML kapsamının dışında tutuluyor.
 | C.6 | ML-10 mechanical Gate B geçti, fusion Gate C kaldı | H22-H24, ADR-010 | ✅ Pilot tamamlandı | Yeni bağımsız protokol olmadan tuning/holdout yok |
 | C.7 | ML-12 ince-modül Gate B geçti (B1+B2), fusion Gate C kaldı | H29-H30, ADR-012 | ✅ Tur tamamlandı | ML-13 denendi; production'a dönüşmedi |
 | C.8 | ML-13 iki kanal recall kazandı ama FA şartında kaldı | H31, ADR-013 | ✅ Tur tamamlandı | Yeni bağımsız FA-kalibrasyon/veri hipotezi olmadan tuning yok |
+| C.9 | RFLY pooled-normal kategori kazandı ama operasyonel Gate R-C kaldı | ADR-014 | ✅ Tur tamamlandı | RFLY-only ayrı kabul; pooled iddia yok |
 | C.3 | USAD < LSTM-AE | ML-3 | ✅ Kapandı | — (karar verildi) |
 | C.4 | IF-füzyon heterojen normale kırılgan | B3 | 🟡 Açık iş | nav_info'suz uçuşları val'den ayır |
 | C.5 | Oran-skoru max'tan kötü | H10 | ✅ Kapandı | — (hipotez reddedildi) |
@@ -330,6 +331,7 @@ bilerek ML kapsamının dışında tutuluyor.
 | F.2 | Silver part-çoğalması | H8.1 | ⚪ Bilinçli | Prosedürle yönetiliyor |
 | F.3 | 4 MinIO SDK test hatası | — | ⚪ Bilinçli | Kapsam dışı, minio paketi güncellenirse kapanır |
 | F.4 | MOMENT bu ortamda kurulamıyor | bu oturum | 🔴 Yapısal | Ayrı Python 3.10/3.11 ortamı (orantısız) |
+| F.5 | ML-15 full matrix çok pahalı | ADR-015 | 🟡 Açık iş | CUSUM jackknife maliyeti için ayrı uzun koşu veya önceden kayıtlı hızlandırma planı |
 
-**Sayaç:** 31 madde — 8 🔴 yapısal sınır, 5 🟡 gerçek açık iş, 8 ⚪ bilinçli kapsam dışı,
-10 ✅ kapandı/telafi edildi.
+**Sayaç:** 33 madde — 8 🔴 yapısal sınır, 6 🟡 gerçek açık iş, 8 ⚪ bilinçli kapsam dışı,
+11 ✅ kapandı/telafi edildi.

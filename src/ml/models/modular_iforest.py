@@ -123,10 +123,19 @@ def fit_modular_iforest(scaled: pd.DataFrame, split: dict,
         cols = [c for c in requested_cols if c in scaled.columns]
         if not cols:
             continue
+        train_fit = train[cols].dropna()
+        val_fit = val[cols].dropna()
+        if train_fit.empty or val_fit.empty:
+            continue
         model = IsolationForest(
-            n_estimators=300, max_samples=256, random_state=seed, n_jobs=n_jobs).fit(train[cols])
-        val_scores = anomaly_scores(model, val[cols])
-        val_flights = val.assign(_score=val_scores).groupby("source_id")["_score"].max()
+            n_estimators=300, max_samples=256, random_state=seed, n_jobs=n_jobs).fit(train_fit)
+        val_scores = anomaly_scores(model, val_fit)
+        val_flights = (
+            val.loc[val_fit.index]
+            .assign(_score=val_scores)
+            .groupby("source_id")["_score"]
+            .max()
+        )
         fitted[name] = {
             "model": model,
             "feature_columns": cols,
