@@ -18,6 +18,7 @@ import math
 import os
 import threading
 import time
+from functools import lru_cache
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo, available_timezones
 from pathlib import Path
@@ -31,7 +32,7 @@ import dash
 import dash_leaflet as dl
 from dash_extensions.javascript import assign
 from dash import Dash, dcc, html, Output, Input, State, ALL
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from influxdb_client import InfluxDBClient
 
@@ -115,6 +116,13 @@ TEXTS = {
         "callsign_not_found": "'{callsign}' bulunamadı",
         "stats_title": "İstatistikler",
         "stats_yaxis_label": "Benzersiz uçak sayısı",
+        "emergency_panel_title": "Acil Durumlar",
+        "no_emergency": "Aktif acil durum yok",
+        "replay_panel_title": "Tekrar Oynatma",
+        "replay_load_label": "Yükle",
+        "replay_no_data": "⚠ Bu aralıkta veri bulunamadı — tarih/saat seçili mi?",
+        "replay_loaded_label": "✓ {n} kare yüklendi — ▶ ile başlat",
+        "replay_live_label": "Canlıya Dön",
         "data_source_label": "Veri Kaynağı",
         "data_source_active": "Aktif: {source}",
         "data_source_pending": "İsteniyor: {requested} · aktif: {active} (geçiş bekleniyor)",
@@ -180,6 +188,13 @@ TEXTS = {
         "callsign_not_found": "'{callsign}' not found",
         "stats_title": "Statistics",
         "stats_yaxis_label": "Unique aircraft count",
+        "emergency_panel_title": "Emergency Alerts",
+        "no_emergency": "No active emergencies",
+        "replay_panel_title": "Replay",
+        "replay_load_label": "Load",
+        "replay_no_data": "⚠ No data found in this range — is a date/time selected?",
+        "replay_loaded_label": "✓ {n} frames loaded — press ▶ to start",
+        "replay_live_label": "Return to Live",
         "data_source_label": "Data Source",
         "data_source_active": "Active: {source}",
         "data_source_pending": "Requested: {requested} · active: {active} (switch pending)",
@@ -527,19 +542,25 @@ def set_data_source(source: str):
     return {"requested": source}
 
 
-@app_api.get("/api/history/{icao24}")
-def get_history(icao24: str, hours: int = 24, start: str = None, end: str = None):
-    # ONEMLI: start/end verilirse (tarih araligi secici) hours YOK SAYILIR.
-    # start/end ham string'i DOGRUDAN flux sorgusuna GOMMUYORUZ (injection
-    # riski -- kullanicidan gelen deger) -- once datetime.fromisoformat ile
-    # PARSE edip, KENDI ISO string'imize (guvenli, tek format, sadece
-    # dogrulanmis tarih/saat bilgisi) geri cevirip OYLE gomuyoruz.
+def _query_history_df(icao24: str, hours: int = 24, start: str = None, end: str = None):
+    """/api/history/{icao24} (JSON) VE /api/history/{icao24}/csv (CSV indirme)
+    AYNI Flux sorgusunu paylasir -- bu ikisi arasinda tekrarlanmasin diye
+    ortak DataFrame-donduren govde buraya cikarildi. Hata durumunda
+    (gecersiz start/end VEYA sorgu hatasi) None ile birlikte bir hata
+    mesaji donuyor, cagiran taraf (JSON->{"error":...}, CSV->HTTP 400)
+    kendi formatina cevirir.
+
+    ONEMLI: start/end verilirse (tarih araligi secici) hours YOK SAYILIR.
+    start/end ham string'i DOGRUDAN flux sorgusuna GOMMUYORUZ (injection
+    riski -- kullanicidan gelen deger) -- once datetime.fromisoformat ile
+    PARSE edip, KENDI ISO string'imize (guvenli, tek format, sadece
+    dogrulanmis tarih/saat bilgisi) geri cevirip OYLE gomuyoruz."""
     if start and end:
         try:
             start_dt = datetime.fromisoformat(start.replace("Z", "+00:00"))
             end_dt = datetime.fromisoformat(end.replace("Z", "+00:00"))
         except ValueError:
-            return {"error": "invalid start/end (ISO8601 bekleniyor)"}
+            return None, "invalid start/end (ISO8601 bekleniyor)"
         range_clause = (
             f'range(start: {start_dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}, '
             f'stop: {end_dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")})'
@@ -561,7 +582,7 @@ def get_history(icao24: str, hours: int = 24, start: str = None, end: str = None
         if isinstance(tables, list):
             tables = pd.concat(tables, ignore_index=True) if tables else pd.DataFrame()
         if tables.empty:
-            return []
+            return pd.DataFrame(columns=["_time", "lat", "lon", "alt", "velocity"]), None
         tables = tables.sort_values("_time")
         # ONEMLI: date_format="iso" tek basina yetmeyebilir -- influxdb_client
         # bazen "_time" kolonunu object dtype (duz Python datetime) olarak
@@ -577,10 +598,165 @@ def get_history(icao24: str, hours: int = 24, start: str = None, end: str = None
         for col in ["lat", "lon", "alt", "velocity"]:
             if col not in tables.columns:
                 tables[col] = None
-        return json.loads(tables[["_time", "lat", "lon", "alt", "velocity"]]
-                          .to_json(orient="records"))
+        return tables[["_time", "lat", "lon", "alt", "velocity"]], None
+    except Exception as e:
+        return None, str(e)
+
+
+@app_api.get("/api/history/{icao24}")
+def get_history(icao24: str, hours: int = 24, start: str = None, end: str = None):
+    df, err = _query_history_df(icao24, hours=hours, start=start, end=end)
+    if err:
+        return {"error": err}
+    return json.loads(df.to_json(orient="records"))
+
+
+@app_api.get("/api/history/{icao24}/csv")
+def get_history_csv(icao24: str, hours: int = 24, start: str = None, end: str = None):
+    """Ayni gecmis veriyi (JSON endpoint'iyle AYNI Flux sorgusu, bkz.
+    _query_history_df) CSV dosyasi olarak indirir -- dashboard'daki
+    "İndir" butonu bu URL'e dogrudan yonlendiriyor (tarayici indirme
+    olarak isliyor, Content-Disposition: attachment sayesinde)."""
+    df, err = _query_history_df(icao24, hours=hours, start=start, end=end)
+    if err:
+        return Response(content=f"error: {err}", media_type="text/plain", status_code=400)
+    csv_bytes = df.rename(columns={"_time": "timestamp_utc"}).to_csv(index=False)
+    filename = f"{icao24}_history.csv"
+    return Response(
+        content=csv_bytes,
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+REPLAY_MAX_RANGE_HOURS = 2  # sorgu/payload boyutunu makul tutmak icin sabit ust sinir
+
+
+@app_api.get("/api/replay")
+def get_replay(start: str, end: str, step_sec: int = 30):
+    """Belirli bir zaman araligi icin, GERCEKTEN veri olan sabit-araliklarla
+    (step_sec) "adim" zaman damgalarini dondurur -- tekrar oynatma (replay)
+    ozelligi bunlar arasinda adim adim ilerler.
+
+    ONEMLI (canli testte YAKALANAN gercek sorun -- tekrar denenmesin):
+    ONCEDEN bu endpoint HER adimin TUM ucak listesini ("frames") TEK bir
+    payload'da donduruyordu. Kuresel trafikte (~7000 ucak) 40 adim bile
+    ~30MB'a cikti -- tarayicida indirip parse etmek pratik olarak
+    calismadi (kullanicidan "hiçbir şey olmuyor" geri bildirimi bu
+    yuzdendi). Artik SADECE hafif zaman damgasi listesi donuyor, her
+    adimin ucak listesi AYRI/hafif bir istekle (/api/replay_frame)
+    cekiliyor -- update_map'in her tick'te /api/flights'i cagirmasiyla
+    AYNI desen (canli trafikte zaten calisan bir boyut/hiz).
+
+    ONEMLI (kapsam kasitli sinirli): en fazla REPLAY_MAX_RANGE_HOURS
+    saatlik aralik -- bu bir universite staj projesi ozelligi,
+    prodüksiyon-olcekli bir replay motoru degil."""
+    try:
+        start_dt = datetime.fromisoformat(start.replace("Z", "+00:00"))
+        end_dt = datetime.fromisoformat(end.replace("Z", "+00:00"))
+    except ValueError:
+        return {"error": "invalid start/end (ISO8601 bekleniyor)"}
+    if end_dt <= start_dt:
+        return {"error": "end, start'tan sonra olmali"}
+    if (end_dt - start_dt) > timedelta(hours=REPLAY_MAX_RANGE_HOURS):
+        end_dt = start_dt + timedelta(hours=REPLAY_MAX_RANGE_HOURS)
+    step_sec = max(5, min(step_sec, 300))
+
+    epoch0 = start_dt.astimezone(timezone.utc)
+    start_s = epoch0.strftime("%Y-%m-%dT%H:%M:%SZ")
+    end_s = end_dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    # SADECE hangi zaman damgalarinda veri VAR oldugunu ogrenmek icin --
+    # tek bir field (lat) yeterli, ucaklarin kendisi burada DONMUYOR.
+    flux = f'''
+    from(bucket: "{INFLUX_BUCKET}")
+      |> range(start: {start_s}, stop: {end_s})
+      |> filter(fn: (r) => r["_measurement"] == "flights")
+      |> filter(fn: (r) => r["_field"] == "lat")
+      |> keep(columns: ["_time"])
+    '''
+    try:
+        tables = _query_api.query_data_frame(flux)
+        if isinstance(tables, list):
+            tables = pd.concat(tables, ignore_index=True) if tables else pd.DataFrame()
     except Exception as e:
         return {"error": str(e)}
+
+    if tables.empty:
+        return {"steps": [], "step_sec": step_sec}
+
+    tables["_time"] = pd.to_datetime(tables["_time"], utc=True)
+    buckets = sorted(((tables["_time"] - epoch0).dt.total_seconds() // step_sec)
+                      .astype(int).unique().tolist())
+    steps = [(epoch0 + timedelta(seconds=b * step_sec)).strftime("%Y-%m-%dT%H:%M:%SZ")
+             for b in buckets]
+    return {"steps": steps, "step_sec": step_sec}
+
+
+@lru_cache(maxsize=512)
+def _query_replay_frame_cached(start_s: str, end_s: str) -> str:
+    """get_replay_frame'in asil sorgusu -- SONUCU cache'ler (JSON STRING
+    olarak, liste DEGIL -- cagiran taraf kazayla mutasyona ugratamasin
+    diye). ONEMLI (performans, kullanicidan "çok yavaş" geri bildirimi
+    uzerine eklendi): gecmis bir zaman penceresindeki InfluxDB verisi
+    ARTIK DEGISMEZ (retroaktif yazma yok) -- ayni (start_s, end_s) icin
+    tekrar sorgu atmak tamamen gereksiz. advance_replay_tick sona gelince
+    BASA SARDIGI icin (bkz. o fonksiyonun yorumu) ayni kareler defalarca
+    istenir -- ilk turdan sonraki turlar artik InfluxDB'ye HIC gitmeden,
+    ANINDA cache'ten donuyor."""
+    flux = f'''
+    from(bucket: "{INFLUX_BUCKET}")
+      |> range(start: {start_s}, stop: {end_s})
+      |> filter(fn: (r) => r["_measurement"] == "flights")
+      |> filter(fn: (r) => r["_field"] == "lat" or r["_field"] == "lon"
+                         or r["_field"] == "alt" or r["_field"] == "track"
+                         or r["_field"] == "velocity")
+      |> pivot(rowKey: ["_time", "icao24"], columnKey: ["_field"], valueColumn: "_value")
+    '''
+    try:
+        tables = _query_api.query_data_frame(flux)
+        if isinstance(tables, list):
+            tables = pd.concat(tables, ignore_index=True) if tables else pd.DataFrame()
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+    if tables.empty or "icao24" not in tables.columns:
+        return "[]"
+
+    for col in ["lat", "lon", "alt", "track", "velocity"]:
+        if col not in tables.columns:
+            tables[col] = None
+    tables = tables.dropna(subset=["lat", "lon"])
+    if tables.empty:
+        return "[]"
+    tables["_time"] = pd.to_datetime(tables["_time"], utc=True)
+    # Bu dar pencerede (step_sec) ayni ucaktan birden fazla nokta varsa
+    # en sonuncusu -- get_replay'in ONCEKI (artik kaldirilan) bucket
+    # mantigiyla AYNI netice, sadece tek adim icin.
+    latest = tables.sort_values("_time").groupby("icao24", as_index=False).last()
+    cols = ["icao24", "lat", "lon", "alt", "track", "velocity"]
+    # ONEMLI: df.to_json() -- NaN'i otomatik null'a cevirir (bkz. get_history/
+    # get_replay'deki AYNI duzeltme, elle None kontrolu GEREKMEZ).
+    return latest[cols].to_json(orient="records")
+
+
+@app_api.get("/api/replay_frame")
+def get_replay_frame(ts: str, step_sec: int = 30):
+    """TEK BIR replay karesi -- get_replay()'in dondurdugu "steps"
+    listesindeki bir zaman damgasi (ts) icin, [ts, ts+step_sec) penceresindeki
+    TUM ucaklarin en son bilinen konumu. render_replay_frame (Dash callback)
+    her adim degistiginde bunu cagirir -- update_map'in /api/flights'i her
+    tick'te cagirmasiyla AYNI desen (bkz. get_replay docstring'i -- boyut
+    sorunu bu ikiye bolmeyle cozuldu). Asil sorgu _query_replay_frame_cached'te
+    -- tekrarlanan (orn. dongude basa saran) istekler InfluxDB'ye gitmez."""
+    try:
+        start_dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+    except ValueError:
+        return {"error": "invalid ts (ISO8601 bekleniyor)"}
+    step_sec = max(5, min(step_sec, 300))
+    end_dt = start_dt + timedelta(seconds=step_sec)
+    start_s = start_dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    end_s = end_dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return json.loads(_query_replay_frame_cached(start_s, end_s))
 
 
 GEOCODE_CACHE_TTL = 60 * 60 * 24 * 30  # 30 gun -- yer adlari neredeyse hic degismez
@@ -969,6 +1145,32 @@ STATS_PANEL_BASE = {
     "boxShadow": "0 8px 24px rgba(0,0,0,0.5)",
     "padding": "14px", "zIndex": 900,
 }
+EMERGENCY_PANEL_BASE = {
+    "position": "absolute", "top": "60px", "right": "108px",
+    "width": "300px", "maxHeight": "320px", "overflowY": "auto",
+    "backgroundColor": "rgba(15,15,25,0.97)",
+    "border": "1px solid #e63946",
+    "borderRadius": "10px",
+    "boxShadow": "0 8px 24px rgba(0,0,0,0.5)",
+    "padding": "14px", "zIndex": 900,
+}
+EMERGENCY_ROW_STYLE = {
+    "width": "100%", "textAlign": "left", "padding": "8px 10px",
+    "borderRadius": "5px", "border": "1px solid #e63946",
+    "backgroundColor": "#2a0f13", "cursor": "pointer", "marginBottom": "6px",
+    "color": "#fff",
+}
+REPLAY_PANEL_BASE = {
+    "position": "absolute", "top": "60px", "right": "156px",
+    "width": "300px",
+    "backgroundColor": "rgba(15,15,25,0.97)",
+    "border": "1px solid #2a2a4a",
+    "borderRadius": "10px",
+    "boxShadow": "0 8px 24px rgba(0,0,0,0.5)",
+    "padding": "14px", "zIndex": 900,
+}
+REPLAY_COLOR = "#f7b731"  # canli haritadaki (#00b4d8) mavi/askeri yesilden AYRI -- kullanici
+                          # bunun bir "gecmis" gorunum oldugunu tek bakista ayirt etsin
 
 DEFAULT_TIMEZONE = 3  # UTC+3, Turkiye -- dropdown "value" olarak int kullanilir
 
@@ -994,6 +1196,11 @@ HISTORY_CALC_BTN_STYLE = {
     "padding": "6px 12px", "borderRadius": "5px", "border": "1px solid #00b4d8",
     "backgroundColor": "#00b4d8", "color": "#07070e", "fontSize": "11px",
     "fontWeight": "700", "cursor": "pointer", "flexShrink": 0, "whiteSpace": "nowrap",
+}
+HISTORY_DOWNLOAD_BTN_STYLE = {
+    "padding": "6px 10px", "borderRadius": "5px", "border": "1px solid #2a2a4a",
+    "backgroundColor": "#161625", "color": "#c8d0e0", "fontSize": "13px",
+    "cursor": "pointer", "flexShrink": 0,
 }
 
 # Dil secim butonlari (TR/EN) -- iki durumlu (aktif/pasif) stil, hangisinin
@@ -1062,6 +1269,13 @@ app_dash.layout = html.Div(id="app-root", style={
     # poligon geometrisi clientside_callback'te (JS, sayfa sonunda)
     # hesaplanip "aircraft-geojson"a yaziliyor, bkz. update_map yorumu.
     dcc.Store(id="aircraft-raw", data={"type": "FeatureCollection", "features": []}),
+    # Acil durum listesi (squawk 7500/7600/7700 veya emergency alani dolu
+    # olan ucaklar) -- update_map her tick'te dolduruyor, panel bunu okuyor
+    # (ayri bir /api/flights istegi atmadan, bkz. update_map yorumu).
+    dcc.Store(id="emergency-alerts-data", data=[]),
+    # Hangi icao24'ler icin oto-odaklama (bkz. auto_focus_new_emergency)
+    # zaten yapildigini hatirlar -- ayni acil durum icin TEKRAR tetiklenmesin.
+    dcc.Store(id="emergency-seen", data=[]),
     # "Onceki Ucuslar" listesi -- HAM segment verisi (start/end/duration,
     # bkz. /api/flight_segments) burada tutuluyor, gorunen liste (butonlar)
     # bunun uzerinden index'le esleniyor. Secili segment (haritada su an
@@ -1209,6 +1423,138 @@ app_dash.layout = html.Div(id="app-root", style={
                   config={"displayModeBar": False}),
     ]),
     dcc.Store(id="stats-open", data=False),
+
+    # ---------------------------------------- Acil durum butonu (overlay) --
+    # Istatistik dugmesinin HEMEN SOLUNDA (right: 108px = 60 + 40 + 8).
+    # emergency-alerts-data doluyken kirmizi kenarlik/rozet ile vurgulanir
+    # (bkz. update_emergency_badge) -- panel kapaliyken bile fark edilsin diye.
+    html.Button("🚨", id="emergency-btn", n_clicks=0, style={
+        "position": "absolute", "top": "12px", "right": "108px",
+        "width": "40px", "height": "40px", "borderRadius": "50%",
+        "backgroundColor": "#000000", "border": "1px solid #2a2a4a",
+        "color": "#c8d0e0", "fontSize": "18px", "cursor": "pointer", "zIndex": 900,
+    }),
+
+    # ---------------------------------------- Acil durum paneli (overlay) --
+    # /api/alerts (ML ekibinin ileride dolduracagi, henuz BOS anomali
+    # kanalindan) TAMAMEN AYRI -- bu, ucagin KENDI yaydigi ADS-B acil
+    # durum sinyalini (squawk 7500/7600/7700 / emergency alani) gosterir,
+    # veri bugun bile mevcut. Kaynak: emergency-alerts-data (update_map
+    # her tick'te dolduruyor, bkz. o callback'teki yorum).
+    html.Div(id="emergency-panel", style={**EMERGENCY_PANEL_BASE, "display": "none"},
+             children=[
+        html.Div(style={"display": "flex", "justifyContent": "space-between",
+                        "alignItems": "center", "marginBottom": "10px"}, children=[
+            html.H4("Acil Durumlar", id="emergency-title",
+                    style={"margin": 0, "fontSize": "14px", "color": "#e63946"}),
+            html.Button("×", id="close-emergency-btn", n_clicks=0, style={
+                "background": "none", "border": "none", "color": "#888",
+                "fontSize": "20px", "cursor": "pointer", "lineHeight": "1",
+                "padding": "0 4px",
+            }),
+        ]),
+        html.Div(id="emergency-panel-list"),
+    ]),
+    dcc.Store(id="emergency-open", data=False),
+
+    # -------------------------------------- Tekrar oynatma butonu (overlay) --
+    # Acil durum dugmesinin HEMEN SOLUNDA (right: 156px = 108 + 40 + 8).
+    html.Button("🎬", id="replay-btn", n_clicks=0, style={
+        "position": "absolute", "top": "12px", "right": "156px",
+        "width": "40px", "height": "40px", "borderRadius": "50%",
+        "backgroundColor": "#000000", "border": "1px solid #2a2a4a",
+        "color": "#c8d0e0", "fontSize": "18px", "cursor": "pointer", "zIndex": 900,
+    }),
+
+    # -------------------------------------- Tekrar oynatma paneli (overlay) --
+    # InfluxDB'deki gecmis veriyi (7 gune kadar) secilen bir zaman
+    # araliginda haritada "oynatiyor" -- update_map ile AYNI GeoJSON/canvas
+    # render hattini kullanir (bkz. render_replay_frame), sadece veri
+    # kaynagi canli tick yerine onceden yuklenmis "frames" listesi olur.
+    # replay-mode acikken update_map kendi cizimini YAPMIYOR (bkz. o
+    # callback'teki kontrol) -- ikisi ayni Store'a (aircraft-raw) yazdigi
+    # icin CARPISMASINLAR diye.
+    html.Div(id="replay-panel", style={**REPLAY_PANEL_BASE, "display": "none"},
+             children=[
+        html.Div(style={"display": "flex", "justifyContent": "space-between",
+                        "alignItems": "center", "marginBottom": "10px"}, children=[
+            html.H4("Tekrar Oynatma", id="replay-title",
+                    style={"margin": 0, "fontSize": "14px", "color": REPLAY_COLOR}),
+            html.Button("×", id="close-replay-btn", n_clicks=0, style={
+                "background": "none", "border": "none", "color": "#888",
+                "fontSize": "20px", "cursor": "pointer", "lineHeight": "1",
+                "padding": "0 4px",
+            }),
+        ]),
+        html.Div(style={"display": "flex", "alignItems": "center", "gap": "6px",
+                        "marginBottom": "6px"}, children=[
+            html.Span("Başlangıç", id="replay-start-label",
+                     style={"fontSize": "10px", "color": "#888", "width": "48px"}),
+            dcc.Dropdown(id="replay-start-day", options=[], value=None,
+                        placeholder="Gün", clearable=True, searchable=False,
+                        className="dark-dropdown", style={"width": "78px", "fontSize": "11px"}),
+            dcc.Dropdown(id="replay-start-hour", options=HISTORY_HOUR_OPTIONS, value=None,
+                        placeholder="Saat", clearable=True, searchable=False,
+                        className="dark-dropdown", style={"width": "64px", "fontSize": "11px"}),
+        ]),
+        html.Div(style={"display": "flex", "alignItems": "center", "gap": "6px",
+                        "marginBottom": "10px"}, children=[
+            html.Span("Bitiş", id="replay-end-label",
+                     style={"fontSize": "10px", "color": "#888", "width": "48px"}),
+            dcc.Dropdown(id="replay-end-day", options=[], value=None,
+                        placeholder="Gün", clearable=True, searchable=False,
+                        className="dark-dropdown", style={"width": "78px", "fontSize": "11px"}),
+            dcc.Dropdown(id="replay-end-hour", options=HISTORY_HOUR_OPTIONS, value=None,
+                        placeholder="Saat", clearable=True, searchable=False,
+                        className="dark-dropdown", style={"width": "64px", "fontSize": "11px"}),
+        ]),
+        html.Div(style={"display": "flex", "gap": "6px", "marginBottom": "8px"}, children=[
+            html.Button("Yükle", id="replay-load-btn", n_clicks=0,
+                       style={**HISTORY_CALC_BTN_STYLE, "flex": "1",
+                              "backgroundColor": REPLAY_COLOR, "border": f"1px solid {REPLAY_COLOR}"}),
+            html.Button("▶", id="replay-play-btn", n_clicks=0,
+                       style={**HISTORY_DOWNLOAD_BTN_STYLE, "width": "36px"}),
+            # ONEMLI: hiz, tick ARALIGINI (sabit 2sn -- bkz. replay-tick
+            # tanimi) DEGISTIRMIYOR, her tick'te KAC ADIM birden ilerlenecegini
+            # degistiriyor (bkz. advance_replay_tick). Boylece render/InfluxDB
+            # istegi HER ZAMAN ayni (guvenli) hizda kalir -- yuksek hizda
+            # tekrar "çok yavaş" sorununa donmeyiz, sadece ekranda daha fazla
+            # gercek zaman atlanir.
+            dcc.Dropdown(
+                id="replay-speed-dropdown",
+                options=[{"label": "0.5×", "value": 0.5}, {"label": "1×", "value": 1},
+                        {"label": "2×", "value": 2}, {"label": "4×", "value": 4},
+                        {"label": "8×", "value": 8}],
+                value=1, clearable=False, searchable=False,
+                className="dark-dropdown", style={"width": "68px", "fontSize": "11px", "flexShrink": 0},
+            ),
+        ]),
+        html.Div(id="replay-feedback", style={"fontSize": "12px", "color": "#c8d0e0",
+                                              "marginBottom": "6px", "fontWeight": "600"}),
+        html.Div(id="replay-step-label", style={"fontSize": "11px", "color": "#888",
+                                                "marginBottom": "6px"}),
+        html.Button("Canlıya Dön", id="replay-live-btn", n_clicks=0, style={
+            "width": "100%", "padding": "6px 0", "borderRadius": "5px",
+            "border": "1px solid #2a2a4a", "backgroundColor": "#161625",
+            "color": "#888", "fontSize": "11px", "cursor": "pointer",
+        }),
+    ]),
+    dcc.Store(id="replay-open", data=False),
+    dcc.Store(id="replay-data", data={"steps": [], "frames": []}),
+    dcc.Store(id="replay-index", data=0),
+    dcc.Store(id="replay-playing", data=False),
+    dcc.Store(id="replay-mode", data=False),
+    dcc.Store(id="replay-speed", data=1),
+    # Hiz 1'den kucukse (0.5x) bir adim BIRDEN FAZLA tick surer -- kalan
+    # kesirli ilerlemeyi tick'ler arasi tasir (bkz. advance_replay_tick).
+    dcc.Store(id="replay-progress", data=0.0),
+    # ONEMLI (performans, "çok yavaş" geri bildirimi uzerine 1000ms'den
+    # yukseltildi): her adimda hem InfluxDB sorgusu hem de ~7000 ucagin
+    # tarayicida yeniden geometrisi hesaplaniyor (bkz. clientside_callback,
+    # sayfa sonu) -- 1sn bu isi bitirmeye yetmeyip istekler birikince
+    # tarayici "donuyormus" gibi gorunuyordu. 2sn, bir onceki adimin
+    # tamamlanmasina yetecek payi biraktigi icin daha akici.
+    dcc.Interval(id="replay-tick", interval=2000, disabled=True, n_intervals=0),
 
     # ------------------------------------------- Ayarlar paneli (overlay) --
     html.Div(id="settings-panel", style={**SETTINGS_PANEL_BASE, "display": "none"},
@@ -1369,6 +1715,9 @@ app_dash.layout = html.Div(id="app-root", style={
             ]),
             html.Button("Hesapla", id="history-calculate-btn", n_clicks=0,
                        style=HISTORY_CALC_BTN_STYLE),
+            html.Button("⬇", id="history-download-btn", n_clicks=0,
+                       title="CSV olarak indir", style=HISTORY_DOWNLOAD_BTN_STYLE),
+            dcc.Download(id="history-download"),
         ]),
         dcc.Graph(id="history-chart", style={"height": "160px"},
                   config={"displayModeBar": False}),
@@ -1402,17 +1751,29 @@ app_dash.layout = html.Div(id="app-root", style={
 
 
 @app_dash.callback(
-    [Output("aircraft-raw", "data"), Output("status", "children")],
+    [Output("aircraft-raw", "data"), Output("status", "children"),
+     Output("emergency-alerts-data", "data")],
     [Input("tick", "n_intervals"), Input("timezone-setting", "data"),
      Input("language-setting", "data"), Input("show-civil", "data"),
-     Input("show-military", "data"), Input("show-ground", "data")]
+     Input("show-military", "data"), Input("show-ground", "data"),
+     Input("replay-mode", "data")]
 )
-def update_map(n, tz_name, lang, show_civil, show_military, show_ground):
+def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_mode):
     # ONEMLI: bu artik haritaya DOGRUDAN cizilen "aircraft-geojson"u degil,
     # HAM nokta verisini ("aircraft-raw") dolduruyor -- ucak sekli/boyutu
     # (poligon geometrisi) artik clientside_callback'te (asagida, sayfa
     # sonunda) JS'de hesaplaniyor, bkz. yukaridaki buyuk yorum blogu
     # (2 basarisiz Python-tarafi deneme sonrasi).
+    #
+    # ONEMLI (replay): replay-mode acikken (bkz. load_replay_data/
+    # exit_replay_mode) CANLI veriyi HARITAYA yazmiyoruz -- render_replay_frame
+    # zaten "aircraft-raw"i kendi kareleriyle besliyor, ikisi CARPISMASIN.
+    # replay-mode Input oldugu icin (State degil) kullanici "Canlıya Dön"e
+    # basar basmaz, bir sonraki tick'i beklemeden ANINDA canli goruntuye
+    # doner.
+    if replay_mode:
+        return dash.no_update, dash.no_update, dash.no_update
+
     tz = _resolve_tz(tz_name)
     t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
     cat_labels = CATEGORY_LABELS.get(lang, CATEGORY_LABELS[DEFAULT_LANGUAGE])
@@ -1429,6 +1790,37 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground):
     # butonu koyuldu) -- ama kirmizi marker renklendirmesi icin
     # alert_icaos hala gerekli, o yuzden fetch etmeye devam ediyoruz.
     alert_icaos = {a.get("icao24") for a in alerts}
+
+    # ONEMLI: bu, /api/alerts'ten (ML ekibinin ileride "adsb.alerts" Kafka
+    # topic'ine yazacagi, henuz BOS olan anomali alarmlari) TAMAMEN AYRI --
+    # burada ucagin KENDI yaydigi ADS-B acil durum sinyali (squawk 7500/
+    # 7600/7700 veya emergency alani "none" degil) kontrol ediliyor. Ayni
+    # kirmizi renklendirmeyi (alert_icaos) paylasiyor, ayrica "Acil Durum"
+    # panelini (asagida ayri bir Store/callback) besliyor. update_map zaten
+    # her tick'te flights'i cektigi icin panel icin AYRI bir /api/flights
+    # istegi atmiyoruz -- panel bu Store'u okuyor.
+    emg_labels_map = EMERGENCY_LABELS.get(lang, EMERGENCY_LABELS[DEFAULT_LANGUAGE])
+    emergency_rows = []
+    for f in flights:
+        squawk = f.get("squawk") or ""
+        emg_label = emg_labels_map.get(f.get("emergency") or "none")
+        if not (emg_label or squawk in ("7500", "7600", "7700")):
+            continue
+        icao = f.get("icao24", "")
+        alert_icaos.add(icao)
+        ts_raw = f.get("ts", "")
+        try:
+            ts_dt = datetime.fromisoformat(ts_raw.replace("Z", "+00:00"))
+            ts_display = ts_dt.astimezone(tz).strftime("%H:%M:%S")
+        except Exception:
+            ts_display = "—"
+        emergency_rows.append({
+            "icao24": icao,
+            "callsign": (f.get("callsign") or "").strip() or icao.upper(),
+            "squawk": squawk or "—",
+            "label": emg_label or t["emergency_squawk"].format(squawk=squawk),
+            "ts": ts_display,
+        })
 
     # ONEMLI: askeri/sivil filtre sol-ust butonlarindan geliyor. Ikisi de
     # acikken (varsayilan) davranis eskisiyle birebir ayni -- hicbir ucak
@@ -1526,7 +1918,7 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground):
     ts = datetime.now(tz).strftime("%H:%M:%S")
     status = t["status_bar"].format(ts=ts, n=len(flights), a=len(alerts))
 
-    return raw_data, status
+    return raw_data, status, emergency_rows
 
 
 @app_dash.callback(
@@ -1676,6 +2068,116 @@ def show_stats_panel(is_open):
     style = dict(STATS_PANEL_BASE)
     style["display"] = "block" if is_open else "none"
     return style
+
+
+@app_dash.callback(
+    Output("emergency-open", "data"),
+    [Input("emergency-btn", "n_clicks"), Input("close-emergency-btn", "n_clicks")],
+    State("emergency-open", "data"),
+    prevent_initial_call=True,
+)
+def toggle_emergency_open(open_clicks, close_clicks, is_open):
+    """toggle_stats_open ile BIREBIR ayni ac/kapa deseni."""
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+    trigger = ctx.triggered[0]["prop_id"]
+    if trigger == "close-emergency-btn.n_clicks":
+        return False
+    if trigger == "emergency-btn.n_clicks":
+        return not is_open
+    return dash.no_update
+
+
+@app_dash.callback(
+    Output("emergency-panel", "style"),
+    Input("emergency-open", "data"),
+)
+def show_emergency_panel(is_open):
+    style = dict(EMERGENCY_PANEL_BASE)
+    style["display"] = "block" if is_open else "none"
+    return style
+
+
+@app_dash.callback(
+    Output("emergency-btn", "style"),
+    Input("emergency-alerts-data", "data"),
+)
+def update_emergency_badge(rows):
+    """Panel kapaliyken bile aktif acil durum oldugunu belli etmek icin
+    dugmenin kenarligini/rengini kirmiziya ceviriyor -- kullanici paneli
+    hic acmasa da fark etsin diye."""
+    style = {
+        "position": "absolute", "top": "12px", "right": "108px",
+        "width": "40px", "height": "40px", "borderRadius": "50%",
+        "fontSize": "18px", "cursor": "pointer", "zIndex": 900,
+    }
+    if rows:
+        style.update({"backgroundColor": "#e63946", "border": "1px solid #e63946",
+                      "color": "#fff"})
+    else:
+        style.update({"backgroundColor": "#000000", "border": "1px solid #2a2a4a",
+                      "color": "#c8d0e0"})
+    return style
+
+
+@app_dash.callback(
+    Output("emergency-panel-list", "children"),
+    [Input("emergency-alerts-data", "data"), Input("language-setting", "data")],
+)
+def update_emergency_list(rows, lang):
+    """emergency-alerts-data'yi (update_map dolduruyor) salt-okunur bir
+    listeye ceviriyor -- bilgi amacli, TIKLANAMAZ (bkz. auto_focus_new_emergency:
+    ilgili ucak zaten ILK GORULDUGUNDE otomatik seciliyor, ayrica tiklama
+    gerekmiyor -- eskiden buton+n_clicks vardi ama bu liste her tick'te
+    yeniden kuruldugu icin n_clicks 0'a sifirlaniyor, bu da Dash'te
+    "tiklama" gibi algilanip kullanici paneli kapatsa bile ucagi TEKRAR
+    seciyordu -- kullanici geri bildirimi: "kapatsak bile yeniden
+    açılıyor". Kok neden buydu, en saglam cozum tiklamayi TAMAMEN
+    kaldirmak oldu)."""
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
+    if not rows:
+        return html.Div(t["no_emergency"], style={"color": "#666", "fontSize": "13px"})
+
+    return [
+        html.Div(
+            [
+                html.Div(f"{r['callsign']}  ·  {r['icao24'].upper()}",
+                        style={"fontWeight": "600", "fontSize": "13px"}),
+                html.Div(f"{r['label']}  ·  squawk {r['squawk']}  ·  {r['ts']}",
+                        style={"fontSize": "11px", "color": "#ffb3ba", "marginTop": "2px"}),
+            ],
+            style={**EMERGENCY_ROW_STYLE, "cursor": "default"},
+        )
+        for r in rows
+    ]
+
+
+@app_dash.callback(
+    [Output("aircraft-select", "data", allow_duplicate=True),
+     Output("emergency-seen", "data")],
+    Input("emergency-alerts-data", "data"),
+    State("emergency-seen", "data"),
+    prevent_initial_call=True,
+)
+def auto_focus_new_emergency(rows, seen):
+    """Kullanici istegi: bir ucak acil durum yayinlamaya BASLADIGINDA
+    otomatik olarak o ucaga git (sol panel acilsin), ama kullanici
+    paneli KAPATTIKTAN SONRA ayni (hala devam eden) acil durum icin bir
+    daha KENDILIGINDEN acilmasin.
+
+    "emergency-seen" -- hangi icao24'ler icin zaten oto-odaklama
+    yapildigini hatirliyor (session boyunca kalici). emergency-alerts-data
+    HER tick'te (15sn) yeniden dolduruluyor -- ayni ucak hala acil
+    durumda olsa bile "seen" listesindeyse BIR DAHA tetiklenmiyor, sadece
+    GERCEKTEN yeni bir icao24 gorununce (once hic emergency olmayan bir
+    ucak simdi emergency oldu) devreye giriyor."""
+    seen_set = set(seen or [])
+    new_icaos = [r["icao24"] for r in (rows or []) if r["icao24"] not in seen_set]
+    if not new_icaos:
+        return dash.no_update, dash.no_update
+    seen_set.update(new_icaos)
+    return new_icaos[0], sorted(seen_set)
 
 
 @app_dash.callback(
@@ -1889,7 +2391,11 @@ def update_base_tile_layer(style):
      Output("callsign-search-input", "placeholder"),
      Output("stats-title", "children"),
      Output("data-source-label", "children"),
-     Output("previous-flights-title", "children")],
+     Output("previous-flights-title", "children"),
+     Output("emergency-title", "children"),
+     Output("replay-title", "children"),
+     Output("replay-start-label", "children"), Output("replay-end-label", "children"),
+     Output("replay-load-btn", "children"), Output("replay-live-btn", "children")],
     Input("language-setting", "data"),
 )
 def update_static_texts(lang):
@@ -1905,7 +2411,10 @@ def update_static_texts(lang):
             t["history_day_placeholder"], t["history_day_placeholder"],
             t["history_hour_placeholder"], t["history_hour_placeholder"],
             t["history_calculate_label"], t["callsign_search_placeholder"],
-            t["stats_title"], t["data_source_label"], t["previous_flights_title"])
+            t["stats_title"], t["data_source_label"], t["previous_flights_title"],
+            t["emergency_panel_title"], t["replay_panel_title"],
+            t["history_range_placeholder_start"], t["history_range_placeholder_end"],
+            t["replay_load_label"], t["replay_live_label"])
 
 
 @app_dash.callback(
@@ -2500,7 +3009,8 @@ def update_history_metric_options(lang):
 
 
 @app_dash.callback(
-    [Output("history-start-day", "options"), Output("history-end-day", "options")],
+    [Output("history-start-day", "options"), Output("history-end-day", "options"),
+     Output("replay-start-day", "options"), Output("replay-end-day", "options")],
     [Input("tick", "n_intervals"), Input("timezone-setting", "data")],
 )
 def update_history_day_options(n, tz_name):
@@ -2509,12 +3019,14 @@ def update_history_day_options(n, tz_name):
     ve gece yarisi gecince ("bugun" degisince) sayfa yenilenmeden kendini
     duzeltsin diye sabit/bir kerelik hesaplanmiyor. Kullanicinin SU AN
     sectigi saat dilimine gore -- UTC'ye gore hesaplansaydi "bugun" sinir
-    kullanicinin yerel gece yarisindan saatlerce once/sonra kayardi."""
+    kullanicinin yerel gece yarisindan saatlerce once/sonra kayardi.
+    Ayni secenek listesi replay panelinin gun dropdown'larinda da
+    kullaniliyor (aircraft-select'e bagli DEGIL, o yuzden paylasilabilir)."""
     tz = _resolve_tz(tz_name)
     today = datetime.now(tz).date()
     days = [today - timedelta(days=i) for i in range(7, -1, -1)]
     options = [{"label": d.strftime("%d.%m"), "value": d.isoformat()} for d in days]
-    return options, options
+    return options, options, options, options
 
 
 @app_dash.callback(
@@ -2587,6 +3099,290 @@ def update_history(n, icao24, tz_name, lang, metric, calc_clicks,
                              line=dict(color=color, width=1.5)))
     fig.update_layout(yaxis=dict(title=label), showlegend=False)
     return fig
+
+
+@app_dash.callback(
+    Output("history-download", "data"),
+    Input("history-download-btn", "n_clicks"),
+    [State("aircraft-select", "data"), State("timezone-setting", "data"),
+     State("history-start-day", "value"), State("history-start-hour", "value"),
+     State("history-end-day", "value"), State("history-end-hour", "value")],
+    prevent_initial_call=True,
+)
+def download_history_csv(n_clicks, icao24, tz_name, start_day, start_hour, end_day, end_hour):
+    """update_history'deki gun/saat -> UTC cozumlemesiyle AYNI mantik --
+    grafikte GORULEN aralikla indirilen CSV'nin aralik AYNI olsun diye.
+    FastAPI endpoint'ine (/api/history/{icao24}/csv) HTTP ile gitmek yerine
+    _query_history_df'i DOGRUDAN cagiriyoruz -- ayni process, ekstra ag
+    gidis-donusune gerek yok."""
+    if not icao24:
+        return dash.no_update
+
+    HOURS_DEFAULT = 24
+    tz = _resolve_tz(tz_name)
+    params = {"hours": HOURS_DEFAULT}
+    if None not in (start_day, start_hour, end_day, end_hour):
+        start_utc = datetime.fromisoformat(start_day).replace(hour=start_hour, tzinfo=tz) \
+                            .astimezone(timezone.utc)
+        end_utc = datetime.fromisoformat(end_day).replace(hour=end_hour, tzinfo=tz) \
+                          .astimezone(timezone.utc)
+        params = {"start": start_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                  "end": end_utc.strftime("%Y-%m-%dT%H:%M:%SZ")}
+
+    df, err = _query_history_df(icao24, **params)
+    if err or df is None or df.empty:
+        return dash.no_update
+
+    csv_str = df.rename(columns={"_time": "timestamp_utc"}).to_csv(index=False)
+    return dcc.send_string(csv_str, filename=f"{icao24}_history.csv")
+
+
+@app_dash.callback(
+    Output("replay-open", "data"),
+    [Input("replay-btn", "n_clicks"), Input("close-replay-btn", "n_clicks")],
+    State("replay-open", "data"),
+    prevent_initial_call=True,
+)
+def toggle_replay_open(open_clicks, close_clicks, is_open):
+    """toggle_stats_open/toggle_emergency_open ile AYNI ac/kapa deseni."""
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+    trigger = ctx.triggered[0]["prop_id"]
+    if trigger == "close-replay-btn.n_clicks":
+        return False
+    if trigger == "replay-btn.n_clicks":
+        return not is_open
+    return dash.no_update
+
+
+@app_dash.callback(
+    Output("replay-panel", "style"),
+    Input("replay-open", "data"),
+)
+def show_replay_panel(is_open):
+    style = dict(REPLAY_PANEL_BASE)
+    style["display"] = "block" if is_open else "none"
+    return style
+
+
+@app_dash.callback(
+    [Output("replay-start-day", "value"), Output("replay-start-hour", "value"),
+     Output("replay-end-day", "value"), Output("replay-end-hour", "value")],
+    Input("replay-open", "data"),
+    [State("replay-start-day", "value"), State("replay-start-hour", "value"),
+     State("replay-end-day", "value"), State("replay-end-hour", "value"),
+     State("timezone-setting", "data")],
+    prevent_initial_call=True,
+)
+def set_replay_default_range(is_open, start_day, start_hour, end_day, end_hour, tz_name):
+    """ONEMLI (canli testte YAKALANAN gercek kullanim sorunu): panel ilk
+    acildiginda 4 dropdown da BOS geliyordu -- kullanici hicbirine
+    dokunmadan "Yükle"ye basinca load_replay_data sessizce ("Bu aralıkta
+    veri bulunamadı" -- kucuk, 11px gri yazi, kolayca gozden kaciyor)
+    hicbir sey yapmiyordu, "hic calismiyor" gibi gorunuyordu. Artik panel
+    her acildiginda (VE 4 alan hala bossa -- kullanicinin KENDI secimini
+    EZMIYORUZ) "son 1 saat" gibi makul bir varsayilan aralik otomatik
+    dolduruluyor, boylece hic dokunmadan "Yükle" calisir."""
+    if not is_open:
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update
+    if None not in (start_day, start_hour, end_day, end_hour):
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update
+
+    tz = _resolve_tz(tz_name)
+    now = datetime.now(tz)
+    one_hour_ago = now - timedelta(hours=1)
+    return (one_hour_ago.date().isoformat(), one_hour_ago.hour,
+            now.date().isoformat(), now.hour)
+
+
+@app_dash.callback(
+    [Output("replay-data", "data"), Output("replay-index", "data"),
+     Output("replay-playing", "data"), Output("replay-mode", "data"),
+     Output("replay-feedback", "children"), Output("replay-progress", "data")],
+    Input("replay-load-btn", "n_clicks"),
+    [State("replay-start-day", "value"), State("replay-start-hour", "value"),
+     State("replay-end-day", "value"), State("replay-end-hour", "value"),
+     State("timezone-setting", "data"), State("language-setting", "data")],
+    prevent_initial_call=True,
+)
+def load_replay_data(n_clicks, start_day, start_hour, end_day, end_hour, tz_name, lang):
+    """"Yükle" butonu -- secilen gun/saat araligini get_replay()'e (AYNI
+    process icinde, HTTP round-trip OLMADAN -- bkz. download_history_csv'deki
+    ayni yaklasim) gecirip donen kareleri Store'a koyar. Basariyla yuklenirse
+    replay-mode'u ACAR (update_map artik kendi cizimini durdurur, bkz. o
+    callback), YUKLENEMEZSE (4 dropdown'dan biri bos VEYA aralikta veri
+    yoksa) replay-mode'a hic DOKUNMAZ -- bos bir sonuc canli haritayi
+    donduryormus gibi YANILTMASIN. replay-progress (hiz kontrolundeki
+    kesirli ilerleme, bkz. advance_replay_tick) her yeni yuklemede
+    sifirlanir -- bir onceki oturumdan kalma kesir yeni veriyle karismasin."""
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
+    empty = {"steps": [], "frames": []}
+    if None in (start_day, start_hour, end_day, end_hour):
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, \
+            t["replay_no_data"], dash.no_update
+
+    tz = _resolve_tz(tz_name)
+    start_utc = datetime.fromisoformat(start_day).replace(hour=start_hour, tzinfo=tz) \
+                        .astimezone(timezone.utc)
+    end_utc = datetime.fromisoformat(end_day).replace(hour=end_hour, tzinfo=tz) \
+                      .astimezone(timezone.utc)
+    if end_utc <= start_utc:
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, \
+            t["replay_no_data"], dash.no_update
+
+    result = get_replay(start_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                        end_utc.strftime("%Y-%m-%dT%H:%M:%SZ"))
+    steps = result.get("steps") or []
+    if not steps:
+        return empty, 0, False, False, t["replay_no_data"], 0.0
+
+    return result, 0, False, True, t["replay_loaded_label"].format(n=len(steps)), 0.0
+
+
+@app_dash.callback(
+    Output("replay-playing", "data", allow_duplicate=True),
+    Input("replay-play-btn", "n_clicks"),
+    [State("replay-playing", "data"), State("replay-data", "data")],
+    prevent_initial_call=True,
+)
+def toggle_replay_play(n_clicks, is_playing, data):
+    if not (data and data.get("steps")):
+        return dash.no_update
+    return not is_playing
+
+
+@app_dash.callback(
+    Output("replay-play-btn", "children"),
+    Input("replay-playing", "data"),
+)
+def update_replay_play_label(is_playing):
+    return "⏸" if is_playing else "▶"
+
+
+@app_dash.callback(
+    Output("replay-tick", "disabled"),
+    Input("replay-playing", "data"),
+)
+def sync_replay_interval(is_playing):
+    return not is_playing
+
+
+@app_dash.callback(
+    Output("replay-speed", "data"),
+    Input("replay-speed-dropdown", "value"),
+)
+def set_replay_speed(v):
+    return v or 1
+
+
+@app_dash.callback(
+    [Output("replay-index", "data", allow_duplicate=True),
+     Output("replay-progress", "data")],
+    Input("replay-tick", "n_intervals"),
+    [State("replay-index", "data"), State("replay-data", "data"),
+     State("replay-speed", "data"), State("replay-progress", "data")],
+    prevent_initial_call=True,
+)
+def advance_replay_tick(n, index, data, speed, progress):
+    """Her tick'te (sabit 2sn -- bkz. replay-tick tanimi) "progress"a
+    HIZ kadar eklenir, TAM SAYI kismi kadar adim ilerlenir, kalan kesir
+    bir sonraki tick'e TASINIR. Boylece:
+      - 0.5x gibi 1'den kucuk hizlar duzgun calisir (2 tick'te 1 adim).
+      - 4x/8x gibi yuksek hizlarda render/InfluxDB istek SIKLIGI
+        DEGISMEZ (tick hala 2sn'de bir) -- sadece TEK seferde daha fazla
+        adim atlanir. Boylece hiz kontrolu, daha once "çok yavaş" sorununa
+        yol acan "her saniye render" sorununu GERI GETIRMEZ.
+    Sona gelince BASA SARAR (bkz. eski yorum -- demo/sunum icin surekli
+    donen bir goruntu, "Canlıya Dön" ile istedigi an cikilabiliyor)."""
+    steps = (data or {}).get("steps") or []
+    if not steps:
+        return dash.no_update, dash.no_update
+    speed = speed or 1
+    progress = (progress or 0.0) + speed
+    advance = int(progress)
+    progress -= advance
+    if advance <= 0:
+        return dash.no_update, progress
+    return (index + advance) % len(steps), progress
+
+
+@app_dash.callback(
+    [Output("replay-mode", "data", allow_duplicate=True),
+     Output("replay-playing", "data", allow_duplicate=True)],
+    Input("replay-live-btn", "n_clicks"),
+    prevent_initial_call=True,
+)
+def exit_replay_mode(n_clicks):
+    return False, False
+
+
+@app_dash.callback(
+    [Output("aircraft-raw", "data", allow_duplicate=True),
+     Output("replay-step-label", "children")],
+    [Input("replay-index", "data"), Input("replay-data", "data")],
+    State("language-setting", "data"),
+    prevent_initial_call=True,
+)
+def render_replay_frame(index, data, lang):
+    """index'teki adimin ucak listesini AYRI/hafif bir istekle
+    (/api/replay_frame) ceker, update_map'in ciktisiyla AYNI GeoJSON-Point/
+    properties semasinda "aircraft-raw"a yazar -- boylece haritanin geri
+    kalani (clientside geometri hesabi, canvas render, tooltip) HICBIR SEY
+    degistirmeden canli/replay ikisinde de ayni sekilde calisir.
+
+    ONEMLI: eskiden TUM kareler "replay-data" Store'unda onceden
+    yuklenmisti -- kuresel trafikte bu Store'un kendisi ~30MB'a cikip
+    tarayicida pratik olarak calismiyordu (bkz. get_replay docstring'i).
+    Artik SADECE o anki adimin verisi, update_map'in /api/flights'i her
+    tick'te cekmesiyle AYNI boyut/hizda cekiliyor.
+
+    callsign InfluxDB'de YOK (bkz. get_replay docstring'i) -- icao24
+    fallback olarak kullanilir, canli haritadaki "callsign or
+    icao.upper()" ile ayni desen."""
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
+    steps = (data or {}).get("steps") or []
+    step_sec = (data or {}).get("step_sec", 30)
+    if not steps or index is None or not (0 <= index < len(steps)):
+        return dash.no_update, ""
+
+    try:
+        frame = requests.get("http://localhost:8000/api/replay_frame",
+                             params={"ts": steps[index], "step_sec": step_sec},
+                             timeout=5).json()
+        if isinstance(frame, dict):  # {"error": ...}
+            frame = []
+    except Exception:
+        frame = []
+
+    features = []
+    for f in frame:
+        icao = f.get("icao24", "")
+        lat, lon = f.get("lat"), f.get("lon")
+        if lat is None or lon is None:
+            continue
+        track = f.get("track") or 0
+        features.append({
+            "type": "Feature",
+            "geometry": {"type": "Point", "coordinates": [lon, lat]},
+            "properties": dict(
+                icao24=icao, callsign=icao.upper(), color=REPLAY_COLOR, opacity=0.9,
+                track=track, subtitle=f"{icao.upper()}  ·  REPLAY",
+                alt_text=(f"{f.get('alt'):.0f} m" if f.get("alt") is not None else "—"),
+                speed_text=(f"{f.get('velocity'):.0f} m/s"
+                           if f.get("velocity") is not None else "—"),
+                track_text=f"{track:.0f}°",
+                vspeed_text="—",
+                lbl_alt=t["tooltip_alt"], lbl_speed=t["tooltip_speed"],
+                lbl_track=t["tooltip_track"], lbl_vspeed=t["tooltip_vspeed"],
+                signal_age_text=None, lbl_signal_age=t["tooltip_signal_age"],
+            ),
+        })
+
+    raw_data = {"type": "FeatureCollection", "features": features}
+    ts_display = steps[index][:19].replace("T", " ")
+    label = f"{index + 1}/{len(steps)}  ·  {ts_display}"
+    return raw_data, label
 
 
 # ONEMLI: bu callback CLIENTSIDE (JS, tarayicida calisir, Python'a HIC
