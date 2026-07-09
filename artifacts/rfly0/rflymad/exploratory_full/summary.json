@@ -1,0 +1,86 @@
+{
+  "official_gate": false,
+  "status": "exploratory_not_official_gate",
+  "best_rows": [
+    {
+      "score_source": "itki_komutu",
+      "decision": "cusum",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.7170842824601367,
+      "mean_false_alarms_per_hour": 8.75527850160729,
+      "seed_count": 5
+    },
+    {
+      "score_source": "itki_komutu",
+      "decision": "threshold",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.6952164009111617,
+      "mean_false_alarms_per_hour": 8.545326667807231,
+      "seed_count": 5
+    },
+    {
+      "score_source": "itki_komutu",
+      "decision": "k_of_n",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.683371298405467,
+      "mean_false_alarms_per_hour": 9.352809826454303,
+      "seed_count": 5
+    },
+    {
+      "score_source": "itki_komutu",
+      "decision": "threshold",
+      "budget": "critical",
+      "mean_event_onset_recall": 0.5603644646924828,
+      "mean_false_alarms_per_hour": 2.8633793383940214,
+      "seed_count": 5
+    },
+    {
+      "score_source": "itki_komutu",
+      "decision": "cusum",
+      "budget": "critical",
+      "mean_event_onset_recall": 0.5170842824601367,
+      "mean_false_alarms_per_hour": 0.9050732995704246,
+      "seed_count": 5
+    },
+    {
+      "score_source": "itki_komutu",
+      "decision": "k_of_n",
+      "budget": "critical",
+      "mean_event_onset_recall": 0.5170842824601367,
+      "mean_false_alarms_per_hour": 4.001794337884535,
+      "seed_count": 5
+    },
+    {
+      "score_source": "exploratory_fusion",
+      "decision": "k_of_n",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.12665148063781323,
+      "mean_false_alarms_per_hour": 0.9278318382112563,
+      "seed_count": 5
+    },
+    {
+      "score_source": "ml9_fusion",
+      "decision": "k_of_n",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.12665148063781323,
+      "mean_false_alarms_per_hour": 0.9278318382112563,
+      "seed_count": 5
+    },
+    {
+      "score_source": "exploratory_fusion",
+      "decision": "cusum",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.11753986332574032,
+      "mean_false_alarms_per_hour": 0.4639159191056281,
+      "seed_count": 5
+    },
+    {
+      "score_source": "ml9_fusion",
+      "decision": "cusum",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.11753986332574032,
+      "mean_false_alarms_per_hour": 0.4639159191056281,
+      "seed_count": 5
+    }
+  ]
+}
