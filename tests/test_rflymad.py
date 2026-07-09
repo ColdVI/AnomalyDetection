@@ -9,6 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
+import pytest
 
 from src.ingestion.rflymad_downloader import is_essential_file
 from src.ml.data.splits import build_split_manifest, session_of
@@ -16,6 +17,8 @@ from src.silver.parse_rflymad import (
     SOURCE_TYPE,
     build_rflymad_silver_from_directory,
     discover_cases,
+    extract_fault_interval_from_test_info,
+    extract_fault_interval_from_ulg_bytes,
     infer_label_from_case,
 )
 
@@ -34,6 +37,40 @@ def test_rflymad_downloader_keeps_testinfo_xlsx_but_skips_bulk_xlsx():
     assert not is_essential_file("Real-Motor/hover/10_1/TrueData/UAVState_data.xlsx")
 
 
+
+def test_extract_fault_interval_from_real_ulg_golden_value():
+    sample = Path(
+        "data/objectstore/bronze/rflymad/Real-Motor/waypoint/185_1/"
+        "log_14_2023-5-26-15-46-26/log_14_2023-5-26-15-46-26.ulg"
+    )
+    if not sample.exists():
+        pytest.skip("local RFLY Real-Motor golden ULog is not available")
+
+    interval = extract_fault_interval_from_ulg_bytes(sample.read_bytes())
+
+    assert interval["fault_interval_source"] == "rfly_ctrl_lxl"
+    assert interval["fault_ctrl_id"] == 123450
+    assert interval["fault_ctrl_mode"] == 1
+    assert interval["fault_onset_s"] == pytest.approx(57.083023, abs=1e-3)
+    assert interval["fault_end_s"] == pytest.approx(117.870669, abs=1e-3)
+
+
+def test_extract_fault_interval_from_test_info_csv_fallback():
+    root = _workspace_tmp()
+    try:
+        info = root / "TestInfo.csv"
+        info.write_text("Fault injection time,24\nTest end time,69\n", encoding="utf-8")
+
+        interval = extract_fault_interval_from_test_info(info)
+
+        assert interval == {
+            "fault_onset_s": 24.0,
+            "fault_end_s": 69.0,
+            "fault_interval_source": "test_info",
+        }
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+
 def test_rflymad_label_mapping_is_fixed_by_subset_and_fault_family():
     assert infer_label_from_case("Real-NoFault/hover/001_1/log_0") == "normal"
     assert infer_label_from_case("Real-No_Fault/hover/001_1/log_0") == "normal"
@@ -41,6 +78,14 @@ def test_rflymad_label_mapping_is_fixed_by_subset_and_fault_family():
     assert (
         infer_label_from_case("Real-Sensors/acce-GPS/447_1/log_71")
         == "sensor_acce_gps_fault"
+    )
+    assert (
+        infer_label_from_case("HIL-Wind/acce-wind/TestCase_106_2414000105")
+        == "sim_acce_fault_wind"
+    )
+    assert (
+        infer_label_from_case("SIL-Wind/SIL-Wind/waypoint-wind/TestCase_200_1")
+        == "sim_waypoint_fault_wind"
     )
 
 

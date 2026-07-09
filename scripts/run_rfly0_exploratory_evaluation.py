@@ -99,6 +99,60 @@ def _ids_sha256(ids: set[str]) -> str:
     return hashlib.sha256("\n".join(sorted(ids)).encode("utf-8")).hexdigest()
 
 
+def _load_rfly_fault_intervals(
+    source_ids: set[str],
+    flight_labels: dict[str, str],
+    *,
+    silver_path: Path = RFLY_SILVER,
+) -> dict[str, tuple[float, float, str]]:
+    """Load interval truth for selected RFLY development flights only."""
+    wanted = sorted(sid for sid in source_ids if sid.startswith("Real-"))
+    if not wanted:
+        return {}
+    cols = [
+        "source_id",
+        "fault_onset_s",
+        "fault_end_s",
+        "fault_interval_source",
+    ]
+    try:
+        rows = pd.read_parquet(silver_path, columns=cols, filters=[("source_id", "in", wanted)])
+    except Exception as exc:
+        raise RuntimeError(
+            "RFLY interval truth requires a refreshed rflymad_silver.parquet with "
+            "fault_onset_s/fault_end_s columns"
+        ) from exc
+
+    seen = set(rows["source_id"].unique())
+    missing: list[str] = []
+    intervals: dict[str, tuple[float, float, str]] = {}
+    for source_id in wanted:
+        label = flight_labels.get(source_id)
+        if label == "normal":
+            continue
+        if source_id not in seen:
+            missing.append(source_id)
+            continue
+        first = rows[rows["source_id"] == source_id].iloc[0]
+        onset = first["fault_onset_s"]
+        end = first["fault_end_s"]
+        if pd.isna(onset) or pd.isna(end) or float(end) < float(onset):
+            missing.append(source_id)
+            continue
+        intervals[source_id] = (
+            float(onset),
+            float(end),
+            str(first.get("fault_interval_source", "unknown")),
+        )
+    if missing:
+        raise AssertionError(
+            "Missing RFLY interval truth for anomalous development flights: "
+            + ", ".join(sorted(missing)[:10])
+            + (" ..." if len(missing) > 10 else "")
+        )
+    return intervals
+
+
 def _build_rfly_splits(
     rfly_features: pd.DataFrame,
     *,
@@ -191,10 +245,16 @@ def _truth_mask(
     *,
     sead_t0: dict[str, float],
     sead_ranges: dict[str, list[tuple[float, float]]],
+    rfly_intervals: dict[str, tuple[float, float, str]],
 ) -> np.ndarray:
     times = group["t_rel_s"].to_numpy(dtype=float)
     if source_id.startswith("Real-"):
-        return np.ones(len(group), dtype=bool) if flight_label != "normal" else np.zeros(len(group), dtype=bool)
+        if flight_label == "normal":
+            return np.zeros(len(group), dtype=bool)
+        if source_id not in rfly_intervals:
+            raise AssertionError(f"Missing interval truth for RFLY anomalous flight: {source_id}")
+        onset, end, _source = rfly_intervals[source_id]
+        return (times >= onset) & (times <= end)
     absolute = uav_sead_absolute_us(times, sead_t0[source_id])
     return range_mask(absolute, sead_ranges.get(source_id, []))
 
@@ -208,6 +268,7 @@ def _evaluate_generic(
     flight_labels: dict[str, str],
     sead_t0: dict[str, float],
     sead_ranges: dict[str, list[tuple[float, float]]],
+    rfly_intervals: dict[str, tuple[float, float, str]],
 ) -> tuple[dict, list[dict], list[dict]]:
     overall_details: list[dict] = []
     label_details: dict[str, list[dict]] = {}
@@ -223,6 +284,7 @@ def _evaluate_generic(
             label,
             sead_t0=sead_t0,
             sead_ranges=sead_ranges,
+            rfly_intervals=rfly_intervals,
         )
         onsets = policy.apply(group[score_col].to_numpy(dtype=float))
         metrics = event_metrics(times, truth, onsets.astype(float), 0.5, max_gap_s=2.0)
@@ -366,6 +428,7 @@ def _run_matrix(
     flight_labels: dict[str, str],
     sead_t0: dict[str, float],
     sead_ranges: dict[str, list[tuple[float, float]]],
+    rfly_intervals: dict[str, tuple[float, float, str]],
     source_note: str,
     input_hashes: dict[str, str],
     official_gate: bool = False,
@@ -442,6 +505,7 @@ def _run_matrix(
                         flight_labels=flight_labels,
                         sead_t0=sead_t0,
                         sead_ranges=sead_ranges,
+                        rfly_intervals=rfly_intervals,
                     )
                     common = {
                         "split": split_name,
@@ -495,7 +559,9 @@ def _run_matrix(
         "source_note": source_note,
         "official_gate": official_gate,
         "status": "official_gate_evaluated" if official_gate else "exploratory_not_official_gate",
-        "rfly_anomaly_truth": "whole-flight proxy; no TestInfo/rfly_ctrl_lxl intervals used",
+        "rfly_anomaly_truth": "rfly_ctrl_lxl interval truth for Real-* anomalies; Real normal flights are all-false",
+        "rfly_fault_interval_flights": len(rfly_intervals),
+        "rfly_fault_interval_sources": sorted(set(source for _onset, _end, source in rfly_intervals.values())),
         "blind_holdout_read": False,
         "blind_holdout_flights": blind_holdout_count,
         "decision_layers": "imported unchanged from src/ml/decision/decision_layers.py",
@@ -525,28 +591,36 @@ def _development_and_holdout(folds: dict[str, dict]) -> tuple[set[str], set[str]
 
 
 def run_rfly_only(run_name: str, splits: tuple[str, ...], *, official: bool = False) -> Path:
-    rfly_silver = pd.read_parquet(RFLY_SILVER)
-    distribution = _distribution_report(rfly_silver)
-    OUT_RFLY.mkdir(parents=True, exist_ok=True)
-    (OUT_RFLY / "distribution_report.json").write_text(
-        json.dumps(_jsonable(distribution), indent=2, ensure_ascii=False), encoding="utf-8",
-    )
-
     if official:
         manifest = json.loads(SPLIT_MANIFEST.read_text(encoding="utf-8"))
         config = manifest["sources"]["rflymad"]
         folds = {name: config["splits"][name] for name in splits}
         development, holdout = _development_and_holdout(folds)
+        rfly_silver = pd.read_parquet(RFLY_SILVER, filters=[("source_id", "in", sorted(development))])
         raw = pd.read_parquet(RFLY_GOLD, filters=[("source_id", "in", sorted(development))])
+        if set(rfly_silver["source_id"].unique()) & holdout:
+            raise AssertionError("RFLY blind holdout rows were read from Silver")
         if set(raw["source_id"].unique()) & holdout:
             raise AssertionError("RFLY blind holdout rows were read from Gold")
         cusum = {}
+        distribution_scope = "official_selected_development_only"
     else:
+        rfly_silver = pd.read_parquet(RFLY_SILVER)
         provisional = build_px4_features(rfly_silver)
         folds = _build_rfly_splits(provisional)
         raw, cusum = _build_features_with_split0_cusum(rfly_silver, set(folds["split_00"]["train"]))
         holdout = set()
+        distribution_scope = "exploratory_all_available_real_rfly"
+
+    distribution = _distribution_report(rfly_silver)
+    distribution["scope"] = distribution_scope
+    OUT_RFLY.mkdir(parents=True, exist_ok=True)
+    (OUT_RFLY / "distribution_report.json").write_text(
+        json.dumps(_jsonable(distribution), indent=2, ensure_ascii=False), encoding="utf-8",
+    )
+
     flight_labels = flight_label_table(raw).set_index("source_id")["flight_label"].to_dict()
+    rfly_intervals = _load_rfly_fault_intervals(set(raw["source_id"].unique()), flight_labels)
     output = OUT_RFLY / run_name
     (output / "cusum_feature_baseline.json").parent.mkdir(parents=True, exist_ok=True)
     (output / "cusum_feature_baseline.json").write_text(json.dumps(cusum, indent=2), encoding="utf-8")
@@ -558,6 +632,7 @@ def run_rfly_only(run_name: str, splits: tuple[str, ...], *, official: bool = Fa
         flight_labels=flight_labels,
         sead_t0={},
         sead_ranges={},
+        rfly_intervals=rfly_intervals,
         source_note=(
             "rflymad-only official RFLY-0 amended-quota run"
             if official else "rflymad-only exploratory low-normal-quota run"
@@ -570,7 +645,6 @@ def run_rfly_only(run_name: str, splits: tuple[str, ...], *, official: bool = Fa
         official_gate=official,
         blind_holdout_count=len(holdout),
     )
-
 
 def _selected_sead_development(config: dict, split_names: tuple[str, ...]) -> tuple[dict[str, dict], set[str], set[str]]:
     folds = {name: config["splits"][name] for name in split_names}
@@ -637,6 +711,7 @@ def run_pooled(run_name: str, splits: tuple[str, ...], *, official: bool = False
         **sead_config["flight_labels"],
         **rfly_labels.set_index("source_id")["flight_label"].to_dict(),
     }
+    rfly_intervals = _load_rfly_fault_intervals(set(raw["source_id"].unique()), flight_labels)
     if official:
         sead_time = pd.read_parquet(
             SEAD_SILVER,
@@ -660,6 +735,7 @@ def run_pooled(run_name: str, splits: tuple[str, ...], *, official: bool = False
         flight_labels=flight_labels,
         sead_t0=sead_t0,
         sead_ranges=sead_ranges,
+        rfly_intervals=rfly_intervals,
         source_note=(
             "SEAD development + RFLY official amended-quota pooled-normal run; ALFA excluded"
             if official else "SEAD development + RFLY exploratory pooled-normal run; ALFA excluded"

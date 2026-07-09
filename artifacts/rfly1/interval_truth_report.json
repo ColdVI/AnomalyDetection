@@ -1,0 +1,88 @@
+{
+  "created_utc": "2026-07-09T14:15:27.424491+00:00",
+  "stage": "RFLY-1 interval truth correction preflight",
+  "status": "blocked_missing_interval_truth_for_official_gate",
+  "official_gate_rerun": "not_run_beyond_preflight",
+  "whole_flight_proxy_used": false,
+  "silver_path": "data\\silver\\rflymad_silver.parquet",
+  "flights": 490,
+  "normal_flights": 51,
+  "anomalous_flights": 439,
+  "interval_available_anomalous": 434,
+  "interval_missing_anomalous": 5,
+  "fault_interval_source_counts": {
+    "rfly_ctrl_lxl": 434,
+    "normal_no_fault": 51,
+    "rfly_ctrl_lxl_no_active_fault": 5
+  },
+  "missing_source_ids": [
+    "Real-Motor/circling/328_2/log_11_2023-6-7-08-29-38",
+    "Real-Motor/hover/2_2/log_7_2023-5-18-10-29-00",
+    "Real-Motor/waypoint/148_1/log_8_2023-5-26-08-12-00",
+    "Real-Motor/waypoint/150_1/log_11_2023-5-26-08-27-04",
+    "Real-Motor/waypoint/171_1/log_34_2023-5-26-11-13-16"
+  ],
+  "missing_by_split_part": {
+    "split_00": {
+      "test": [
+        "Real-Motor/circling/328_2/log_11_2023-6-7-08-29-38",
+        "Real-Motor/waypoint/148_1/log_8_2023-5-26-08-12-00",
+        "Real-Motor/waypoint/150_1/log_11_2023-5-26-08-27-04",
+        "Real-Motor/waypoint/171_1/log_34_2023-5-26-11-13-16"
+      ],
+      "final_holdout": [
+        "Real-Motor/hover/2_2/log_7_2023-5-18-10-29-00"
+      ]
+    },
+    "split_01": {
+      "test": [
+        "Real-Motor/circling/328_2/log_11_2023-6-7-08-29-38",
+        "Real-Motor/waypoint/148_1/log_8_2023-5-26-08-12-00",
+        "Real-Motor/waypoint/150_1/log_11_2023-5-26-08-27-04",
+        "Real-Motor/waypoint/171_1/log_34_2023-5-26-11-13-16"
+      ],
+      "final_holdout": [
+        "Real-Motor/hover/2_2/log_7_2023-5-18-10-29-00"
+      ]
+    },
+    "split_02": {
+      "test": [
+        "Real-Motor/circling/328_2/log_11_2023-6-7-08-29-38",
+        "Real-Motor/waypoint/148_1/log_8_2023-5-26-08-12-00",
+        "Real-Motor/waypoint/150_1/log_11_2023-5-26-08-27-04",
+        "Real-Motor/waypoint/171_1/log_34_2023-5-26-11-13-16"
+      ],
+      "final_holdout": [
+        "Real-Motor/hover/2_2/log_7_2023-5-18-10-29-00"
+      ]
+    },
+    "split_03": {
+      "test": [
+        "Real-Motor/circling/328_2/log_11_2023-6-7-08-29-38",
+        "Real-Motor/waypoint/148_1/log_8_2023-5-26-08-12-00",
+        "Real-Motor/waypoint/150_1/log_11_2023-5-26-08-27-04",
+        "Real-Motor/waypoint/171_1/log_34_2023-5-26-11-13-16"
+      ],
+      "final_holdout": [
+        "Real-Motor/hover/2_2/log_7_2023-5-18-10-29-00"
+      ]
+    },
+    "split_04": {
+      "test": [
+        "Real-Motor/circling/328_2/log_11_2023-6-7-08-29-38",
+        "Real-Motor/waypoint/148_1/log_8_2023-5-26-08-12-00",
+        "Real-Motor/waypoint/150_1/log_11_2023-5-26-08-27-04",
+        "Real-Motor/waypoint/171_1/log_34_2023-5-26-11-13-16"
+      ],
+      "final_holdout": [
+        "Real-Motor/hover/2_2/log_7_2023-5-18-10-29-00"
+      ]
+    }
+  },
+  "test_info_listing_note": "Kaggle listing contains TestInfo_*.xlsx for the missing Real-Motor cases, but those files are not present locally; downloader filter now keeps them.",
+  "blocked_error": "Missing RFLY interval truth for 4 anomalous development/test flights in split_00; both RFLY-only and pooled official smoke stop before model evaluation",
+  "blocked_commands": [
+    "python scripts/run_rfly0_exploratory_evaluation.py --official --mode rfly-only --run-name official_smoke_interval --splits split_00",
+    "python scripts/run_rfly0_exploratory_evaluation.py --official --mode pooled --run-name official_smoke_interval --splits split_00"
+  ]
+}

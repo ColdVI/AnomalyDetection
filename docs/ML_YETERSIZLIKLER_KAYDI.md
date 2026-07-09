@@ -295,6 +295,11 @@ bilerek ML kapsamının dışında tutuluyor.
 
 ---
 
+
+### C.10 - RFLY-0 whole-flight proxy RFLY basarisini ustten tahmin etti (acik is, RFLY-1)
+
+RFLY-0 official run anomalous Real-* ucuslarda olay araligi yerine tum ucusu anomalous saydi. RFLY-1 parser artik `rfly_ctrl_lxl` interval truth cikariyor ve evaluator whole-flight proxy'ye dusmeyi reddediyor. 439 anomaliden 434'unde interval var; 5 motor ucusunda eksik. Bu 5'in 4'u split_00..04 test tarafinda, 1'i final holdout tarafinda. Gate sayisi uretmek su an bloklu: once eksik TestInfo/interval repair tamamlanmali, sonra official run yeniden kosulmali.
+
 ## G. Özet tablo — hızlı tarama için
 
 | # | Madde | Kaynak | Durum | Kapatma yolu |

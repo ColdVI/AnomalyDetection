@@ -72,3 +72,7 @@ ML tooling: MLflow (artifact store + model registry pointed at MinIO), Isolation
 Data libraries: pandas, merge_asof, pyulog, adsb.lol API
 Codex CLI for implementation automation; AGENTS.md for persistent behavioral rules
 Key references: Whelan et al. (2020) UAV sensor attack paper, ALFA dataset paper, Chandola et al. anomaly taxonomy, UAVAttack and ALFA research papers (on hand)
+
+## RFLY-1 note (2026-07-09)
+
+RFLY-0 official RFLY-only result is superseded: anomalous Real-* truth used a whole-flight proxy. RFLY-1 now extracts `rfly_ctrl_lxl` intervals and blocks official rerun until 5 missing motor intervals are repaired (4 dev/test, 1 final holdout unopened). Simulation tracks stay separate and are currently blocked locally because SIL-Wind/HIL-Wind files are absent.

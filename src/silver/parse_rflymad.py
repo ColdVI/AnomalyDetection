@@ -11,9 +11,11 @@ import argparse
 import json
 import logging
 import re
+from io import BytesIO
 from pathlib import Path, PurePosixPath
 from typing import Iterable
 
+import numpy as np
 import pandas as pd
 
 from src.common.provenance import add_provenance
@@ -33,7 +35,10 @@ DEFAULT_SUBSETS = (
     "Real-Sensors",
 )
 REAL_SUBSETS = {"Real-NoFault", "Real-No_Fault", "Real-Motor", "Real-Sensors"}
+SIM_SUBSETS = {"SIL-Wind", "HIL-Wind"}
 _SAFE_LABEL = re.compile(r"[^a-z0-9]+")
+RFLY_CTRL_TOPIC = "rfly_ctrl_lxl"
+RFLY_IDLE_SENTINEL = 1500
 
 
 def _parts(path: str | Path) -> tuple[str, ...]:
@@ -71,7 +76,7 @@ def _normalise_token(value: str) -> str:
 
 
 def infer_label_from_case(case_id: str) -> str:
-    """Map RflyMAD case paths to the fixed RFLY-0 label taxonomy."""
+    """Map RflyMAD case paths to the fixed RFLY-0/RFLY-1 label taxonomy."""
     parts = _parts(case_id)
     joined = "/".join(parts).lower()
     subset = parts[0] if parts else ""
@@ -82,6 +87,10 @@ def infer_label_from_case(case_id: str) -> str:
     if subset == "Real-Sensors":
         fault = _normalise_token(parts[1] if len(parts) > 1 else "sensor")
         return f"sensor_{fault}_fault"
+    if subset in SIM_SUBSETS:
+        wind_tokens = [part for part in parts[1:] if part.endswith("-wind") and part != subset]
+        fault = _normalise_token((wind_tokens[0] if wind_tokens else "wind").replace("-wind", ""))
+        return f"sim_{fault}_fault_wind"
     if "sensor" in joined and len(parts) > 1:
         return f"sensor_{_normalise_token(parts[1])}_fault"
     return "unknown"
@@ -112,6 +121,109 @@ def _test_info_for_case(bronze_dir: Path, case_id: str) -> str | None:
         return None
     return matches[0].relative_to(bronze_dir).as_posix()
 
+
+
+def extract_fault_interval_from_ulg_bytes(data: bytes, *, base_timestamp_us: float | None = None) -> dict:
+    """Extract RflyMAD fault interval from the rfly_ctrl_lxl uORB message.
+
+    The controller message uses 1500 as its idle sentinel before/after injection.
+    The active span is the first-to-last row where id or mode leaves that state.
+    Times are relative to base_timestamp_us when provided, otherwise to the first
+    controller sample.
+    """
+    from pyulog import ULog
+
+    try:
+        ulog = ULog(BytesIO(data), [RFLY_CTRL_TOPIC])
+        dataset = ulog.get_dataset(RFLY_CTRL_TOPIC).data
+    except Exception:
+        return {
+            "fault_onset_s": np.nan,
+            "fault_end_s": np.nan,
+            "fault_interval_source": "rfly_ctrl_lxl_missing",
+        }
+    if "timestamp" not in dataset or "id" not in dataset or "mode" not in dataset:
+        return {
+            "fault_onset_s": np.nan,
+            "fault_end_s": np.nan,
+            "fault_interval_source": "rfly_ctrl_lxl_incomplete",
+        }
+
+    timestamps = np.asarray(dataset["timestamp"], dtype=float)
+    active = (
+        np.asarray(dataset["id"]) != RFLY_IDLE_SENTINEL
+    ) | (
+        np.asarray(dataset["mode"]) != RFLY_IDLE_SENTINEL
+    )
+    if not active.any():
+        return {
+            "fault_onset_s": np.nan,
+            "fault_end_s": np.nan,
+            "fault_interval_source": "rfly_ctrl_lxl_no_active_fault",
+        }
+
+    idx = np.flatnonzero(active)
+    origin = float(base_timestamp_us) if base_timestamp_us is not None else float(timestamps[0])
+    onset = max(0.0, float((timestamps[idx[0]] - origin) / 1e6))
+    end = max(onset, float((timestamps[idx[-1]] - origin) / 1e6))
+    return {
+        "fault_onset_s": onset,
+        "fault_end_s": end,
+        "fault_interval_source": RFLY_CTRL_TOPIC,
+        "fault_ctrl_id": int(np.asarray(dataset["id"])[idx[0]]),
+        "fault_ctrl_mode": int(np.asarray(dataset["mode"])[idx[0]]),
+    }
+
+
+
+def _parse_seconds(value: object) -> float:
+    text = str(value).strip()
+    match = re.search(r"[-+]?\d+(?:\.\d+)?", text)
+    return float(match.group(0)) if match else float("nan")
+
+
+def _normalise_info_key(value: object) -> str:
+    return re.sub(r"[^a-z0-9]+", "", str(value).lower())
+
+
+def extract_fault_interval_from_test_info(path: str | Path) -> dict:
+    """Extract fault interval from a RflyMAD TestInfo file when ULog control is idle."""
+    path = Path(path)
+    try:
+        if path.suffix.lower() == ".xlsx":
+            table = pd.read_excel(path, header=None)
+        else:
+            table = pd.read_csv(path, header=None)
+    except Exception:
+        return {
+            "fault_onset_s": np.nan,
+            "fault_end_s": np.nan,
+            "fault_interval_source": "test_info_unreadable",
+        }
+
+    onset_keys = {"faultinjectiontime", "injectiontime", "faultstarttime", "starttime"}
+    end_keys = {"testendtime", "faultendtime", "endtime"}
+    onset = float("nan")
+    end = float("nan")
+    values = table.fillna("").astype(str).to_numpy()
+    for row in values:
+        for i, cell in enumerate(row):
+            key = _normalise_info_key(cell)
+            if key in onset_keys and i + 1 < len(row):
+                onset = _parse_seconds(row[i + 1])
+            if key in end_keys and i + 1 < len(row):
+                end = _parse_seconds(row[i + 1])
+    if np.isnan(onset) or np.isnan(end) or end < onset:
+        return {
+            "fault_onset_s": np.nan,
+            "fault_end_s": np.nan,
+            "fault_interval_source": "test_info_missing_interval",
+        }
+    return {
+        "fault_onset_s": onset,
+        "fault_end_s": end,
+        "fault_interval_source": "test_info",
+    }
 
 def _manifest_cases(bronze_dir: Path) -> list[dict[str, str]]:
     manifest_path = bronze_dir / "manifest.json"
@@ -181,8 +293,9 @@ def build_rflymad_silver_from_directory(
     for i, case in enumerate(cases, 1):
         object_name = case["object_name"]
         path = bronze_dir / Path(object_name)
+        raw_bytes = path.read_bytes()
         frame = parse_px4_ulg_bytes(
-            path.read_bytes(),
+            raw_bytes,
             source_id=case["source_id"],
             label=case["label"],
         )
@@ -194,8 +307,25 @@ def build_rflymad_silver_from_directory(
         frame["source_id"] = case["source_id"]
         frame["label"] = case["label"]
         frame["rflymad_subdataset"] = case["subdataset"]
+        frame["rflymad_domain"] = "simulation" if case["subdataset"] in SIM_SUBSETS else "real"
         frame["rflymad_flight_mode"] = case["flight_mode"]
         frame["rflymad_test_info"] = case.get("test_info")
+        interval = extract_fault_interval_from_ulg_bytes(
+            raw_bytes,
+            base_timestamp_us=float(frame["timestamp"].min()),
+        )
+        if case["label"] != "normal" and (
+            pd.isna(interval["fault_onset_s"]) or pd.isna(interval["fault_end_s"])
+        ) and case.get("test_info"):
+            interval = extract_fault_interval_from_test_info(bronze_dir / Path(case["test_info"]))
+        if case["label"] == "normal":
+            interval = {
+                "fault_onset_s": np.nan,
+                "fault_end_s": np.nan,
+                "fault_interval_source": "normal_no_fault",
+            }
+        for key, value in interval.items():
+            frame[key] = value
         frames.append(frame)
         logger.info("[%d/%d] %s: %d satir label=%s",
                     i, len(cases), case["source_id"], len(frame), case["label"])
@@ -211,6 +341,16 @@ def build_rflymad_silver_from_directory(
     if not frames:
         return pd.DataFrame(), report
     full = pd.concat(frames, ignore_index=True, sort=False)
+    flights = full[["source_id", "label", "fault_onset_s", "fault_end_s", "fault_interval_source"]].drop_duplicates("source_id")
+    anomalous = flights[flights["label"] != "normal"]
+    missing = anomalous[anomalous["fault_onset_s"].isna() | anomalous["fault_end_s"].isna()]
+    report["fault_interval_coverage"] = {
+        "anomalous_flights": int(len(anomalous)),
+        "with_interval": int(len(anomalous) - len(missing)),
+        "missing_interval": int(len(missing)),
+        "source_counts": flights["fault_interval_source"].value_counts(dropna=False).to_dict(),
+        "missing_source_ids": sorted(missing["source_id"].tolist()),
+    }
     return add_provenance(full, source_type=SOURCE_TYPE, source_file="rflymad/*.ulg"), report
 
 

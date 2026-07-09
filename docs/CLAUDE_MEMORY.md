@@ -106,3 +106,11 @@ Bu repoda (AnomalyDetection) `git commit` atarken `Co-Authored-By: Claude...` tr
 *Tür: feedback — "Mentöre/dış paydaşa yönelik içerik üretirken repo-içi 'ML-N' faz jargonu kullanma"*
 
 Mentöre veya proje mimarisini bilmeyen bir dış paydaşa yönelik tablo/rapor/döküman üretirken repo-içi "ML-1", "ML-8A" gibi faz numaralarına atıfta bulunma; yöntemi sade dille, NE YAPTIĞI üzerinden anlat (ör. "normal uçuş verisiyle eğitilen, sapmayı skorlayan bir model"). İç/teknik takip dokümanlarında ML-N numaralandırması olduğu gibi kalır — bu kural yalnızca DIŞA-DÖNÜK içerik için geçerli.
+
+## RFLY-1 interval truth audit (2026-07-09)
+
+- RFLY-0 official RFLY-only result is superseded: it used whole-flight proxy truth for anomalous Real-* flights.
+- `src/silver/parse_rflymad.py` now extracts `fault_onset_s/fault_end_s` from ULog `rfly_ctrl_lxl`; evaluator refuses to use whole-flight fallback.
+- Current local Real RFLY coverage: 490 flights, 51 normal, 439 anomalous; 434 anomalous intervals available, 5 missing (`rfly_ctrl_lxl_no_active_fault`). Four missing cases are in development/test across RFLY splits; one is final holdout and remains unopened.
+- Official interval-corrected smoke stops before model evaluation with missing interval truth; no corrected recall/FA number exists yet. Artifact: `artifacts/rfly1/interval_truth_report.json`.
+- SIL-Wind/HIL-Wind are separate simulation-only tracks; local Bronze currently has no sim cases, so preflights are blocked rather than falling back to Real data.

@@ -1,0 +1,41 @@
+{
+  "created_utc": "2026-07-09T14:15:36.312157+00:00",
+  "stage": "RFLY-1 simulation-only capability preflight",
+  "status": "blocked_no_simulation_data",
+  "real_data_mixed": false,
+  "simulation_subsets": [
+    "HIL-Wind",
+    "SIL-Wind"
+  ],
+  "listing": {
+    "status": "ok",
+    "listing_csv": "C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\artifacts\\rflymad\\kaggle_file_listing.csv",
+    "simulation_case_count": 886,
+    "by_subset": {
+      "HIL-Wind": 443,
+      "SIL-Wind": 443
+    },
+    "by_family": {
+      "HIL-Wind/acce-wind": 76,
+      "HIL-Wind/circling-wind": 69,
+      "HIL-Wind/dece-wind": 76,
+      "HIL-Wind/hover-wind": 69,
+      "HIL-Wind/velocity-wind": 84,
+      "HIL-Wind/waypoint-wind": 69,
+      "SIL-Wind/acce-wind": 76,
+      "SIL-Wind/circling-wind": 69,
+      "SIL-Wind/dece-wind": 76,
+      "SIL-Wind/hover-wind": 69,
+      "SIL-Wind/velocity-wind": 84,
+      "SIL-Wind/waypoint-wind": 69
+    }
+  },
+  "local": {
+    "local_case_count": 0,
+    "local_ulg_count": 0,
+    "by_subset": {},
+    "by_label": {},
+    "cases_present": false
+  },
+  "next_step": "download or provide SIL-Wind/HIL-Wind essential files; Real-* data will not be used as fallback"
+}

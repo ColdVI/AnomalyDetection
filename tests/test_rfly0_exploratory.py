@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from scripts.run_rfly0_exploratory_evaluation import (
     MODULE_HYPOTHESES,
@@ -12,6 +13,7 @@ from scripts.run_rfly0_exploratory_evaluation import (
     _build_rfly_splits,
     _dataset_group,
     _diagnosis_rows,
+    _truth_mask,
 )
 
 
@@ -97,3 +99,47 @@ def test_diagnosis_rows_are_hypotheses_not_supervised_classes():
     assert by_id["f1"]["hypothesis"] == MODULE_HYPOTHESES["kontrol_cevabi"]
     assert by_id["f2"]["hypothesis"] == MODULE_HYPOTHESES["nav_butunlugu"]
     assert np.isclose(by_id["f1"]["dominant_module_score"], 0.9)
+
+
+def test_rfly_truth_mask_uses_fault_interval_not_whole_flight():
+    group = pd.DataFrame({"t_rel_s": [0.0, 4.9, 5.0, 6.0, 7.0, 7.1, 10.0]})
+
+    truth = _truth_mask(
+        "Real-Motor/hover/1/log",
+        group,
+        "motor_fault",
+        sead_t0={},
+        sead_ranges={},
+        rfly_intervals={"Real-Motor/hover/1/log": (5.0, 7.0, "rfly_ctrl_lxl")},
+    )
+
+    assert truth.tolist() == [False, False, True, True, True, False, False]
+
+
+def test_rfly_truth_mask_keeps_normal_flights_all_false():
+    group = pd.DataFrame({"t_rel_s": [0.0, 1.0, 2.0]})
+
+    truth = _truth_mask(
+        "Real-No_Fault/hover/1/log",
+        group,
+        "normal",
+        sead_t0={},
+        sead_ranges={},
+        rfly_intervals={},
+    )
+
+    assert truth.tolist() == [False, False, False]
+
+
+def test_rfly_truth_mask_fails_if_anomaly_interval_is_missing():
+    group = pd.DataFrame({"t_rel_s": [0.0, 1.0, 2.0]})
+
+    with pytest.raises(AssertionError, match="Missing interval truth"):
+        _truth_mask(
+            "Real-Sensors/mag/1/log",
+            group,
+            "sensor_mag_fault",
+            sead_t0={},
+            sead_ranges={},
+            rfly_intervals={},
+        )

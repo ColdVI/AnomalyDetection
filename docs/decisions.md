@@ -405,6 +405,29 @@ advisory recall 0.388 ama 12.89 FA-saat ile 12 sınırını aştı. Karar: RFLY-
 motor/sensör hattı development'ta kabul edilir; pooled-normal varyantı production
 iddiası yapmaz.
 
+
+### ADR-014 correction note: RFLY-1 interval-truth audit
+
+RFLY-1 found that the RFLY-0 official RFLY-only and pooled metrics above used a
+whole-flight anomaly proxy for `Real-*` anomalous flights. That proxy is easier
+than the SEAD event-onset task and overstates RFLY performance; the old numbers
+are retained for audit history but are no longer treated as official product
+claim evidence.
+
+`parse_rflymad.py` now extracts `(fault_onset_s, fault_end_s)` from the ULog
+`rfly_ctrl_lxl` message and the RFLY-0 evaluator refuses to fall back to
+whole-flight truth. A smoke official rerun was attempted with interval truth and
+stopped before training/evaluation because 4 split_00 anomalous development/test
+flights lack interval truth (`rfly_ctrl_lxl_no_active_fault`); a fifth missing
+case is in RFLY final holdout and was not opened. Artifact:
+`artifacts/rfly1/interval_truth_report.json`.
+
+Decision: RFLY-0 official gate status is superseded pending completion of the
+missing TestInfo/interval repair. No RFLY interval-corrected official recall/FA
+number is reported yet. SIL-Wind/HIL-Wind work is separate under
+`artifacts/rfly1/simulation_capability/` and `artifacts/rfly1/severity_sweep/`;
+Real data is not used as fallback for simulation.
+
 ## ADR-015: ML-15 drift kalibrasyonu smoke edildi; full koşu maliyeti ayrı planlanmalı
 
 - Durum: Smoke complete; full matrix pending
