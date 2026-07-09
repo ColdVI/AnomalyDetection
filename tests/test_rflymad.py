@@ -36,6 +36,7 @@ def test_rflymad_downloader_keeps_testinfo_xlsx_but_skips_bulk_xlsx():
 
 def test_rflymad_label_mapping_is_fixed_by_subset_and_fault_family():
     assert infer_label_from_case("Real-NoFault/hover/001_1/log_0") == "normal"
+    assert infer_label_from_case("Real-No_Fault/hover/001_1/log_0") == "normal"
     assert infer_label_from_case("Real-Motor/acce/406_1/log_26") == "motor_fault"
     assert (
         infer_label_from_case("Real-Sensors/acce-GPS/447_1/log_71")

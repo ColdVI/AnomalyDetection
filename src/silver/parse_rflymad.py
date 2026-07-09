@@ -25,8 +25,14 @@ SOURCE_TYPE = "rflymad"
 DEFAULT_BRONZE_DIR = Path("data/objectstore/bronze/rflymad")
 DEFAULT_LOCAL_OUT = Path("data/silver/rflymad_silver.parquet")
 DEFAULT_REPORT_OUT = Path("artifacts/rfly0/rflymad/parse_report.json")
-DEFAULT_SUBSETS = ("SampleData", "Real-NoFault", "Real-Motor", "Real-Sensors")
-REAL_SUBSETS = {"Real-NoFault", "Real-Motor", "Real-Sensors"}
+DEFAULT_SUBSETS = (
+    "SampleData",
+    "Real-NoFault",
+    "Real-No_Fault",
+    "Real-Motor",
+    "Real-Sensors",
+)
+REAL_SUBSETS = {"Real-NoFault", "Real-No_Fault", "Real-Motor", "Real-Sensors"}
 _SAFE_LABEL = re.compile(r"[^a-z0-9]+")
 
 
@@ -69,7 +75,7 @@ def infer_label_from_case(case_id: str) -> str:
     parts = _parts(case_id)
     joined = "/".join(parts).lower()
     subset = parts[0] if parts else ""
-    if subset == "Real-NoFault" or "nofault" in joined or "no-fault" in joined:
+    if subset in {"Real-NoFault", "Real-No_Fault"} or "nofault" in joined or "no-fault" in joined or "no_fault" in joined:
         return "normal"
     if subset == "Real-Motor" or "motor" in joined:
         return "motor_fault"

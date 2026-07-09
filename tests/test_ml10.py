@@ -1,9 +1,11 @@
 import inspect
+import hashlib
 import json
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pytest
 import torch
 
 from scripts import build_ml10_forecast_residual as precompute
@@ -74,8 +76,14 @@ def test_ml10_precompute_contains_development_only():
     root = Path(__file__).resolve().parents[1]
     score_path = root / "data/gold/ml_features/uav_sead/uav_sead_ml10_forecast_residual.parquet"
     split_path = root / "data/gold/ml_features/split_manifest.json"
+    manifest_path = root / "artifacts/ml10/uav_sead/full_matrix/manifest.json"
     if not score_path.exists():
         return
+    if manifest_path.exists():
+        artifact_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        current_sha = hashlib.sha256(split_path.read_bytes()).hexdigest()
+        if artifact_manifest.get("split_manifest_sha256") != current_sha:
+            pytest.skip("eski veri donemi artifact'i")
     config = json.loads(split_path.read_text(encoding="utf-8"))["sources"]["uav_sead"]
     split = config["splits"]["split_00"]
     development = set(split["train"] + split["val"] + split["test"])

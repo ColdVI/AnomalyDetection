@@ -63,7 +63,9 @@ def session_of(source_id: str) -> str:
     Klasorsuz id'ler (ALFA, UAV Attack, SEAD'in '00_02_49' gibi kokleri) kendi
     baslarina oturumdur (davranis ucus-bazli split'e esdeger kalir)."""
     parts = source_id.split("/")
-    if parts and parts[0] in {"SampleData", "Real-NoFault", "Real-Motor", "Real-Sensors"}:
+    if parts and parts[0] in {
+        "SampleData", "Real-NoFault", "Real-No_Fault", "Real-Motor", "Real-Sensors"
+    }:
         for i, part in enumerate(parts):
             if part.startswith("TestCase"):
                 return "/".join(parts[: i + 1])

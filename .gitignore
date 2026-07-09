@@ -26,6 +26,7 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .pytest_claude_review/
+.tmp_pytest*/
 .tmp_pdf_reader/
 .ipynb_checkpoints/
 .idea/
@@ -33,3 +34,4 @@ __pycache__/
 influx_token.txt
 start_all.bat
 start_all_docker.bat
+artifacts/rflymad/
