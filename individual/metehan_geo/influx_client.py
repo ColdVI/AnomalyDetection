@@ -41,7 +41,15 @@ def _load_token() -> str:
 
 
 def get_influx_client() -> InfluxDBClient:
-    return InfluxDBClient(url=INFLUX_HOST, token=_load_token(), org=INFLUX_ORG)
+    # Varsayilan istemci timeout'u (10sn) baslangicta yeterliydi ama veri
+    # birikince (2026-07-09: 7 gunluk pencere 4.38M satira ulasti) "-7d"
+    # sorgusu bunu asip surekli ReadTimeoutError ile basarisiz oluyordu --
+    # arka planda calisan realtime_density.py --mode 7d dongusu SESSIZCE
+    # (try/except loglayip devam ediyordu) her turda basarisiz kaliyordu.
+    # Olcum: ayni sorgu GERCEKTE ~170sn suruyor (InfluxDB'nin 1GB bellek
+    # sinirli tek-node docker instance'i bu hacimde yavas) -- 240sn'lik
+    # pay birakiyoruz.
+    return InfluxDBClient(url=INFLUX_HOST, token=_load_token(), org=INFLUX_ORG, timeout=240_000)
 
 
 def load_realtime_window(range_start: str, client: InfluxDBClient | None = None) -> pd.DataFrame:
@@ -53,20 +61,28 @@ def load_realtime_window(range_start: str, client: InfluxDBClient | None = None)
     lat, lon, _time.
     """
     client = client or get_influx_client()
+    # Flux'un SUNUCU-TARAFI pivot()'u BUYUK pencerelerde (2026-07-09: 7d
+    # penceresi 4.36M satira ulasti) cok yavas/timeout oluyordu (120sn
+    # istemci timeout'unu bile asiyordu). Duzeltme: pivot'u InfluxDB'ye
+    # YAPTIRMAK yerine (lat, lon) satirlarini DUZ (long-format) cekip
+    # pandas.pivot_table ile YERELDE (cok daha hizli) genisletiyoruz.
     query = f'''
     from(bucket: "{INFLUX_BUCKET}")
       |> range(start: {range_start})
       |> filter(fn: (r) => r._measurement == "flights")
       |> filter(fn: (r) => r._field == "lat" or r._field == "lon")
-      |> pivot(rowKey: ["_time", "icao24"], columnKey: ["_field"], valueColumn: "_value")
+      |> keep(columns: ["_time", "icao24", "_field", "_value"])
     '''
     result = client.query_api().query_data_frame(query, org=INFLUX_ORG)
-    df = pd.concat(result, ignore_index=True) if isinstance(result, list) else result
+    long_df = pd.concat(result, ignore_index=True) if isinstance(result, list) else result
 
-    if df is None or df.empty:
+    if long_df is None or long_df.empty:
         logger.warning("InfluxDB'den %s penceresinde hic veri donmedi", range_start)
         return pd.DataFrame(columns=["source_id", "lat", "lon"])
 
+    df = long_df.pivot_table(
+        index=["_time", "icao24"], columns="_field", values="_value", aggfunc="first",
+    ).reset_index()
     df = df.rename(columns={"icao24": "source_id"})
     keep_cols = [c for c in ["source_id", "lat", "lon", "_time"] if c in df.columns]
     df = df[keep_cols]
