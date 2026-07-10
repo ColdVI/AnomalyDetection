@@ -44,6 +44,7 @@ import h3
 import numpy as np
 import pandas as pd
 from sklearn.cluster import DBSCAN
+from sklearn.neighbors import NearestNeighbors
 
 logger = logging.getLogger(__name__)
 
@@ -63,33 +64,65 @@ def filter_bbox(df: pd.DataFrame, min_lat: float, max_lat: float, min_lon: float
     return df[df["lat"].between(min_lat, max_lat) & df["lon"].between(min_lon, max_lon)]
 
 
-def compute_regional_mask(
-    df: pd.DataFrame, *, grid_deg: float = 25.0, percentile: float = 0.90,
-    min_absolute: int = 50, min_cell_hexes: int = 20,
+def compute_knn_local_mask(
+    df: pd.DataFrame, *, k_neighbors: int = 1000, percentile: float = 0.95, min_absolute: int = 50,
+    batch_size: int = 5000,
 ) -> pd.Series:
-    """Her hex'i, ait oldugu kaba enlem/boylam grid hucresinin (grid_deg x
-    grid_deg) KENDI flight_count dagilimina gore degerlendirir -- TEK
-    global esik yerine bolgesel goreceli yogunluk (bkz. modul docstring,
-    2026-07-09 duzeltmesi).
+    """Her hex'i, KENDI en yakin `k_neighbors` komsusunun (haversine mesafe,
+    SERT grid hucresi YOK) flight_count dagilimina gore degerlendirir.
 
-    - min_cell_hexes: bu sayidan AZ hex iceren hucreler (ör. okyanus
-      ortasi, kutuplar) icin percentile anlamsiz -- o hucredeki hicbir
-      hex secilmez.
-    - min_absolute: bos/neredeyse-bos bir hucrede "yerel p90" bile
-      trivial dusuk olabilir (ör. 2 ucus) -- bu taban, gurultunun "yerel
-      olarak yuksek" diye secilmesini engeller.
+    2026-07-10 GECMISI (onceki compute_regional_mask'in -- 25 derecelik grid
+    -- YERINE gecti, kullanici bulgusu): grid yaklasimi calisiyordu ama iki
+    somut sorunu vardi:
+      1) SERT SINIR: Paris (48.99N) ile Frankfurt/Londra (50.49N/51.88N)
+         SIRF 25 derecelik grid cizgisinin (50N) iki yaninda kaldiklari icin
+         FARKLI bolgesel esiklerle (p95=2291 vs p95=1520, ~%50 fark)
+         degerlendiriliyordu -- coğrafi olarak anlamsiz, keyfi bir kesim.
+      2) Londra'nin boylami (-0.51) Greenwich meridyeninin (0 derece) HEMEN
+         batisinda oldugu icin Frankfurt/Amsterdam'dan (0-25E hucresi) AYRI
+         bir hucreye (-25-0E) dusuyordu.
+    Once GRID'SIZ bir alternatif (VDBSCAN-tarzi, sadece uzaysal k-distance'a
+    dayali, flight_count filtresi OLMADAN) denendi -- bu, DBSCAN'in bilinen
+    "chaining" (zincirleme baglanabilirlik) zaafini ortaya cikardi: Avrupa+
+    Ortadogu'da flight_count filtresi kaldirilinca Istanbul/Londra/Frankfurt/
+    Paris/Bukres HEPSI TEK bir 2000-3000km yaricapli deve kumeye birlesti --
+    dusuk/orta yogunluklu transit koridor hex'leri (ucaklarin GECIS guzergahi
+    uzerinde biraktigi izler) ayri hub'lari birbirine "kopru" gibi bagliyordu.
+    Bu, flight_count esiginin sadece "adil bolgesel karsilastirma" degil,
+    AYNI ZAMANDA bu zincirlemeyi KESEN bir mekanizma oldugunu kanitladi --
+    kaldirilamaz, sadece "yerel" tanimi degismeli.
+
+    Cozum: grid hucresi yerine, her hex'in KNN komsulugu (k_neighbors) --
+    sert sinir yok (surekli/yumusak), coverage-onyargisi duzeltmesi KORUNUYOR
+    (uzak/seyrek bolgelerde komsular da dogal olarak uzak/seyrek oldugu icin
+    kendiliginden "genis pencere" olusuyor). k_neighbors AMPIRIK olarak
+    secildi: k=300 test edildiginde bazi GERCEK hub'lar (Frankfurt, Bukres,
+    Dubai, Sao Paulo) TAMAMEN kayboldu -- cok dar bir komsulukta, bir hub'in
+    kendi komsularinin COGU ZATEN o hub'in bir parcasi oldugu icin "komsulara
+    gore p95" kendi icinde asiri siki bir esige donusuyor (hub kendi kendini
+    eliyor). k=1000'de TUM bilinen hub'lar (Istanbul, Londra, Frankfurt,
+    Paris, Bukres, Dubai, Sao Paulo, Johannesburg) dogru cikti VE en buyuk
+    kume grid yontemindeki 432 hex/335km'den 50 hex/130km'ye KUCULDU (mega-
+    blob riski BUYUMEDI, kucaldi) -- 243.835 hex icin ~170sn suruyor (tek
+    seferlik batch is icin kabul edilebilir).
     """
-    lat_bin = np.floor(df["lat"] / grid_deg).astype(int)
-    lon_bin = np.floor(df["lon"] / grid_deg).astype(int)
-    grouped = df.groupby([lat_bin, lon_bin])["flight_count"]
+    coords_rad = np.radians(df[["lat", "lon"]].to_numpy())
+    fc = df["flight_count"].to_numpy()
+    n = len(df)
 
-    cell_threshold = grouped.transform(
-        lambda s: max(s.quantile(percentile), min_absolute) if len(s) >= min_cell_hexes else np.inf
-    )
-    mask = df["flight_count"] >= cell_threshold
+    nn = NearestNeighbors(n_neighbors=min(k_neighbors, n), metric="haversine", algorithm="ball_tree").fit(coords_rad)
+    mask = np.zeros(n, dtype=bool)
+    for start in range(0, n, batch_size):
+        end = min(start + batch_size, n)
+        _, idx = nn.kneighbors(coords_rad[start:end])
+        neighbor_fc = fc[idx]
+        threshold = np.maximum(np.quantile(neighbor_fc, percentile, axis=1), min_absolute)
+        mask[start:end] = fc[start:end] >= threshold
+
+    mask = pd.Series(mask, index=df.index)
     logger.info(
-        "compute_regional_mask: grid=%g derece, p%.0f, %d/%d hex secildi (%d grid hucresi)",
-        grid_deg, percentile * 100, int(mask.sum()), len(df), grouped.ngroups,
+        "compute_knn_local_mask: k=%d, p%.0f, %d/%d hex secildi",
+        k_neighbors, percentile * 100, int(mask.sum()), n,
     )
     return mask
 
