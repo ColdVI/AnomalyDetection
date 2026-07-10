@@ -61,6 +61,7 @@
   #timeRangeSegmented button { font-size: 10px; padding: 7px 2px; }
   .segmented button.active { background: #3b6fe0; color: #fff; }
   .segmented button:not(.active):hover { background: rgba(255, 255, 255, 0.07); color: #e9e9ee; }
+  .segmented button:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
 
   .legend-swatch { height: 10px; border-radius: 5px; margin-bottom: 4px; }
   .legend-scale { display: flex; justify-content: space-between; font-size: 10.5px; color: #93939f; font-variant-numeric: tabular-nums; }
@@ -472,6 +473,16 @@ function updateFieldVisibilityForView() {
   const isRoutes = currentView === "routes";
   document.getElementById("routesHint").style.display = isRoutes ? "block" : "none";
   document.getElementById("densityLegendField").style.display = isRoutes ? "none" : "block";
+  // 2026-07-09 (kullanici geri bildirimi): Rotalar gorunumunde Zaman Araligi
+  // butonlari hicbir seyi degistirmiyordu (rotalar TUM 62 gunluk gecmisten,
+  // TEK seferlik hesaplaniyor -- bkz. #routesHint aciklamasi) ama tiklanabilir
+  // gorundukleri icin kullanici "bir sey degisecek" bekliyordu. Rotalar
+  // modundayken butonlar devre disi birakiliyor, boylece etkisiz olduklari
+  // ac ikca gorunuyor.
+  for (const b of document.querySelectorAll("#timeRangeSegmented button")) {
+    b.disabled = isRoutes;
+    b.title = isRoutes ? "Rotalar tüm 62 günlük geçmişten hesaplanır, zaman aralığından etkilenmez" : "";
+  }
 }
 
 async function applyRoutesView() {
