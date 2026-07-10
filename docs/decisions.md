@@ -824,3 +824,61 @@ protokolünü de içeriyor: recall≥0.70 @ FA≤0.05, sonuç görüldükten son
 Karar: holdout kavramı henüz açılmadı (ADSB-1'de tanımlanacak, kör-holdout birkaç gün trafiği
 olarak ayrılacak). Bu ADR, kod+test tamamlanmış bir ara durumu kaydeder; gerçek veri erişimi
 çözülmeden ADSB-0 faz kapısı kapanmış sayılmaz.
+
+## ADR-022: ADS-B sıfırlaması + gerçek 3-günlük veriyle ilk model turu (Dense-AE/LSTM-AE/USAD/LSTM-forecaster)
+
+- Durum: Altyapı + ilk eğitim tamamlandı; USAD sayısal kararsız, sonuçlar dürüstçe karışık
+- Tarih: 2026-07-10
+
+ADR-021'deki `src/adsb/` (Claude) ile paralel, koordinesiz geliştirilen `src/adsb_behavioral/`
+(Codex) denemesi karşılaştırıldığında ikisinin de aynı probleme iki ayrı isim alanı ve planla
+başladığı görüldü; Codex'in denemesi düzeltme sonrası %97.6 sentetik recall ama doğal veride
+25.54 yeni-alarm/saat üretti (kullanılamaz). Kullanıcı kararı: her ikisi de
+`archive/2026-07-10_{legacy_non_adsb_ml,rejected_adsb_attempts}/` altına kaldırıldı (hiçbir
+şey silinmedi), eski ML-0..16/RFLY hattı da aynı arşive taşındı, ve tamamen yeni, tek bir
+`adsb/` (kök dizin, `src/adsb/` DEĞİL) hattı başlatıldı. Not: Dashboard/individual (Yusuf/
+Metehan'ın kendi işleri) yanlışlıkla aynı arşive girmişti, aynı gün fark edilip geri çıkarıldı.
+
+Kullanıcı ayrıca gerçek ADS-B verisi indirdi: 3 gün (`v2026.02.28`, `v2026.03.01`,
+`v2026.03.16`, her biri ~3GB), `STORAGE_BACKEND=local` ile Docker'sız parse edildi
+(256.150.550 satır toplam, 638 Silver parça).
+
+**Faz 0 (madde 1,2,4,6) gerçek veriyle tamamlandı:** `adsb/inventory.py` envanteri (format
+3 günde de stabil, hiç UAV/drone kategorisi yok — 2026-03-01 örnekleminde 25 kez görülen `B6`
+istisnası henüz doğrulanmadı), `adsb/segmentation.py` gerçek veride çalıştırıldı (1500 uçak →
+4230 uçuş, `flags_new_leg` uyuşma oranı **%60.4**), `adsb/reports/measurability_table.md`
+(gerçek satır-düzeyi kapsama: `alt`/`vertical_rate_ms` %89.4, `ground_speed_ms` %98.1,
+`track_deg` %95.2, `roll_deg` %28.4 — forward-fill YOK, format referansının eski %8.5
+rakamından yüksek ama yine azınlık), `adsb/synthetic.py` (5 `PHYSICS_BREAK_RECIPES`
+senaryosu, test-only, `save_synthetic_batch` path guard'lı). Madde 3 (galeri) hâlâ yazılmadı.
+
+**Kullanıcı onay-kapısını bilinçli olarak esnetti:** "şimdi paralel başlat" talimatıyla,
+Faz 0 tamamlanmadan Dense-AE/LSTM-AE/USAD/LSTM-forecaster mimarilerine (`adsb/models/`)
+paralel başlandı — `adsb/README.md`'de bu istisna açıkça not edildi.
+
+**İlk eğitim turu (ölçeksiz) — SEAD dersi bilerek tekrar test edildi:** `adsb/diagnostics.py`
+(`magnitude_domination_check`, SEAD'in ADR-016 bulgusunu ZORUNLU standart hale getiren modül)
+ilk turda LSTM-AE (ρ=0.919), USAD (ρ=0.986) ve LSTM-forecaster'ı (ρ=0.890) işaretledi; yalnız
+Dense-AE (ρ=0.086) temiz çıktı. USAD'ın loss'u ayrıca sayısal olarak patladı (loss1 15.
+epoch'ta 134 milyar). Kök neden: feature'lar (`alt` binler, `vertical_rate_ms` tek hane) hiç
+ölçeklenmemişti — SEAD'in "kırpılmamış ölçekleme" hatasının ölçekleme YAPMAMA versiyonu.
+
+**Düzeltme:** `adsb/scaling.py` (`ClippedRobustScaler`, train-only fit, clip=5.0 — SEAD'in
+kırpma dersi doğrudan uygulanıyor) + 4 mimariye gradient clipping (`max_norm=1.0`) eklendi.
+İkinci turda: Dense-AE ŞİMDİ işaretlendi (ρ=0.81/0.83), LSTM-AE işaretlenmedi ama sınırda
+(ρ=0.77/0.80), USAD işaretlenmedi (ρ≈-0.05 — ama loss HÂLÂ patlıyor, 23 milyar; diagnostic
+bunu yakalamıyor çünkü patlamış skor ne genlikle ne rastgele-init'le korele — **diagnostic'in
+kendisi yeterli değil, eğitim-kararlılığı ayrıca kontrol edilmeli**, açık madde), LSTM-forecaster
+işaretli kaldı (ρ=0.90/0.89).
+
+**Sentetik-bozulma doğrulaması (5 senaryo × 4 mimari, 20 val uçuşu):** Dense-AE/LSTM-AE/
+LSTM-forecaster üçü de 5/5 senaryoda corrupt>clean gösterdi, ama ayrım büyüklüğü çok değişken:
+`ground_speed_biased` güçlü (2.3x-10.75x), `vertical_rate_frozen` orta (1.03x-2.28x),
+`position_ramp_stealthy`/`track_frozen`/`altitude_dropout` zayıf (1.01x-1.17x — pratikte
+ayırt edilemeyebilir). USAD 0/5 (patlamış eğitim yüzünden skor tamamen gürültü).
+
+Karar: hiçbiri production/headline recall adayı DEĞİL — bu, ADSB'nin ilk kez gerçek veriyle
+"pipeline çalışıyor mu" sorusuna cevap. Açık maddeler: USAD'ın sayısal kararsızlığı çözülmedi,
+galeri (Faz 0 madde 3) yazılmadı, eğitim-kararlılığı diagnostic'e eklenmedi, tam-hacim (3 gün)
+eğitim yapılmadı (yalnız 10/638 Silver parça, 3000 uçak kullanıldı). Kör-holdout henüz
+tanımlanmadı.
