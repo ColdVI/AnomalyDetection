@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import inspect
+import os
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
+from joblib import Parallel, delayed
 import numpy as np
 
 
@@ -13,6 +15,13 @@ DEFAULT_QUANTILE = 0.75
 DEFAULT_FLOOR = 1.0
 DEFAULT_CAP = 5.0
 DEFAULT_MIN_SESSIONS = 4
+
+def _resolved_n_jobs(n_jobs: int) -> int:
+    if n_jobs == 0:
+        raise ValueError("n_jobs must be non-zero")
+    if n_jobs < 0:
+        return max(1, (os.cpu_count() or 1) + 1 + n_jobs)
+    return n_jobs
 
 
 def _as_session_streams(
@@ -67,6 +76,46 @@ def _clamp_multiplier(value: float, *, floor: float, cap: float) -> float:
     return float(min(cap, max(floor, value)))
 
 
+def _fit_held_session(
+    held_session: str,
+    sessions: Mapping[str, list[np.ndarray]],
+    budget: float,
+    decision_fit_fn: Callable[..., Any],
+    *,
+    seed: int,
+    stride_seconds: float,
+    decision_kwargs: Mapping[str, Any] | None,
+) -> tuple[float, dict[str, float | str | int]]:
+    """Fit one deterministic leave-one-session-out jackknife replicate."""
+
+    fit_streams = [
+        stream
+        for name in sorted(sessions)
+        if name != held_session
+        for stream in sessions[name]
+    ]
+    held_streams = sessions[held_session]
+    policy = _fit_policy(
+        decision_fit_fn,
+        fit_streams,
+        budget,
+        seed=seed,
+        stride_seconds=stride_seconds,
+        decision_kwargs=decision_kwargs,
+    )
+    fa = _fa_per_hour(policy, held_streams, stride_seconds)
+    ratio = float(fa / budget)
+    return ratio, {
+        "session": held_session,
+        "heldout_streams": len(held_streams),
+        "heldout_hours": float(
+            sum(len(stream) * stride_seconds for stream in held_streams) / 3600.0
+        ),
+        "false_alarms_per_hour": fa,
+        "ratio": ratio,
+    }
+
+
 def fit_drift_corrected_policy(
     val_streams_by_session: Mapping[str, Iterable[np.ndarray]],
     budget: float,
@@ -80,6 +129,7 @@ def fit_drift_corrected_policy(
     min_sessions: int = DEFAULT_MIN_SESSIONS,
     fallback_drift_multiplier: float | None = None,
     decision_kwargs: Mapping[str, Any] | None = None,
+    n_jobs: int = 1,
 ) -> tuple[Any, dict]:
     """Fit an existing decision policy with a jackknife FA-drift correction.
 
@@ -96,6 +146,7 @@ def fit_drift_corrected_policy(
         raise ValueError("Require 0 < floor <= cap")
     if min_sessions < 1:
         raise ValueError("min_sessions must be positive")
+    resolved_n_jobs = _resolved_n_jobs(n_jobs)
 
     sessions = _as_session_streams(val_streams_by_session)
     session_count = len(sessions)
@@ -113,34 +164,37 @@ def fit_drift_corrected_policy(
         )
         fallback_source = "provided_ml14_median_shift"
     else:
-        ratios: list[float] = []
-        for held_session in sorted(sessions):
-            fit_sessions = {
-                name: streams for name, streams in sessions.items()
-                if name != held_session
-            }
-            fit_streams = _flatten(fit_sessions)
-            held_streams = sessions[held_session]
-            policy = _fit_policy(
-                decision_fit_fn,
-                fit_streams,
-                budget,
-                seed=seed,
-                stride_seconds=stride_seconds,
-                decision_kwargs=decision_kwargs,
+        held_sessions = sorted(sessions)
+        if resolved_n_jobs == 1:
+            jackknife = [
+                _fit_held_session(
+                    held_session,
+                    sessions,
+                    budget,
+                    decision_fit_fn,
+                    seed=seed,
+                    stride_seconds=stride_seconds,
+                    decision_kwargs=decision_kwargs,
+                )
+                for held_session in held_sessions
+            ]
+        else:
+            jackknife = Parallel(
+                n_jobs=min(resolved_n_jobs, len(held_sessions)), prefer="processes"
+            )(
+                delayed(_fit_held_session)(
+                    held_session,
+                    sessions,
+                    budget,
+                    decision_fit_fn,
+                    seed=seed,
+                    stride_seconds=stride_seconds,
+                    decision_kwargs=decision_kwargs,
+                )
+                for held_session in held_sessions
             )
-            fa = _fa_per_hour(policy, held_streams, stride_seconds)
-            ratio = float(fa / budget)
-            ratios.append(ratio)
-            session_ratios.append({
-                "session": held_session,
-                "heldout_streams": len(held_streams),
-                "heldout_hours": float(
-                    sum(len(stream) * stride_seconds for stream in held_streams) / 3600.0
-                ),
-                "false_alarms_per_hour": fa,
-                "ratio": ratio,
-            })
+        ratios = [ratio for ratio, _ in jackknife]
+        session_ratios = [row for _, row in jackknife]
         drift_multiplier = _clamp_multiplier(
             float(np.quantile(np.asarray(ratios, dtype=float), quantile)),
             floor=floor,
@@ -167,6 +221,7 @@ def fit_drift_corrected_policy(
         "cap": float(cap),
         "min_sessions": int(min_sessions),
         "session_count": int(session_count),
+        "jackknife_n_jobs": int(min(resolved_n_jobs, session_count)),
         "fallback_used": bool(fallback_used),
         "fallback_source": fallback_source,
         "session_ratios": session_ratios,

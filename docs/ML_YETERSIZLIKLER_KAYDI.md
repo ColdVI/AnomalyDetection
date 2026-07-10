@@ -326,6 +326,12 @@ FA kayması ve alarm bütçesi problemine takılıyor. Mevcut development sonucu
 yeniden açılma ancak yeni veri, farklı ön-kayıtlı FA-kalibrasyon hipotezi veya başka bağımsız
 protokolle mümkün.
 
+ML-15'in ön-kayıtlı session-jackknife drift kalibrasyonu tam 5-seed olarak tamamlandı (ADR-020).
+Gate B yalnız 2/4 CUSUM hücresinde geçtiği için kaldı; Gate C de kaldı. En iyi bütçe-içi
+advisory satırı `ml14_fusion` CUSUM 0.114504 recall / 8.414598 FA-saat, kritik satırı
+0.043257 / 1.595978 verdi. Dolayısıyla FA-kalibrasyonu hesaplanmış ve sınanmış olsa da E.1'i
+kapatmadı; aynı development sonucu üzerinde post-hoc policy ayarı yapılmaz.
+
 ### E.2 — Blind holdout (131 SEAD uçuşu) hiç açılmadı — gerçek "nihai" sayı yok (⚪ Bilinçli, doğru davranış)
 
 Bu bir eksiklik değil kasıtlı bir metodoloji: development Gate B/C geçmeden holdout açılmaz.
@@ -414,7 +420,7 @@ RFLY-0 official run anomalous Real-* ucuslarda olay araligi yerine tum ucusu ano
 | F.2 | Silver part-çoğalması | H8.1 | ⚪ Bilinçli | Prosedürle yönetiliyor |
 | F.3 | 4 MinIO SDK test hatası | — | ⚪ Bilinçli | Kapsam dışı, minio paketi güncellenirse kapanır |
 | F.4 | MOMENT bu ortamda kurulamıyor | bu oturum | 🔴 Yapısal | Ayrı Python 3.10/3.11 ortamı (orantısız) |
-| F.5 | ML-15 full matrix çok pahalı | ADR-015 | 🟡 Açık iş | CUSUM jackknife maliyeti için ayrı uzun koşu veya önceden kayıtlı hızlandırma planı |
+| F.5 | ML-15 full matrix hesap maliyeti | ADR-015/020 | ✅ Kapandı | Jackknife süreç paralelliği; 5-seed 95.72 dk tamamlandı |
 
-**Sayaç:** 34 madde — 8 🔴 yapısal sınır, 7 🟡 gerçek açık iş, 8 ⚪ bilinçli kapsam dışı,
-11 ✅ kapandı/telafi edildi.
+**Sayaç:** 34 madde — 8 🔴 yapısal sınır, 6 🟡 gerçek açık iş, 8 ⚪ bilinçli kapsam dışı,
+12 ✅ kapandı/telafi edildi.

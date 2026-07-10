@@ -722,3 +722,51 @@ altta yatan sinyal zaten zayıf" şeklinde daha kesin bir teşhisle kayıtlı. B
 mantıklı adım (bu oturumda başlatılmadı) veri-kalitesi kanalının davranışsal skordan
 ayrılması (GPT'nin önerisi) veya tamamen farklı bir feature ailesi olabilir — genlik-
 normalize skor denemesinin kendisi tükenmiş bir yön olarak kapatıldı.
+
+## ADR-020: ML-15 session-jackknife paralelleştirildi; tam 5-seed drift kalibrasyonu Gate B/C'yi geçemedi
+
+- Durum: Altyapı tamamlandı; development rejected (Gate B ve Gate C)
+- Tarih: 2026-07-10
+- ADR-015'i tamamlar.
+
+ML-15'in kayıtlı algoritması, eşikleri ve bütçeleri değiştirilmeden yalnız hesap yürütümü
+hızlandırıldı. Temsilî, gerçek üretim parametreli `cProfile` ölçümünde tek CUSUM fit'i
+16.433 saniye sürdü; bunun 16.310 saniyesi (%99.2) 16 eşik değerlendirmesindeki
+`cusum_alarm_onsets`, yalnız 0.105 saniyesi `_moving_block_bootstrap` idi. Bu nedenle
+bootstrap vektörleştirilmedi. Reset/refractory taşıyan durumlu CUSUM döngüsü de sayısal
+semantiği riske atmamak için değiştirilmedi. Bağımsız leave-one-session-out jackknife
+fitleri `joblib` süreçleriyle paralelleştirildi; sonuç sırası sıralı session listesine göre
+korundu. Aynı anda çalışan ML-16 işi ve 16 GB RAM sınırı nedeniyle split-düzeyi iç içe
+paralellik açılmadı; gerçek koşu 4 jackknife işçisiyle, splitler ardışık yürütüldü.
+
+**Doğruluk kanıtı:** threshold, K-of-N ve CUSUM için ardışık/paralel birim regresyonları
+birebir eşleşti (`tests/test_ml15.py`, 10/10). Gerçek `split_00` yeniden koşusu eski
+`artifacts/ml15/uav_sead/smoke_split_00` ile karşılaştırıldı: `metrics.csv` 36/36,
+`flight_label_metrics.csv` 180/180 ve `category_metrics.csv` 324/324 satırda `rtol=atol=1e-12`
+ile eşleşti; `policies.json` birebir, `drift_reports.json` yalnız yeni işçi-sayısı provenance
+alanı çıkarıldığında birebir eşleşti. `gates.json` kararları aynıydı; yalnız yaklaşık
+1e-16 düzeyinde JSON kayan-nokta yazım farkları vardı. Yeni smoke 1026.528 saniye
+(17.11 dakika) sürdü; ADR-015'teki yaklaşık 45 dakikaya göre 2.63x hızlanmadır.
+
+**Tam koşu:** `artifacts/ml15/uav_sead/full_matrix/`, split_00..04, 5743.139 saniye
+(95.72 dakika). Manifestteki 59 dosyanın SHA-256 değeri yeniden doğrulandı. Blind holdout
+200 uçuş olarak manifestte kaldı ve hiçbir telemetri/feature/skor okumasına girmedi;
+Gate A geçti.
+
+**Gate B KALDI:** ön-kayıtlı kural 4 CUSUM hücresinin en az 3'ünün median FA<=bütçe ve
+en az 4/5 seed'de <=1.25x bütçe olmasını istiyordu; yalnız 2/4 hücre geçti.
+`existing_fusion` advisory median 8.749953 FA/saat (5/5 seed) ve critical median 0.903227
+(4/5) geçti. `itki_komutu` advisory median 13.213611 (yalnız 3/5) ve critical median
+7.353321 (0/5) kaldı. Drift multiplier 90 fit boyunca min/median/max = 1.0/1.0/5.0;
+CUSUM advisory medianı 1.331623 idi.
+
+**Gate C KALDI:** hiçbir drift-corrected hücre kritik >=0.30 recall @ <=2 FA/saat veya
+advisory >=0.50 @ <=12 FA/saat hedefini karşılamadı. En iyi bütçe-içi advisory satırı
+`ml14_fusion` CUSUM: 0.114504 recall / 8.414598 FA-saat. Aynı skorun kritik satırı
+0.043257 / 1.595978 idi. `existing_fusion` CUSUM advisory 0.108397 / 8.338657;
+critical 0.041730 / 1.596345 verdi. Drift düzeltmesi FA'yı bazı hücrelerde bütçe içine
+çekti, fakat operasyonel recall açığını kapatmadı.
+
+Karar: holdout açılmaz; policy/bütçe/quantile/floor/cap sonuçtan sonra değiştirilmez.
+ML-15 full-matrix hesap açık işi kapanmıştır, fakat SEAD operasyonel alarm bütçesi
+sınırlaması kapanmamıştır.

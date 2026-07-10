@@ -160,3 +160,52 @@ def test_drift_calibration_returns_existing_policy_classes():
     assert decision_layers.fit_threshold_policy is decision_layers.fit_threshold_policy
     assert decision_layers.fit_k_of_n_policy is decision_layers.fit_k_of_n_policy
     assert decision_layers.fit_cusum_policy is decision_layers.fit_cusum_policy
+@pytest.mark.parametrize(
+    "fit_fn",
+    [
+        decision_layers.fit_threshold_policy,
+        decision_layers.fit_k_of_n_policy,
+        functools.partial(
+            decision_layers.fit_cusum_policy,
+            bootstrap_hours=0.02,
+            block_seconds=2.0,
+        ),
+    ],
+)
+def test_parallel_jackknife_is_bitwise_equivalent_to_sequential(fit_fn):
+    sessions = {
+        f"session_{index}": [
+            np.random.default_rng(index).beta(2.0, 8.0, size=80),
+        ]
+        for index in range(5)
+    }
+    kwargs = dict(
+        val_streams_by_session=sessions,
+        budget=100.0,
+        decision_fit_fn=fit_fn,
+        seed=17,
+    )
+
+    sequential_policy, sequential_report = fit_drift_corrected_policy(**kwargs, n_jobs=1)
+    parallel_policy, parallel_report = fit_drift_corrected_policy(**kwargs, n_jobs=2)
+
+    assert parallel_policy == sequential_policy
+    assert parallel_report["session_ratios"] == sequential_report["session_ratios"]
+    assert parallel_report["drift_multiplier"] == sequential_report["drift_multiplier"]
+    assert (
+        parallel_report["effective_budget_per_hour"]
+        == sequential_report["effective_budget_per_hour"]
+    )
+    assert parallel_report["jackknife_n_jobs"] == 2
+    assert sequential_report["jackknife_n_jobs"] == 1
+
+
+def test_parallel_jackknife_rejects_zero_workers():
+    with pytest.raises(ValueError, match="n_jobs must be non-zero"):
+        fit_drift_corrected_policy(
+            _sessions_for_correction(),
+            50.0,
+            decision_layers.fit_threshold_policy,
+            seed=7,
+            n_jobs=0,
+        )

@@ -146,7 +146,12 @@ def _gate_c(metrics: pd.DataFrame) -> dict:
     }
 
 
-def run(run_name: str, split_names: tuple[str, ...] | None = None) -> Path:
+def run(
+    run_name: str,
+    split_names: tuple[str, ...] | None = None,
+    *,
+    n_jobs: int = 1,
+) -> Path:
     manifest = json.loads(SPLIT_PATH.read_text(encoding="utf-8"))
     config = manifest["sources"]["uav_sead"]
     folds = config["splits"]
@@ -254,6 +259,7 @@ def run(run_name: str, split_names: tuple[str, ...] | None = None) -> Path:
                         seed,
                         stride_seconds=DECISION_STRIDE_S,
                         fallback_drift_multiplier=fallback,
+                        n_jobs=n_jobs,
                     )
                     key = f"drift_corrected:{score_source}:{budget_name}:{decision}"
                     policies_json[key] = policy.to_dict()
@@ -321,6 +327,7 @@ def run(run_name: str, split_names: tuple[str, ...] | None = None) -> Path:
         "silver_table_sha256": _sha256(SILVER_PATH),
         "ml14_full_manifest_sha256": _sha256(ML14_FULL / "manifest.json"),
         "fallback_drift_multiplier": fallback,
+        "jackknife_n_jobs": int(n_jobs),
         "gate_status": {name: value["status"] for name, value in gates.items()},
         "files": {str(path.relative_to(output)).replace("\\", "/"): _sha256(path) for path in files},
     }
@@ -332,8 +339,18 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-name", default="full_matrix")
     parser.add_argument("--splits", nargs="+", default=None)
+    parser.add_argument(
+        "--n-jobs",
+        type=int,
+        default=min(8, max(1, os.cpu_count() or 1)),
+        help="Process workers for independent session-jackknife refits (default: up to 8)",
+    )
     args = parser.parse_args()
-    output = run(args.run_name, tuple(args.splits) if args.splits else None)
+    output = run(
+        args.run_name,
+        tuple(args.splits) if args.splits else None,
+        n_jobs=args.n_jobs,
+    )
     print(f"ML-15 artifact: {output}")
     print((output / "gates.json").read_text(encoding="utf-8"))
 
