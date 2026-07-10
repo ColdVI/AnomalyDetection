@@ -72,6 +72,10 @@ DECISION_STRIDE_S = 1.0
 RFLY_EXPLORATORY_QUOTA = (15, 15)
 RFLY_OFFICIAL_QUOTA = (12, 12)
 SCORE_SOURCES = ("existing_fusion", "ml9_fusion", "itki_komutu", "rfly0_fusion")
+INVALID_RFLY_INTERVAL_REASON = (
+    "rfly_ctrl_lxl_no_active_fault: internal RFLY control message indicates no "
+    "active fault trigger, contradicting the folder label"
+)
 
 MODULE_HYPOTHESES = {
     "itki_komutu": "actuator/motor hypothesis",
@@ -152,6 +156,55 @@ def _load_rfly_fault_intervals(
         )
     return intervals
 
+
+
+def _invalid_rfly_interval_truth(
+    source_ids: set[str],
+    *,
+    silver_path: Path = RFLY_SILVER,
+) -> dict[str, str]:
+    """Return anomalous RFLY flights that must be excluded from official truth."""
+    wanted = sorted(sid for sid in source_ids if sid.startswith("Real-"))
+    if not wanted:
+        return {}
+    cols = [
+        "source_id",
+        "label",
+        "fault_onset_s",
+        "fault_end_s",
+        "fault_interval_source",
+    ]
+    rows = pd.read_parquet(silver_path, columns=cols, filters=[("source_id", "in", wanted)])
+    invalid: dict[str, str] = {}
+    for _, row in rows.drop_duplicates("source_id").iterrows():
+        if row["label"] == "normal":
+            continue
+        source = str(row.get("fault_interval_source", "unknown"))
+        onset = row["fault_onset_s"]
+        end = row["fault_end_s"]
+        if source == "rfly_ctrl_lxl_no_active_fault":
+            invalid[str(row["source_id"])] = INVALID_RFLY_INTERVAL_REASON
+        elif pd.isna(onset) or pd.isna(end) or float(end) < float(onset):
+            invalid[str(row["source_id"])] = (
+                f"{source}: missing or invalid interval truth; excluded before recall/FA evaluation"
+            )
+    return invalid
+
+
+def _exclude_invalid_ids_from_folds(
+    folds: dict[str, dict],
+    invalid_ids: set[str],
+) -> dict[str, dict]:
+    if not invalid_ids:
+        return folds
+    cleaned: dict[str, dict] = {}
+    for split_name, split in folds.items():
+        item = dict(split)
+        for key, value in split.items():
+            if isinstance(value, list):
+                item[key] = [source_id for source_id in value if source_id not in invalid_ids]
+        cleaned[split_name] = item
+    return cleaned
 
 def _build_rfly_splits(
     rfly_features: pd.DataFrame,
@@ -429,12 +482,14 @@ def _run_matrix(
     sead_t0: dict[str, float],
     sead_ranges: dict[str, list[tuple[float, float]]],
     rfly_intervals: dict[str, tuple[float, float, str]],
+    invalid_rfly_interval_truth: dict[str, str] | None,
     source_note: str,
     input_hashes: dict[str, str],
     official_gate: bool = False,
     blind_holdout_count: int = 0,
 ) -> Path:
     output.mkdir(parents=True, exist_ok=True)
+    invalid_rfly_interval_truth = invalid_rfly_interval_truth or {}
     unknown = set(selected_splits) - set(folds)
     if unknown:
         raise ValueError(f"Unknown split names: {sorted(unknown)}")
@@ -536,6 +591,8 @@ def _run_matrix(
                 "blind_holdout_read": False,
                 "blind_holdout_flights": blind_holdout_count,
                 "split_overlap": "asserted by split construction",
+                "invalid_interval_truth_excluded_flights": len(invalid_rfly_interval_truth),
+                "invalid_interval_truth_reason": INVALID_RFLY_INTERVAL_REASON,
             },
             "gate_r_b": _gate_rb(group_metrics),
             "gate_r_c": _gate_rc(metrics),
@@ -562,6 +619,9 @@ def _run_matrix(
         "rfly_anomaly_truth": "rfly_ctrl_lxl interval truth for Real-* anomalies; Real normal flights are all-false",
         "rfly_fault_interval_flights": len(rfly_intervals),
         "rfly_fault_interval_sources": sorted(set(source for _onset, _end, source in rfly_intervals.values())),
+        "invalid_rfly_interval_truth_exclusions": invalid_rfly_interval_truth,
+        "invalid_rfly_interval_truth_exclusion_count": len(invalid_rfly_interval_truth),
+        "invalid_rfly_interval_truth_reason": INVALID_RFLY_INTERVAL_REASON,
         "blind_holdout_read": False,
         "blind_holdout_flights": blind_holdout_count,
         "decision_layers": "imported unchanged from src/ml/decision/decision_layers.py",
@@ -595,25 +655,41 @@ def run_rfly_only(run_name: str, splits: tuple[str, ...], *, official: bool = Fa
         manifest = json.loads(SPLIT_MANIFEST.read_text(encoding="utf-8"))
         config = manifest["sources"]["rflymad"]
         folds = {name: config["splits"][name] for name in splits}
-        development, holdout = _development_and_holdout(folds)
+        development_all, holdout = _development_and_holdout(folds)
+        invalid = _invalid_rfly_interval_truth(development_all)
+        folds = _exclude_invalid_ids_from_folds(folds, set(invalid))
+        development = set().union(*(
+            set(split[part]) for split in folds.values() for part in ("train", "val", "test")
+        ))
         rfly_silver = pd.read_parquet(RFLY_SILVER, filters=[("source_id", "in", sorted(development))])
         raw = pd.read_parquet(RFLY_GOLD, filters=[("source_id", "in", sorted(development))])
         if set(rfly_silver["source_id"].unique()) & holdout:
             raise AssertionError("RFLY blind holdout rows were read from Silver")
         if set(raw["source_id"].unique()) & holdout:
             raise AssertionError("RFLY blind holdout rows were read from Gold")
+        if set(raw["source_id"].unique()) & set(invalid):
+            raise AssertionError("Invalid RFLY interval-truth rows entered official Gold evaluation")
         cusum = {}
-        distribution_scope = "official_selected_development_only"
+        distribution_scope = "official_selected_valid_development_only"
     else:
         rfly_silver = pd.read_parquet(RFLY_SILVER)
         provisional = build_px4_features(rfly_silver)
         folds = _build_rfly_splits(provisional)
+        all_ids = set(rfly_silver["source_id"].unique())
+        invalid = _invalid_rfly_interval_truth(all_ids)
+        folds = _exclude_invalid_ids_from_folds(folds, set(invalid))
         raw, cusum = _build_features_with_split0_cusum(rfly_silver, set(folds["split_00"]["train"]))
+        valid_ids = set().union(*(
+            set(split[part]) for split in folds.values() for part in ("train", "val", "test")
+        ))
+        raw = raw[raw["source_id"].isin(valid_ids)].copy()
         holdout = set()
-        distribution_scope = "exploratory_all_available_real_rfly"
+        distribution_scope = "exploratory_all_available_real_rfly_excluding_invalid_interval_truth"
 
     distribution = _distribution_report(rfly_silver)
     distribution["scope"] = distribution_scope
+    distribution["invalid_interval_truth_excluded_flights"] = len(invalid)
+    distribution["invalid_interval_truth_reason"] = INVALID_RFLY_INTERVAL_REASON
     OUT_RFLY.mkdir(parents=True, exist_ok=True)
     (OUT_RFLY / "distribution_report.json").write_text(
         json.dumps(_jsonable(distribution), indent=2, ensure_ascii=False), encoding="utf-8",
@@ -633,9 +709,10 @@ def run_rfly_only(run_name: str, splits: tuple[str, ...], *, official: bool = Fa
         sead_t0={},
         sead_ranges={},
         rfly_intervals=rfly_intervals,
+        invalid_rfly_interval_truth=invalid,
         source_note=(
-            "rflymad-only official RFLY-0 amended-quota run"
-            if official else "rflymad-only exploratory low-normal-quota run"
+            "rflymad-only official RFLY-0 amended-quota interval-truth run; invalid no-active-fault cases excluded"
+            if official else "rflymad-only exploratory low-normal-quota interval-truth run; invalid no-active-fault cases excluded"
         ),
         input_hashes={
             "rfly_silver_sha256": _sha256(RFLY_SILVER),
@@ -645,6 +722,7 @@ def run_rfly_only(run_name: str, splits: tuple[str, ...], *, official: bool = Fa
         official_gate=official,
         blind_holdout_count=len(holdout),
     )
+
 
 def _selected_sead_development(config: dict, split_names: tuple[str, ...]) -> tuple[dict[str, dict], set[str], set[str]]:
     folds = {name: config["splits"][name] for name in split_names}
@@ -664,7 +742,12 @@ def run_pooled(run_name: str, splits: tuple[str, ...], *, official: bool = False
     if official:
         rfly_config = split_manifest["sources"]["rflymad"]
         rfly_folds = {name: rfly_config["splits"][name] for name in splits}
-        rfly_development, rfly_holdout = _development_and_holdout(rfly_folds)
+        rfly_development_all, rfly_holdout = _development_and_holdout(rfly_folds)
+        invalid = _invalid_rfly_interval_truth(rfly_development_all)
+        rfly_folds = _exclude_invalid_ids_from_folds(rfly_folds, set(invalid))
+        rfly_development = set().union(*(
+            set(split[part]) for split in rfly_folds.values() for part in ("train", "val", "test")
+        ))
         sead_features = pd.read_parquet(
             SEAD_GOLD,
             filters=[("source_id", "in", sorted(sead_development))],
@@ -677,6 +760,8 @@ def run_pooled(run_name: str, splits: tuple[str, ...], *, official: bool = False
             raise AssertionError("SEAD blind holdout rows were read in official pooled run")
         if set(rfly_features["source_id"].unique()) & rfly_holdout:
             raise AssertionError("RFLY blind holdout rows were read in official pooled run")
+        if set(rfly_features["source_id"].unique()) & set(invalid):
+            raise AssertionError("Invalid RFLY interval-truth rows entered official pooled Gold evaluation")
         raw = pd.concat([sead_features, rfly_features], ignore_index=True, sort=False)
         cusum = {}
         combined_holdout = sead_holdout | rfly_holdout
@@ -684,12 +769,18 @@ def run_pooled(run_name: str, splits: tuple[str, ...], *, official: bool = False
         rfly_silver = pd.read_parquet(RFLY_SILVER)
         rfly_provisional = build_px4_features(rfly_silver)
         rfly_folds = _build_rfly_splits(rfly_provisional)
+        invalid = _invalid_rfly_interval_truth(set(rfly_silver["source_id"].unique()))
+        rfly_folds = _exclude_invalid_ids_from_folds(rfly_folds, set(invalid))
         sead_silver = pd.read_parquet(
             SEAD_SILVER,
             filters=[("source_id", "in", sorted(sead_development))],
         )
         if set(sead_silver["source_id"].unique()) & sead_holdout:
             raise AssertionError("SEAD blind holdout rows were read in pooled exploratory run")
+        valid_rfly_ids = set().union(*(
+            set(split[part]) for split in rfly_folds.values() for part in ("train", "val", "test")
+        ))
+        rfly_silver = rfly_silver[rfly_silver["source_id"].isin(valid_rfly_ids)].copy()
         combined_silver = pd.concat([sead_silver, rfly_silver], ignore_index=True, sort=False)
         split0_train = set(sead_folds["split_00"]["train"]) | set(rfly_folds["split_00"]["train"])
         raw, cusum = _build_features_with_split0_cusum(combined_silver, split0_train)
@@ -736,9 +827,10 @@ def run_pooled(run_name: str, splits: tuple[str, ...], *, official: bool = False
         sead_t0=sead_t0,
         sead_ranges=sead_ranges,
         rfly_intervals=rfly_intervals,
+        invalid_rfly_interval_truth=invalid,
         source_note=(
-            "SEAD development + RFLY official amended-quota pooled-normal run; ALFA excluded"
-            if official else "SEAD development + RFLY exploratory pooled-normal run; ALFA excluded"
+            "SEAD development + valid-interval RFLY official amended-quota pooled-normal run; ALFA excluded"
+            if official else "SEAD development + valid-interval RFLY exploratory pooled-normal run; ALFA excluded"
         ),
         input_hashes={
             "rfly_silver_sha256": _sha256(RFLY_SILVER),

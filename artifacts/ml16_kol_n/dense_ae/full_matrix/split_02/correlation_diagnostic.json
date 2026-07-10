@@ -1,0 +1,36 @@
+{
+  "split": "split_02",
+  "seed": 2,
+  "architecture": "dense_ae",
+  "n_test_windows": 236185,
+  "correlations": {
+    "relerr": {
+      "trained_vs_untrained_random_init_spearman": {
+        "spearman": 0.3300756877732368,
+        "n_windows": 236185
+      },
+      "trained_vs_magnitude_only_spearman": {
+        "spearman": 0.22717398350556509,
+        "n_windows": 236185
+      },
+      "untrained_vs_magnitude_only_spearman": {
+        "spearman": -0.1982554973440946,
+        "n_windows": 236185
+      }
+    },
+    "rankpct": {
+      "trained_vs_untrained_random_init_spearman": {
+        "spearman": 0.6824819258485973,
+        "n_windows": 236185
+      },
+      "trained_vs_magnitude_only_spearman": {
+        "spearman": 0.7122484145163795,
+        "n_windows": 236185
+      },
+      "untrained_vs_magnitude_only_spearman": {
+        "spearman": 0.7545956341555765,
+        "n_windows": 236185
+      }
+    }
+  }
+}

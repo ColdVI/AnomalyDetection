@@ -1,0 +1,211 @@
+{
+  "created_from": "artifacts/ml_lstm_sead/uav_sead/smoke_split00 (split_00 model checkpoint)",
+  "trigger": "External cross-model check found identical flight_label_metrics.csv detected/false-alarm counts for lstm_recon vs Dense-AE/USAD recon scores under threshold/critical on split_00.",
+  "finding": "lstm_recon ranking is ~96% Spearman-correlated with a completely untrained random-init network and with a model-free ||x||^2 magnitude baseline -- training adds almost nothing beyond 'how large is the scaled input'. RobustScaler (used project-wide, unmodified) does not clip outliers, so a small number of extreme scaled-magnitude windows (genuine GPS-spoofing jumps in external_position_anomaly, plus at least one apparently-mislabeled 'normal' flight with a frozen-GPS / eph~25000 sentinel artifact) dominate reconstruction error for ANY bounded-output autoencoder, independent of architecture or training quality. This explains cross-architecture agreement on detected events without implying genuine learned temporal pattern-matching.",
+  "classification": "(b) real, important, honest limitation of the current scaling/feature choice -- NOT a bug in _align_score/build_windows/ThresholdPolicy (verified not degenerate below), and not coincidence (mechanism identified with direct evidence).",
+  "rank_correlations": {
+    "trained_vs_untrained_random_init_spearman": 0.9636721333524184,
+    "trained_vs_magnitude_only_spearman": 0.96451536630196,
+    "untrained_vs_magnitude_only_spearman": 0.9994071500775737,
+    "n_test_windows": 235625
+  },
+  "top_20_flights_by_max_window_score": [
+    {
+      "source_id": "2018-05-26/16_50_55",
+      "max_window_score": 12678740992.0,
+      "flight_label": "normal"
+    },
+    {
+      "source_id": "2018-05-26/16_19_20",
+      "max_window_score": 1766209152.0,
+      "flight_label": "external_position_anomaly"
+    },
+    {
+      "source_id": "2018-05-26/16_50_01",
+      "max_window_score": 874000512.0,
+      "flight_label": "external_position_anomaly"
+    },
+    {
+      "source_id": "2018-05-26/16_48_10",
+      "max_window_score": 166008816.0,
+      "flight_label": "external_position_anomaly"
+    },
+    {
+      "source_id": "2021-10-06--/12_14_56",
+      "max_window_score": 103309008.0,
+      "flight_label": "external_position_anomaly"
+    },
+    {
+      "source_id": "2018-05-26/16_18_10",
+      "max_window_score": 94590424.0,
+      "flight_label": "mechanical_fault"
+    },
+    {
+      "source_id": "2023-08/2022-06-15/08_23_52",
+      "max_window_score": 22585096.0,
+      "flight_label": "external_position_anomaly"
+    },
+    {
+      "source_id": "2023-08/2022-09-08/01_07_35",
+      "max_window_score": 6098148.5,
+      "flight_label": "external_position_anomaly"
+    },
+    {
+      "source_id": "2023-08/2023-05-24/02_03_16",
+      "max_window_score": 5836069.0,
+      "flight_label": "external_position_anomaly"
+    },
+    {
+      "source_id": "2023-08/2022-09-10/01_48_01",
+      "max_window_score": 5662279.0,
+      "flight_label": "normal"
+    },
+    {
+      "source_id": "2019-01-25/16_25_23",
+      "max_window_score": 4153055.5,
+      "flight_label": "external_position_anomaly"
+    },
+    {
+      "source_id": "2018-12-20/08_46_30",
+      "max_window_score": 3053754.75,
+      "flight_label": "external_position_anomaly"
+    },
+    {
+      "source_id": "2018-09-15/17_16_19",
+      "max_window_score": 1408907.125,
+      "flight_label": "external_position_anomaly"
+    },
+    {
+      "source_id": "2018-09-15/18_36_56",
+      "max_window_score": 1358496.625,
+      "flight_label": "external_position_anomaly"
+    },
+    {
+      "source_id": "2019-03-07/07_52_21",
+      "max_window_score": 1278697.25,
+      "flight_label": "external_position_anomaly"
+    },
+    {
+      "source_id": "2018-09-15/18_21_12",
+      "max_window_score": 1209239.0,
+      "flight_label": "external_position_anomaly"
+    },
+    {
+      "source_id": "2019-01-15/07_49_03",
+      "max_window_score": 828290.875,
+      "flight_label": "mechanical_fault"
+    },
+    {
+      "source_id": "2018-09-15/17_28_56",
+      "max_window_score": 747445.75,
+      "flight_label": "external_position_anomaly"
+    },
+    {
+      "source_id": "2018-07-09/19_05_45",
+      "max_window_score": 649234.375,
+      "flight_label": "external_position_anomaly"
+    },
+    {
+      "source_id": "2018-09-08/18_31_20",
+      "max_window_score": 607906.75,
+      "flight_label": "external_position_anomaly"
+    }
+  ],
+  "worst_flight_raw_feature_context_10s_window": {
+    "source_id": "2018-05-26/16_50_55",
+    "window_end_t_rel_s": 79.20506,
+    "flight_label": "normal",
+    "feature_stats": {
+      "gps_step_m": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "log_gps_speed": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "gps_accel_mps2": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "vertical_rate_calc": {
+        "min": -0.16904918482144124,
+        "max": 0.1345281532630089,
+        "mean": -0.025221385964545852
+      },
+      "gps_speed_residual": {
+        "min": 193.1737060546875,
+        "max": 201.67860412597656,
+        "mean": 197.3690099234533
+      },
+      "vertical_rate_residual": {
+        "min": 0.0017215413956004448,
+        "max": 0.30348359855262075,
+        "mean": 0.12573657629279386
+      },
+      "gps_frozen_count": {
+        "min": 681.0,
+        "max": 779.0,
+        "mean": 730.0
+      },
+      "eph": {
+        "min": 24682.94140625,
+        "max": 26441.35546875,
+        "mean": 25566.189453125
+      },
+      "epv": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "roll_rate": {
+        "min": -1.316915461396815,
+        "max": 1.8929472183479004,
+        "mean": 0.44155277060832304
+      },
+      "pitch_rate": {
+        "min": -33.84116762108287,
+        "max": 29.71279699574378,
+        "mean": -0.48224354835916494
+      },
+      "yaw_rate": {
+        "min": -11.622967497669741,
+        "max": 5.76356064731985,
+        "mean": -1.5943097207414838
+      },
+      "attitude_missing": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "num_missing_groups": {
+        "min": 1.0,
+        "max": 2.0,
+        "mean": 1.202020202020202
+      },
+      "attitude_stale_s": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      }
+    }
+  },
+  "threshold_policy_degeneracy_check": {
+    "policy": {
+      "kind": "threshold",
+      "threshold": 0.9766661644987176,
+      "fa_budget_per_hour": 2.0,
+      "calibration_fa_per_hour": 1.5732301161193656
+    },
+    "test_flights_total": 904,
+    "test_flights_with_any_onset": 94,
+    "fraction_onsets_coinciding_with_first_valid_timestamp": 0.0425531914893617,
+    "mean_onset_t_s": 80.12589245744682,
+    "mean_first_finite_t_s": 6.798672563829795,
+    "conclusion": "NOT degenerate: onsets are concentrated well after window completion, not at the first available score"
+  },
+  "blind_holdout_read": false
+}

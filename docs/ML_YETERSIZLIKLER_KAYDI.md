@@ -120,17 +120,86 @@ duruyor, ileride reject-counter'larla birlikte yeniden değerlendirilebilir.
 
 ### B.4 — Ping DoS network-katmanı imzası telemetriye yansımıyor (bkz. A.5)
 
+### B.5 — Reconstruction skorları kırpılmamış `RobustScaler` genliğine hâkim (🟡 Gerçek açık iş, ADR-016, bu oturum)
+
+ML-16 Kol L (LSTM-AE SEAD yeniden eğitimi) sırasında, bağımsız olarak eğitilmiş Dense-AE ve
+USAD ajanları (aynı `_align_score`/pencereleme konvansiyonunu paylaşan) split_00'da
+`threshold`/`critical` kararında LSTM ile BİREBİR aynı kategori-bazlı detected/false-alarm
+sayılarını üretti — üç farklı mimarinin "eşit derecede iyi öğrenmesi" ile açıklanamayacak bir
+örtüşme. Araştırma (`scripts/diagnose_ml_lstm_sead_magnitude_domination.py`,
+`artifacts/ml_lstm_sead/uav_sead/full_matrix/magnitude_domination_diagnostic.json`) kök nedeni
+buldu: eğitilmiş LSTM'in skor SIRALAMASI, tamamen eğitilmemiş (rastgele başlatılmış) aynı
+mimariyle Spearman ρ=0.964, modelsiz saf `‖x‖²` genlik taban-çizgisiyle ρ=0.965 KORELE —
+eğitim "girdi ne kadar büyük" ötesine neredeyse hiçbir şey katmıyor. `RobustScaler` (proje
+çapında kullanılan, aykırı değer kırpmayan ölçekleyici) sayesinde bir avuç aşırı-genlikli
+pencere — gerçek GPS-sahtekârlığı sıçramaları (`external_position_anomaly`, beklenen/kısmen
+meşru) VE en az bir "normal" etiketli ama donmuş-GPS + `eph`≈25000 sentinel içeren uçuş
+(muhtemelen yanlış etiketli veya loglama artefaktı, İSTENMEYEN) — herhangi bir sınırlı-çıktılı
+autoencoder'ın reconstruction hatasına mimariden bağımsız hâkim oluyor.
+`ThresholdPolicy`/`_align_score`/`build_windows` doğrudan test edildi ve DEJENERE DEĞİL ("ilk
+tanımlı skorda ateşle" davranışı yok); sorun karar katmanında değil, ölçekleme/özellik
+seçiminde. **Sonuç:** ADR-016'daki LSTM recall rakamları (özellikle mevcut en iyiyi ham
+sayıda geçen CUSUM/advisory 0.251) "öğrenilmiş sinyal" olarak sunulamaz — büyük kısmı genlik
+aykırı-değer tespiti olabilir. **Kapatmak için:** kırpmalı/robust ölçekleme (ör. görselleştirme
+fazının ±10 IQR kırpması gibi ama SKORA giren) veya genlik-normalize edilmiş bir reconstruction
+skoru; ayrıca "eph≈25000" sentinel'in bir SEAD veri kalitesi sorunu olup olmadığı (yanlış
+etiketleme mi, gerçek sensör arızası mı) ayrı araştırılmalı. Bu oturumda post-hoc
+DÜZELTİLMEDİ (sonuç görülmeden ön-kayıtlı disiplin gereği); yeni, ayrı bir ön-kayıtlı turda
+değerlendirilmeli.
+
+**2026-07-10 güncellemesi:** Dense-AE ve USAD'ın kendi tam 5-seed koşuları (ADR-017/018)
+split_00 smoke bulgusunu doğruladı — üç mimarinin de ham recall'ı benzer aralıkta
+(threshold/critical: LSTM 0.219, Dense-AE 0.215, USAD 0.217) ve üçü de aynı bütçe-dışı
+FA'ya sahip. Bu, tek-split bir tesadüf olmadığını, sistematik bir ölçekleme sorunu
+olduğunu doğruluyor.
+
+**2026-07-10 güncellemesi #2 (ML-16 Kol N, ADR-019) — düzeltme denendi, kısmen işe yaradı
+ama madde KAPANMADI:** Aynı 3 dondurulmuş modelden (yeniden eğitim yok) iki yeni skor
+türetildi: bağıl hata ve kanal-başına yüzdelik-sıra. Kanal-başına yüzdelik-sıra genlik-
+bağımlılığını neredeyse hiç azaltmadı (ρ hâlâ ~0.7-0.9). Bağıl hata genlik-bağımlılığını
+GERÇEKTEN kırdı (3 mimaride de ρ 0.96'dan ~0.15-0.55'e düştü, bazı split'lerde negatif) —
+ama bunun karşılığında recall neredeyse sıfırlandı (çoğu hücrede critical recall <0.06).
+**Sonuç: kırpma/normalize sorunu tek başına çözmüyor çünkü genliği temizleyince altta
+operasyonel olarak kullanılabilir bir sinyal yok.** Kapatma yolu artık yalnızca "daha iyi
+ölçekleme" değil — ya davranışsal skoru veri-kalitesi sinyalinden tamamen ayırmak ya da
+farklı bir feature ailesi/veri kaynağı gerekiyor olabilir; bu oturumda başlatılmadı.
+
 ---
 
 ## C. Model / yöntem sınırlamaları (Gate başarısızlıkları)
 
-### C.1 — ML-8A: LightGBM temporal-descriptor skorlayıcı Gate B/C'yi geçemedi (✅ Kapandı, ADR-008)
+### C.1 — ML-8A: LightGBM temporal-descriptor skorlayıcı Gate B/C'yi geçemedi (✅ Kapandı, ADR-008; LSTM takibi ADR-016 ile tamamlandı)
 
 SEAD window AUPRC LightGBM 0.349 < mevcut IF-füzyon 0.385 (ALFA'da 0.843 < IF 0.858 < LSTM-AE
 0.872). Hiçbir karar katmanı kombinasyonu kritik/advisory FA bütçesini karşılamadı (en iyi
 threshold/advisory: 0.302 recall ama 38.87 FA/saat). Literatürle tutarlı: az etiketli veride
 yarı-denetimli > tam-denetimli. **Kurtarma yapılmadı** (Optuna/hiperparametre taraması bilerek
 atlandı) — bu metodolojik disiplin, eksiklik değil.
+
+**2026-07-09 güncellemesi (ML-16 Kol L, ADR-016):** "ML-8A/başka model ailesi (planlanmadı)"
+maddesi artık kapalı — SEAD LSTM-AE (`src/ml/models/lstm_autoencoder.py`, H17'de bir kez
+yan-karşılaştırma olarak eğitilmişti) GÜNCEL split_manifest.json'da (899 normal uçuş, ML-14
+zenginleştirmesi sonrası) 5-seed yeniden eğitildi ve resmi ml14/ml15 fusion+karar-katmanı
+hattına kablolandı (`scripts/run_ml_lstm_sead_evaluation.py`). Gate A (holdout izolasyonu +
+determinizm) GEÇTİ. **Gate B (operasyonel hedef) KALDI** — üç ön-kayıtlı varyanttan
+(`lstm_recon` tek başına, `+ml14_fusion`, `+itki_komutu`) hiçbiri critical ≥0.30 recall @ ≤2
+FA-saat veya advisory ≥0.50 recall @ ≤12 FA-saat şartını karşılamadı; en iyi ham recall
+`lstm_recon` CUSUM/advisory 0.251 @ 15.40 FA-saat (bütçe dışı). **Ayrıca ÖNEMLİ bir
+dürüstlük bulgusu ortaya çıktı ve B.5'e kaydedildi:** bu recall'ların büyük kısmı öğrenilmiş
+zamansal örüntüden değil, kırpılmamış `RobustScaler` çıktısındaki ham genlik aykırı-
+değerlerinden geliyor olabilir (bkz. B.5). Tam sayılar ve karşılaştırma: ADR-016.
+
+**2026-07-10 güncellemesi (ML-16 Kol D + Kol U, ADR-017/ADR-018):** Aynı GÜNCEL
+split_manifest ve AYNI resmi hatta iki model daha kablolandı — düz Dense-AE
+(`src/ml/models/dense_autoencoder.py`) ve USAD (`src/ml/models/usad.py`). İkisi de Gate A
+geçti, Gate B kaldı (en iyi ham recall: Dense-AE threshold/critical 0.215 @ 2.77 FA-saat;
+USAD threshold/critical 0.217 @ 2.87 FA-saat — ikisi de bütçe dışı). B.5'teki genlik-
+baskınlığı bulgusu mimariden bağımsız olduğu için ikisine de AYNEN uygulanıyor (ayrıca
+teşhis edilmedi, ADR-016'nın teşhisi referans verildi). **Üç kolun (L/D/U) ortak sonucu:**
+SEAD'de üç farklı derin-öğrenme mimarisi de denendi, üçü de operasyonel hedefi geçemedi ve
+üçünün de ham recall kazancı aynı ölçekleme artefaktından geliyor — bu veri setinde mimari
+seçimi şu anki ölçeklemeyle ayırt edici değil. "ML-8A/başka model ailesi (planlanmadı)"
+maddesi artık tam anlamıyla kapalı: üç aile de denendi, sonuç dürüstçe negatif.
 
 ### C.2 — ML-9: kategori-eşleşmeli residual'lar Gate B/C'yi geçemedi (✅ Kapandı, ADR-009)
 
@@ -140,10 +209,18 @@ kritik/advisory hiçbir bütçeyi karşılamadı. Ayrıntı: yukarıdaki ML-9 do
 **ML-10 uygulandı:** actuator forecast-residual'i bu kategori baseline'ını anlamlı geçti;
 irtifa dalı ve operasyonel fusion hedefi geçmedi (bkz. C.6 / ADR-010).
 
-### C.3 — USAD, LSTM-AE'nin altında kaldı (✅ Kapandı, ML-3)
+### C.3 — USAD, LSTM-AE'nin altında kaldı (✅ Kapandı, ML-3; SEAD'de güncel veriyle tekrar denendi, ADR-018)
 
 ALFA 0.450, UAV 0.531 — az-veri rejiminde adversarial eğitim kararsız (beklenen sonuç). USAD
 elendi, LSTM-AE sequence modeli olarak kaldı.
+
+**2026-07-10 güncellemesi (ML-16 Kol U, ADR-018):** O zamanki karar "az veri" varsayımına
+dayanıyordu; SEAD'in normal-uçuş havuzu o zamandan beri 324→899'a çıktığı için USAD SEAD'de
+güncel veriyle YENİDEN denendi (`src/ml/models/usad.py`, 5-seed, resmi hatta kablolu). Gate
+B yine kaldı (en iyi ham recall threshold/critical 0.217 @ 2.87 FA-saat, bütçe dışı) — ama
+bu kez "az veri" değil B.5'teki genlik-baskınlığı artefaktı asıl sebep. Yani veri miktarı
+artışı USAD'ı gerçek anlamda kurtarmadı; ham genlik-aykırı-değer duyarlılığı diğer iki
+mimariyle (LSTM-AE, Dense-AE) aynı seviyede.
 
 ### C.4 — IF-füzyon heterojen normal havuzuna kırılgan (🟡 Gerçek ama küçük açık iş, B3)
 
@@ -298,7 +375,7 @@ bilerek ML kapsamının dışında tutuluyor.
 
 ### C.10 - RFLY-0 whole-flight proxy RFLY basarisini ustten tahmin etti (acik is, RFLY-1)
 
-RFLY-0 official run anomalous Real-* ucuslarda olay araligi yerine tum ucusu anomalous saydi. RFLY-1 parser artik `rfly_ctrl_lxl` interval truth cikariyor ve evaluator whole-flight proxy'ye dusmeyi reddediyor. 439 anomaliden 434'unde interval var; 5 motor ucusunda eksik. Bu 5'in 4'u split_00..04 test tarafinda, 1'i final holdout tarafinda. Gate sayisi uretmek su an bloklu: once eksik TestInfo/interval repair tamamlanmali, sonra official run yeniden kosulmali.
+RFLY-0 official run anomalous Real-* ucuslarda olay araligi yerine tum ucusu anomalous saydi. RFLY-1 parser artik `rfly_ctrl_lxl` interval truth cikariyor ve evaluator whole-flight proxy'ye dusmeyi reddediyor. `rfly_ctrl_lxl_no_active_fault` olan 5 motor ucusu belirsiz/gecersiz test olarak haric tutuldu (4 development/test, 1 final holdout unopened). Duzeltilmis 5-seed official run tamamlandi: RFLY-only ve pooled R-A/R-B gecti ama R-C kaldi; eski 0.749 proxy sonucu gecersiz kabul ediliyor.
 
 ## G. Özet tablo — hızlı tarama için
 
@@ -316,13 +393,14 @@ RFLY-0 official run anomalous Real-* ucuslarda olay araligi yerine tum ucusu ano
 | B.1 | `alt_local_residual` altitude'da %0 dolu | bu oturum | 🔴 Yapısal | Kaynak topic eksik, veri büyütme çözmez |
 | B.2 | `alt_baro_residual` %7 dolu | bu oturum | 🔴 Yapısal | Kaynak topic eksik |
 | B.3 | EKF test-ratio ters sinyal | H14 | ✅ Kapandı | Füzyon dışı bırakıldı (reject-counter ile birleşmeden kullanılmaz) |
-| C.1 | ML-8A LightGBM Gate B/C kaldı | ADR-008 | ✅ Kapandı | ML-8C/başka model ailesi (planlanmadı) |
+| B.5 | Reconstruction skoru kırpılmamış RobustScaler genliğine hâkim (3 mimaride doğrulandı) | ADR-016/017/018 | 🟡 Açık iş | Kırpmalı/robust ölçekleme veya genlik-normalize skor |
+| C.1 | ML-8A LightGBM Gate B/C kaldı, LSTM/Dense-AE/USAD takibi üçü de Gate B kaldı | ADR-008, ADR-016/017/018 | ✅ Kapandı | Üç derin-öğrenme ailesi de koşuldu; sonuç negatif, dürüstçe raporlandı |
 | C.2 | ML-9 kategori residual Gate B/C kaldı | ADR-009 | ✅ Kapandı | **ML-10 planlandı** (`docs/ML10_PLAN.md`) |
 | C.6 | ML-10 mechanical Gate B geçti, fusion Gate C kaldı | H22-H24, ADR-010 | ✅ Pilot tamamlandı | Yeni bağımsız protokol olmadan tuning/holdout yok |
 | C.7 | ML-12 ince-modül Gate B geçti (B1+B2), fusion Gate C kaldı | H29-H30, ADR-012 | ✅ Tur tamamlandı | ML-13 denendi; production'a dönüşmedi |
 | C.8 | ML-13 iki kanal recall kazandı ama FA şartında kaldı | H31, ADR-013 | ✅ Tur tamamlandı | Yeni bağımsız FA-kalibrasyon/veri hipotezi olmadan tuning yok |
 | C.9 | RFLY pooled-normal kategori kazandı ama operasyonel Gate R-C kaldı | ADR-014 | ✅ Tur tamamlandı | RFLY-only ayrı kabul; pooled iddia yok |
-| C.3 | USAD < LSTM-AE | ML-3 | ✅ Kapandı | — (karar verildi) |
+| C.3 | USAD < LSTM-AE (ALFA, az veri); SEAD'de güncel veriyle tekrar denendi, yine Gate B kaldı | ML-3, ADR-018 | ✅ Kapandı | — (karar verildi, iki kez doğrulandı) |
 | C.4 | IF-füzyon heterojen normale kırılgan | B3 | 🟡 Açık iş | nav_info'suz uçuşları val'den ayır |
 | C.5 | Oran-skoru max'tan kötü | H10 | ✅ Kapandı | — (hipotez reddedildi) |
 | D.1 | SEAD normal sınıfı heterojen | literatür notu | 🔴 Yapısal, bilerek | **Session-koşullama ÖNERİLMEZ** (reddedildi) |
@@ -338,5 +416,5 @@ RFLY-0 official run anomalous Real-* ucuslarda olay araligi yerine tum ucusu ano
 | F.4 | MOMENT bu ortamda kurulamıyor | bu oturum | 🔴 Yapısal | Ayrı Python 3.10/3.11 ortamı (orantısız) |
 | F.5 | ML-15 full matrix çok pahalı | ADR-015 | 🟡 Açık iş | CUSUM jackknife maliyeti için ayrı uzun koşu veya önceden kayıtlı hızlandırma planı |
 
-**Sayaç:** 33 madde — 8 🔴 yapısal sınır, 6 🟡 gerçek açık iş, 8 ⚪ bilinçli kapsam dışı,
+**Sayaç:** 34 madde — 8 🔴 yapısal sınır, 7 🟡 gerçek açık iş, 8 ⚪ bilinçli kapsam dışı,
 11 ✅ kapandı/telafi edildi.
