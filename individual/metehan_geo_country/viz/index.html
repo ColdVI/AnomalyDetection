@@ -41,6 +41,7 @@
   }
   .field select:hover { border-color: rgba(255, 255, 255, 0.22); }
   .field select:focus { outline: 2px solid #3b6fe0; outline-offset: 1px; }
+  .field select:disabled { opacity: 0.35; cursor: not-allowed; }
   /* ONEMLI: <select>'in kendi arka plani/rengi acik dropdown LISTESINI
      (option'lar) etkilemiyor -- tarayici bunu genelde platform-native
      (BEYAZ) bir yuzeyde ciziyor, sadece "color" miras kaldigi icin acik
@@ -93,6 +94,37 @@
   .switch input:checked + .slider { background: #3b6fe0; }
   .switch input:checked + .slider::before { transform: translateX(15px); }
 
+  .day-slider-row { display: flex; align-items: center; gap: 8px; }
+  .day-slider-row input[type="range"] { flex: 1; accent-color: #3b6fe0; }
+  .day-slider-row button {
+    border: none; background: rgba(255,255,255,0.08); color: #e9e9ee;
+    width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 13px; flex-shrink: 0;
+  }
+  .day-slider-row button:hover { background: rgba(255,255,255,0.16); }
+  .day-slider-row button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .day-pair-label {
+    font-size: 11.5px; color: #cfd0d8; text-align: center; margin-top: 6px;
+    font-variant-numeric: tabular-nums; font-weight: 600;
+  }
+  .day-dropdowns { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+  .day-dropdowns select { flex: 1; font-size: 11px; padding: 5px 6px; }
+  .day-dropdowns span { font-size: 11px; color: #6d6d78; }
+
+  #anomalyWarningPanel {
+    max-height: 190px; overflow-y: auto; display: flex; flex-direction: column; gap: 3px;
+  }
+  .anomaly-empty { font-size: 11px; color: #6d6d78; padding: 4px 2px; }
+  .anomaly-item {
+    display: flex; justify-content: space-between; gap: 6px; padding: 6px 7px;
+    border-radius: 6px; cursor: pointer; font-size: 11px; background: rgba(255,255,255,0.03);
+  }
+  .anomaly-item:hover { background: rgba(255,255,255,0.09); }
+  .anomaly-item .badge { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .anomaly-item.cat-new .badge { color: #f472b6; }
+  .anomaly-item.cat-vanished .badge { color: #7a8bbf; }
+  .anomaly-item.cat-up .badge { color: #f03b20; }
+  .anomaly-item.cat-down .badge { color: #3b82f6; }
+
   .maplibregl-popup-content {
     background: rgba(20, 20, 24, 0.92); color: #e9e9ee; font: 12px/1.5 -apple-system, "Segoe UI", system-ui, sans-serif;
     border-radius: 8px; padding: 10px 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
@@ -129,6 +161,7 @@
       <div class="segmented" id="viewSegmented">
         <button type="button" data-value="density" class="active">Yoğunluk</button>
         <button type="button" data-value="routes">Rotalar</button>
+        <button type="button" data-value="changes">Değişim</button>
       </div>
     </div>
 
@@ -173,6 +206,41 @@
       <label>Benzersiz Uçak Sayısı</label>
       <div class="legend-swatch" id="legendSwatch"></div>
       <div class="legend-scale"><span id="legendMin"></span><span id="legendMax"></span></div>
+    </div>
+
+    <div class="field" id="changesField" style="display:none">
+      <label>Gün Karşılaştırma</label>
+      <div class="day-slider-row">
+        <button type="button" id="dayPrevBtn">◀</button>
+        <input type="range" id="daySlider" min="1" max="1" value="1" step="1" />
+        <button type="button" id="dayNextBtn">▶</button>
+      </div>
+      <div class="day-pair-label" id="dayPairLabel">—</div>
+      <div class="day-dropdowns">
+        <select id="dayASelect"></select>
+        <span>→</span>
+        <select id="dayBSelect"></select>
+      </div>
+    </div>
+
+    <div id="changesHint" style="display:none; font-size: 10.5px; line-height: 1.5; color: #9d9da8; background: rgba(244, 114, 182, 0.1); border: 1px solid rgba(244, 114, 182, 0.3); border-radius: 8px; padding: 8px 10px;">
+      Seçilen İKİ GÜN arasında yoğunluğu (benzersiz uçak sayısı) <b>anormal
+      değişen</b> hex'ler işaretlenir — <b style="color:#f03b20">kırmızı</b>
+      artış, <b style="color:#3b82f6">mavi</b> azalış, <b style="color:#f472b6">pembe</b>
+      daha önce hiç görülmemiş yeni trafik, <b style="color:#7a8bbf">gri-mavi</b>
+      tamamen kaybolan trafik. Kaydırıcı ile art arda günleri hızlıca
+      tarayabilir, ya da aşağıdaki iki menüden belirli iki günü doğrudan
+      seçebilirsiniz. Bu görünüm <b>ülke seçiminden bağımsızdır</b> (tüm
+      dünya taranır).
+      <br><br><b>Not:</b> şu an son 7 güne kadar geriye bakabiliyor (canlı
+      InfluxDB'ye bağlanınca da yapısı gereği zaten sadece bu kadarını
+      tutacak) — kısıtlı örneklem nedeniyle "anormal" burada istatistiksel
+      bir yaklaşım, kesin bir tespit değildir.
+    </div>
+
+    <div class="field" id="anomalyWarningField" style="display:none">
+      <label id="anomalyWarningLabel">Anormal Değişimler</label>
+      <div id="anomalyWarningPanel"></div>
     </div>
 
     <div class="field">
@@ -338,6 +406,189 @@ async function ensureRouteDataLoaded() {
     routeCorridorsCache.set(currentCivMil, await fetchJson(ROUTE_FILES[currentCivMil]));
   }
   return routeCorridorsCache.get(currentCivMil);
+}
+
+// --- Değişim / Anomali görünümü (2026-07-10, kullanıcı isteği) ---
+// step4_build_daily_snapshots.py çıktısı: her hex'in son 7 (ya da eldeki
+// kadar) takvim gününün HER BİRİ için flight_count'u + o hex'in KENDİ bu
+// penceredeki ortalama/std'si. Anomali skoru (z) TAMAMEN istemci
+// tarafında, seçilen iki gün için hesaplanır -- gün çifti değişince
+// yeniden fetch GEREKMEZ (civil/military ile aynı desen).
+let dailySnapshotData = null;
+let dayIndexA = 0;
+let dayIndexB = 1;
+
+async function ensureDailySnapshotLoaded() {
+  if (!dailySnapshotData) {
+    dailySnapshotData = await fetchJson("data/daily_hex_snapshots.geojson");
+    dayIndexB = dailySnapshotData.days.length - 1;
+    dayIndexA = Math.max(0, dayIndexB - 1);
+  }
+  return dailySnapshotData;
+}
+
+// 2026-07-10 (kullanıcı isteği -- "iki gün arasında ANORMAL değişen"): tek
+// bir sabit yüzde/sayı eşiği YANLIŞ olur (bu projede defalarca öğrenildi --
+// bkz. compute_knn_local_mask) -- kalabalık bir hub'da 500→550 sıradan ama
+// sessiz bir hex'te 2→8 çok çarpıcı olabilir. Bunun yerine hex'in KENDİ
+// 7-günlük std'sine göre z-skor kullanılıyor. Küçük mutlak sayılarda
+// (min_absolute altında) hiç aday sayılmıyor (gürültü).
+const Z_THRESHOLD = 2;
+
+function classifyChange(countA, countB, std, minAbsolute) {
+  const maxCount = Math.max(countA, countB);
+  const delta = countB - countA;
+  if (maxCount < minAbsolute) return { category: "normal", z: null, delta };
+  if (countA === 0 && countB > 0) return { category: "new", z: null, delta };
+  if (countA > 0 && countB === 0) return { category: "vanished", z: null, delta };
+  if (!std) return { category: "normal", z: null, delta };
+  const z = Math.abs(delta) / std;
+  if (z < Z_THRESHOLD) return { category: "normal", z, delta };
+  return { category: delta > 0 ? "up" : "down", z, delta };
+}
+
+function buildChangesGeojson() {
+  const minAbsolute = dailySnapshotData.min_absolute;
+  const features = [];
+  const anomalies = [];
+  for (const f of dailySnapshotData.features) {
+    const p = f.properties;
+    const countA = p.counts[dayIndexA];
+    const countB = p.counts[dayIndexB];
+    const { category, z, delta } = classifyChange(countA, countB, p.std, minAbsolute);
+    const feature = {
+      type: "Feature",
+      properties: {
+        h3_cell: p.h3_cell, category, delta, countA, countB,
+        z: z === null ? null : Math.round(z * 100) / 100,
+      },
+      geometry: f.geometry,
+    };
+    features.push(feature);
+    if (category !== "normal") anomalies.push(feature);
+  }
+  anomalies.sort((a, b) => (b.properties.z ?? 99) - (a.properties.z ?? 99));
+  return { features, anomalies };
+}
+
+const CHANGES_FILL_COLOR = [
+  "match", ["get", "category"],
+  "new", "#f472b6",
+  "vanished", "#7a8bbf",
+  "up", "#f03b20",
+  "down", "#3b82f6",
+  "rgba(0,0,0,0)",
+];
+const CHANGES_FILL_OPACITY_RAMP = ["interpolate", ["linear"], ["coalesce", ["get", "z"], 2], 2, 0.35, 6, 0.9];
+const CHANGES_FILL_OPACITY = [
+  "match", ["get", "category"],
+  "new", 0.85,
+  "vanished", 0.7,
+  "up", CHANGES_FILL_OPACITY_RAMP,
+  "down", CHANGES_FILL_OPACITY_RAMP,
+  0,
+];
+
+function addChangesLayer() {
+  if (map.getSource("changes")) return;
+  map.addSource("changes", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+  map.addLayer({
+    id: "changes-fill", type: "fill", source: "changes", layout: { visibility: "none" },
+    paint: { "fill-color": CHANGES_FILL_COLOR, "fill-opacity": CHANGES_FILL_OPACITY },
+  });
+  map.addLayer({
+    id: "changes-outline", type: "line", source: "changes", layout: { visibility: "none" },
+    paint: { "line-color": CHANGES_FILL_COLOR, "line-width": 0.6, "line-opacity": 0.9 },
+  });
+  wireChangesHoverPopup();
+}
+
+const CHANGES_CATEGORY_LABELS = {
+  new: "Yeni ortaya çıkan trafik", vanished: "Trafik tamamen kayboldu",
+  up: "Anormal artış", down: "Anormal azalış",
+};
+
+function changesPopupHtml(props) {
+  const zRow = props.z === null ? "" : `<div class="popup-row">z-skor: <b>${props.z}</b></div>`;
+  return `<div class="popup-title">${CHANGES_CATEGORY_LABELS[props.category] || props.category}</div>
+    <div class="popup-row">Gün A: <b>${props.countA}</b> uçak</div>
+    <div class="popup-row">Gün B: <b>${props.countB}</b> uçak</div>
+    <div class="popup-row">Fark: <b>${props.delta > 0 ? "+" : ""}${props.delta}</b></div>
+    ${zRow}`;
+}
+
+function wireChangesHoverPopup() {
+  map.on("mousemove", "changes-fill", (e) => {
+    const props = e.features[0].properties;
+    if (props.category === "normal") return;
+    map.getCanvas().style.cursor = "pointer";
+    if (!popup) popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false });
+    popup.setLngLat(e.lngLat).setHTML(changesPopupHtml(props)).addTo(map);
+  });
+  map.on("mouseleave", "changes-fill", () => {
+    map.getCanvas().style.cursor = "";
+    if (popup) { popup.remove(); popup = null; }
+  });
+}
+
+function updateDayControlsUI() {
+  const days = dailySnapshotData.days;
+  const slider = document.getElementById("daySlider");
+  slider.min = "1";
+  slider.max = String(days.length - 1);
+  slider.value = String(dayIndexB);
+  document.getElementById("dayPrevBtn").disabled = dayIndexB <= 1;
+  document.getElementById("dayNextBtn").disabled = dayIndexB >= days.length - 1;
+  document.getElementById("dayPairLabel").textContent = `${days[dayIndexA]}  →  ${days[dayIndexB]}`;
+
+  const aSel = document.getElementById("dayASelect");
+  const bSel = document.getElementById("dayBSelect");
+  if (aSel.options.length !== days.length) {
+    const optionsHtml = days.map((d, i) => `<option value="${i}">${d}</option>`).join("");
+    aSel.innerHTML = optionsHtml;
+    bSel.innerHTML = optionsHtml;
+  }
+  aSel.value = String(dayIndexA);
+  bSel.value = String(dayIndexB);
+}
+
+function updateAnomalyWarningPanel(anomalies) {
+  const panel = document.getElementById("anomalyWarningPanel");
+  document.getElementById("anomalyWarningLabel").textContent = `Anormal Değişimler (${anomalies.length})`;
+  if (anomalies.length === 0) {
+    panel.innerHTML = `<div class="anomaly-empty">Bu iki gün arasında anormal bir değişim bulunamadı.</div>`;
+    return;
+  }
+  const badgeLabels = { new: "YENİ", vanished: "KAYIP", up: "ARTIŞ", down: "AZALIŞ" };
+  const catClass = { new: "cat-new", vanished: "cat-vanished", up: "cat-up", down: "cat-down" };
+  const top = anomalies.slice(0, 30);
+  panel.innerHTML = top.map((f) => {
+    const p = f.properties;
+    return `<div class="anomaly-item ${catClass[p.category]}">
+      <span>${p.h3_cell.slice(0, 7)}… (${p.countA}→${p.countB})</span>
+      <span class="badge">${badgeLabels[p.category]}</span>
+    </div>`;
+  }).join("");
+  panel.querySelectorAll(".anomaly-item").forEach((el, i) => {
+    el.addEventListener("click", () => {
+      const bbox = bboxOfFeatures([top[i]]);
+      if (bbox) map.fitBounds(bbox, { padding: 150, duration: 700, maxZoom: 7 });
+    });
+  });
+}
+
+async function applyChangesView() {
+  await ensureDailySnapshotLoaded();
+  updateDayControlsUI();
+  if (!map.getSource("changes")) addChangesLayer();
+
+  const { features, anomalies } = buildChangesGeojson();
+  map.getSource("changes").setData({ type: "FeatureCollection", features });
+  updateAnomalyWarningPanel(anomalies);
+
+  const days = dailySnapshotData.days;
+  document.getElementById("status").textContent =
+    `${days[dayIndexA]} → ${days[dayIndexB]}: ${anomalies.length} hex anormal değişim`;
 }
 
 function setLegend(breaks) {
@@ -519,22 +770,36 @@ function setViewLayerVisibility() {
   const routesVisible = currentView === "routes" ? "visible" : "none";
   map.setLayoutProperty("route-corridors-fill", "visibility", routesVisible);
   map.setLayoutProperty("route-corridors-line", "visibility", routesVisible);
+  if (map.getLayer("changes-fill")) {
+    const changesVisible = currentView === "changes" ? "visible" : "none";
+    map.setLayoutProperty("changes-fill", "visibility", changesVisible);
+    map.setLayoutProperty("changes-outline", "visibility", changesVisible);
+  }
 }
 
 function updateFieldVisibilityForView() {
   const isRoutes = currentView === "routes";
+  const isChanges = currentView === "changes";
   document.getElementById("routesHint").style.display = isRoutes ? "block" : "none";
-  document.getElementById("densityLegendField").style.display = isRoutes ? "none" : "block";
+  document.getElementById("changesHint").style.display = isChanges ? "block" : "none";
+  document.getElementById("changesField").style.display = isChanges ? "block" : "none";
+  document.getElementById("anomalyWarningField").style.display = isChanges ? "block" : "none";
+  document.getElementById("densityLegendField").style.display = (isRoutes || isChanges) ? "none" : "block";
   // 2026-07-09 (kullanici geri bildirimi): Rotalar gorunumunde Zaman Araligi
   // butonlari hicbir seyi degistirmiyordu (rotalar TUM 62 gunluk gecmisten,
   // TEK seferlik hesaplaniyor -- bkz. #routesHint aciklamasi) ama tiklanabilir
   // gorundukleri icin kullanici "bir sey degisecek" bekliyordu. Rotalar
   // modundayken butonlar devre disi birakiliyor, boylece etkisiz olduklari
-  // ac ikca gorunuyor.
+  // ac ikca gorunuyor. Degisim modu da ayni sebeple (TUM ulkeler/zaman
+  // araliklarindan BAGIMSIZ, kendi sabit son-7-gun penceresi) devre disi
+  // birakiyor -- ayrica ulke secimi de bu modda ETKISIZ (global tarama).
   for (const b of document.querySelectorAll("#timeRangeSegmented button")) {
-    b.disabled = isRoutes;
-    b.title = isRoutes ? "Rotalar tüm 62 günlük geçmişten hesaplanır, zaman aralığından etkilenmez" : "";
+    b.disabled = isRoutes || isChanges;
+    b.title = isRoutes ? "Rotalar tüm 62 günlük geçmişten hesaplanır, zaman aralığından etkilenmez"
+      : isChanges ? "Değişim görünümü kendi sabit son-7-gün penceresini kullanır" : "";
   }
+  document.getElementById("countrySelect").disabled = isChanges;
+  document.getElementById("countrySelect").title = isChanges ? "Değişim görünümü ülke seçiminden bağımsızdır (global tarama)" : "";
 }
 
 async function applyRoutesView() {
@@ -571,8 +836,10 @@ function applyView() {
   setViewLayerVisibility();
   if (currentView === "density") {
     applyDensityView();
-  } else {
+  } else if (currentView === "routes") {
     applyRoutesView();
+  } else {
+    applyChangesView();
   }
 }
 
@@ -694,6 +961,34 @@ document.getElementById("civMilSegmented").addEventListener("click", (e) => {
   for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
   currentCivMil = btn.dataset.value;
   applyView();
+});
+
+document.getElementById("daySlider").addEventListener("input", (e) => {
+  dayIndexB = Number(e.target.value);
+  dayIndexA = Math.max(0, dayIndexB - 1);
+  applyChangesView();
+});
+document.getElementById("dayPrevBtn").addEventListener("click", () => {
+  if (dayIndexB > 1) {
+    dayIndexB -= 1;
+    dayIndexA = Math.max(0, dayIndexB - 1);
+    applyChangesView();
+  }
+});
+document.getElementById("dayNextBtn").addEventListener("click", () => {
+  if (dayIndexB < dailySnapshotData.days.length - 1) {
+    dayIndexB += 1;
+    dayIndexA = Math.max(0, dayIndexB - 1);
+    applyChangesView();
+  }
+});
+document.getElementById("dayASelect").addEventListener("change", (e) => {
+  dayIndexA = Number(e.target.value);
+  applyChangesView();
+});
+document.getElementById("dayBSelect").addEventListener("change", (e) => {
+  dayIndexB = Number(e.target.value);
+  applyChangesView();
 });
 
 document.getElementById("globeToggle").addEventListener("change", (e) => {
