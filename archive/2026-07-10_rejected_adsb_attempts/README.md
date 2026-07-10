@@ -14,6 +14,9 @@ başlama istedi.
 Planlar, testler, çalıştırıcılar ve tüm `adsb_behavioral_stage1` artifact'leri aynı
 klasörde korunmuştur.
 
+Eski `adsb_watcher.py` de Gold birleştirme hattına bağlı olduğu ve temiz başlangıçta
+aktif bir orchestration kararı verilmediği için bu arşive alınmıştır.
+
 ## Neden kabul edilmedi?
 
 - İlk V1 raporunda bariz anomaliler için sıfıra yakın recall üretildi. Bunun bir
