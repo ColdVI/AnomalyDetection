@@ -1,0 +1,16 @@
+{
+  "rule_score": {
+    "threshold": 46207340.46484829,
+    "validation_false_events_per_hour": 0.08105547071668319,
+    "target_false_events_per_hour": 0.1,
+    "k": 2,
+    "n": 3
+  },
+  "iforest_score": {
+    "threshold": 0.729521690478531,
+    "validation_false_events_per_hour": 0.08105547071668319,
+    "target_false_events_per_hour": 0.1,
+    "k": 2,
+    "n": 3
+  }
+}

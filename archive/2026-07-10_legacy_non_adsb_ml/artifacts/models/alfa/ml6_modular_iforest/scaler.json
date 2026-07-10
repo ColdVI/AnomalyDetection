@@ -1,0 +1,516 @@
+{
+  "feature_columns": [
+    "roll_error",
+    "pitch_error",
+    "airspeed_error",
+    "yaw_error",
+    "velocity_error",
+    "abs_roll_error",
+    "abs_pitch_error",
+    "abs_yaw_error",
+    "abs_airspeed_error",
+    "alt_error",
+    "aspd_error",
+    "xtrack_error",
+    "wp_dist",
+    "path_dev_mag",
+    "roll_rate",
+    "pitch_rate",
+    "yaw_rate",
+    "altitude_rate",
+    "airspeed_rate",
+    "roll_error_rate",
+    "pitch_error_rate",
+    "yaw_error_rate",
+    "roll_command_rate",
+    "pitch_command_rate",
+    "yaw_command_rate",
+    "gps_step_m",
+    "gps_speed_calc_mps",
+    "gps_accel_mps2",
+    "dist_from_start_m",
+    "gps_speed_residual",
+    "turn_residual",
+    "specific_energy",
+    "energy_rate",
+    "throttle",
+    "energy_rate_x_throttle",
+    "climb_rate_ms",
+    "climb_residual",
+    "roll_error_2s_mean",
+    "roll_error_2s_std",
+    "roll_error_2s_max",
+    "roll_error_2s_rms",
+    "roll_error_5s_mean",
+    "roll_error_5s_std",
+    "roll_error_5s_max",
+    "roll_error_5s_rms",
+    "pitch_error_2s_mean",
+    "pitch_error_2s_std",
+    "pitch_error_2s_max",
+    "pitch_error_2s_rms",
+    "pitch_error_5s_mean",
+    "pitch_error_5s_std",
+    "pitch_error_5s_max",
+    "pitch_error_5s_rms",
+    "yaw_error_5s_mean",
+    "yaw_error_5s_std",
+    "yaw_error_5s_max",
+    "yaw_error_5s_rms",
+    "airspeed_error_5s_mean",
+    "airspeed_error_5s_std",
+    "airspeed_error_5s_max",
+    "airspeed_error_5s_rms",
+    "xtrack_error_5s_mean",
+    "xtrack_error_5s_std",
+    "xtrack_error_5s_max",
+    "xtrack_error_5s_rms",
+    "turn_residual_5s_mean",
+    "turn_residual_5s_std",
+    "turn_residual_5s_max",
+    "turn_residual_5s_rms",
+    "roll_error_cusum_pos",
+    "roll_error_cusum_neg",
+    "pitch_error_cusum_pos",
+    "pitch_error_cusum_neg",
+    "alt_error_cusum_pos",
+    "alt_error_cusum_neg",
+    "xtrack_error_cusum_pos",
+    "xtrack_error_cusum_neg",
+    "roll_ewma_dev",
+    "pitch_ewma_dev",
+    "roll_spec_energy_5s",
+    "pitch_spec_energy_5s",
+    "airspeed_frozen_count",
+    "gps_frozen_count",
+    "airspeed_available",
+    "in_air"
+  ],
+  "columns": {
+    "roll_error": {
+      "center": 23.90323543548584,
+      "scale": 7.300999402999878,
+      "impute": 23.90323543548584
+    },
+    "pitch_error": {
+      "center": 0.5662160515785217,
+      "scale": 0.11467736959457397,
+      "impute": 0.5662160515785217
+    },
+    "airspeed_error": {
+      "center": -15.0,
+      "scale": 1.0,
+      "impute": -15.0
+    },
+    "yaw_error": {
+      "center": 76.98444366455078,
+      "scale": 17.64977264404297,
+      "impute": 76.98444366455078
+    },
+    "velocity_error": {
+      "center": 0.19685350806916319,
+      "scale": 0.11445284949357305,
+      "impute": 0.19685350806916319
+    },
+    "abs_roll_error": {
+      "center": 23.91081351041794,
+      "scale": 7.258921384811401,
+      "impute": 23.91081351041794
+    },
+    "abs_pitch_error": {
+      "center": 0.592881441116333,
+      "scale": 1.086386799812317,
+      "impute": 0.592881441116333
+    },
+    "abs_yaw_error": {
+      "center": 79.95632934570312,
+      "scale": 13.7421875,
+      "impute": 79.95632934570312
+    },
+    "abs_airspeed_error": {
+      "center": 15.0,
+      "scale": 1.0,
+      "impute": 15.0
+    },
+    "alt_error": {
+      "center": 48.31999969482422,
+      "scale": 46.44000077247945,
+      "impute": 48.31999969482422
+    },
+    "aspd_error": {
+      "center": -3.2557644844055176,
+      "scale": 25.630043029785156,
+      "impute": -3.2557644844055176
+    },
+    "xtrack_error": {
+      "center": -41.138349533081055,
+      "scale": 29.920299530029297,
+      "impute": -41.138349533081055
+    },
+    "wp_dist": {
+      "center": 2.0,
+      "scale": 30.0,
+      "impute": 2.0
+    },
+    "path_dev_mag": {
+      "center": 229.417114969186,
+      "scale": 1.035301905799372,
+      "impute": 229.417114969186
+    },
+    "roll_rate": {
+      "center": 0.0,
+      "scale": 0.000451296837232574,
+      "impute": 0.0
+    },
+    "pitch_rate": {
+      "center": 0.0,
+      "scale": 0.0005034205658152099,
+      "impute": 0.0
+    },
+    "yaw_rate": {
+      "center": 0.0,
+      "scale": 0.0031852585270139935,
+      "impute": 0.0
+    },
+    "altitude_rate": {
+      "center": 0.0,
+      "scale": 0.03405734003940194,
+      "impute": 0.0
+    },
+    "airspeed_rate": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "roll_error_rate": {
+      "center": 0.0,
+      "scale": 0.01956173137485532,
+      "impute": 0.0
+    },
+    "pitch_error_rate": {
+      "center": 0.0,
+      "scale": 0.00849016887667602,
+      "impute": 0.0
+    },
+    "yaw_error_rate": {
+      "center": 0.0,
+      "scale": 0.010232099994742314,
+      "impute": 0.0
+    },
+    "roll_command_rate": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "pitch_command_rate": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "yaw_command_rate": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "gps_step_m": {
+      "center": 0.013962132190280785,
+      "scale": 0.01948044903429407,
+      "impute": 0.013962132190280785
+    },
+    "gps_speed_calc_mps": {
+      "center": 0.057852305819065836,
+      "scale": 0.08471324126870537,
+      "impute": 0.057852305819065836
+    },
+    "gps_accel_mps2": {
+      "center": 0.0,
+      "scale": 0.2801253089091368,
+      "impute": 0.0
+    },
+    "dist_from_start_m": {
+      "center": 1.2375415360948803,
+      "scale": 29.70144759603202,
+      "impute": 1.2375415360948803
+    },
+    "gps_speed_residual": {
+      "center": -0.14591697060952805,
+      "scale": 0.16892720846813297,
+      "impute": -0.14591697060952805
+    },
+    "turn_residual": {
+      "center": -1.626538833820391,
+      "scale": 1.0,
+      "impute": -1.626538833820391
+    },
+    "specific_energy": {
+      "center": 3086.296098236021,
+      "scale": 14.980371416018897,
+      "impute": 3086.296098236021
+    },
+    "energy_rate": {
+      "center": 0.0,
+      "scale": 0.36023262027056696,
+      "impute": 0.0
+    },
+    "throttle": {
+      "center": 0.0,
+      "scale": 0.019999999552965164,
+      "impute": 0.0
+    },
+    "energy_rate_x_throttle": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "climb_rate_ms": {
+      "center": -0.0017697865259816245,
+      "scale": 0.4458652287721634,
+      "impute": -0.0017697865259816245
+    },
+    "climb_residual": {
+      "center": -0.0014240666421027799,
+      "scale": 0.428214751732383,
+      "impute": -0.0014240666421027799
+    },
+    "roll_error_2s_mean": {
+      "center": 23.897483497858047,
+      "scale": 7.317879371345043,
+      "impute": 23.897483497858047
+    },
+    "roll_error_2s_std": {
+      "center": 0.010694680005739674,
+      "scale": 0.02372308395875274,
+      "impute": 0.010694680005739674
+    },
+    "roll_error_2s_max": {
+      "center": 23.922539830207825,
+      "scale": 7.223969399929047,
+      "impute": 23.922539830207825
+    },
+    "roll_error_2s_rms": {
+      "center": 23.91170961308297,
+      "scale": 7.249916348207822,
+      "impute": 23.91170961308297
+    },
+    "roll_error_5s_mean": {
+      "center": 23.880691546201707,
+      "scale": 7.367299419641494,
+      "impute": 23.880691546201707
+    },
+    "roll_error_5s_std": {
+      "center": 0.019431416240523934,
+      "scale": 0.04960207508233766,
+      "impute": 0.019431416240523934
+    },
+    "roll_error_5s_max": {
+      "center": 23.969764590263367,
+      "scale": 7.029098033905029,
+      "impute": 23.969764590263367
+    },
+    "roll_error_5s_rms": {
+      "center": 23.909331026735348,
+      "scale": 7.247271522936796,
+      "impute": 23.909331026735348
+    },
+    "pitch_error_2s_mean": {
+      "center": 0.565333366394043,
+      "scale": 0.11377201229333878,
+      "impute": 0.565333366394043
+    },
+    "pitch_error_2s_std": {
+      "center": 0.006741375744617578,
+      "scale": 0.007159003795148019,
+      "impute": 0.006741375744617578
+    },
+    "pitch_error_2s_max": {
+      "center": 0.5909333229064941,
+      "scale": 0.9745893478396179,
+      "impute": 0.5909333229064941
+    },
+    "pitch_error_2s_rms": {
+      "center": 0.5996656031671062,
+      "scale": 1.1295235802247365,
+      "impute": 0.5996656031671062
+    },
+    "pitch_error_5s_mean": {
+      "center": 0.5630325317382813,
+      "scale": 0.10904325842857365,
+      "impute": 0.5630325317382813
+    },
+    "pitch_error_5s_std": {
+      "center": 0.01218463255294353,
+      "scale": 0.013268832227951331,
+      "impute": 0.01218463255294353
+    },
+    "pitch_error_5s_max": {
+      "center": 0.6100100874900818,
+      "scale": 1.153312861919403,
+      "impute": 0.6100100874900818
+    },
+    "pitch_error_5s_rms": {
+      "center": 0.6010022519830175,
+      "scale": 1.15690411589819,
+      "impute": 0.6010022519830175
+    },
+    "yaw_error_5s_mean": {
+      "center": 76.78657760620118,
+      "scale": 17.682753753662112,
+      "impute": 76.78657760620118
+    },
+    "yaw_error_5s_std": {
+      "center": 0.8919961266514844,
+      "scale": 1.1148818623568078,
+      "impute": 0.8919961266514844
+    },
+    "yaw_error_5s_max": {
+      "center": 79.35781860351562,
+      "scale": 19.235061645507812,
+      "impute": 79.35781860351562
+    },
+    "yaw_error_5s_rms": {
+      "center": 80.09167952446968,
+      "scale": 13.721423339788359,
+      "impute": 80.09167952446968
+    },
+    "airspeed_error_5s_mean": {
+      "center": -15.0,
+      "scale": 1.0,
+      "impute": -15.0
+    },
+    "airspeed_error_5s_std": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "airspeed_error_5s_max": {
+      "center": -15.0,
+      "scale": 1.0,
+      "impute": -15.0
+    },
+    "airspeed_error_5s_rms": {
+      "center": 15.0,
+      "scale": 1.0,
+      "impute": 15.0
+    },
+    "xtrack_error_5s_mean": {
+      "center": -41.14346351623535,
+      "scale": 29.917332267761232,
+      "impute": -41.14346351623535
+    },
+    "xtrack_error_5s_std": {
+      "center": 0.04585258934837115,
+      "scale": 0.049634970287886805,
+      "impute": 0.04585258934837115
+    },
+    "xtrack_error_5s_max": {
+      "center": -41.03748321533203,
+      "scale": 29.955718994140625,
+      "impute": -41.03748321533203
+    },
+    "xtrack_error_5s_rms": {
+      "center": 41.21991691843389,
+      "scale": 6.413893733683686,
+      "impute": 41.21991691843389
+    },
+    "turn_residual_5s_mean": {
+      "center": -1.9534955140900476,
+      "scale": 1.0,
+      "impute": -1.9534955140900476
+    },
+    "turn_residual_5s_std": {
+      "center": 11.09395352083037,
+      "scale": 1.0,
+      "impute": 11.09395352083037
+    },
+    "turn_residual_5s_max": {
+      "center": 17.56016161469023,
+      "scale": 1.0,
+      "impute": 17.56016161469023
+    },
+    "turn_residual_5s_rms": {
+      "center": 11.547857494618695,
+      "scale": 1.0,
+      "impute": 11.547857494618695
+    },
+    "roll_error_cusum_pos": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "roll_error_cusum_neg": {
+      "center": 681.0675787566961,
+      "scale": 12317.734991081208,
+      "impute": 681.0675787566961
+    },
+    "pitch_error_cusum_pos": {
+      "center": 0.0,
+      "scale": 8626.532205377865,
+      "impute": 0.0
+    },
+    "pitch_error_cusum_neg": {
+      "center": 0.0,
+      "scale": 14.98694797941222,
+      "impute": 0.0
+    },
+    "alt_error_cusum_pos": {
+      "center": 0.0,
+      "scale": 31.851790914917377,
+      "impute": 0.0
+    },
+    "alt_error_cusum_neg": {
+      "center": 634.862166769375,
+      "scale": 40939.80057429253,
+      "impute": 634.862166769375
+    },
+    "xtrack_error_cusum_pos": {
+      "center": 467.2018986303424,
+      "scale": 18579.418925925565,
+      "impute": 467.2018986303424
+    },
+    "xtrack_error_cusum_neg": {
+      "center": 0.0,
+      "scale": 14.300136455535885,
+      "impute": 0.0
+    },
+    "roll_ewma_dev": {
+      "center": 0.003461534256647747,
+      "scale": 0.02563066878437137,
+      "impute": 0.003461534256647747
+    },
+    "pitch_ewma_dev": {
+      "center": 0.0012202032129546014,
+      "scale": 0.022225294316224997,
+      "impute": 0.0012202032129546014
+    },
+    "roll_spec_energy_5s": {
+      "center": 0.022580452986819214,
+      "scale": 0.08725493752499598,
+      "impute": 0.022580452986819214
+    },
+    "pitch_spec_energy_5s": {
+      "center": 0.016321261140118892,
+      "scale": 0.08302569776525283,
+      "impute": 0.016321261140118892
+    },
+    "airspeed_frozen_count": {
+      "center": 712.0,
+      "scale": 2334.0,
+      "impute": 712.0
+    },
+    "gps_frozen_count": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "airspeed_available": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "in_air": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    }
+  }
+}

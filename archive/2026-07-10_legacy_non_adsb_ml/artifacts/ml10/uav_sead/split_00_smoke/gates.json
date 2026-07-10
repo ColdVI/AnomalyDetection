@@ -1,0 +1,212 @@
+{
+  "gate_a": {
+    "status": "passed",
+    "mandatory_preflight": "passed",
+    "mandatory_feasibility": "passed; full development at 1s stride",
+    "causal_future_leak_test": "passed before evaluation",
+    "zero_shot_no_training_step_test": "passed before evaluation",
+    "blind_holdout_telemetry_or_scores_read": false,
+    "blind_holdout_flights_locked": 131,
+    "decision_layers": "imported unchanged from src/ml/decision/decision_layers.py",
+    "score_fusion": "shared src/ml/evaluation/score_fusion.py helper"
+  },
+  "gate_b": {
+    "status": "smoke_only",
+    "evaluated_seed_count": 1,
+    "rule": "matching policy/budget mean recall gain >=0.05 and positive in >=3/5 seeds",
+    "comparisons": [
+      {
+        "annotation_category": "Position.Z",
+        "candidate": "chronos_dikey",
+        "baseline": "dikey_tutarlilik",
+        "decision": "cusum",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.02654867256637168,
+        "baseline_mean_recall": 0.0530973451327433,
+        "mean_recall_gain": -0.02654867256637162,
+        "positive_seed_count": 0,
+        "meaningful_gain": false
+      },
+      {
+        "annotation_category": "Position.Z",
+        "candidate": "chronos_dikey",
+        "baseline": "dikey_tutarlilik",
+        "decision": "cusum",
+        "budget": "critical",
+        "candidate_mean_recall": 0.008849557522123894,
+        "baseline_mean_recall": 0.0353982300884955,
+        "mean_recall_gain": -0.026548672566371605,
+        "positive_seed_count": 0,
+        "meaningful_gain": false
+      },
+      {
+        "annotation_category": "Position.Z",
+        "candidate": "chronos_dikey",
+        "baseline": "dikey_tutarlilik",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.035398230088495575,
+        "baseline_mean_recall": 0.1150442477876106,
+        "mean_recall_gain": -0.07964601769911503,
+        "positive_seed_count": 0,
+        "meaningful_gain": false
+      },
+      {
+        "annotation_category": "Position.Z",
+        "candidate": "chronos_dikey",
+        "baseline": "dikey_tutarlilik",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "candidate_mean_recall": 0.017699115044247787,
+        "baseline_mean_recall": 0.0088495575221238,
+        "mean_recall_gain": 0.008849557522123987,
+        "positive_seed_count": 1,
+        "meaningful_gain": false
+      },
+      {
+        "annotation_category": "Position.Z",
+        "candidate": "chronos_dikey",
+        "baseline": "dikey_tutarlilik",
+        "decision": "threshold",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.017699115044247787,
+        "baseline_mean_recall": 0.1238938053097345,
+        "mean_recall_gain": -0.10619469026548671,
+        "positive_seed_count": 0,
+        "meaningful_gain": false
+      },
+      {
+        "annotation_category": "Position.Z",
+        "candidate": "chronos_dikey",
+        "baseline": "dikey_tutarlilik",
+        "decision": "threshold",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "meaningful_gain": false
+      },
+      {
+        "annotation_category": "Actuator Outputs+Controls",
+        "candidate": "chronos_motor",
+        "baseline": "motor_simetrisi",
+        "decision": "cusum",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.34146341463414637,
+        "baseline_mean_recall": 0.048780487804878,
+        "mean_recall_gain": 0.2926829268292684,
+        "positive_seed_count": 1,
+        "meaningful_gain": false
+      },
+      {
+        "annotation_category": "Actuator Outputs+Controls",
+        "candidate": "chronos_motor",
+        "baseline": "motor_simetrisi",
+        "decision": "cusum",
+        "budget": "critical",
+        "candidate_mean_recall": 0.14634146341463414,
+        "baseline_mean_recall": 0.024390243902439,
+        "mean_recall_gain": 0.12195121951219513,
+        "positive_seed_count": 1,
+        "meaningful_gain": false
+      },
+      {
+        "annotation_category": "Actuator Outputs+Controls",
+        "candidate": "chronos_motor",
+        "baseline": "motor_simetrisi",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.21951219512195122,
+        "baseline_mean_recall": 0.048780487804878,
+        "mean_recall_gain": 0.1707317073170732,
+        "positive_seed_count": 1,
+        "meaningful_gain": false
+      },
+      {
+        "annotation_category": "Actuator Outputs+Controls",
+        "candidate": "chronos_motor",
+        "baseline": "motor_simetrisi",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0975609756097561,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0975609756097561,
+        "positive_seed_count": 1,
+        "meaningful_gain": false
+      },
+      {
+        "annotation_category": "Actuator Outputs+Controls",
+        "candidate": "chronos_motor",
+        "baseline": "motor_simetrisi",
+        "decision": "threshold",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.2926829268292683,
+        "baseline_mean_recall": 0.0975609756097561,
+        "mean_recall_gain": 0.19512195121951217,
+        "positive_seed_count": 1,
+        "meaningful_gain": false
+      },
+      {
+        "annotation_category": "Actuator Outputs+Controls",
+        "candidate": "chronos_motor",
+        "baseline": "motor_simetrisi",
+        "decision": "threshold",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "meaningful_gain": false
+      }
+    ]
+  },
+  "gate_c": {
+    "status": "smoke_only",
+    "evaluated_seed_count": 1,
+    "candidates": [
+      {
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.23255813953488372,
+        "mean_false_alarms_per_hour": 17.293524196918916,
+        "passed": false
+      },
+      {
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.13178294573643412,
+        "mean_false_alarms_per_hour": 5.764508065639638,
+        "passed": false
+      },
+      {
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.08139534883720931,
+        "mean_false_alarms_per_hour": 16.47002304468468,
+        "passed": false
+      },
+      {
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      }
+    ]
+  }
+}

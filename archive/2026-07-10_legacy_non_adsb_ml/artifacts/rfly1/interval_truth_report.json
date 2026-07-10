@@ -1,0 +1,240 @@
+{
+  "created_utc": "2026-07-09T16:25:59.109410+00:00",
+  "stage": "RFLY-1 interval truth correction preflight",
+  "status": "official_gate_evaluated_with_invalid_interval_truth_exclusions",
+  "official_gate_rerun": "completed_full_5_seed",
+  "whole_flight_proxy_used": false,
+  "silver_path": "data\\silver\\rflymad_silver.parquet",
+  "flights": 490,
+  "normal_flights": 51,
+  "anomalous_flights": 439,
+  "interval_available_anomalous": 434,
+  "interval_missing_anomalous": 5,
+  "fault_interval_source_counts": {
+    "rfly_ctrl_lxl": 434,
+    "normal_no_fault": 51,
+    "rfly_ctrl_lxl_no_active_fault": 5
+  },
+  "missing_source_ids": [
+    "Real-Motor/circling/328_2/log_11_2023-6-7-08-29-38",
+    "Real-Motor/hover/2_2/log_7_2023-5-18-10-29-00",
+    "Real-Motor/waypoint/148_1/log_8_2023-5-26-08-12-00",
+    "Real-Motor/waypoint/150_1/log_11_2023-5-26-08-27-04",
+    "Real-Motor/waypoint/171_1/log_34_2023-5-26-11-13-16"
+  ],
+  "missing_by_split_part": {
+    "split_00": {
+      "test": [
+        "Real-Motor/circling/328_2/log_11_2023-6-7-08-29-38",
+        "Real-Motor/waypoint/148_1/log_8_2023-5-26-08-12-00",
+        "Real-Motor/waypoint/150_1/log_11_2023-5-26-08-27-04",
+        "Real-Motor/waypoint/171_1/log_34_2023-5-26-11-13-16"
+      ],
+      "final_holdout": [
+        "Real-Motor/hover/2_2/log_7_2023-5-18-10-29-00"
+      ]
+    },
+    "split_01": {
+      "test": [
+        "Real-Motor/circling/328_2/log_11_2023-6-7-08-29-38",
+        "Real-Motor/waypoint/148_1/log_8_2023-5-26-08-12-00",
+        "Real-Motor/waypoint/150_1/log_11_2023-5-26-08-27-04",
+        "Real-Motor/waypoint/171_1/log_34_2023-5-26-11-13-16"
+      ],
+      "final_holdout": [
+        "Real-Motor/hover/2_2/log_7_2023-5-18-10-29-00"
+      ]
+    },
+    "split_02": {
+      "test": [
+        "Real-Motor/circling/328_2/log_11_2023-6-7-08-29-38",
+        "Real-Motor/waypoint/148_1/log_8_2023-5-26-08-12-00",
+        "Real-Motor/waypoint/150_1/log_11_2023-5-26-08-27-04",
+        "Real-Motor/waypoint/171_1/log_34_2023-5-26-11-13-16"
+      ],
+      "final_holdout": [
+        "Real-Motor/hover/2_2/log_7_2023-5-18-10-29-00"
+      ]
+    },
+    "split_03": {
+      "test": [
+        "Real-Motor/circling/328_2/log_11_2023-6-7-08-29-38",
+        "Real-Motor/waypoint/148_1/log_8_2023-5-26-08-12-00",
+        "Real-Motor/waypoint/150_1/log_11_2023-5-26-08-27-04",
+        "Real-Motor/waypoint/171_1/log_34_2023-5-26-11-13-16"
+      ],
+      "final_holdout": [
+        "Real-Motor/hover/2_2/log_7_2023-5-18-10-29-00"
+      ]
+    },
+    "split_04": {
+      "test": [
+        "Real-Motor/circling/328_2/log_11_2023-6-7-08-29-38",
+        "Real-Motor/waypoint/148_1/log_8_2023-5-26-08-12-00",
+        "Real-Motor/waypoint/150_1/log_11_2023-5-26-08-27-04",
+        "Real-Motor/waypoint/171_1/log_34_2023-5-26-11-13-16"
+      ],
+      "final_holdout": [
+        "Real-Motor/hover/2_2/log_7_2023-5-18-10-29-00"
+      ]
+    }
+  },
+  "test_info_listing_note": "Kaggle listing contains TestInfo_*.xlsx for the missing Real-Motor cases, but those files are not present locally; downloader filter now keeps them.",
+  "invalid_exclusion_policy": "Exclude rfly_ctrl_lxl_no_active_fault flights as ambiguous/invalid test cases before any recall/FA evaluation; they count neither anomalous nor normal.",
+  "invalid_exclusion_not_posthoc": true,
+  "invalid_exclusion_reason": "rfly_ctrl_lxl_no_active_fault: internal RFLY control message indicates no active fault trigger, contradicting the folder label.",
+  "development_invalid_excluded_count": 4,
+  "final_holdout_invalid_excluded_count": 1,
+  "final_holdout_opened": false,
+  "official_full_interval_excluding_invalid": {
+    "rfly_only_artifact": "artifacts/rfly0/rflymad/official_full_interval_excluding_invalid",
+    "pooled_artifact": "artifacts/rfly0/pooled_sead_rfly/official_full_interval_excluding_invalid",
+    "rfly_only_gate_status": {
+      "gate_r_a": "passed",
+      "gate_r_b": "passed",
+      "gate_r_c": "failed"
+    },
+    "pooled_gate_status": {
+      "gate_r_a": "passed",
+      "gate_r_b": "passed",
+      "gate_r_c": "failed"
+    },
+    "rfly_only_top_rows": [
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.526073,
+        "fa": 22.275368,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "advisory",
+        "recall": 0.460726,
+        "fa": 28.739141,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.451485,
+        "fa": 30.138244,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "critical",
+        "recall": 0.441584,
+        "fa": 9.227697,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "critical",
+        "recall": 0.405941,
+        "fa": 17.284969,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "recall": 0.394059,
+        "fa": 14.085448,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": false
+      }
+    ],
+    "pooled_top_rows": [
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.148851,
+        "fa": 29.998765,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "advisory",
+        "recall": 0.083621,
+        "fa": 20.236718,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "rfly0_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.066092,
+        "fa": 9.392623,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "ml9_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.062356,
+        "fa": 9.255211,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.05431,
+        "fa": 8.21581,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.049713,
+        "fa": 7.816977,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      }
+    ],
+    "old_proxy_status": "invalidated_for_product_claims; retained for audit only"
+  }
+}

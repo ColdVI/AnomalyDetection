@@ -1,0 +1,16 @@
+{
+  "chronos_dikey": {
+    "raw_column": "chronos_alt_residual",
+    "normal_validation_count": 1386,
+    "normal_validation_min": 0.0,
+    "normal_validation_median": 0.0,
+    "normal_validation_max": 3.4237862672889228
+  },
+  "chronos_motor": {
+    "raw_column": "chronos_actuator_std_residual",
+    "normal_validation_count": 1369,
+    "normal_validation_min": 0.0,
+    "normal_validation_median": 0.0,
+    "normal_validation_max": 1.599343194256582
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "lightgbm:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9699996242193328,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.9618528610354224
+  },
+  "lightgbm:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9438164249373653,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.9618528610354224
+  },
+  "lightgbm:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": -1.8553945085645565,
+    "sigma_normal": 1.4502688308242058,
+    "k": 0.5,
+    "h": 99.46359204815235,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 2.0
+  },
+  "lightgbm:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.8430486966785369,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.771117166212536
+  },
+  "lightgbm:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.7236748339411986,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.771117166212536
+  },
+  "lightgbm:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": -1.8553945085645565,
+    "sigma_normal": 1.4502688308242058,
+    "k": 0.5,
+    "h": 20.242512396740494,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.995
+  },
+  "if_fusion:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9698992100245165,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.9618528610354224
+  },
+  "if_fusion:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.967992372650504,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.9809264305177112
+  },
+  "if_fusion:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.7180339606085216,
+    "sigma_normal": 1.5035402166540603,
+    "k": 0.5,
+    "h": 221.67332364921458,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 2.0
+  },
+  "if_fusion:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.967992372650504,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 7.84741144414169
+  },
+  "if_fusion:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.949468809588668,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.771117166212536
+  },
+  "if_fusion:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.7180339606085216,
+    "sigma_normal": 1.5035402166540603,
+    "k": 0.5,
+    "h": 15.423996992249158,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.975
+  },
+  "lstm_retrained:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9419324868380303,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.9618528610354224
+  },
+  "lstm_retrained:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9400743264168473,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.9618528610354224
+  },
+  "lstm_retrained:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.006687997854719459,
+    "sigma_normal": 1.819704201228141,
+    "k": 0.5,
+    "h": 96.40315175778233,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.995
+  },
+  "lstm_retrained:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.8443790647259214,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.771117166212536
+  },
+  "lstm_retrained:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 2,
+    "n": 3,
+    "threshold": 0.8443790647259214,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.771117166212536
+  },
+  "lstm_retrained:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.006687997854719459,
+    "sigma_normal": 1.819704201228141,
+    "k": 0.5,
+    "h": 21.424858440092066,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 12.0
+  },
+  "existing_lstm": {
+    "status": "N/A",
+    "reason": "No pre-existing UAV-SEAD LSTM-AE artifact"
+  }
+}

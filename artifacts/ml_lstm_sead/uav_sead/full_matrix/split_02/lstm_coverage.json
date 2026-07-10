@@ -1,9 +1,0 @@
-{
-  "split": "split_02",
-  "val_row_finite_fraction": 0.9622931896883417,
-  "test_row_finite_fraction": 0.9635998483531281,
-  "train_windows": 2580,
-  "val_windows": 31063,
-  "train_flights": 15,
-  "val_flights": 124
-}

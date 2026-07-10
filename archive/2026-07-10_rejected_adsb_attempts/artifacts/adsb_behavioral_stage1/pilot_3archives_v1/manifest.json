@@ -1,0 +1,52 @@
+{
+  "created_utc": "2026-07-10T11:03:25.088462+00:00",
+  "stage": "Codex ADS-B behavioral anomaly Stage-1 pilot",
+  "plan": "docs/CODEX_ADSB_BEHAVIORAL_ANOMALY_ROADMAP.md",
+  "seed": 20260710,
+  "members_per_archive": 150,
+  "max_flights_per_archive": 250,
+  "inputs": {
+    "v2026.02.28-planes-readsb-prod-0.tar": {
+      "path": "C:\\Users\\PC_5812_YD26\\Downloads\\v2026.02.28-planes-readsb-prod-0.tar",
+      "size": 3226359808,
+      "sha256": "15820b6881fa6a7c4822b24534375f6d3c1c251e3801b6d1bb6a47faa8ab0bed"
+    },
+    "v2026.03.01-planes-readsb-prod-0.tar": {
+      "path": "C:\\Users\\PC_5812_YD26\\Downloads\\v2026.03.01-planes-readsb-prod-0.tar",
+      "size": 3126962688,
+      "sha256": "dd5a55d7f9eda6ff22724975433a3818e2fb6219bbf0737ce7b54ac4a4c11c33"
+    },
+    "v2026.03.16-planes-readsb-prod-0.tar": {
+      "path": "C:\\Users\\PC_5812_YD26\\Downloads\\v2026.03.16-planes-readsb-prod-0.tar",
+      "size": 2957221376,
+      "sha256": "2f0103c88a47457d96868faeae9e3510cabcbe57315b5a4d4ceda1ffd11a3270"
+    }
+  },
+  "gate_status": {
+    "gate_a": "passed",
+    "gate_b": "failed",
+    "gate_c": "failed",
+    "gate_d": "audit_pending"
+  },
+  "files": {
+    "breakdown_metrics.csv": "9e91285a3868cc70c4b94b44ce8ca90262afae5ae7c0f4a6d9f2e33d0b30c6d5",
+    "calibrations.json": "d8fbf79c3a3c0424ab4c25012fb46cd3d9d9c8c7e782e488133ef23fc9b5ac41",
+    "dataset_card.json": "abe0d03476e7a98ebcd38d009651e62a8b8676194eb5c88177d619f7f788c8a3",
+    "event_metrics.csv": "f1f79ca38d5a60febefea4455ff270613105bf2b9de96f7331d3918b2be07d9a",
+    "flight_inventory.csv": "090617b7dfbb84746b832a7b95b53deeadfc5f512fb79561534fac22dd0a4f7b",
+    "gates.json": "591d29ec53f2cb7c2b81123c9f81977bdaff9122b42e26bee4d40de817280d54",
+    "isolation_forest.joblib": "e9a4285b2c58bb39bb00969c98f826573c8a5c1a3fe17e7469f674003c1ed2f9",
+    "natural_top100_audit.csv": "86b46161864c6214c25eefb3df5123708af7a12e08a27a43a7126c31f7bb65d9",
+    "overall_metrics.csv": "1e5b0e3a96a20197da40cf8762ad4150e7de70681b07ad31944045b904eeedf7",
+    "physics_rule.joblib": "227f755e4f236a7912f4e58b26f32d6aa949de66785fc0b3416980133009a24d",
+    "plots/injected_example_00.png": "c64de98c1f6ee4033f9be5d1ee3f271664b96b0d8d1fdab857a7b47d98e243f5",
+    "plots/injected_example_01.png": "107afd263c87065de469503ebd2350befa6d24ef54dddcba52531d2796f9b1bb",
+    "plots/injected_example_02.png": "e0b5c481df15935373ff36457fe470b8faaaf0c5d630d03e674f9832a40ff7f5",
+    "plots/injected_example_03.png": "9bed75bd2ff8ba8c778e640037bf5a68bb3a8bda1343ffbc2d261e89060b8f9f",
+    "plots/injected_example_04.png": "9bbbf87365c3b675e7d750d9ffe96df555755ff4dd30896a9b0de256df6af679",
+    "plots/injected_example_05.png": "7082478a4091cb6f6a8d87f615a1ac1b16a02aa6eae7ecab791ccfd6e366d6ad",
+    "plots/injected_example_06.png": "934ef45d2cca3a3985d2ddc782598d441dc9de474f2c4ee17fef1d1d62795270",
+    "plots/injected_example_07.png": "daf34d6419b45d962428241c425c6939aff773db68f2b4317811a136973364a5",
+    "plots/train_residual_correlation.png": "390c49f2c48f0ae6399f2c1468e671c1fe16cb0e6fb170faea57b954061f94de"
+  }
+}
