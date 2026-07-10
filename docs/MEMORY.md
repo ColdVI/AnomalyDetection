@@ -75,4 +75,4 @@ Key references: Whelan et al. (2020) UAV sensor attack paper, ALFA dataset paper
 
 ## RFLY-1 note (2026-07-09)
 
-RFLY-0 official RFLY-only result is superseded: anomalous Real-* truth used a whole-flight proxy. RFLY-1 now extracts `rfly_ctrl_lxl` intervals and blocks official rerun until 5 missing motor intervals are repaired (4 dev/test, 1 final holdout unopened). Simulation tracks stay separate and are currently blocked locally because SIL-Wind/HIL-Wind files are absent.
+RFLY-0 official RFLY-only result is superseded: anomalous Real-* truth used a whole-flight proxy. RFLY-1 now extracts `rfly_ctrl_lxl` intervals; 5 no-active-fault motor flights were excluded as invalid before scoring, and corrected official full runs were completed. Simulation tracks stay separate and are currently blocked locally because SIL-Wind/HIL-Wind files are absent.

@@ -1,0 +1,158 @@
+{
+  "dense_ae_recon:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9916565272488992,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.954397394136808
+  },
+  "dense_ae_recon:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9910250172993827,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.7589576547231272
+  },
+  "dense_ae_recon:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.17595254658912923,
+    "sigma_normal": 1.991471661053266,
+    "k": 0.5,
+    "h": 102.75,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 2.0
+  },
+  "dense_ae_recon:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9699523998924511,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.726384364820849
+  },
+  "dense_ae_recon:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9665236065439916,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.92182410423453
+  },
+  "dense_ae_recon:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.17595254658912923,
+    "sigma_normal": 1.991471661053266,
+    "k": 0.5,
+    "h": 21.796875,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.99
+  },
+  "dense_ae_ml14_fusion:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9999970869091523,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "dense_ae_ml14_fusion:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 2,
+    "n": 3,
+    "threshold": 0.9999970869091523,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "dense_ae_ml14_fusion:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 6.3617342951455145,
+    "sigma_normal": 3.523556383079005,
+    "k": 0.5,
+    "h": 72.84375,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.995
+  },
+  "dense_ae_ml14_fusion:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9999970869091523,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "dense_ae_ml14_fusion:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 2,
+    "n": 3,
+    "threshold": 0.9999970869091523,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "dense_ae_ml14_fusion:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 6.3617342951455145,
+    "sigma_normal": 3.523556383079005,
+    "k": 0.5,
+    "h": 28.25,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.975
+  },
+  "dense_ae_itki_fusion:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9997779853367231,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.3680781758957656
+  },
+  "dense_ae_itki_fusion:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9975808442016345,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.7589576547231272
+  },
+  "dense_ae_itki_fusion:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 1.042884643701883,
+    "sigma_normal": 1.8075518717121766,
+    "k": 0.5,
+    "h": 90.96875,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 2.0
+  },
+  "dense_ae_itki_fusion:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9997779853367231,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 1.3680781758957656
+  },
+  "dense_ae_itki_fusion:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 2,
+    "n": 3,
+    "threshold": 0.9909289759489607,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 9.576547231270359
+  },
+  "dense_ae_itki_fusion:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 1.042884643701883,
+    "sigma_normal": 1.8075518717121766,
+    "k": 0.5,
+    "h": 15.91796875,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 12.0
+  }
+}

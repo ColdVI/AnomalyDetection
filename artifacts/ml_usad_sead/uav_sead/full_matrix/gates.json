@@ -1,0 +1,207 @@
+{
+  "gate_a": {
+    "status": "passed",
+    "rule": "existing_fusion/itki_komutu/ml14_fusion recomputed with unchanged ml14 code must exactly reproduce frozen artifacts/ml14/uav_sead/full_matrix rows",
+    "matched_rows": 90,
+    "expected_rows": 90,
+    "max_abs_diff": 7.105427357601002e-15,
+    "window_coverage": [
+      {
+        "split": "split_00",
+        "val_row_finite_fraction": 0.959960644481505,
+        "test_row_finite_fraction": 0.9635589035239661,
+        "train_windows": 6642,
+        "val_windows": 27561,
+        "train_flights": 23,
+        "val_flights": 117
+      },
+      {
+        "split": "split_01",
+        "val_row_finite_fraction": 0.9660273366037824,
+        "test_row_finite_fraction": 0.9627805217731956,
+        "train_windows": 4298,
+        "val_windows": 33206,
+        "train_flights": 14,
+        "val_flights": 119
+      },
+      {
+        "split": "split_02",
+        "val_row_finite_fraction": 0.9622931896883417,
+        "test_row_finite_fraction": 0.9635998483531281,
+        "train_windows": 2580,
+        "val_windows": 31063,
+        "train_flights": 15,
+        "val_flights": 124
+      },
+      {
+        "split": "split_03",
+        "val_row_finite_fraction": 0.9564568471971344,
+        "test_row_finite_fraction": 0.9641924345470863,
+        "train_windows": 5110,
+        "val_windows": 25038,
+        "train_flights": 25,
+        "val_flights": 116
+      },
+      {
+        "split": "split_04",
+        "val_row_finite_fraction": 0.9668561765649144,
+        "test_row_finite_fraction": 0.9625075785948571,
+        "train_windows": 7062,
+        "val_windows": 33212,
+        "train_flights": 21,
+        "val_flights": 116
+      }
+    ]
+  },
+  "gate_b": {
+    "status": "failed",
+    "rule": "any of {usad_score, usad_ml14_fusion, usad_itki_fusion} x {threshold, k_of_n, cusum}: critical recall >=0.30 @ FA<=2 or advisory recall >=0.50 @ FA<=12",
+    "evaluated_seed_count": 5,
+    "candidates": [
+      {
+        "score_source": "usad_itki_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.25292620865139953,
+        "mean_false_alarms_per_hour": 24.959979551153502,
+        "passed": false
+      },
+      {
+        "score_source": "usad_itki_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.09720101781170483,
+        "mean_false_alarms_per_hour": 4.775507759410824,
+        "passed": false
+      },
+      {
+        "score_source": "usad_itki_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.17709923664122137,
+        "mean_false_alarms_per_hour": 10.904027646963751,
+        "passed": false
+      },
+      {
+        "score_source": "usad_itki_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.14249363867684478,
+        "mean_false_alarms_per_hour": 2.2254949417957794,
+        "passed": false
+      },
+      {
+        "score_source": "usad_itki_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.1633587786259542,
+        "mean_false_alarms_per_hour": 13.473860606791948,
+        "passed": false
+      },
+      {
+        "score_source": "usad_itki_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.09923664122137404,
+        "mean_false_alarms_per_hour": 3.860878070493527,
+        "passed": false
+      },
+      {
+        "score_source": "usad_ml14_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.12417302798982188,
+        "mean_false_alarms_per_hour": 10.019977369099943,
+        "passed": false
+      },
+      {
+        "score_source": "usad_ml14_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.04325699745547074,
+        "mean_false_alarms_per_hour": 1.659623074227882,
+        "passed": false
+      },
+      {
+        "score_source": "usad_ml14_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.05699745547073791,
+        "mean_false_alarms_per_hour": 2.3069243406017987,
+        "passed": false
+      },
+      {
+        "score_source": "usad_ml14_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "usad_ml14_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "usad_ml14_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "usad_score",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.24173027989821882,
+        "mean_false_alarms_per_hour": 14.212628468803846,
+        "passed": false
+      },
+      {
+        "score_source": "usad_score",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.08040712468193384,
+        "mean_false_alarms_per_hour": 3.1803896808988004,
+        "passed": false
+      },
+      {
+        "score_source": "usad_score",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.20814249363867682,
+        "mean_false_alarms_per_hour": 15.605321503977141,
+        "passed": false
+      },
+      {
+        "score_source": "usad_score",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.1938931297709924,
+        "mean_false_alarms_per_hour": 4.236690167716324,
+        "passed": false
+      },
+      {
+        "score_source": "usad_score",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.2325699745547074,
+        "mean_false_alarms_per_hour": 16.858128011386338,
+        "passed": false
+      },
+      {
+        "score_source": "usad_score",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.2173027989821883,
+        "mean_false_alarms_per_hour": 2.871303352084084,
+        "passed": false
+      }
+    ]
+  }
+}

@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import shutil
+import uuid
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
@@ -13,6 +16,8 @@ from scripts.run_rfly0_exploratory_evaluation import (
     _build_rfly_splits,
     _dataset_group,
     _diagnosis_rows,
+    _exclude_invalid_ids_from_folds,
+    _invalid_rfly_interval_truth,
     _truth_mask,
 )
 
@@ -143,3 +148,47 @@ def test_rfly_truth_mask_fails_if_anomaly_interval_is_missing():
             sead_ranges={},
             rfly_intervals={},
         )
+
+
+def test_invalid_interval_truth_is_excluded_from_all_split_parts():
+    folds = {
+        "split_00": {
+            "seed": 0,
+            "train": ["valid_train", "bad"],
+            "val": ["valid_val", "bad"],
+            "test": ["valid_test", "bad"],
+            "test_anomalous": ["valid_test", "bad"],
+            "final_holdout": ["holdout", "bad"],
+        }
+    }
+
+    cleaned = _exclude_invalid_ids_from_folds(folds, {"bad"})
+
+    assert cleaned["split_00"]["train"] == ["valid_train"]
+    assert cleaned["split_00"]["val"] == ["valid_val"]
+    assert cleaned["split_00"]["test"] == ["valid_test"]
+    assert cleaned["split_00"]["test_anomalous"] == ["valid_test"]
+    assert cleaned["split_00"]["final_holdout"] == ["holdout"]
+    assert folds["split_00"]["test"] == ["valid_test", "bad"]
+
+
+def test_invalid_interval_truth_detects_no_active_fault_without_using_proxy():
+    root = Path(".tmp_test_rfly0_exploratory") / uuid.uuid4().hex
+    try:
+        root.mkdir(parents=True)
+        table = pd.DataFrame({
+            "source_id": ["Real-Motor/hover/bad/log", "Real-Motor/hover/good/log", "Real-No_Fault/hover/ok/log"],
+            "label": ["motor_fault", "motor_fault", "normal"],
+            "fault_onset_s": [np.nan, 5.0, np.nan],
+            "fault_end_s": [np.nan, 10.0, np.nan],
+            "fault_interval_source": ["rfly_ctrl_lxl_no_active_fault", "rfly_ctrl_lxl", "normal_no_fault"],
+        })
+        path = root / "rfly.parquet"
+        table.to_parquet(path, index=False)
+
+        invalid = _invalid_rfly_interval_truth(set(table["source_id"]), silver_path=path)
+
+        assert set(invalid) == {"Real-Motor/hover/bad/log"}
+        assert "no active fault trigger" in invalid["Real-Motor/hover/bad/log"]
+    finally:
+        shutil.rmtree(root, ignore_errors=True)

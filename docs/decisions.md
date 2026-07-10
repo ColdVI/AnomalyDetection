@@ -410,23 +410,34 @@ iddiası yapmaz.
 
 RFLY-1 found that the RFLY-0 official RFLY-only and pooled metrics above used a
 whole-flight anomaly proxy for `Real-*` anomalous flights. That proxy is easier
-than the SEAD event-onset task and overstates RFLY performance; the old numbers
-are retained for audit history but are no longer treated as official product
-claim evidence.
+than the SEAD event-onset task and overstates RFLY performance; the old `0.749`
+CUSUM/advisory and `0.573` threshold/critical RFLY-only rows are retained for
+audit history only and are now invalid for product-claim evidence.
 
 `parse_rflymad.py` now extracts `(fault_onset_s, fault_end_s)` from the ULog
-`rfly_ctrl_lxl` message and the RFLY-0 evaluator refuses to fall back to
-whole-flight truth. A smoke official rerun was attempted with interval truth and
-stopped before training/evaluation because 4 split_00 anomalous development/test
-flights lack interval truth (`rfly_ctrl_lxl_no_active_fault`); a fifth missing
-case is in RFLY final holdout and was not opened. Artifact:
-`artifacts/rfly1/interval_truth_report.json`.
+`rfly_ctrl_lxl` message and the evaluator uses only that interval truth. Five
+folder-labeled motor-fault flights had `rfly_ctrl_lxl_no_active_fault`; the
+internal control message indicates no active fault trigger, contradicting the
+folder label. They were excluded as ambiguous/invalid test cases before any
+corrected recall/FA result was produced: 4 from development/test and 1 from
+RFLY final holdout (the holdout case remained unopened). They count neither
+anomalous nor normal. Artifact: `artifacts/rfly1/interval_truth_report.json`.
 
-Decision: RFLY-0 official gate status is superseded pending completion of the
-missing TestInfo/interval repair. No RFLY interval-corrected official recall/FA
-number is reported yet. SIL-Wind/HIL-Wind work is separate under
-`artifacts/rfly1/simulation_capability/` and `artifacts/rfly1/severity_sweep/`;
-Real data is not used as fallback for simulation.
+Corrected full 5-seed RFLY-only official run:
+`artifacts/rfly0/rflymad/official_full_interval_excluding_invalid`.
+Gate R-A passed and Gate R-B passed, but Gate R-C failed. Best overall row:
+`itki_komutu` CUSUM/advisory `0.526` recall / `22.28` FA-hour. Best critical
+recall row: `itki_komutu` CUSUM/critical `0.442` recall / `9.23` FA-hour.
+No row met `critical >=0.30 @ <=2` or `advisory >=0.50 @ <=12`.
+
+Corrected full 5-seed pooled SEAD+RFLY official run:
+`artifacts/rfly0/pooled_sead_rfly/official_full_interval_excluding_invalid`.
+Gate R-A passed and Gate R-B passed, but Gate R-C failed. Best overall row:
+`itki_komutu` CUSUM/advisory `0.149` recall / `30.00` FA-hour. Best budget-inside
+advisory row among nonzero recalls was `rfly0_fusion` CUSUM/advisory `0.066`
+recall / `9.39` FA-hour; best budget-inside critical row was `rfly0_fusion`
+CUSUM/critical `0.018` recall / `1.72` FA-hour. No production/operational claim
+is accepted from RFLY-0 after interval-truth correction.
 
 ## ADR-015: ML-15 drift kalibrasyonu smoke edildi; full koşu maliyeti ayrı planlanmalı
 
@@ -445,3 +456,269 @@ Tek split koşusu yaklaşık 45 dakika sürdüğü için 5-seed full matrix bu o
 başlatılmadı; maliyetin nedeni her karar/bütçe/skor için oturum-jackknife ve
 CUSUM bootstrap tekrarlarıdır. Parametreler (q=0.75, floor=1.0, cap=5.0,
 min_sessions=4) değiştirilmedi.
+
+## ADR-016: ML-16 Kol L — SEAD LSTM-AE güncel splitlerde yeniden eğitildi, resmi hatta
+kablolandı; Gate A geçti, Gate B kaldı; skor büyük ölçüde ham genlik-baskın çıktı
+
+- Durum: Development rejected (Gate B); ayrı, önemli bir dürüstlük bulgusu ile birlikte
+- Tarih: 2026-07-09
+
+`src/ml/models/lstm_autoencoder.py` (mimari/eğitim döngüsü DEĞİŞTİRİLMEDEN) SEAD için
+GÜNCEL `split_manifest.json` (899 normal uçuş, split_00..split_04, development 1044 uçuş,
+blind holdout 200 uçuş) üzerinde 5-seed protokolde yeniden eğitildi ve resmi
+ml14/ml15 fusion+karar-katmanı hattına kablolandı
+(`scripts/run_ml_lstm_sead_evaluation.py`, ön-kayıt: `docs/ML16_KOL_L_LSTM_SEAD_PLAN.md`).
+Pencereleme `src/ml/data/windowing.py::build_windows` (window=50, stride=5) DEĞİŞTİRİLMEDEN
+kullanıldı; pencere-sonu skorundan 1 sn karar-anına hizalama ML-8A'nin zaten var olan
+`_align_score` (`pd.merge_asof(..., direction="backward")`) konvansiyonuyla yapıldı. Üç
+skor varyantı ön-kayıtlıydı: (a) `lstm_recon` tek başına, (b) `lstm_recon` ile `ml14_fusion`
+max-füzyonu, (c) `lstm_recon` ile `itki_komutu` max-füzyonu.
+
+**Gate A (güvenlik+determinizm): GEÇTİ.** Blind holdout (200 uçuş) hiçbir aşamada
+okunmadı. `existing_fusion`/`itki_komutu`/`ml14_fusion` ara sütunları AYNI kodla
+(`fit_modular_iforest`, `_score_modules`, `max_score_fusion`) yeniden hesaplandı ve donmuş
+`artifacts/ml14/uav_sead/full_matrix` CSV'siyle 90/90 satırda max_abs_diff=7.1e-15 ile
+BİREBİR örtüştü (kayan-nokta belirsizliği düzeyinde).
+
+**Gate B (operasyonel hedef): KALDI.** Hiçbir {skor × karar × bütçe} hücresi hedefi
+karşılamadı (critical ≥0.30 recall @ ≤2 FA-saat, advisory ≥0.50 recall @ ≤12 FA-saat):
+
+| Skor | Karar | Bütçe | Recall | FA-saat |
+|---|---|---|---|---|
+| lstm_recon | cusum | advisory | 0.251 | 15.40 |
+| lstm_recon | cusum | critical | 0.083 | 3.44 |
+| lstm_recon | k_of_n | advisory | 0.204 | 15.50 |
+| lstm_recon | k_of_n | critical | 0.190 | 4.30 |
+| lstm_recon | threshold | advisory | 0.237 | 16.67 |
+| lstm_recon | threshold | critical | 0.219 | 2.92 |
+| lstm_ml14_fusion | cusum | advisory | 0.124 | 10.02 |
+| lstm_ml14_fusion | cusum | critical | 0.043 | 1.65 |
+| lstm_ml14_fusion | k_of_n | advisory | 0.057 | 2.30 |
+| lstm_ml14_fusion | k_of_n / threshold | critical / advisory / critical | 0.000 | 0.00 |
+| lstm_itki_fusion | cusum | advisory | 0.259 | 25.42 |
+| lstm_itki_fusion | cusum | critical | 0.099 | 5.05 |
+| lstm_itki_fusion | k_of_n | advisory | 0.179 | 10.93 |
+| lstm_itki_fusion | k_of_n | critical | 0.147 | 3.27 |
+| lstm_itki_fusion | threshold | advisory | 0.162 | 13.52 |
+| lstm_itki_fusion | threshold | critical | 0.098 | 4.43 |
+
+Karşılaştırma (mevcut en iyi, ÖNCEDEN VAR, `artifacts/ml14/uav_sead/full_matrix/metrics.csv`):
+`ml14_fusion` CUSUM/advisory recall 0.126 / FA-saat 9.95; CUSUM/critical recall 0.043 /
+FA-saat 1.60; K-of-N/advisory recall 0.056 / FA-saat 2.28 (bütçe içi); `itki_komutu` (genel)
+CUSUM/advisory recall 0.145 / FA-saat 35.67 (bütçe dışı). `lstm_recon` tek başına ham
+recall'da mevcut en iyiyi ~2x geçiyor (ör. CUSUM/advisory 0.251 vs 0.126) ama FA de orantılı
+artıyor (15.40 vs 9.95) ve HİÇBİR hücre bütçe içinde kalmıyor. Bütçe İÇİNDE kalan tek yeni
+hücreler `lstm_ml14_fusion` K-of-N/advisory (FA 2.30, recall 0.057 — mevcut en iyiyle
+pratikte aynı) ve `lstm_itki_fusion` K-of-N/advisory (FA 10.93, recall 0.179 — mevcut bütçe
+içi en iyiden [0.056] yüksek ama hedefin [0.50] hâlâ çok altında).
+
+**KRİTİK DÜRÜSTLÜK BULGUSU (koordinatörün çapraz-model tutarlılık kontrolü üzerine, sonuç
+raporlanmadan önce araştırıldı):** Bağımsız olarak eğitilmiş Dense-AE ve USAD ajanları
+(aynı `_align_score`/pencereleme konvansiyonunu paylaşan), split_00'da `threshold`/`critical`
+kararında BİREBİR aynı kategori-bazlı detected/false-alarm sayılarını üretti
+(`altitude_anomaly` 1/114, `external_position_anomaly` 70/185, `global_position_anomaly`
+6/51, `mechanical_fault` 1/43 — FA sayısı yalnız 7 vs 8 farklı). Üç mimari açısından farklı
+model ailesinin aynı sonucu üretmesi, "hepsi eşit derecede iyi öğrendi" ile açıklanamaz.
+Araştırma (`scripts/diagnose_ml_lstm_sead_magnitude_domination.py`,
+`artifacts/ml_lstm_sead/uav_sead/full_matrix/magnitude_domination_diagnostic.json`) kök
+nedeni buldu: eğitilmiş modelin skor SIRALAMASI, tamamen eğitilmemiş (rastgele
+başlatılmış) aynı mimari ile Spearman ρ=0.964, model içermeyen saf `‖x‖²` genlik
+taban-çizgisiyle ρ=0.965 KORELE — yani eğitim, "girdi ne kadar büyük" ötesine neredeyse
+hiçbir şey KATMIYOR. `RobustScaler` (proje çapında, değiştirilmeden kullanılan) aykırı
+değerleri kırpmıyor; bu yüzden bir avuç aşırı-genlikli pencere (gerçek GPS-sahtekârlığı
+sıçramaları VE en az bir "normal" etiketli ama donmuş-GPS/`eph`≈25000 sentinel içeren uçuş)
+herhangi bir sınırlı-çıktılı autoencoder'ın reconstruction hatasına — mimariden bağımsız —
+hakim oluyor. `ThresholdPolicy` ayrıca ayrıca doğrudan test edildi ve DEJENERE DEĞİL ("ilk
+tanımlı skorda ateşle" davranışı yok — 904 test uçuşunun yalnız 94'ünde alarm var, bunların
+sadece %4.3'ü pencere-tamamlanma anıyla çakışıyor); sorun karar katmanında değil, ölçekleme/
+özellik seçiminde. **Sonuç:** yukarıdaki `lstm_recon` recall rakamları (özellikle mevcut
+en iyiyi geçen CUSUM/advisory 0.251) kısmen ÖĞRENİLMİŞ zamansal örüntüden değil, ham genlik
+aykırı-değer tespitinden geliyor olabilir — bu, "LSTM sinyal katıyor" şeklinde
+sunulamaz. Metodoloji disiplini gereği (sonuç görüldükten sonra parametre değişikliği yok)
+ölçekleme/özellik seçimi bu koşuda DEĞİŞTİRİLMEDİ; bulgu olduğu gibi raporlanıyor.
+
+Karar: Gate B kaldığı için holdout AÇILMAZ, hiçbir varyant production füzyona alınmaz.
+`docs/ML_YETERSIZLIKLER_KAYDI.md` C.1 bu sonuçla güncellendi. Genlik-baskınlığı bulgusu
+yeni, ayrı bir açık madde olarak kaydedildi (bkz. B.5) — kırpmalı/robust ölçekleme veya
+genlik-normalize edilmiş bir reconstruction skoru ancak yeni, ön-kayıtlı bir turda
+değerlendirilebilir; bu oturumda post-hoc düzeltme yapılmadı. Artifact:
+`artifacts/ml_lstm_sead/uav_sead/full_matrix/`; `tests/test_lstm_sead_integration.py`
+13/13 geçti.
+
+## ADR-017: ML-16 Kol D — SEAD Dense-AE (düz otokodlayıcı) güncel splitlerde eğitildi,
+resmi hatta kablolandı; Gate A geçti, Gate B kaldı; aynı genlik-baskınlığı bulgusu geçerli
+
+- Durum: Development rejected (Gate B); ADR-016'daki dürüstlük bulgusu bu koşu için de geçerli
+- Tarih: 2026-07-09/10
+
+`src/ml/models/dense_autoencoder.py` (yeni: düz/ileri-beslemeli, pencereyi tek vektöre
+düzleştiren otokodlayıcı, `LSTMAutoencoder` ile karşılaştırılabilir parametre sayısı) SEAD
+için GÜNCEL split_manifest üzerinde 5-seed protokolde eğitildi ve ADR-016 ile AYNI resmi
+ml14/ml15 fusion+karar-katmanı hattına, AYNI `_align_score`/pencereleme (window=50,
+stride=5) konvansiyonuyla kablolandı (`scripts/run_ml_dense_ae_sead_evaluation.py`,
+ön-kayıt: `docs/ML16_KOL_D_DENSE_AE_SEAD_PLAN.md`). Üç skor varyantı ön-kayıtlıydı:
+(a) `dense_ae_recon` tek başına, (b) `ml14_fusion` ile max-füzyonu, (c) `itki_komutu` ile
+max-füzyonu.
+
+**Gate A (güvenlik+determinizm): GEÇTİ.** Blind holdout (200 uçuş) hiçbir aşamada
+okunmadı. Ara sütunlar donmuş `artifacts/ml14/uav_sead/full_matrix` CSV'siyle 90/90 satırda
+max_abs_diff=7.1e-15 ile birebir örtüştü.
+
+**Gate B (operasyonel hedef): KALDI.** Hiçbir hücre hedefi karşılamadı:
+
+| Skor | Karar | Bütçe | Recall | FA-saat |
+|---|---|---|---|---|
+| dense_ae_recon | cusum | advisory | 0.249 | 13.91 |
+| dense_ae_recon | cusum | critical | 0.084 | 3.33 |
+| dense_ae_recon | k_of_n | advisory | 0.214 | 14.40 |
+| dense_ae_recon | k_of_n | critical | 0.174 | 4.39 |
+| dense_ae_recon | threshold | advisory | 0.238 | 15.58 |
+| dense_ae_recon | threshold | critical | 0.215 | 2.77 |
+| dense_ae_ml14_fusion | cusum | advisory | 0.124 | 10.03 |
+| dense_ae_ml14_fusion | cusum | critical | 0.043 | 1.65 |
+| dense_ae_ml14_fusion | k_of_n | advisory | 0.057 | 2.30 |
+| dense_ae_ml14_fusion | k_of_n/threshold | critical/advisory/critical | 0.000 | 0.00 |
+| dense_ae_itki_fusion | cusum | advisory | 0.252 | 25.95 |
+| dense_ae_itki_fusion | cusum | critical | 0.102 | 5.00 |
+| dense_ae_itki_fusion | k_of_n | advisory | 0.174 | 10.75 |
+| dense_ae_itki_fusion | k_of_n | critical | 0.127 | 3.22 |
+| dense_ae_itki_fusion | threshold | advisory | 0.164 | 13.45 |
+| dense_ae_itki_fusion | threshold | critical | 0.107 | 3.48 |
+
+Karşılaştırma (mevcut en iyi, ÖNCEDEN VAR): `ml14_fusion` CUSUM/advisory recall 0.126 /
+FA-saat 9.95; CUSUM/critical recall 0.043 / FA-saat 1.60; K-of-N/advisory recall 0.056 /
+FA-saat 2.28 (bütçe içi). `dense_ae_recon` tek başına ham recall'da mevcut en iyiyi
+geçiyor (ör. threshold/critical 0.215 vs 0.043) ama HİÇBİR hücre bütçe içinde kalmıyor.
+
+**Dürüstlük bulgusu ADR-016 ile PAYLAŞILIYOR, tekrar üretilmedi.** ADR-016'daki çapraz-model
+tutarlılık bulgusu (split_00'da LSTM/Dense-AE/USAD'ın `threshold`/`critical`'da birebir aynı
+kategori-bazlı detected-event sayıları üretmesi) ve kök-neden teşhisi
+(`artifacts/ml_lstm_sead/uav_sead/full_matrix/magnitude_domination_diagnostic.json`:
+eğitilmiş-vs-rastgele-başlatılmış Spearman ρ=0.964, eğitilmiş-vs-ham-genlik ρ=0.965) bu
+model için de AYNEN geçerli — mekanizma mimariden bağımsız (proje-çapında kırpmasız
+`RobustScaler` + bir avuç aşırı-genlikli pencere/sentinel-değer). Bu yüzden yukarıdaki
+`dense_ae_recon` recall rakamları da "Dense-AE sinyal öğrendi" diye SUNULAMAZ.
+
+Karar: Gate B kaldığı için holdout AÇILMAZ. `docs/ML_YETERSIZLIKLER_KAYDI.md` C.1
+güncellendi; B.5 (genlik-baskınlığı) bu koşu için de referans veriyor, tekrar açılmadı.
+Artifact: `artifacts/ml_dense_ae_sead/uav_sead/full_matrix/`;
+`tests/test_dense_ae_sead_integration.py` geçti.
+
+## ADR-018: ML-16 Kol U — SEAD USAD (adversarial çift-otokodlayıcı) güncel splitlerde
+eğitildi, resmi hatta kablolandı; Gate A geçti, Gate B kaldı; aynı genlik-baskınlığı
+bulgusu geçerli
+
+- Durum: Development rejected (Gate B); ADR-016'daki dürüstlük bulgusu bu koşu için de geçerli
+- Tarih: 2026-07-09/10
+
+`src/ml/models/usad.py` (yeni: paylaşımlı kodlayıcı E + iki kod-çözücü D1/D2, yayınlanmış
+USAD iki-fazlı adversarial kayıp formülasyonu) SEAD için GÜNCEL split_manifest üzerinde
+5-seed protokolde eğitildi ve ADR-016/017 ile AYNI resmi hatta, AYNI `_align_score`/
+pencereleme konvansiyonuyla kablolandı (`scripts/run_ml_usad_sead_evaluation.py`,
+ön-kayıt: `docs/ML16_KOL_U_USAD_SEAD_PLAN.md`). Üç skor varyantı ön-kayıtlıydı:
+(a) `usad_score` tek başına, (b) `ml14_fusion` ile max-füzyonu, (c) `itki_komutu` ile
+max-füzyonu.
+
+**Gate A (güvenlik+determinizm): GEÇTİ.** Blind holdout (200 uçuş) hiçbir aşamada
+okunmadı. Ara sütunlar donmuş `artifacts/ml14/uav_sead/full_matrix` CSV'siyle 90/90 satırda
+max_abs_diff=7.1e-15 ile birebir örtüştü.
+
+**Gate B (operasyonel hedef): KALDI.** Hiçbir hücre hedefi karşılamadı:
+
+| Skor | Karar | Bütçe | Recall | FA-saat |
+|---|---|---|---|---|
+| usad_score | cusum | advisory | 0.242 | 14.21 |
+| usad_score | cusum | critical | 0.080 | 3.18 |
+| usad_score | k_of_n | advisory | 0.208 | 15.61 |
+| usad_score | k_of_n | critical | 0.194 | 4.24 |
+| usad_score | threshold | advisory | 0.233 | 16.86 |
+| usad_score | threshold | critical | 0.217 | 2.87 |
+| usad_ml14_fusion | cusum | advisory | 0.124 | 10.02 |
+| usad_ml14_fusion | cusum | critical | 0.043 | 1.66 |
+| usad_ml14_fusion | k_of_n | advisory | 0.057 | 2.31 |
+| usad_ml14_fusion | k_of_n/threshold | critical/advisory/critical | 0.000 | 0.00 |
+| usad_itki_fusion | cusum | advisory | 0.253 | 24.96 |
+| usad_itki_fusion | cusum | critical | 0.097 | 4.78 |
+| usad_itki_fusion | k_of_n | advisory | 0.177 | 10.90 |
+| usad_itki_fusion | k_of_n | critical | 0.142 | 2.23 |
+| usad_itki_fusion | threshold | advisory | 0.163 | 13.47 |
+| usad_itki_fusion | threshold | critical | 0.099 | 3.86 |
+
+Karşılaştırma (mevcut en iyi, ÖNCEDEN VAR): `ml14_fusion` CUSUM/advisory recall 0.126 /
+FA-saat 9.95; CUSUM/critical recall 0.043 / FA-saat 1.60; K-of-N/advisory recall 0.056 /
+FA-saat 2.28 (bütçe içi). `usad_score` tek başına ham recall'da mevcut en iyiyi geçiyor
+(ör. threshold/critical 0.217 vs 0.043) ama HİÇBİR hücre bütçe içinde kalmıyor.
+
+**Dürüstlük bulgusu ADR-016/017 ile PAYLAŞILIYOR, tekrar üretilmedi.** Aynı çapraz-model
+tutarlılık bulgusu ve kök-neden teşhisi
+(`artifacts/ml_lstm_sead/uav_sead/full_matrix/magnitude_domination_diagnostic.json`) bu
+model için de geçerli — USAD'ın adversarial eğitimi de kırpmasız `RobustScaler`'ın ürettiği
+aşırı-genlikli pencerelerin baskınlığını aşamıyor. `usad_score` recall rakamları "USAD
+sinyal öğrendi" diye SUNULAMAZ.
+
+Karar: Gate B kaldığı için holdout AÇILMAZ. `docs/ML_YETERSIZLIKLER_KAYDI.md` C.1
+güncellendi; B.5 bu koşu için de referans veriyor. Artifact:
+`artifacts/ml_usad_sead/uav_sead/full_matrix/`; `tests/test_usad_sead_integration.py`
+geçti.
+
+**Üç kolun (L/D/U) ortak sonucu:** SEAD'de denenen üç derin-öğrenme mimarisi de (LSTM-AE,
+Dense-AE, USAD) operasyonel hedefi geçemedi VE üçünün de recall kazancı büyük ölçüde aynı
+genlik-baskınlığı artefaktından geliyor — mimari seçimi (tekrarlayan/düz/adversarial) bu
+veri setinde şu anki ölçekleme ile ayırt edici değil. Sonraki adım (yeni, ön-kayıtlı bir
+turda) kırpmalı/robust ölçekleme veya genlik-normalize skor olmalı; bu üç mimariyi
+TEKRAR AYNI ölçeklemeyle koşmak bilgi kazandırmaz.
+
+## ADR-019: ML-16 Kol N — genlik-normalize skor denemesi (yeniden eğitim yok); genlik-
+bağımlılığı gerçekten kırıldı ama altından gerçek sinyal çıkmadı
+
+- Durum: Development rejected (Gate B); B.5'i kapatmıyor, tersine doğruluyor
+- Tarih: 2026-07-10
+
+ADR-016/017/018'in ortak bulgusuna (B.5 — üç mimarinin de reconstruction skoru kırpılmamış
+`RobustScaler` genliğine hâkim) doğrudan cevap: mevcut 3 dondurulmuş model (LSTM-AE,
+Dense-AE, USAD split_00..04 checkpoint'leri) YENİDEN EĞİTİLMEDEN, ham reconstruction
+hatasının skora çevrilme biçimi değiştirilerek 2 yeni skor türetildi (ön-kayıt:
+`docs/ML16_KOL_N_GENLIK_NORMALIZE_SKOR_PLAN.md`, kod: `src/ml/evaluation/
+magnitude_normalized_scoring.py`, `scripts/run_ml16_kol_n_magnitude_normalized_scoring.py`):
+(a) **bağıl hata** `|x-x̂|/(|x|+ε)`, kanal başına, (b) **kanal-başına yüzdelik-sıra** —
+her kanalın hatası KENDİ train-normal dağılımına göre percentile'a çevrilip ortalanıyor.
+`masked_mse` DEĞİŞTİRİLMEDİ; yanına saf-ekleme `masked_mse_per_channel` eklendi (toplamı
+`masked_mse` ile birebir eşleştiği testle kanıtlı).
+
+**Gate A (güvenlik+determinizm): GEÇTİ** — 3 mimari × 5 split, kör holdout okunmadı,
+hiçbir `.fit(`/eğitim çağrısı yok (statik testle kanıtlı).
+
+**Gate B (operasyonel hedef): KALDI** — 3 mimari × 2 varyant × 3 karar × 2 bütçe, HİÇBİR
+hücre geçmedi. En iyi hücreler (5-seed ortalama): `dense_ae_rankpct` cusum/advisory 0.287
+recall/16.9 FA-saat; `usad_rankpct` cusum/advisory 0.287/19.3; `lstm_rankpct` threshold/
+advisory 0.270/40.6 — hepsi bütçe dışı. `relerr` varyantı genelde daha da düşük recall
+verdi (ör. `lstm_relerr` threshold/critical 0.024/5.65).
+
+**ASIL SONUÇ, sayılardan daha önemli — genlik-bağımlılığı ölçümü (5 split ortalaması,
+tam tablo `artifacts/ml16_kol_n/summary.json`):**
+
+| Mimari | Varyant | Eğitilmiş-vs-rastgele ρ | Eğitilmiş-vs-genlik ρ |
+|---|---|---|---|
+| LSTM | rankpct | ~0.81 (0.71-0.91) | ~0.79 (0.67-0.92) |
+| LSTM | relerr | ~0.15 (-0.18/+0.43) | ~-0.09 (-0.42/+0.35) |
+| Dense-AE | rankpct | ~0.83 (0.68-0.90) | ~0.83 (0.71-0.94) |
+| Dense-AE | relerr | ~0.55 (0.33-0.68) | ~0.23 (-0.04/+0.53) |
+| USAD | rankpct | ~0.72 (0.38-0.91) | ~0.80 (0.50-0.97) |
+| USAD | relerr | ~0.37 (0.18-0.56) | ~0.13 (-0.33/+0.38) |
+
+(Baseline, ADR-016: ham skor için ρ≈0.96-0.97, üç mimaride de.)
+
+**Yorum:** `rankpct` genlik-bağımlılığını neredeyse hiç azaltmadı (hâlâ 0.7-0.9 civarı) —
+recall'ı korudu ama sorunu çözmedi. `relerr` genlik-bağımlılığını GERÇEKTEN kırdı (3
+mimaride de 0.96'dan ~0.15-0.55'e, bazı split'lerde negatife düştü) — ama bunun karşılığında
+recall neredeyse yok oldu (çoğu hücrede critical recall <0.06). **Bu, ADR-016/017/018'deki
+"ham recall kazancının çoğu genlik artefaktı" hipotezini DOĞRULUYOR**: genliği gerçekten
+temizleyince altından operasyonel olarak kullanılabilir bir sinyal çıkmadı. Üç mimarinin de
+bu özellik setiyle SEAD'de gerçekten öğrendiği şey sınırlı; sorun mimari seçimi değil.
+
+Karar: Gate B kaldığı için holdout AÇILMAZ. `docs/ML_YETERSIZLIKLER_KAYDI.md` B.5
+güncellendi — madde KAPANMADI ama artık "kırpma/normalize skor bunu tek başına çözmez,
+altta yatan sinyal zaten zayıf" şeklinde daha kesin bir teşhisle kayıtlı. Bir sonraki
+mantıklı adım (bu oturumda başlatılmadı) veri-kalitesi kanalının davranışsal skordan
+ayrılması (GPT'nin önerisi) veya tamamen farklı bir feature ailesi olabilir — genlik-
+normalize skor denemesinin kendisi tükenmiş bir yön olarak kapatıldı.

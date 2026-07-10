@@ -63,6 +63,33 @@ def masked_mse(x, reconstruction, mask, *, per_sample: bool = False):
     return error.sum() / mask.sum().clamp(min=1.0)
 
 
+def masked_mse_per_channel(x, reconstruction, mask, *, per_sample: bool = False):
+    """Per-channel decomposition of `masked_mse`'s numerator/denominator.
+
+    ADDITIVE companion -- does not alter `masked_mse`'s behavior or signature (ML-16
+    Kol N, docs/ML16_KOL_N_GENLIK_NORMALIZE_SKOR_PLAN.md SS4). Sums the same squared
+    error term as `masked_mse`, but keeps the feature/channel axis instead of reducing
+    over it, so callers can build per-channel reconstruction-error scores (relative
+    error, per-channel rank-normalized error) without changing any existing training or
+    evaluation code path.
+
+    Returns ``(numerator, denominator)``:
+      - ``per_sample=True``  -> both shaped ``(batch, n_features)`` (summed only over
+        the window/time axis, one pair of values per sample per channel).
+      - ``per_sample=False`` -> both shaped ``(n_features,)`` (summed over the whole
+        batch and window axis, one pair of values per channel).
+
+    Recombination invariant (verified in tests/test_ml16_kol_n_magnitude_normalized_
+    scoring.py): ``numerator.sum(-1) / denominator.sum(-1).clamp(min=1.0)`` equals
+    ``masked_mse(x, reconstruction, mask, per_sample=per_sample)`` exactly -- this is a
+    decomposition of the existing loss, not a redefinition of it.
+    """
+    error = ((x - reconstruction) ** 2) * mask
+    if per_sample:
+        return error.sum(dim=1), mask.sum(dim=1)
+    return error.sum(dim=(0, 1)), mask.sum(dim=(0, 1))
+
+
 def train_lstm_autoencoder(model, x_train, m_train, x_val, m_val, *,
                            seed: int, epochs: int = 40, batch_size: int = 64,
                            learning_rate: float = 1e-3, patience: int = 5):
