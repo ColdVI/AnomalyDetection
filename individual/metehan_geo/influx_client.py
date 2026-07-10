@@ -60,7 +60,10 @@ def load_realtime_window(
 
     Kolonlar: source_id (icao24 -- historical Gold ile AYNI isim, boylece
     clean_coordinates/assign_h3_cell/flight_count mantigi degismeden calisir),
-    lat, lon, _time.
+    lat, lon, _time, is_military (2026-07-10 eklendi -- dashboard_consumer.py
+    SADECE bu tarihten sonra yazilan noktalarda bu alani dolduruyor, daha eski
+    noktalarda NaN/eksik olur -- asagida False'a doldurulur, "askeri oldugu
+    dogrulanmamis = sivil sayilir" varsayimi diger butun katmanlarla tutarli).
 
     agg_every: verilirse (ör. "2m") SUNUCU-TARAFI aggregateWindow(fn: last)
     uygulanir -- her ucak+alan (lat/lon) icin pencere basina TEK (son) deger
@@ -81,7 +84,7 @@ def load_realtime_window(
     from(bucket: "{INFLUX_BUCKET}")
       |> range(start: {range_start})
       |> filter(fn: (r) => r._measurement == "flights")
-      |> filter(fn: (r) => r._field == "lat" or r._field == "lon")
+      |> filter(fn: (r) => r._field == "lat" or r._field == "lon" or r._field == "is_military")
       {agg_stage}|> keep(columns: ["_time", "icao24", "_field", "_value"])
     '''
     result = client.query_api().query_data_frame(query, org=INFLUX_ORG)
@@ -95,8 +98,12 @@ def load_realtime_window(
         index=["_time", "icao24"], columns="_field", values="_value", aggfunc="first",
     ).reset_index()
     df = df.rename(columns={"icao24": "source_id"})
-    keep_cols = [c for c in ["source_id", "lat", "lon", "_time"] if c in df.columns]
+    keep_cols = [c for c in ["source_id", "lat", "lon", "_time", "is_military"] if c in df.columns]
     df = df[keep_cols]
+    if "is_military" in df.columns:
+        df["is_military"] = df["is_military"].fillna(False).astype(bool)
+    else:
+        df["is_military"] = False
     logger.info(
         "InfluxDB %s penceresi: %d satir, %d benzersiz ucak",
         range_start, len(df), df["source_id"].nunique() if "source_id" in df.columns else 0,

@@ -57,7 +57,20 @@ RESOLUTIONS = (3, 4, 5)
 def run() -> None:
     point_counts = {r: Counter() for r in RESOLUTIONS}
     flight_counts = {r: Counter() for r in RESOLUTIONS}
+    # 2026-07-10 (kullanici istegi): adsb datasinda ucaklar zaten dbFlags
+    # uzerinden asgari-sivil/askeri flaglenmis (is_military, bkz. Gold semasi
+    # guncellemesi) -- flight_count'u BOZMADAN (mevcut DBSCAN/KNN-mask pipeline'i
+    # AYNEN toplam uzerinden calismaya devam eder), hex basina sivil/askeri
+    # ayrimini da AYRICA topluyoruz. Frontend'de "Sivil"/"Askeri"/"Tumu"
+    # secimi bu iki ek kolon arasinda gecis yapar, DBSCAN yeniden calismaz.
+    flight_counts_civil = {r: Counter() for r in RESOLUTIONS}
+    flight_counts_military = {r: Counter() for r in RESOLUTIONS}
     hex_days: dict[int, dict[str, set]] = {r: {} for r in RESOLUTIONS}
+    # source_id (icao24) -> is_military -- TEK SEFERLIK global lookup, ayni
+    # taramada bedava toplanir. metehan_geo_country projesi kendi ham CSV
+    # dump'inda dbFlags TASIMADIGI icin bunu "hex" (=icao24) uzerinden
+    # AYRI bir dosyadan (aircraft_military_lookup.parquet) join edecek.
+    military_lookup: dict[str, bool] = {}
 
     total_rows = 0
     for i, raw_chunk in enumerate(load_adsb_gold_data()):
@@ -65,6 +78,14 @@ def run() -> None:
         if cleaned.empty:
             continue
         total_rows += len(cleaned)
+
+        if "is_military" in cleaned.columns:
+            is_mil = cleaned["is_military"].fillna(False).astype(bool)
+        else:
+            is_mil = pd.Series(False, index=cleaned.index)
+        cleaned = cleaned.assign(is_military=is_mil)
+        for source_id, mil in zip(cleaned["source_id"], is_mil):
+            military_lookup[source_id] = military_lookup.get(source_id, False) or bool(mil)
 
         dt = pd.to_datetime(cleaned["timestamp_utc"], unit="s", errors="coerce")
         cleaned = cleaned.assign(_date=dt.dt.date)
@@ -78,6 +99,12 @@ def run() -> None:
 
             flight_dedup = chunk.drop_duplicates(subset=["h3_cell", "source_id", "_date"])
             flight_counts[r].update(flight_dedup["h3_cell"].value_counts().to_dict())
+            flight_counts_civil[r].update(
+                flight_dedup.loc[~flight_dedup["is_military"], "h3_cell"].value_counts().to_dict()
+            )
+            flight_counts_military[r].update(
+                flight_dedup.loc[flight_dedup["is_military"], "h3_cell"].value_counts().to_dict()
+            )
 
             day_dedup = chunk.drop_duplicates(subset=["h3_cell", "_date"])
             days_r = hex_days[r]
@@ -93,19 +120,35 @@ def run() -> None:
     logger.info("Tamamlandi: %d satir taniındi", total_rows)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    n_military = sum(military_lookup.values())
+    logger.info(
+        "Askeri ucak lookup: %d/%d ucak (icao24) askeri isaretli",
+        n_military, len(military_lookup),
+    )
+    lookup_df = pd.DataFrame(
+        {"source_id": list(military_lookup.keys()), "is_military": list(military_lookup.values())}
+    )
+    lookup_df.to_parquet(OUT_DIR / "aircraft_military_lookup.parquet", index=False)
+    logger.info("Yazildi: %s (%d ucak)", OUT_DIR / "aircraft_military_lookup.parquet", len(lookup_df))
+
     for r in RESOLUTIONS:
         all_hexes = set(point_counts[r]) | set(flight_counts[r]) | set(hex_days[r])
         density_df = pd.DataFrame({
             "h3_cell": list(all_hexes),
             "point_count": [point_counts[r].get(h, 0) for h in all_hexes],
             "flight_count": [flight_counts[r].get(h, 0) for h in all_hexes],
+            "flight_count_civil": [flight_counts_civil[r].get(h, 0) for h in all_hexes],
+            "flight_count_military": [flight_counts_military[r].get(h, 0) for h in all_hexes],
             "day_count": [len(hex_days[r].get(h, ())) for h in all_hexes],
         })
         density_df.to_parquet(OUT_DIR / f"density_flights_res{r}.parquet", index=False)
         logger.info(
-            "res%d: %d hex, flight_count medyan=%.0f, day_count medyan=%.0f, max point/flight orani=%.0f",
+            "res%d: %d hex, flight_count medyan=%.0f, day_count medyan=%.0f, max point/flight orani=%.0f, "
+            "askeri-only trafik gozlenen hex=%d",
             r, len(density_df), density_df["flight_count"].median(), density_df["day_count"].median(),
             (density_df["point_count"] / density_df["flight_count"].replace(0, 1)).max(),
+            int((density_df["flight_count_military"] > 0).sum()),
         )
 
         # GeoJSON: build_density_geojson point_count kolonu bekliyor -- flight_count'u
@@ -114,9 +157,13 @@ def run() -> None:
         geojson = build_density_geojson(geojson_input)
         day_count_by_hex = dict(zip(density_df["h3_cell"], density_df["day_count"]))
         point_count_by_hex = dict(zip(density_df["h3_cell"], density_df["point_count"]))
+        civil_by_hex = dict(zip(density_df["h3_cell"], density_df["flight_count_civil"]))
+        military_by_hex = dict(zip(density_df["h3_cell"], density_df["flight_count_military"]))
         for feature in geojson["features"]:
             h = feature["properties"]["h3_cell"]
             feature["properties"]["day_count"] = int(day_count_by_hex[h])
+            feature["properties"]["flight_count_civil"] = int(civil_by_hex[h])
+            feature["properties"]["flight_count_military"] = int(military_by_hex[h])
             feature["properties"]["point_count_raw"] = int(point_count_by_hex[h])
         save_geojson(geojson, OUT_DIR / f"density_flights_res{r}.geojson")
 

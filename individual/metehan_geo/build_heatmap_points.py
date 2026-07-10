@@ -50,9 +50,13 @@ def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     # flight_count metrigi (duzeltilmis, varsayilan) -- day_count'u da tasi,
-    # heatmap modunda da gun-sayisi filtresi calisabilsin diye.
+    # heatmap modunda da gun-sayisi filtresi calisabilsin diye. 2026-07-10:
+    # flight_count_civil/military de tasiniyor -- Heatmap render modunda da
+    # Sivil/Askeri filtresi calisabilsin diye (frontend weight'i secime gore
+    # bu iki kolondan birine ya da toplamina gore hesaplar).
     flight_geojson = build_points_geojson(
-        OUT_DIR / "density_flights_res5.parquet", "flight_count", extra_cols=["day_count"]
+        OUT_DIR / "density_flights_res5.parquet", "flight_count",
+        extra_cols=["day_count", "flight_count_civil", "flight_count_military"],
     )
     with open(OUT_DIR / "heatmap_points_flight.geojson", "w", encoding="utf-8") as f:
         json.dump(flight_geojson, f)

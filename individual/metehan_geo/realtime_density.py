@@ -63,17 +63,35 @@ def build_realtime_density(mode: str, h3_resolution: int = 5) -> dict:
         return {"type": "FeatureCollection", "features": []}
 
     chunk = assign_h3_cell(cleaned, h3_resolution)
+    if "is_military" not in chunk.columns:
+        chunk = chunk.assign(is_military=False)
 
     grouped = chunk.groupby("h3_cell").agg(
         point_count=("h3_cell", "size"),
         flight_count=("source_id", "nunique"),
     ).reset_index()
+    # 2026-07-10 (kullanici istegi): historical (build_flight_density.py) ile
+    # AYNI ayrim -- sivil/askeri benzersiz ucus sayisi ayrica hesaplanip
+    # frontend'e tasiniyor, flight_count (toplam) DEGISMIYOR.
+    civil_counts = (
+        chunk[~chunk["is_military"]].groupby("h3_cell")["source_id"].nunique()
+    )
+    military_counts = (
+        chunk[chunk["is_military"]].groupby("h3_cell")["source_id"].nunique()
+    )
+    grouped["flight_count_civil"] = grouped["h3_cell"].map(civil_counts).fillna(0).astype(int)
+    grouped["flight_count_military"] = grouped["h3_cell"].map(military_counts).fillna(0).astype(int)
 
     geojson_input = grouped[["h3_cell", "flight_count"]].rename(columns={"flight_count": "point_count"})
     geojson = build_density_geojson(geojson_input)
     point_count_by_hex = dict(zip(grouped["h3_cell"], grouped["point_count"]))
+    civil_by_hex = dict(zip(grouped["h3_cell"], grouped["flight_count_civil"]))
+    military_by_hex = dict(zip(grouped["h3_cell"], grouped["flight_count_military"]))
     for feature in geojson["features"]:
-        feature["properties"]["point_count_raw"] = int(point_count_by_hex[feature["properties"]["h3_cell"]])
+        h = feature["properties"]["h3_cell"]
+        feature["properties"]["point_count_raw"] = int(point_count_by_hex[h])
+        feature["properties"]["flight_count_civil"] = int(civil_by_hex[h])
+        feature["properties"]["flight_count_military"] = int(military_by_hex[h])
 
     logger.info(
         "realtime/%s: %d satir, %d benzersiz ucak, %d hex",

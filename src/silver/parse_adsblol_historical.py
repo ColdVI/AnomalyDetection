@@ -61,6 +61,17 @@ def parse_trace_bytes(raw: bytes) -> pd.DataFrame:
     file_ts = data.get("timestamp")
     trace = data.get("trace", [])
 
+    # 2026-07-10 (kullanici istegi): adsb.lol/readsb'nin dbFlags bit alaninin
+    # 1. biti askeri ucak demek (bkz. Dashboard/adsb_producer.py'deki AYNI
+    # mantik) -- dbFlags dosya-seviyesinde (icao/timestamp gibi), trace
+    # icindeki HER satir icin sabit. Eksikse (ucak topluluk veritabaninda
+    # yoksa, ~%10 vaka) varsayilan False -- "askeri OLDUGU DOGRULANMAMIS"
+    # ile "sivil" ayni kefeye konur (Dashboard'daki ile ayni varsayim).
+    try:
+        is_military = bool(int(data.get("dbFlags", 0) or 0) & 1)
+    except (TypeError, ValueError):
+        is_military = False
+
     rows = []
     last_ac: dict = {}
     for row in trace:
@@ -100,6 +111,7 @@ def parse_trace_bytes(raw: bytes) -> pd.DataFrame:
             "aircraft_type": data.get("t"),
             "aircraft_desc": data.get("desc"),
             "no_reg_data": bool(data.get("noRegData", False)),
+            "is_military": is_military,
             "flight_callsign": (last_ac.get("flight") or "").strip() or None,
             "category": last_ac.get("category"),
             "squawk": last_ac.get("squawk"),

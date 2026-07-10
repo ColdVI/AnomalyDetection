@@ -97,6 +97,13 @@ def _parse_ac_record(record: dict, batch_ts: float | None) -> dict:
     alt_m = None if (on_ground or alt_baro_raw is None) else _feet_to_m(alt_baro_raw)
     alt_geom_raw = record.get("alt_geom")
     alt_geom_m = None if alt_geom_raw is None else _feet_to_m(alt_geom_raw)
+    # 2026-07-10 (kullanici istegi): dbFlags bit 1 = askeri (Dashboard/adsb_producer.py
+    # ve parse_adsblol_historical.py ile AYNI mantik). Bu raw kayit adsb.lol'un ham
+    # `ac` girdisi oldugu icin dbFlags per-ucak burada mevcut (dosya-seviyesi degil).
+    try:
+        is_military = bool(int(record.get("dbFlags", 0) or 0) & 1)
+    except (TypeError, ValueError):
+        is_military = False
     return {
         "source_type": SOURCE_TYPE,
         "source_id": record.get("hex"),
@@ -120,6 +127,7 @@ def _parse_ac_record(record: dict, batch_ts: float | None) -> dict:
         "emergency": record.get("emergency"),
         "registration": record.get("r"),
         "aircraft_type": record.get("t"),
+        "is_military": is_military,
         "nic": record.get("nic"),
         "rc": record.get("rc"),
         "nac_p": record.get("nac_p"),

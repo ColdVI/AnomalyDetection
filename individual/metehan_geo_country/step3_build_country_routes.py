@@ -135,6 +135,10 @@ def build_flight_legs(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
         start_lon=("longitude", "first"),
         end_lat=("latitude", "last"),
         end_lon=("longitude", "last"),
+        # 2026-07-10: is_military ucak-bazli SABIT bir ozellik (step2'nin
+        # load_enriched_aircraft_df'i zaten her noktaya isliyor) -- "first"
+        # yeterli, ayni ucagin tum noktalarinda ayni deger.
+        is_military=("is_military", "first"),
     ).reset_index()
     logger.info("Ham bacak sayisi (filtre oncesi): %d", len(legs))
     legs = legs[legs["n_points"] >= MIN_LEG_POINTS]
@@ -260,17 +264,42 @@ def main() -> None:
     legs = legs.dropna(subset=["country"])
 
     legs = enrich_legs_with_airports(legs, airports)
-    ranked = rank_routes(legs)
 
     VIZ_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    corridors = build_corridor_geojson(points_df, legs, ranked)
-    with (VIZ_DATA_DIR / "route_corridors.geojson").open("w", encoding="utf-8") as f:
-        json.dump(corridors, f)
-    logger.info("Yazildi: %s (%d hucre)", VIZ_DATA_DIR / "route_corridors.geojson", len(corridors["features"]))
+    # 2026-07-10 (kullanici istegi): "Tumu" (mevcut davranis, dosya adlari
+    # DEGISMEDI -- geriye donuk uyumlu) + Sivil-only + Askeri-only rota
+    # siralama/koridor. Ucak zaten is_military ile flaglenmis (bkz.
+    # step2.load_enriched_aircraft_df -- ana projenin lookup'undan JOIN
+    # edildi). Askeri ucus sayisi cok daha az olabilir (kullanici: "ek
+    # projede asgari uçak olmayabilir o kalabilir") -- bu durumda ilgili
+    # ulkeler o varyantta BASITCE gorunmez, hata degil.
+    variants = {
+        "": legs,
+        "_civil": legs[~legs["is_military"]],
+        "_military": legs[legs["is_military"]],
+    }
+    for suffix, legs_subset in variants.items():
+        label = suffix.lstrip("_") or "all"
+        if legs_subset.empty:
+            logger.warning("Varyant '%s': hic bacak yok, bos dosya yazilacak", label)
+            ranked = pd.DataFrame(columns=[
+                "country", "pair", "flight_count", "origin_icao", "dest_icao",
+                "rank", "is_top", "low_confidence",
+            ])
+            corridors = {"type": "FeatureCollection", "features": []}
+        else:
+            ranked = rank_routes(legs_subset)
+            corridors = build_corridor_geojson(points_df, legs_subset, ranked)
 
-    ranked.to_csv(DATA_DIR / "country_routes.csv", index=False)
-    logger.info("Yazildi: %s (%d ulke+rota)", DATA_DIR / "country_routes.csv", len(ranked))
+        corridors_path = VIZ_DATA_DIR / f"route_corridors{suffix}.geojson"
+        with corridors_path.open("w", encoding="utf-8") as f:
+            json.dump(corridors, f)
+        logger.info("Yazildi (%s): %s (%d hucre)", label, corridors_path, len(corridors["features"]))
+
+        routes_csv_path = DATA_DIR / f"country_routes{suffix}.csv"
+        ranked.to_csv(routes_csv_path, index=False)
+        logger.info("Yazildi (%s): %s (%d ulke+rota)", label, routes_csv_path, len(ranked))
 
 
 if __name__ == "__main__":

@@ -34,6 +34,17 @@ DATA_DIR = Path(__file__).parent / "data"
 VIZ_DATA_DIR = Path(__file__).parent / "viz" / "data"
 AIRCRAFT_CSV = DATA_DIR / "aircraft_dump_20260707_181141.csv"
 NE_COUNTRIES_GEOJSON = DATA_DIR / "ne_50m_admin_0_countries.geojson"
+# 2026-07-10 (kullanici istegi): bu projenin ham CSV dump'i (aircraft_dump_*)
+# dbFlags/is_military TASIMIYOR (sadece hex/seen_at/lat/lon/alt/velocity/
+# heading/callsign/source, bkz. modul disi arastirma). is_military UCAK-
+# BAZLI sabit bir ozellik oldugu icin, ana projenin (individual/metehan_geo)
+# TUM Gold verisini zaten tarayan build_flight_density.py'sinin URETTIGI
+# paylasilan lookup dosyasi -- her ucagin (hex/icao24) en az bir kere askeri
+# gorulup gorulmedigi -- burada "hex" uzerinden JOIN edilir. Ayri bir tam
+# taramaya GEREK YOK.
+MILITARY_LOOKUP_PARQUET = (
+    Path(__file__).parent.parent / "metehan_geo" / "viz" / "data" / "aircraft_military_lookup.parquet"
+)
 
 H3_RESOLUTION = 5
 
@@ -49,6 +60,21 @@ TIME_WINDOWS: dict[str, pd.Timedelta | None] = {
 }
 
 
+def load_military_lookup() -> dict[str, bool]:
+    """hex (icao24) -> is_military. Dosya yoksa (main proje henuz
+    build_flight_density.py'yi calistirmadiysa) bos sozluk doner --
+    her ucak varsayilan olarak sivil sayilir, feature sessizce devre disi
+    kalir (hata firlatmaz)."""
+    if not MILITARY_LOOKUP_PARQUET.exists():
+        logger.warning(
+            "%s bulunamadi -- once individual/metehan_geo/build_flight_density.py "
+            "calistirilmali, simdilik tum ucaklar sivil sayilacak", MILITARY_LOOKUP_PARQUET,
+        )
+        return {}
+    lookup_df = pd.read_parquet(MILITARY_LOOKUP_PARQUET)
+    return dict(zip(lookup_df["source_id"], lookup_df["is_military"]))
+
+
 def load_enriched_aircraft_df() -> pd.DataFrame:
     df = pd.read_csv(AIRCRAFT_CSV)
     df["seen_at"] = pd.to_datetime(df["seen_at"], utc=True, format="ISO8601")
@@ -57,6 +83,13 @@ def load_enriched_aircraft_df() -> pd.DataFrame:
     unique_hex = df["hex"].dropna().unique()
     hex_to_country = {h: lookup.lookup(h)[0] for h in unique_hex}
     df["country"] = df["hex"].map(hex_to_country)
+
+    military_lookup = load_military_lookup()
+    df["is_military"] = df["hex"].map(military_lookup).fillna(False).astype(bool)
+    logger.info(
+        "Askeri esleme: %d/%d benzersiz ucak (hex) askeri isaretli (lookup: %d ucak)",
+        int(df.loc[df["is_military"], "hex"].nunique()), df["hex"].nunique(), len(military_lookup),
+    )
     return df
 
 
@@ -108,6 +141,16 @@ def build_h3_layer_for_window(df: pd.DataFrame, window_label: str, delta: pd.Tim
     per_cell_country = (
         renamed.groupby(["h3_cell", "country"])["hex"].nunique().reset_index(name="hex_count")
     )
+    # 2026-07-10 (kullanici istegi): Uçak Türü (Sivil/Askeri) filtresi icin
+    # AYNI sayimi is_military kirilimiyla da hesapliyoruz -- dominant_country
+    # HALA toplam uzerinden secilir (degismiyor), sadece per_country_counts'un
+    # yaninda iki EK kirilim (civil/military) tasiniyor, frontend'de secime
+    # gore hangisinin kullanilacagina karar verilir (main projedeki
+    # flight_count_civil/flight_count_military ile AYNI desen).
+    per_cell_country_mil = (
+        renamed.groupby(["h3_cell", "country", "is_military"])["hex"].nunique().reset_index(name="hex_count")
+    )
+    mil_by_cell = {cell: g for cell, g in per_cell_country_mil.groupby("h3_cell")}
 
     features = []
     totals = []
@@ -118,6 +161,15 @@ def build_h3_layer_for_window(df: pd.DataFrame, window_label: str, delta: pd.Tim
         total = int(group["hex_count"].sum())
         top = group.loc[group["hex_count"].idxmax()]
         per_country_counts = {row.country: int(row.hex_count) for row in group.itertuples(index=False)}
+
+        per_country_counts_civil = {c: 0 for c in per_country_counts}
+        per_country_counts_military = {c: 0 for c in per_country_counts}
+        mil_group = mil_by_cell.get(cell)
+        if mil_group is not None:
+            for row in mil_group.itertuples(index=False):
+                target = per_country_counts_military if row.is_military else per_country_counts_civil
+                target[row.country] = target.get(row.country, 0) + int(row.hex_count)
+
         totals.append(total)
         features.append({
             "type": "Feature",
@@ -129,6 +181,8 @@ def build_h3_layer_for_window(df: pd.DataFrame, window_label: str, delta: pd.Tim
                 "dominant_ratio": round(int(top["hex_count"]) / total, 3),
                 "countries": sorted(per_country_counts.keys()),
                 "per_country_counts": per_country_counts,
+                "per_country_counts_civil": per_country_counts_civil,
+                "per_country_counts_military": per_country_counts_military,
             },
             "geometry": {"type": "Polygon", "coordinates": [ring]},
         })

@@ -49,6 +49,7 @@ GOLD_COLUMNS = [
     "source_type",
     "source_id",
     "label",
+    "is_military",
 ]
 
 # docs/PIPELINE_PLAN (1).md, "Gold ortak sema (7 temel kolon + metadata)" tablosu.
@@ -65,6 +66,7 @@ COLUMN_MAPS: dict[str, dict[str, str | None]] = {
         "source_type": "source_type",
         "source_id": "source_id",
         "label": None,  # adsb.lol'da etiket yok -- her zaman null.
+        "is_military": "is_military",  # 2026-07-10: dbFlags bit 1, bkz. parse_adsblol_historical.py
     },
     # Historical MinIO prefix alias (some tests use 'adsblol_hist')
     "adsblol_hist": {
@@ -78,6 +80,7 @@ COLUMN_MAPS: dict[str, dict[str, str | None]] = {
         "source_type": "source_type",
         "source_id": "source_id",
         "label": None,  # adsb.lol'da etiket yok -- her zaman null.
+        "is_military": "is_military",
     },
 
     "adsblol_realtime": {
@@ -91,6 +94,7 @@ COLUMN_MAPS: dict[str, dict[str, str | None]] = {
         "source_type": "source_type",
         "source_id": "source_id",
         "label": None,  # adsb.lol'da etiket yok -- her zaman null.
+        "is_military": "is_military",  # 2026-07-10: dbFlags bit 1, bkz. parse_adsblol_realtime.py
     },
     # Realtime MinIO prefix alias (some tests use 'adsblol_rt')
     "adsblol_rt": {
@@ -104,6 +108,7 @@ COLUMN_MAPS: dict[str, dict[str, str | None]] = {
         "source_type": "source_type",
         "source_id": "source_id",
         "label": None,  # adsb.lol'da etiket yok -- her zaman null.
+        "is_military": "is_military",
     },
     "alfa": {
         "timestamp_utc": "timestamp_utc",
@@ -120,6 +125,7 @@ COLUMN_MAPS: dict[str, dict[str, str | None]] = {
         "source_type": "source_type",
         "source_id": "source_id",
         "label": "label",
+        "is_military": None,  # adsb.lol disi kaynak -- dbFlags yok.
     },
     "uav_attack": {
         "timestamp_utc": "timestamp_utc",
@@ -134,6 +140,7 @@ COLUMN_MAPS: dict[str, dict[str, str | None]] = {
         "source_type": "source_type",
         "source_id": "source_id",
         "label": "label",
+        "is_military": None,
     },
     # UAV-SEAD: ayni PX4 uORB semantigi -- uav_attack ile birebir ayni eslesme.
     "uav_sead": {
@@ -147,6 +154,7 @@ COLUMN_MAPS: dict[str, dict[str, str | None]] = {
         "source_type": "source_type",
         "source_id": "source_id",
         "label": "label",
+        "is_military": None,
     },
 }
 

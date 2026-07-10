@@ -132,12 +132,25 @@
       </div>
     </div>
 
+    <div class="field" id="civMilField">
+      <label>Uçak Türü</label>
+      <div class="segmented" id="civMilSegmented">
+        <button type="button" data-value="all" class="active">Tümü</button>
+        <button type="button" data-value="civil">Sivil</button>
+        <button type="button" data-value="military">Askeri</button>
+      </div>
+    </div>
+
     <div id="limitNote">
       Bu harita, uçağın <b>tescilli olduğu</b> ülkeyi gösterir — o an
       <b>hangi ülke üzerinde uçtuğunu değil</b>. Bir ülke seçildiğinde, o
       ülkeye tescilli uçakların <b>geçtiği tüm hex'ler</b> gösterilir (sadece
       baskın olduğu hex'ler değil). Zaman aralığı, verinin kendi son kaydına
       (2026-07-07) göre hesaplanır.
+      <br><br><b>Uçak Türü:</b> adsb.lol verisinde uçaklar zaten asgari
+      sivil/askeri olarak flaglenmiştir. Bu veri setinde askeri uçuş sayısı
+      çok daha az olabilir — "Askeri" seçiliyken bazı ülkeler/rotalar hiç
+      görünmeyebilir, bu bir hata değildir.
     </div>
 
     <div id="routesHint" style="display:none; font-size: 10.5px; line-height: 1.5; color: #9d9da8; background: rgba(255, 138, 61, 0.1); border: 1px solid rgba(255, 138, 61, 0.3); border-radius: 8px; padding: 8px 10px;">
@@ -286,6 +299,22 @@ let currentTimeRange = "1d";
 let currentCountry = "";    // "" = Tum Ulkeler
 let currentView = "density";     // "density" | "routes"
 
+// --- Uçak Türü (Sivil/Askeri) filtresi (2026-07-10, kullanici istegi) ---
+// adsb.lol verisinde ucaklar zaten dbFlags ile asgari sivil/askeri flaglenmis.
+// Bu projenin ham CSV dump'i bu alani TASIMADIGI icin (bkz. step2.py'deki
+// arastirma notu), ana projenin (individual/metehan_geo) urettigi paylasilan
+// lookup dosyasindan JOIN edilip step2/step3 ciktilarina islendi -- burada
+// sadece HANGI onceden-hesaplanmis alanin/dosyanin kullanilacagini seciyoruz.
+let currentCivMil = "all"; // "all" | "civil" | "military"
+function civMilCountsFieldName() {
+  if (currentCivMil === "civil") return "per_country_counts_civil";
+  if (currentCivMil === "military") return "per_country_counts_military";
+  return "per_country_counts";
+}
+function sumCounts(dict) {
+  return Object.values(dict || {}).reduce((a, b) => a + b, 0);
+}
+
 const H3_FILES = { "1d": "data/h3_1d.geojson", "7d": "data/h3_7d.geojson", "30d": "data/h3_30d.geojson", "all": "data/h3_all.geojson" };
 const geojsonCache = new Map();
 
@@ -294,9 +323,21 @@ const geojsonCache = new Map();
 // ile ayni desen). Zaman araligindan BAGIMSIZ (rota rekonstruksiyonu TUM
 // 62 gunluk veriden, tek seferlik hesaplandi) -- bu yuzden currentTimeRange
 // degisince YENIDEN YUKLENMEZ (bkz. #routesHint aciklamasi).
-let routeCorridorsData = null;
+// 2026-07-10: Uçak Türü filtresi icin AYRI dosyalar -- step3_build_country_
+// routes.py "Tumu" (mevcut, degismedi) + "_civil" + "_military" varyantlarini
+// yaziyor, her biri kendi cache'inde tutuluyor (filtre degisince yeniden
+// fetch, ama AYNI filtreye tekrar donulunce cache'ten).
+const ROUTE_FILES = {
+  all: "data/route_corridors.geojson",
+  civil: "data/route_corridors_civil.geojson",
+  military: "data/route_corridors_military.geojson",
+};
+const routeCorridorsCache = new Map();
 async function ensureRouteDataLoaded() {
-  if (!routeCorridorsData) routeCorridorsData = await fetchJson("data/route_corridors.geojson");
+  if (!routeCorridorsCache.has(currentCivMil)) {
+    routeCorridorsCache.set(currentCivMil, await fetchJson(ROUTE_FILES[currentCivMil]));
+  }
+  return routeCorridorsCache.get(currentCivMil);
 }
 
 function setLegend(breaks) {
@@ -347,14 +388,24 @@ function populateCountrySelect() {
 // (number). "countries"/"per_country_counts" gibi ic ice yapilar buraya HIC
 // girmiyor (2026-07-08 duzeltmesi -- neden: asagidaki not).
 function buildViewGeojson() {
+  const countsField = civMilCountsFieldName();
   if (!currentCountry) {
     return {
       type: "FeatureCollection",
-      features: h3Data.features.map((f) => ({
-        type: "Feature",
-        properties: { h3_cell: f.properties.h3_cell, color_value: f.properties.total_hex_count },
-        geometry: f.geometry,
-      })),
+      features: h3Data.features
+        .map((f) => {
+          const value = currentCivMil === "all"
+            ? f.properties.total_hex_count
+            : sumCounts(f.properties[countsField]);
+          return {
+            type: "Feature",
+            properties: { h3_cell: f.properties.h3_cell, color_value: value },
+            geometry: f.geometry,
+          };
+        })
+        // Sivil/Askeri seciliyken bu turde hic ucak gecmeyen hexler
+        // (deger 0) gorunmemeli -- "Tumu" icin zaten hep >0 (no-op).
+        .filter((f) => f.properties.color_value > 0),
     };
   }
   // Ulke secili: SADECE baskin oldugu degil, UGRADIGI TUM hexler (2026-07-08
@@ -365,9 +416,10 @@ function buildViewGeojson() {
       .filter((f) => f.properties.countries.includes(currentCountry))
       .map((f) => ({
         type: "Feature",
-        properties: { h3_cell: f.properties.h3_cell, color_value: f.properties.per_country_counts[currentCountry] || 0 },
+        properties: { h3_cell: f.properties.h3_cell, color_value: (f.properties[countsField] || {})[currentCountry] || 0 },
         geometry: f.geometry,
-      })),
+      }))
+      .filter((f) => f.properties.color_value > 0),
   };
 }
 
@@ -378,13 +430,13 @@ function applyDensityView() {
   const viewGeojson = buildViewGeojson();
   source.setData(viewGeojson);
 
-  const breaks = currentCountry
-    // Renk: TOPLAM degil, SECILI ULKENIN o hucredeki kendi sayisi -- dinamik
-    // breaks (ana projenin realtime mantigi ile ayni yaklasim, sabit dagilim
-    // yerine anlik alt-kumeden hesaplaniyor).
+  // 2026-07-10: Uçak Türü "Tümü" DISINDA bir sey secildiginde de (ulke
+  // secili olmasa BILE) breaks'i DINAMIK hesapla -- h3Data.breaks Python'da
+  // TOPLAM dagilimina gore kalibre edildi, Sivil/Askeri alt-kumesi cok daha
+  // seyrek/farkli olabilir (sabit breaks kullanirsak neredeyse her hucre en
+  // dusuk kategoride gorunurdu).
+  const breaks = (currentCountry || currentCivMil !== "all")
     ? computeBreaksFromValues(viewGeojson.features.map((f) => f.properties.color_value))
-    // Varsayilan: TUM hexler, renk = toplam benzersiz ucak (bu pencerenin
-    // kendi onceden hesaplanmis breaks'i ile).
     : h3Data.breaks;
 
   map.setPaintProperty("h3-fill", "fill-color", log10ColorExpression(COLOR_FIELD, breaks));
@@ -493,13 +545,15 @@ async function applyRoutesView() {
   }
 
   document.getElementById("status").textContent = "rotalar yükleniyor...";
-  await ensureRouteDataLoaded();
+  const routeData = await ensureRouteDataLoaded();
 
-  const features = routeCorridorsData.features.filter((f) => f.properties.country === currentCountry);
+  const features = routeData.features.filter((f) => f.properties.country === currentCountry);
   map.getSource("route-corridors").setData({ type: "FeatureCollection", features });
 
   if (features.length === 0) {
-    document.getElementById("status").textContent = `${currentCountry}: bu ülke için yeterli rota verisi yok (min. 2 uçuşluk eşleşen rota bulunamadı)`;
+    const civMilNote = currentCivMil === "all" ? "" : ` (${currentCivMil === "civil" ? "Sivil" : "Askeri"} filtresinde)`;
+    document.getElementById("status").textContent =
+      `${currentCountry}: bu ülke için yeterli rota verisi yok${civMilNote} (min. 2 uçuşluk eşleşen rota bulunamadı)`;
     return;
   }
   // SADECE en sik rotaya (is_top) gore zoom -- TUM rotalarin (kisa yerel +
@@ -552,7 +606,9 @@ async function loadTimeRange(range) {
 // istegi) -- ozellikle sinir/havalimani yakini hexlerde tek ulke yaniltici
 // olabiliyor (ör. %55 A / %45 B), top-3 gercek kompozisyonu gosterir.
 function topCountries(properties, n = 3) {
-  return Object.entries(properties.per_country_counts)
+  const counts = properties[civMilCountsFieldName()] || properties.per_country_counts;
+  return Object.entries(counts)
+    .filter(([, count]) => count > 0)
     .sort((a, b) => b[1] - a[1])
     .slice(0, n);
 }
@@ -575,10 +631,15 @@ function wireHoverPopup() {
       .join("");
     let selectedNote = "";
     if (currentCountry && !top3.some(([c]) => c === currentCountry)) {
-      const own = props.per_country_counts[currentCountry] || 0;
+      const counts = props[civMilCountsFieldName()] || props.per_country_counts;
+      const own = counts[currentCountry] || 0;
       selectedNote = `<div class="popup-row">… ${currentCountry}: <b>${own}</b></div>`;
     }
-    const html = `<div class="popup-title">Toplam: ${props.total_hex_count} uçak</div>${rows}${selectedNote}`;
+    const totalForFilter = currentCivMil === "all"
+      ? props.total_hex_count
+      : sumCounts(props[civMilCountsFieldName()]);
+    const civMilLabel = currentCivMil === "all" ? "Toplam" : currentCivMil === "civil" ? "Sivil" : "Askeri";
+    const html = `<div class="popup-title">${civMilLabel}: ${totalForFilter} uçak</div>${rows}${selectedNote}`;
     popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
   });
   map.on("mouseleave", "h3-fill", () => {
@@ -624,6 +685,14 @@ document.getElementById("viewSegmented").addEventListener("click", (e) => {
   for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
   currentView = btn.dataset.value;
   updateFieldVisibilityForView();
+  applyView();
+});
+
+document.getElementById("civMilSegmented").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-value]");
+  if (!btn) return;
+  for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
+  currentCivMil = btn.dataset.value;
   applyView();
 });
 
