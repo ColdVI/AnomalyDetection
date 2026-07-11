@@ -315,6 +315,16 @@ STALE_SIGNAL_OPACITY = 0.35  # esigi asan ucaklarin gorunecegi soluk deger
                               # (0 degil -- tamamen kaybolmasin, hep bir iz kalsin)
 
 
+def _signal_opacity(signal_age_sec, staleness_threshold_sec):
+    """update_map icindeki ucak opacity hesabi -- test edilebilirlik icin
+    ayri bir pure fonksiyona cikarildi. signal_age_sec None ise (kaynak
+    saglamiyorsa) GUVENLI VARSAYILAN: tam opak (dim etmeyecek kadar
+    bilgimiz yok). Degilse ikili: esigin ALTI tam opak, USTU sabit soluk."""
+    if signal_age_sec is None:
+        return 1.0
+    return 1.0 if signal_age_sec <= staleness_threshold_sec else STALE_SIGNAL_OPACITY
+
+
 def _format_staleness_label(sec, lang):
     """Saniyeyi kullaniciya okunakli sn/dk/sa (TR) ya da s/m/h (EN)
     etiketine cevirir -- SIGNAL_STALENESS_OPTIONS listesindeki tum
@@ -982,9 +992,14 @@ def _run_api():
     uvicorn.run(app_api, host="0.0.0.0", port=8000, log_level="warning")
 
 
-threading.Thread(target=_run_api, daemon=True).start()
-time.sleep(2)
-print("FastAPI hazir (port 8000)")
+# ONEMLI (test edilebilirlik): bu THREAD BASLATMA + BLOKLAYICI sleep ONCEDEN
+# modul seviyesindeydi -- yani sadece "import app" yapmak (orn. bir test
+# dosyasindan pure bir fonksiyonu kullanmak icin) bile GERCEK bir HTTP
+# sunucusunu arka planda ANINDA baslatiyordu, hic istenmeden. Docker'daki
+# CMD zaten "python app.py" oldugu icin (bkz. Dockerfile) bu kod hala
+# TAM OLARAK AYNI ANDA calisir -- __main__ bloguna tasinmasi uretim
+# davranisini DEGISTIRMEZ, sadece "import Dashboard.app" artik yan etkisiz
+# (hermetik test edilebilir) hale gelir.
 
 # --------------------------------------------------------------------- Dash --
 
@@ -2321,6 +2336,26 @@ _altitude_map_seq_lock = threading.Lock()
 _altitude_map_latest_seq = 0
 
 
+def _passes_filter(f, show_civil, show_military, show_ground, alt_lo_m, alt_hi_m):
+    """update_map icindeki ucak-listesi filtresi -- test edilebilirlik icin
+    (eskiden update_map'in icinde bir closure'du) modul seviyesine tasindi.
+    ONEMLI: alt_lo_m/alt_hi_m sinirlarini caniran taraf (update_map)
+    saglamali -- "sinirsiz" sentinel degerleri -1_000_000/1_000_000'dir,
+    GERCEK 0 DEGIL (bkz. update_altitude_filter_range'deki alt sinir
+    yorumu -- 0 kullanilsaydi, yerdeki/pistteki ucaklarin dogal olarak
+    HAFIF NEGATIF gelen barometrik irtifasi yanlislikla filtrelenirdi,
+    gercekten yasanmis bir hataydi)."""
+    is_mil = bool(f.get("is_military"))
+    if not (show_military if is_mil else show_civil):
+        return False
+    if f.get("is_ground") and not show_ground:
+        return False
+    alt = f.get("alt")
+    if alt is not None and not (alt_lo_m <= alt <= alt_hi_m):
+        return False
+    return True
+
+
 @app_dash.callback(
     [Output("aircraft-raw", "data"), Output("status-main", "children"),
      Output("emergency-alerts-data", "data"), Output("status-alarm", "children")],
@@ -2415,24 +2450,14 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_
     # (alt=None) FILTRELENMIYOR (guvenli varsayilan, sahte bir "irtifa
     # araligi disinda" varsaymiyoruz).
     alt_lo_m, alt_hi_m = (altitude_filter_range if altitude_filter_range
-                          and len(altitude_filter_range) == 2 else (0, 1_000_000))
-
-    def _passes_filter(f):
-        is_mil = bool(f.get("is_military"))
-        if not (show_military if is_mil else show_civil):
-            return False
-        if f.get("is_ground") and not show_ground:
-            return False
-        alt = f.get("alt")
-        if alt is not None and not (alt_lo_m <= alt <= alt_hi_m):
-            return False
-        return True
+                          and len(altitude_filter_range) == 2 else (-1_000_000, 1_000_000))
 
     total_flight_count = len(flights)  # HICBIR filtre (sivil/askeri/yerde/
                                         # irtifa/firma) uygulanmadan ONCEKI
                                         # toplam -- status cubugundaki
                                         # "toplam" sayisi bu (bkz. asagida)
-    flights = [f for f in flights if _passes_filter(f)]
+    flights = [f for f in flights
+               if _passes_filter(f, show_civil, show_military, show_ground, alt_lo_m, alt_hi_m)]
 
     # Her ucak icin GOSTERIME HAZIR (formatlanmis) degerleri Python'da
     # hesaplayip duz bir sozluge koyuyoruz -- ceviri (t[...]) ve sayi
@@ -2475,12 +2500,9 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_
         # signal_age_sec None ise (kaynak saglamiyorsa) GUVENLI VARSAYILAN:
         # tam opak (dim etmeyecek kadar bilgimiz yok).
         signal_age = f.get("signal_age_sec")
-        if signal_age is None:
-            opacity = 1.0
-            signal_age_text = None
-        else:
-            opacity = 1.0 if signal_age <= staleness_threshold else STALE_SIGNAL_OPACITY
-            signal_age_text = f"{signal_age:.0f}sn" if signal_age >= 10 else None
+        opacity = _signal_opacity(signal_age, staleness_threshold)
+        signal_age_text = (f"{signal_age:.0f}sn"
+                           if signal_age is not None and signal_age >= 10 else None)
 
         lat, lon = f.get("lat", 39), f.get("lon", 35)
         track = f.get("track") or 0
@@ -4208,5 +4230,8 @@ app_dash.clientside_callback(
 
 
 if __name__ == "__main__":
+    threading.Thread(target=_run_api, daemon=True).start()
+    time.sleep(2)
+    print("FastAPI hazir (port 8000)")
     print("Dash başlıyor: http://localhost:8050")
     app_dash.run(host="0.0.0.0", port=8050, debug=False, use_reloader=False)
