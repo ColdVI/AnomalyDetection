@@ -18,6 +18,7 @@ import math
 import os
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo, available_timezones
@@ -123,6 +124,7 @@ TEXTS = {
         "replay_no_data": "⚠ Bu aralıkta veri bulunamadı — tarih/saat seçili mi?",
         "replay_loaded_label": "✓ {n} kare yüklendi — ▶ ile başlat",
         "replay_live_label": "Canlıya Dön",
+        "altitude_legend_title": "İRTİFA (m)",
         "data_source_label": "Veri Kaynağı",
         "data_source_active": "Aktif: {source}",
         "data_source_pending": "İsteniyor: {requested} · aktif: {active} (geçiş bekleniyor)",
@@ -148,7 +150,8 @@ TEXTS = {
         "field_squawk": "Squawk",
         "field_last_update": "Son Güncelleme",
         "emergency_squawk": "ACİL DURUM SQUAWK: {squawk}",
-        "status_bar": "{ts} | {n} aktif uçuş | {a} alarm",
+        "status_bar_main": "{ts} | {n} aktif uçuş",
+        "status_bar_alarm": " | {a} alarm",
         "history_alt_label": "İrtifa (m)",
         "history_speed_label": "Hız (m/s)",
         "no_data": "Veri bulunamadı",
@@ -161,6 +164,7 @@ TEXTS = {
         "filter_civil_label": "Sivil",
         "filter_military_label": "Askeri",
         "filter_ground_label": "Yerde",
+        "airline_filter_placeholder": "Firma...",
         "field_military": "Askeri mi",
         "military_yes": "Evet",
         "military_no": "Hayır",
@@ -172,6 +176,8 @@ TEXTS = {
         "map_style_label": "Harita Türü",
         "map_style_street": "Sokak",
         "map_style_satellite": "Uydu",
+        "map_style_dark": "Karanlık",
+        "signal_staleness_label": "Sinyal Yaşı Eşiği",
     },
     "en": {
         "settings_title": "Settings",
@@ -195,6 +201,7 @@ TEXTS = {
         "replay_no_data": "⚠ No data found in this range — is a date/time selected?",
         "replay_loaded_label": "✓ {n} frames loaded — press ▶ to start",
         "replay_live_label": "Return to Live",
+        "altitude_legend_title": "ALTITUDE (m)",
         "data_source_label": "Data Source",
         "data_source_active": "Active: {source}",
         "data_source_pending": "Requested: {requested} · active: {active} (switch pending)",
@@ -220,7 +227,8 @@ TEXTS = {
         "field_squawk": "Squawk",
         "field_last_update": "Last Update",
         "emergency_squawk": "EMERGENCY SQUAWK: {squawk}",
-        "status_bar": "{ts} | {n} active flights | {a} alerts",
+        "status_bar_main": "{ts} | {n} active flights",
+        "status_bar_alarm": " | {a} alerts",
         "history_alt_label": "Altitude (m)",
         "history_speed_label": "Speed (m/s)",
         "no_data": "No data found",
@@ -233,6 +241,7 @@ TEXTS = {
         "filter_civil_label": "Civilian",
         "filter_military_label": "Military",
         "filter_ground_label": "Ground",
+        "airline_filter_placeholder": "Airline...",
         "field_military": "Military",
         "military_yes": "Yes",
         "military_no": "No",
@@ -244,6 +253,8 @@ TEXTS = {
         "map_style_label": "Map Style",
         "map_style_street": "Street",
         "map_style_satellite": "Satellite",
+        "map_style_dark": "Dark",
+        "signal_staleness_label": "Signal Age Threshold",
     },
 }
 
@@ -278,8 +289,47 @@ TILE_LAYERS = {
         "url": "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
         "attribution": "Map data © Google",
     },
+    # CARTO Dark Matter -- API anahtari gerektirmiyor, "satellite"teki AYNI
+    # sebeple (bkz. yukaridaki {s} subdomain yorumu) TEK sabit subdomain
+    # ("a.basemaps...") kullaniliyor, dinamik subdomain rotasyonu YOK.
+    "dark": {
+        "url": "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+        "attribution": "© OpenStreetMap contributors © CARTO",
+    },
 }
-DEFAULT_MAP_STYLE = "street"
+DEFAULT_MAP_STYLE = "dark"
+
+# Kullanicinin ayarlardan sectigi "bayat sinyal" esigi (saniye) -- bu
+# esigin ALTINDAKI ucaklar tam opak, USTUNDEKILER soluk (bkz. update_map
+# icindeki opacity hesabi). Onceden SABIT bir 10-40sn dogrusal soluklasma
+# vardi -- adsb.lol (60sn'de bir sorgulama) icin makuldu ama OpenSky
+# (90-300sn'de bir sorgulama, bkz. adsb_producer.py SOURCES) icin neredeyse
+# HER ucak daha ilk fetch'te esigin ustune cikip ekrandaki NEREDEYSE TUM
+# filo soluk gorunuyordu -- kullanici geri bildirimi bu. Kaynaga gore SABIT
+# bir esik yerine, kullanicinin secili kaynaga gore kendi esigini ayarlar
+# panelinden secmesini sagliyoruz.
+SIGNAL_STALENESS_OPTIONS = [30, 60, 120, 300, 600, 1800, 3600]  # saniye --
+                            # 30sn/1dk/2dk/5dk/10dk/30dk/1sa
+DEFAULT_SIGNAL_STALENESS_SEC = 60
+STALE_SIGNAL_OPACITY = 0.35  # esigi asan ucaklarin gorunecegi soluk deger
+                              # (0 degil -- tamamen kaybolmasin, hep bir iz kalsin)
+
+
+def _format_staleness_label(sec, lang):
+    """Saniyeyi kullaniciya okunakli sn/dk/sa (TR) ya da s/m/h (EN)
+    etiketine cevirir -- SIGNAL_STALENESS_OPTIONS listesindeki tum
+    degerler 60'in ya da 3600'un tam kati oldugu icin kesirli sonuc
+    gelmez, ekstra yuvarlama gerekmiyor."""
+    if sec < 60:
+        return f"{sec}sn" if lang == "tr" else f"{sec}s"
+    if sec < 3600:
+        return f"{sec // 60}dk" if lang == "tr" else f"{sec // 60}m"
+    return f"{sec // 3600}sa" if lang == "tr" else f"{sec // 3600}h"
+
+
+def _build_signal_staleness_options(lang):
+    return [{"label": _format_staleness_label(s, lang), "value": s}
+            for s in SIGNAL_STALENESS_OPTIONS]
 
 # ONEMLI: REDIS_HOST/INFLUX_HOST/INFLUX_TOKEN artik ortam degiskeniyle
 # ayarlanabilir -- Windows'ta native calisirken (setup_local_windows.py)
@@ -703,6 +753,17 @@ def _query_replay_frame_cached(start_s: str, end_s: str) -> str:
     BASA SARDIGI icin (bkz. o fonksiyonun yorumu) ayni kareler defalarca
     istenir -- ilk turdan sonraki turlar artik InfluxDB'ye HIC gitmeden,
     ANINDA cache'ten donuyor."""
+    # ONEMLI (performans -- kullanici geri bildirimi "1de takılı kalıyor,
+    # durdurunca 8e geçiyor", olcumle DOGRULANDI: bu sorgu tek basina ~5sn
+    # surerken oynatma tick'i sabit 2sn'de bir -- yani NORMAL 1x oynatmada
+    # bile HER ZAMAN ust uste binen istekler oluyordu). Kok neden: bu
+    # pencerede (step_sec, genelde 30sn) TUM ucaklarin TUM ham noktalari
+    # cekilip pandada groupby(...).last() ile "ucak basina EN SON nokta"
+    # cikariliyordu -- binlerce ucagin HER BIRI icin 5-10+ ham nokta
+    # InfluxDB'den tarayiciya/pandaya tasiniyor, sadece SONUNCUSU
+    # tutuluyordu. Flux'in KENDI last() agregasyonuyla (group+last, alan
+    # bazinda) ayni indirgeme InfluxDB TARAFINDA yapiliyor -- agdan/
+    # pandadan gecen veri miktari dusuyor, sorgu suresi buna gore kisaliyor.
     flux = f'''
     from(bucket: "{INFLUX_BUCKET}")
       |> range(start: {start_s}, stop: {end_s})
@@ -710,6 +771,9 @@ def _query_replay_frame_cached(start_s: str, end_s: str) -> str:
       |> filter(fn: (r) => r["_field"] == "lat" or r["_field"] == "lon"
                          or r["_field"] == "alt" or r["_field"] == "track"
                          or r["_field"] == "velocity")
+      |> group(columns: ["icao24", "_field"])
+      |> last()
+      |> group()
       |> pivot(rowKey: ["_time", "icao24"], columnKey: ["_field"], valueColumn: "_value")
     '''
     try:
@@ -851,10 +915,26 @@ def get_flight_segments(icao24: str):
         # zenginlestiriyoruz (GEOCODE_MAX_LOOKUPS_PER_REQUEST / 2, cunku
         # her segment 2 lookup -- baslangic+bitis). Geri kalanlar icin
         # frontend start_lat/lon'dan koordinat gosterir.
-        for seg in segments[:GEOCODE_MAX_LOOKUPS_PER_REQUEST // 2]:
-            seg["start_place"] = _reverse_geocode(seg["start_lat"], seg["start_lon"])
-            seg["end_place"] = _reverse_geocode(seg["end_lat"], seg["end_lon"])
-        for seg in segments[GEOCODE_MAX_LOOKUPS_PER_REQUEST // 2:]:
+        #
+        # ONEMLI (kullanici geri bildirimi -- "geçmiş uçuşlar çok geç
+        # çalışıyor"): bu 16'ya kadar lookup ESKIDEN SIRAYLA (tek tek)
+        # yapiliyordu -- her biri Nominatim'e giden GERCEK bir HTTP istegi,
+        # 4sn timeout'lu. Sogutulmus (hic cache'lenmemis) bir ucak icin
+        # bu 16 x ~0.3-4sn = TOPLAMDA onlarca saniye SIRAYLA bekleme
+        # demekti. Lookup'lar birbirinden BAGIMSIZ (farkli lat/lon) --
+        # ThreadPoolExecutor ile PARALEL calistiriliyor, toplam sure artik
+        # ~16 istegin TOPLAMI degil, EN YAVAS TEKIL istegin suresi kadar.
+        to_geocode = segments[:GEOCODE_MAX_LOOKUPS_PER_REQUEST // 2]
+        rest = segments[GEOCODE_MAX_LOOKUPS_PER_REQUEST // 2:]
+        if to_geocode:
+            with ThreadPoolExecutor(max_workers=GEOCODE_MAX_LOOKUPS_PER_REQUEST) as pool:
+                futures = {}
+                for seg in to_geocode:
+                    futures[pool.submit(_reverse_geocode, seg["start_lat"], seg["start_lon"])] = (seg, "start_place")
+                    futures[pool.submit(_reverse_geocode, seg["end_lat"], seg["end_lon"])] = (seg, "end_place")
+                for fut, (seg, key) in futures.items():
+                    seg[key] = fut.result()
+        for seg in rest:
             seg["start_place"] = None
             seg["end_place"] = None
 
@@ -1024,66 +1104,172 @@ app_dash.index_string = '''
             .leaflet-tooltip-left:before  { border-left-color: #2a2a4a !important; }
             .leaflet-tooltip-right:before { border-right-color: #2a2a4a !important; }
 
-            /* Saat dilimi secimi: dcc.Dropdown eski react-select tabanli,
-               varsayilan beyaz/acik tema kullaniyor. Kapali kutu, acik
-               menu ve secenek satirlarinin HEPSINI ayri ayri koyu temaya
-               ceviriyoruz -- daha once sadece disaridaki kutu (.Select-control)
-               denenmisti, acilan menu (.Select-menu-outer / secenekler)
-               beyaz kalmisti, bu yuzden burada eksiksiz kapsiyoruz. */
-            .dark-dropdown .Select-control,
-            .dark-dropdown.is-open .Select-control,
-            .dark-dropdown.is-focused .Select-control,
-            .dark-dropdown.is-focused:not(.is-open) .Select-control {
+            /* Sol-ust +/- yakinlastirma butonlari -- Leaflet'in varsayilani
+               beyaz kutu/siyah yazi, koyu temaya uydurmak icin gecersiz
+               kiliyoruz (digerleriyle AYNI renk paleti: #161625/#2a2a4a). */
+            .leaflet-control-zoom {
+                border: 1px solid #2a2a4a !important;
+            }
+            .leaflet-control-zoom-in,
+            .leaflet-control-zoom-out {
+                background-color: #161625 !important;
+                color: #c8d0e0 !important;
+                border-color: #2a2a4a !important;
+            }
+            .leaflet-control-zoom-in:hover,
+            .leaflet-control-zoom-out:hover {
+                background-color: #22224a !important;
+                color: #ffffff !important;
+            }
+
+            /* dcc.Dropdown -- Dash 4.x KENDI bilesenini kullaniyor (Radix UI
+               tabanli, sinif isimleri dash-dropdown-*, RangeSlider'daki AYNI
+               surum degisikligi -- bkz. .altitude-slider yorumu asagida).
+               ONEMLI: acilan panel (.dash-dropdown-content) PORTAL'a
+               (document.body'ye) render ediliyor -- .dark-dropdown'in
+               ALTINDA/icinde DEGIL, o yuzden panel kurallari .dark-dropdown
+               ile KAPSANMIYOR, GLOBAL uygulaniyor (projede zaten baska/acik
+               temali bir dropdown yok, hepsi koyu tema kullaniyor). ESKI
+               .Select-x / .VirtualizedSelectOption kurallari (react-select
+               dönemınden kalma) gercek DOM'da hic eslesmiyordu, kaldirildi.
+               Gercek sinif adlari, calisan container icindeki
+               dash/dcc/async-dropdown.js dosyasindan dogrulandi. */
+            .dark-dropdown.dash-dropdown {
                 background-color: #161625 !important;
                 border: 1px solid #2a2a4a !important;
                 border-radius: 6px !important;
                 color: #c8d0e0 !important;
+            }
+            .dark-dropdown .dash-dropdown-value,
+            .dark-dropdown .dash-dropdown-placeholder,
+            .dark-dropdown .dash-dropdown-trigger-icon {
+                color: #c8d0e0 !important;
+            }
+            /* ONEMLI (kullanici geri bildirimi -- "firmalari kaydirdigimizda
+               search'un altinda kaliyorlar"): panelin KENDISI (.dash-dropdown-content,
+               inline max-height'i olan disaridaki kutu) tek parca olarak
+               kayiyordu -- search/actions/liste HEPSI birlikte scroll
+               oluyordu. flex column + overflow:hidden ile panelin kendisi
+               ARTIK KAYMIYOR; search-container ve actions flex-shrink:0 ile
+               SABIT kaliyor, SADECE .dash-dropdown-options (liste) kendi
+               ic scroll'unu aliyor (overflow-y:auto + flex:1). */
+            .dash-dropdown-content {
+                background-color: #161625 !important;
+                border: 1px solid #2a2a4a !important;
+                border-radius: 6px !important;
+                z-index: 2000 !important;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.6) !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
+            }
+            .dash-dropdown-search-container {
+                background-color: #161625 !important;
+                border-bottom: 1px solid #2a2a4a !important;
+                flex-shrink: 0 !important;
+            }
+            /* ONEMLI (kullanici geri bildirimi -- "kutunun kendisi hala
+               beyaz"): arama <input type="search"> Chrome'un varsayilan
+               beyaz kutu gorunumunu KENDI UA stiliyle getiriyor,
+               background-color:transparent tek basina bunu SILMIYOR --
+               -webkit-appearance:none ile varsayilan gorunum tamamen
+               kaldirilip KENDI koyu arka planimiz veriliyor. */
+            .dash-dropdown-search {
+                background-color: #161625 !important;
+                color: #c8d0e0 !important;
+                border: none !important;
+                -webkit-appearance: none !important;
+                appearance: none !important;
                 box-shadow: none !important;
             }
-            .dark-dropdown .Select-value-label,
-            .dark-dropdown .Select-placeholder,
-            .dark-dropdown .Select-input > input {
+            .dash-dropdown-search::placeholder {
+                color: #666 !important;
+            }
+            .dash-dropdown-search-icon {
+                color: #888 !important;
+            }
+            .dash-dropdown-actions {
+                background-color: #161625 !important;
+                border-bottom: 1px solid #2a2a4a !important;
+                flex-shrink: 0 !important;
+            }
+            .dash-dropdown-action-button {
+                background: transparent !important;
+                color: #00b4d8 !important;
+            }
+            .dash-dropdown-options {
+                overflow-y: auto !important;
+                flex: 1 1 auto !important;
+                min-height: 0 !important;
+            }
+            .dash-dropdown-option {
+                background-color: #161625 !important;
                 color: #c8d0e0 !important;
             }
-            .dark-dropdown .Select-arrow {
-                border-color: #c8d0e0 transparent transparent !important;
-            }
-            .dark-dropdown .Select-menu-outer {
-                background-color: #161625 !important;
-                border: 1px solid #2a2a4a !important;
-                border-radius: 6px !important;
-                z-index: 1500 !important;
-                box-shadow: 0 8px 24px rgba(0,0,0,0.6) !important;
-            }
-            .dark-dropdown .Select-menu {
-                background-color: #161625 !important;
-            }
-            .dark-dropdown .Select-option {
-                background-color: #161625 !important;
-                color: #c8d0e0 !important;
-            }
-            .dark-dropdown .Select-option.is-focused {
+            .dash-dropdown-option:hover {
                 background-color: #22224a !important;
                 color: #ffffff !important;
             }
-            .dark-dropdown .Select-option.is-selected {
-                background-color: #00b4d8 !important;
-                color: #07070e !important;
+            .dash-dropdown-option[aria-selected="true"] {
+                background-color: #0d3a45 !important;
+                color: #00b4d8 !important;
             }
-            /* Dash Dropdown buyuk listelerde react-virtualized-select
-               kullanabiliyor, o zaman secenekler yukaridaki .Select-option
-               yerine bu siniflarla geliyor -- ikisini de kapsiyoruz. */
-            .dark-dropdown .VirtualizedSelectOption {
-                background-color: #161625 !important;
+            .dash-options-list-option-checkbox {
+                accent-color: #00b4d8;
+            }
+            /* ONEMLI (kullanici geri bildirimi -- "yazilarin altinda koyu
+               mavi gibi bir sey kalmis"): secili deger(ler) .dash-dropdown-
+               value-item span'ina sariliyor; buna ayrica bir arka plan
+               (#22224a) verilince disaridaki kutunun (#161625) icinde
+               "kutu icinde kutu" gorunumu olusuyordu -- hem tekli (saat
+               dilimi) hem coklu (firma) secimde. Arka plani seffaf yapip
+               metnin dogrudan disaridaki koyu zemin uzerinde durmasini
+               sagliyoruz. */
+            .dash-dropdown-value-item {
+                background-color: transparent !important;
                 color: #c8d0e0 !important;
             }
-            .dark-dropdown .VirtualizedSelectFocusedOption {
-                background-color: #22224a !important;
-                color: #ffffff !important;
+            /* Irtifa filtre kaydiricisi -- Dash 4.x KENDI slider bilesenini
+               kullaniyor (Radix UI tabanli), sinif isimleri dash-slider-*
+               (bkz. site-packages/dash/dcc/dash_core_components.js). */
+            .altitude-slider .dash-range-slider-min-input,
+            .altitude-slider .dash-range-slider-max-input {
+                display: none !important;
             }
-            .dark-dropdown .VirtualizedSelectSelectedOption {
-                background-color: #00b4d8 !important;
-                color: #07070e !important;
+            .altitude-slider .dash-slider-container {
+                gap: 0 !important;
+            }
+            .altitude-slider .dash-slider-root {
+                padding: 0 !important;
+                height: 12px !important;
+            }
+            .altitude-slider .dash-slider-track {
+                background-color: rgba(7, 7, 14, 0.72) !important;
+                height: 12px !important;
+                border-radius: 3px !important;
+            }
+            .altitude-slider .dash-slider-range {
+                background-color: transparent !important;
+            }
+            .altitude-slider .dash-slider-mark,
+            .altitude-slider .dash-slider-dot {
+                display: none !important;
+            }
+            .altitude-slider .dash-slider-tooltip {
+                display: none !important;
+            }
+            .altitude-slider .dash-slider-thumb {
+                width: 15px !important;
+                height: 15px !important;
+                background-color: #ffffff !important;
+                border: 2px solid #07070e !important;
+                box-shadow: 0 0 4px rgba(0, 0, 0, 0.7) !important;
+            }
+            .altitude-slider .dash-slider-thumb:hover,
+            .altitude-slider .dash-slider-thumb:focus {
+                border-color: #00b4d8 !important;
+                box-shadow: 0 0 0 4px rgba(0, 180, 216, 0.3) !important;
+                transform: scale(1.125);
             }
         </style>
     </head>
@@ -1174,6 +1360,23 @@ REPLAY_COLOR = "#f7b731"  # canli haritadaki (#00b4d8) mavi/askeri yesilden AYRI
 
 DEFAULT_TIMEZONE = 3  # UTC+3, Turkiye -- dropdown "value" olarak int kullanilir
 
+
+def _build_timezone_options(lang):
+    """update_timezone_options callback'iyle AYNI liste -- ilk render'da da
+    kullanilir (bkz. asagidaki dcc.Dropdown). ONEMLI: dropdown ilk acilista
+    options=[] ile baslarsa, value=DEFAULT_TIMEZONE hicbir secenekle
+    eslesmedigi icin bilesen kendi icinde value'yu null'a sifirliyordu --
+    saat dilimi kutusu kullanici elle bir sey secene kadar BOS gorunuyordu.
+    Liste ilk render'da dolu geldigi icin bu yaris artik olusmuyor."""
+    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
+    options = []
+    for h in range(-12, 15):
+        label = f"UTC{h:+d}"
+        if h == DEFAULT_TIMEZONE:
+            label += t["tz_default_suffix"]
+        options.append({"label": label, "value": h})
+    return options
+
 # Haritadaki rota izi (polyline) artik sabit saat degil, "son ucus" --
 # gercek ucus/blok verisi olmadigi icin bir HEURISTIK: ardisik iki konum
 # noktasi arasinda bu esikten (dakika) BUYUK bir bosluk, "onceki ucus
@@ -1223,58 +1426,132 @@ DEFAULT_AIRCRAFT_COLOR = "#00b4d8"
 MILITARY_COLOR = "#8a9a5b"
 ALERT_COLOR = "#e63946"
 
-# ONEMLI: adsb.lol/tar1090'daki irtifa renk semasi (kullanicinin verdigi
-# legend goruntusuyle uyumlu) -- (irtifa_ft, hex) duraklari, ikisi
-# arasinda DOGRUSAL RGB interpolasyonu yapiliyor (bkz. _altitude_to_color).
-# Duraklarin SIKLIGI dusuk irtifada YUKSEK (0-10000ft arasi 7 durak),
-# yuksek irtifada DUSUK (10000-40000ft arasi 3 durak) -- bu, legend
-# goruntusundeki (esit araliklarli DEGIL) tik isaretleriyle birebir ayni,
-# alcak irtifadaki (havaalani yakini, trafik yogun) renk degisimini daha
-# hassas gostermek icin.
+# ONEMLI (kullanici geri bildirimi -- bkz. proje sohbet gecmisi: "900ler
+# hala 2000den 4000e geçerken gidiyor"): duraklar ESKIDEN feet cinsindeydi
+# (adsb.lol/tar1090 esintili), ama ucak bilgi paneli irtifayi HER YERDE
+# METRE gosteriyor -- iki farkli birimin ayni sayilarmis gibi (900 ile
+# 2000/4000) karsilastirilmasi kafa karistiriyordu (900m ~= 2953ft, yani
+# GERCEKTEN 2000ft-4000ft arasinda kaliyordu -- filtre matematigi dogruydu,
+# birim gosterimi tutarsizdi). COZUM: TUM sistem (duraklar, kaydirici,
+# lejant, renk esikleri) artik METRE uzerinden calisiyor, ft<->m cevirisi
+# TAMAMEN kaldirildi -- gosterilen sayi ile ic hesaplama HER ZAMAN ayni
+# birimde. Duraklarin SIKLIGI yine dusuk irtifada YUKSEK, yuksek irtifada
+# DUSUK (alcak irtifadaki -- havaalani yakini, trafik yogun -- renk
+# degisimini daha hassas gostermek icin).
 ALTITUDE_COLOR_STOPS = [
     (0,     "#e8551f"),
-    (500,   "#ed7a1f"),
-    (1000,  "#f0971f"),
-    (2000,  "#e8c81f"),
-    (4000,  "#c8d820"),
-    (6000,  "#78c840"),
-    (8000,  "#38b868"),
-    (10000, "#20a8a0"),
-    (20000, "#2078c8"),
-    (30000, "#3050d8"),
-    (40000, "#9040c8"),  # 40000ft+ -- legend'de "40 000+" olarak sabit
+    (200,   "#ed7a1f"),
+    (500,   "#f0971f"),
+    (1000,  "#e8c81f"),
+    (2000,  "#c8d820"),
+    (3000,  "#78c840"),
+    (4000,  "#38b868"),
+    (6000,  "#20a8a0"),
+    (8000,  "#2078c8"),
+    (10000, "#3050d8"),
+    (12000, "#9040c8"),  # 12000m+ -- legend'de "12 000+" olarak sabit
 ]
-_ALT_STOP_FT = [s[0] for s in ALTITUDE_COLOR_STOPS]
+_ALT_STOP_M = [s[0] for s in ALTITUDE_COLOR_STOPS]
 _ALT_STOP_RGB = [tuple(int(hexc[i:i + 2], 16) for i in (1, 3, 5)) for _, hexc in ALTITUDE_COLOR_STOPS]
 
 
 def _altitude_to_color(alt_m):
-    """Metre cinsinden irtifayi (bizim ic semamiz metre kullanir, bkz.
-    _normalize_common) ALTITUDE_COLOR_STOPS'a (ft) gore bir hex renge
-    cevirir. None/eksikse (kaynak saglamiyorsa) notr bir gri doner --
-    sahte bir irtifa varsaymiyoruz."""
+    """Metre cinsinden irtifayi ALTITUDE_COLOR_STOPS'a (o da metre) gore
+    bir hex renge cevirir. None/eksikse (kaynak saglamiyorsa) notr bir gri
+    doner -- sahte bir irtifa varsaymiyoruz."""
     if alt_m is None:
         return "#888888"
-    alt_ft = max(0.0, alt_m / 0.3048)
-    if alt_ft >= _ALT_STOP_FT[-1]:
+    alt_m = max(0.0, alt_m)
+    if alt_m >= _ALT_STOP_M[-1]:
         r, g, b = _ALT_STOP_RGB[-1]
         return f"#{r:02x}{g:02x}{b:02x}"
     i = 0
-    while i < len(_ALT_STOP_FT) - 1 and alt_ft > _ALT_STOP_FT[i + 1]:
+    while i < len(_ALT_STOP_M) - 1 and alt_m > _ALT_STOP_M[i + 1]:
         i += 1
-    lo_ft, hi_ft = _ALT_STOP_FT[i], _ALT_STOP_FT[i + 1]
+    lo_m, hi_m = _ALT_STOP_M[i], _ALT_STOP_M[i + 1]
     lo_rgb, hi_rgb = _ALT_STOP_RGB[i], _ALT_STOP_RGB[i + 1]
-    frac = (alt_ft - lo_ft) / (hi_ft - lo_ft) if hi_ft > lo_ft else 0.0
+    frac = (alt_m - lo_m) / (hi_m - lo_m) if hi_m > lo_m else 0.0
     r = round(lo_rgb[0] + (hi_rgb[0] - lo_rgb[0]) * frac)
     g = round(lo_rgb[1] + (hi_rgb[1] - lo_rgb[1]) * frac)
     b = round(lo_rgb[2] + (hi_rgb[2] - lo_rgb[2]) * frac)
     return f"#{r:02x}{g:02x}{b:02x}"
+
+
+def _format_altitude_tick(m):
+    """Lejant altindaki tik etiketi -- kullanicinin verdigi legend
+    goruntusundeki bicimle AYNI (bosluklu binlik ayirici, son durak
+    '12 000+')."""
+    if m >= _ALT_STOP_M[-1]:
+        return f"{m:,}".replace(",", " ") + "+"
+    return f"{m:,}".replace(",", " ")
+
+
+# ONEMLI: lejant, ALTITUDE_COLOR_STOPS'tan TUReTILIYOR (elle ayri renk
+# listesi yazmiyoruz) -- boylece _altitude_to_color() ile lejant HICBIR
+# ZAMAN birbirinden SAPAMAZ, tek gercek kaynak burasi. CSS coklu-durak
+# linear-gradient, her durak ARALIGINA ESIT genislik veriyor (kullanicinin
+# verdigi goruntudeki gibi -- durak degerleri ESIT ARALIKLI DEGIL ama
+# CUBUKTAKI GENISLIKLERI esit, alcak irtifadaki yogun duraklara daha
+# fazla gorsel yer ayirmak icin).
+_ALT_LEGEND_N = len(ALTITUDE_COLOR_STOPS) - 1
+ALTITUDE_LEGEND_GRADIENT = "linear-gradient(to right, " + ", ".join(
+    f"{hexc} {i * 100 / _ALT_LEGEND_N:.4f}%" for i, (_, hexc) in enumerate(ALTITUDE_COLOR_STOPS)
+) + ")"
+
+
+def _slider_value_to_altitude_m(v):
+    """Lejant uzerindeki irtifa filtre kaydiricisinin (0.._ALT_LEGEND_N,
+    kesirli -- her tam sayi bir ALTITUDE_COLOR_STOPS durağina karsilik
+    gelir) degerini irtifaya (metre) cevirir. _altitude_to_color'daki AYNI
+    esit-segment-genisligi + durak-arasi-dogrusal mantigini kullanir --
+    boylece daire, gradyandaki (ve alttaki tik etiketlerindeki) irtifayla
+    HER ZAMAN tutarli bir noktada durur."""
+    v = max(0.0, min(v, _ALT_LEGEND_N))
+    i = int(v)
+    if i >= _ALT_LEGEND_N:
+        return _ALT_STOP_M[-1]
+    frac = v - i
+    lo, hi = _ALT_STOP_M[i], _ALT_STOP_M[i + 1]
+    return lo + (hi - lo) * frac
+
 # ONEMLI: yerde/havada askeri-sivil ekseninden BAGIMSIZ, ayri bir boyut --
 # bir ucak ayni anda hem askeri hem yerde olabilir. Bu yuzden GROUND_COLOR
 # rengi DEGISTIRMEZ (oncelik hala alarm > askeri > sivil), sadece tooltip'e
 # "Yerde" etiketi ekler (bkz. update_map) -- ayri bir renk yerine filtre
 # butonunun kendisi (asagida) tarafsiz bir kum/toprak tonu kullanir.
 GROUND_COLOR = "#e0a458"
+
+# Firma (havayolu) filtresi -- ICAO 3 harfli cagri kodu on-eki -> firma adi.
+# KUCUK, ELLE KURATORLU bir liste (bu projede sik gorulen/taninan ~40
+# havayolu) -- kapsamli bir ICAO veritabani DEGIL, kullanici tercihi boyle
+# (bkz. proje sohbet gecmisi). Listede OLMAYAN cagri kodlari (askeri, genel
+# havacilik, taninmayan/bolgesel havayollari) filtre BOSKEN her zaman
+# gorunur kalir -- bir veya daha fazla firma SECILINCE haritada SADECE o
+# firma(lar) gosterilir (bkz. asagidaki clientside_callback, filtreleme
+# TARAYICIDA/JS'te yapiliyor -- update_map'e YENI bir Input EKLENMEDI,
+# boylece bu oturumda iki kez duzeltilen "pahali sunucu isteği + yarış
+# durumu" hatasi SINIFI bastan hic olusmuyor -- callsign zaten cekilen
+# veride mevcut, ekstra ag gidis-donusune gerek yok).
+AIRLINE_PREFIXES = {
+    "THY": "Turkish Airlines", "PGT": "Pegasus", "SXS": "SunExpress",
+    "RYR": "Ryanair", "EZY": "easyJet", "WZZ": "Wizz Air", "VLG": "Vueling",
+    "DLH": "Lufthansa", "AFR": "Air France", "BAW": "British Airways",
+    "KLM": "KLM", "IBE": "Iberia", "AZA": "ITA Airways", "SWR": "Swiss",
+    "AUA": "Austrian Airlines", "LOT": "LOT Polish Airlines",
+    "TAP": "TAP Air Portugal", "SAS": "SAS", "FIN": "Finnair",
+    "ELY": "El Al", "AFL": "Aeroflot", "BEL": "Brussels Airlines",
+    "UAE": "Emirates", "QTR": "Qatar Airways", "ETD": "Etihad Airways",
+    "SVA": "Saudia", "MEA": "Middle East Airlines",
+    "DAL": "Delta Air Lines", "AAL": "American Airlines",
+    "UAL": "United Airlines", "ACA": "Air Canada", "JAL": "Japan Airlines",
+    "ANA": "All Nippon Airways", "CPA": "Cathay Pacific",
+    "SIA": "Singapore Airlines", "QFA": "Qantas", "KAL": "Korean Air",
+    "THA": "Thai Airways", "GIA": "Garuda Indonesia",
+    "CES": "China Eastern", "CSN": "China Southern", "CCA": "Air China",
+    "ETH": "Ethiopian Airlines", "MSR": "EgyptAir",
+    "RJA": "Royal Jordanian",
+}
+
 # Sol-ust askeri/sivil filtre butonlari -- haritanin kendi zoom (+/-)
 # kontrolu de sol-ustte oldugu icin (Leaflet varsayilani, ~10px kenar
 # bosluklu, iki dugme ~52px yukseklik), bu butonlar bilerek onun ALTINA
@@ -1363,28 +1640,155 @@ app_dash.layout = html.Div(id="app-root", style={
     # genisligi kadar (~46px) icerden baslatarak cakismalari onluyoruz.
     html.Div(id="type-filter-controls", style={
         "position": "absolute", "top": "12px", "left": "48px",
-        "display": "flex", "flexDirection": "column", "gap": "6px",
+        "display": "flex", "flexDirection": "row", "gap": "6px",
+        "alignItems": "flex-start",
         "zIndex": 700,
     }, children=[
-        html.Button("Sivil", id="filter-civil-btn", n_clicks=0,
-                   style=FILTER_BTN_CIVIL_ACTIVE_STYLE),
-        html.Button("Askeri", id="filter-military-btn", n_clicks=0,
-                   style=FILTER_BTN_MILITARY_ACTIVE_STYLE),
-        # ONEMLI: varsayilan KAPALI (inactive) -- yerdeki ucaklar eskiden
-        # producer'da TAMAMEN atiliyordu (bkz. adsb_producer.py, is_ground
-        # notu), simdi Kafka'ya kadar geliyorlar ama haritada varsayilan
-        # olarak GIZLI kaliyor. Boylece bu ozellik eklenmeden onceki
-        # davranis (yerdeki ucaklar gorunmez) varsayilan olarak korunuyor,
-        # kalabalik havalimanlarinda haritayi aniden doldurmuyor -- kullanici
-        # isterse kendi acar.
-        html.Button("Yerde", id="filter-ground-btn", n_clicks=0,
-                   style=FILTER_BTN_INACTIVE_STYLE),
+        html.Div(style={"display": "flex", "flexDirection": "column", "gap": "6px"}, children=[
+            html.Button("Sivil", id="filter-civil-btn", n_clicks=0,
+                       style=FILTER_BTN_CIVIL_ACTIVE_STYLE),
+            html.Button("Askeri", id="filter-military-btn", n_clicks=0,
+                       style=FILTER_BTN_MILITARY_ACTIVE_STYLE),
+            # ONEMLI: varsayilan ACIK (kullanici karariyla) -- eskiden
+            # yerdeki ucaklar varsayilan GIZLIYDI (bkz. show-ground Store
+            # yorumu), ama kullanici bunu kafa karistirici buldu ("aktif
+            # uçuş ile gösterilen fark neden" sorusu -- bkz. proje sohbet
+            # gecmisi) ve varsayilani ACIK'a cevirmemizi istedi.
+            html.Button("Yerde", id="filter-ground-btn", n_clicks=0,
+                       style=FILTER_BTN_GROUND_ACTIVE_STYLE),
+        ]),
+        # Firma (havayolu) filtresi -- AIRLINE_PREFIXES'ten turetilen,
+        # aranabilir/coklu-secim dropdown. Filtreleme TARAYICIDA yapiliyor
+        # (bkz. AIRLINE_PREFIXES yorumu ve asagidaki clientside_callback) --
+        # bu yuzden update_map'e YENI bir Input EKLENMEDI, secim degistiginde
+        # sunucuya HIC istek gitmiyor. ONEMLI: Sivil/Askeri/Yerde sutununun
+        # SAGINA (kullanici istegi) -- ayni satirda, ustten hizali.
+        dcc.Dropdown(
+            id="airline-filter-dropdown",
+            options=[{"label": name, "value": code}
+                     for code, name in sorted(AIRLINE_PREFIXES.items(), key=lambda kv: kv[1])],
+            value=[], multi=True, placeholder="Firma...",
+            className="dark-dropdown airline-filter-dropdown",
+            style={"width": "190px", "fontSize": "11px"},
+        ),
     ]),
     dcc.Store(id="show-civil", data=True),
     dcc.Store(id="show-military", data=True),
-    dcc.Store(id="show-ground", data=False),
+    dcc.Store(id="show-ground", data=True),
+
+    # -------------------------------------- Irtifa renk lejandi (overlay) --
+    # Durum cubugunun (ustte, ortada) alt-orta esligi -- sol/sag panellerin
+    # (LEFT_PANEL_BASE/HISTORY_PANEL_BASE, ikisi de kenarlara sabit) ARASINDA
+    # kalan orta bosluga sigacak sekilde dar tutuldu.
+    html.Div(id="altitude-legend", style={
+        "position": "absolute", "bottom": "12px", "left": "50%",
+        "transform": "translateX(-50%)",
+        "width": "460px",
+        "backgroundColor": "rgba(15,15,25,0.85)",
+        "border": "1px solid #2a2a4a", "borderRadius": "8px",
+        "padding": "6px 14px 10px", "zIndex": 500,
+        # ONEMLI: artik pointerEvents:none YOK -- kaydiricilar (asagida)
+        # gercek bir kontrol, tiklanabilir/surunebilir olmasi gerekiyor.
+    }, children=[
+        html.Div("İRTİFA (m)", id="altitude-legend-title", style={
+            "fontSize": "10px", "color": "#888", "marginBottom": "4px",
+            "letterSpacing": "0.5px",
+        }),
+        # ONEMLI: gradyan CUBUGU (asagida, GERCEK renk skalasi) ile ONUN
+        # TAM UZERINE bindirilen dcc.RangeSlider AYNI position:relative
+        # kutuda. Slider'in kendi track/range'i CSS ile SEFFAF yapiliyor
+        # (bkz. index_string ".altitude-slider" kurallari, Dash 4.x'in
+        # dash-slider-* sinif adlarina gore). Sadece IKI daire tutamac
+        # gorunur kaliyor.
+        html.Div(style={"position": "relative", "height": "12px"}, children=[
+            html.Div(style={
+                "height": "12px", "borderRadius": "3px",
+                "background": ALTITUDE_LEGEND_GRADIENT,
+                "border": "1px solid rgba(255,255,255,0.15)",
+            }),
+            html.Div(style={"position": "absolute", "top": "0", "left": "0", "right": "0",
+                            "height": "12px"},
+                     children=[
+                dcc.RangeSlider(
+                    id="altitude-filter-slider",
+                    # ONEMLI (kullanici geri bildirimi -- "ayarladigin
+                    # sayilar barda gozukenle uyusmuyor"): step=0.01 iken
+                    # tutamac GORSEL olarak herhangi bir ARA pozisyonda
+                    # durabiliyordu (orn. "1000" ile "2000" arasinda),
+                    # AMA sunucuya giden deger clientside_callback'te EN
+                    # YAKIN duraga yuvarlaniyordu -- goruneni (tutamacin
+                    # GERCEK pikseldeki yeri) ile UYGULANANI (yuvarlanmis
+                    # durak) BIRBIRINDEN FARKLI olabiliyordu, bu da tam
+                    # bu kafa karisikligina yol aciyordu. step=1 ile
+                    # Radix'in KENDISI tutamaci SADECE 11 durağa (tam
+                    # sayi degerlere) KILITLIYOR -- ara bir pozisyonda
+                    # durmasi ARTIK MUMKUN DEGIL, goruneni ile uygulanani
+                    # HER ZAMAN ayni.
+                    min=0, max=_ALT_LEGEND_N, step=1,
+                    value=[0, _ALT_LEGEND_N],
+                    marks=None, allowCross=True,
+                    updatemode="drag",
+                    className="altitude-slider",
+                ),
+            ]),
+        ]),
+        # ONEMLI (gercek tarayici olcumuyle BULUNAN bir hata -- kullanici
+        # geri bildirimi: "1000-40000 secince 300 falan gozukuyor"):
+        # "justifyContent: space-between" bir flex satirda, FARKLI
+        # genislikte metinleri (orn. "0" vs "40 000+") ARALARINDAKI
+        # BOSLUGU esitler, MERKEZLERINI DEGIL -- "1 000" etiketi olmasi
+        # gereken %20 yerine olcumle %16'da cikiyordu. Kullanici gozle
+        # bir etikete hizalayinca, kaydiricinin/gradyanin GERCEK (dogru)
+        # yuzdesiyle etiketin (yanlis) yuzdesi UYUSMUYORDU. Duzeltme:
+        # her etiketi, kaydirici/gradyan ile AYNI dogrusal 0%-100%
+        # olcegine gore MUTLAK konumlandiriyoruz (position:absolute,
+        # left:i*10%, translateX(-50%)) -- boylece UCUNCU bir hizalama
+        # sistemi degil, TEK bir dogru kaynak var.
+        html.Div(style={"position": "relative", "height": "12px", "marginTop": "3px"},
+                 children=[
+            html.Span(_format_altitude_tick(ft), style={
+                "position": "absolute", "left": f"{i * 100 / _ALT_LEGEND_N:.4f}%",
+                "transform": "translateX(-50%)",
+                "fontSize": "9px", "color": "#c8d0e0", "whiteSpace": "nowrap",
+            })
+            for i, (ft, _) in enumerate(ALTITUDE_COLOR_STOPS)
+        ]),
+    ]),
+    # ONEMLI (gercek kullanicidan gelen "1000'e gelince 500 hala orada,
+    # 2000'e gelince 500 gidiyor ama 1200 orda kaliyor" geri bildirimi
+    # uzerine bulundu -- YARIS DURUMU): updatemode="drag" surukleme
+    # sirasinda ONLARCA ARA (kesirli) deger gonderiyor, HER biri
+    # update_map'i (binlerce ucagi yeniden ceken/filtreleyen PAHALI bir
+    # islem) tetikliyordu -- yanitlar GONDERILDIKLERI sirada DEGIL
+    # TAMAMLANDIKLARI sirada donuyor, o yuzden GEC gelen ESKI bir yanit
+    # YENI olani EZEBILIYORDU. Onceki cozum bir "Uygula" butonuydu;
+    # kullanici bunun yerine "sadece 11 duraga (0/500/1000/.../40000+)
+    # GECISTE tetiklensin, buton olmadan" istedi. Asagidaki clientside_callback
+    # (JS, sunucuya HIC gitmeden) HAM slider degerini EN YAKIN duraga
+    # yuvarlar ve SADECE bir onceki yuvarlanmis degerden FARKLIYSA
+    # "altitude-filter-snapped" Store'unu gunceller -- ayni durak icindeki
+    # onlarca ara deger boylece sunucuya HIC gitmiyor, sadece GERCEKTEN
+    # yeni bir duraga geçince (en fazla 11 kez) bir istek atiliyor --
+    # yaris penceresi ~1000 olasi tetikleyiciden 11'e dusuyor.
+    dcc.Store(id="altitude-filter-snapped", data=[0, _ALT_LEGEND_N]),
+    # Filtrelenmis irtifa araligi (metre) -- update_map bunu okuyup
+    # araligin DISINDAKI ucaklari haritadan gizliyor (bkz. _passes_filter).
+    # Varsayilan [-1_000_000, 1_000_000] = "filtre yok" (bkz.
+    # update_altitude_filter_range ust VE ALT sinir yorumu -- ikisi de
+    # gercek metre degeri DEGIL, sinirsiz demek).
+    dcc.Store(id="altitude-filter-range", data=[-1_000_000, 1_000_000]),
 
     # ------------------------------------------- Durum cubugu (overlay) --
+    # ONEMLI: UC AYRI parcadan olusuyor, DOM SIRASI = GORSEL SIRA (kullanici
+    # istegi -- "gösterilen'le aktif uçuş yan yana olsun, alarmı en sağa
+    # al"): "status-main" (ts + TOPLAM ucak) ve "status-alarm" (alarm sayisi,
+    # EN SAGDA) update_map'te (Python, sunucu) hesaplaniyor; aradaki
+    # "status-shown" (filtreler sonrasi KALAN ucak sayisi) ise
+    # clientside_callback'te (JS, sayfa sonu) hesaplaniyor -- firma filtresi
+    # TAMAMEN tarayicida uygulaniyor (bkz. AIRLINE_PREFIXES yorumu), sunucu
+    # o filtreden HABERSIZ, o yuzden "kalan" sayiyi SADECE JS taraf dogru
+    # hesaplayabilir (sivil/askeri/yerde/irtifa sunucuda elendikten SONRA,
+    # firma da JS'te elendikten sonraki nihai sourceFeatures.length).
     html.Div(id="status", style={
         "position": "absolute", "top": "12px", "left": "50%",
         "transform": "translateX(-50%)",
@@ -1392,7 +1796,11 @@ app_dash.layout = html.Div(id="app-root", style={
         "padding": "6px 16px", "borderRadius": "20px",
         "fontSize": "13px", "color": "#c8d0e0", "zIndex": 500,
         "pointerEvents": "none",  # altindaki haritayi engellemesin
-    }),
+    }, children=[
+        html.Span(id="status-main"),
+        html.Span(id="status-shown", style={"color": "#00b4d8", "marginLeft": "8px"}),
+        html.Span(id="status-alarm"),
+    ]),
 
     # ----------------------------- Cagri kodu arama cubugu (durum cubugunun ALTI) --
     html.Div(style={
@@ -1531,10 +1939,10 @@ app_dash.layout = html.Div(id="app-root", style={
                      style={"fontSize": "10px", "color": "#888", "width": "48px"}),
             dcc.Dropdown(id="replay-start-day", options=[], value=None,
                         placeholder="Gün", clearable=True, searchable=False,
-                        className="dark-dropdown", style={"width": "78px", "fontSize": "11px"}),
+                        className="dark-dropdown", style={"width": "112px", "fontSize": "11px"}),
             dcc.Dropdown(id="replay-start-hour", options=HISTORY_HOUR_OPTIONS, value=None,
                         placeholder="Saat", clearable=True, searchable=False,
-                        className="dark-dropdown", style={"width": "64px", "fontSize": "11px"}),
+                        className="dark-dropdown", style={"width": "88px", "fontSize": "11px"}),
         ]),
         html.Div(style={"display": "flex", "alignItems": "center", "gap": "6px",
                         "marginBottom": "10px"}, children=[
@@ -1542,10 +1950,10 @@ app_dash.layout = html.Div(id="app-root", style={
                      style={"fontSize": "10px", "color": "#888", "width": "48px"}),
             dcc.Dropdown(id="replay-end-day", options=[], value=None,
                         placeholder="Gün", clearable=True, searchable=False,
-                        className="dark-dropdown", style={"width": "78px", "fontSize": "11px"}),
+                        className="dark-dropdown", style={"width": "112px", "fontSize": "11px"}),
             dcc.Dropdown(id="replay-end-hour", options=HISTORY_HOUR_OPTIONS, value=None,
                         placeholder="Saat", clearable=True, searchable=False,
-                        className="dark-dropdown", style={"width": "64px", "fontSize": "11px"}),
+                        className="dark-dropdown", style={"width": "88px", "fontSize": "11px"}),
         ]),
         html.Div(style={"display": "flex", "gap": "6px", "marginBottom": "8px"}, children=[
             html.Button("Yükle", id="replay-load-btn", n_clicks=0,
@@ -1621,7 +2029,8 @@ app_dash.layout = html.Div(id="app-root", style={
             # deger tasimali, bos birakilamaz.
             dcc.Dropdown(
                 id="timezone-dropdown",
-                options=[],  # update_timezone_options callback'i dolduruyor (dil'e gore etiket)
+                options=_build_timezone_options(DEFAULT_LANGUAGE),  # bkz. fonksiyon yorumu -- bos [] ile
+                                                                     # baslarsa value null'a sifirlaniyordu
                 value=DEFAULT_TIMEZONE,
                 clearable=False, searchable=False,
                 className="dark-dropdown",
@@ -1633,9 +2042,11 @@ app_dash.layout = html.Div(id="app-root", style={
                               "display": "block", "marginBottom": "6px"}),
             html.Div(style={"display": "flex", "gap": "6px"}, children=[
                 html.Button("Sokak", id="map-style-street-btn", n_clicks=0,
-                           style=LANG_BTN_ACTIVE_STYLE),
+                           style=LANG_BTN_INACTIVE_STYLE),
                 html.Button("Uydu", id="map-style-satellite-btn", n_clicks=0,
                            style=LANG_BTN_INACTIVE_STYLE),
+                html.Button("Karanlık", id="map-style-dark-btn", n_clicks=0,
+                           style=LANG_BTN_ACTIVE_STYLE),
             ]),
         ]),
         html.Div(style={"marginBottom": "14px"}, children=[
@@ -1659,6 +2070,24 @@ app_dash.layout = html.Div(id="app-root", style={
                 "fontSize": "10px", "color": "#666", "marginTop": "5px",
             }),
         ]),
+        html.Div(style={"marginBottom": "14px"}, children=[
+            # ONEMLI: kaynaga gore SABIT 10-40sn soluklasma esigi
+            # kaldirildi -- OpenSky'nin dogal sorgulama araligi (90-300sn,
+            # bkz. adsb_producer.py SOURCES) bu sabit esigi neredeyse HER
+            # ucak icin asiyordu, ekrandaki TUM filo soluk gorunuyordu.
+            # Kullanici artik esigi kendi secili kaynagina gore kendisi
+            # ayarliyor (bkz. SIGNAL_STALENESS_OPTIONS, update_map).
+            html.Label("Sinyal Yaşı Eşiği", id="signal-staleness-label",
+                       style={"fontSize": "12px", "color": "#888",
+                              "display": "block", "marginBottom": "6px"}),
+            dcc.Dropdown(
+                id="signal-staleness-dropdown",
+                options=_build_signal_staleness_options(DEFAULT_LANGUAGE),
+                value=DEFAULT_SIGNAL_STALENESS_SEC,
+                clearable=False, searchable=False,
+                className="dark-dropdown",
+            ),
+        ]),
         html.Div(children=[
             html.Label("Dil", id="language-label",
                        style={"fontSize": "12px", "color": "#888",
@@ -1676,6 +2105,7 @@ app_dash.layout = html.Div(id="app-root", style={
     dcc.Store(id="timezone-setting", data=DEFAULT_TIMEZONE),
     dcc.Store(id="language-setting", data=DEFAULT_LANGUAGE),
     dcc.Store(id="map-style-setting", data=DEFAULT_MAP_STYLE),
+    dcc.Store(id="signal-staleness-setting", data=DEFAULT_SIGNAL_STALENESS_SEC),
 
     # ---------------------------------- Sol kayan panel (varsayilan gizli) --
     html.Div(id="left-panel", style={**LEFT_PANEL_BASE, "transform": "translateX(-100%)"},
@@ -1790,14 +2220,122 @@ app_dash.layout = html.Div(id="app-root", style={
 
 
 @app_dash.callback(
-    [Output("aircraft-raw", "data"), Output("status", "children"),
-     Output("emergency-alerts-data", "data")],
+    Output("altitude-filter-range", "data"),
+    Input("altitude-filter-snapped", "data"),
+)
+def update_altitude_filter_range(value):
+    """"altitude-filter-snapped" (bkz. asagidaki clientside_callback --
+    ham slider degerini EN YAKIN 11 duraga yuvarlayip SADECE degisince
+    gunceller) SADECE GERCEKTEN bir duraga geçince degistigi icin bu
+    Python callback'i de sadece o zaman (en fazla 11 kez) calisir --
+    surukleme sirasindaki yuzlerce ara deger sunucuya HIC ULASMAZ, bkz.
+    proje sohbet gecmisindeki YARIS DURUMU aciklamasi.
+
+    Iki durak-index'ini (0.._ALT_LEGEND_N) gercek irtifaya (metre --
+    ic semamiz zaten metre kullaniyor, ft<->m cevirisi ARTIK YOK, bkz.
+    ALTITUDE_COLOR_STOPS ust yorumu) cevirir -- update_map bu Store'u
+    okuyup araligin DISINDAKI ucaklari haritadan gizliyor. Tutamaclarin
+    SIRASI ne olursa olsun (allowCross=True) SIRALAMAYI HER ZAMAN burada
+    kendimiz garanti ediyoruz.
+
+    ONEMLI: MAKS tutamac EN SONDAYSA (_ALT_LEGEND_N, "12000+") ust sinir
+    GERCEK 12000m DEGIL -- bircok jet 12000m'yi gecebiliyor, bu durumda
+    hala YANLISLIKLA gizlenirlerdi. Sonsuzluk yerine guvenli buyuk bir
+    sayi (1_000_000 m) kullaniyoruz -- float('inf') JSON'da GECERSIZ
+    (bkz. replay'deki ayni NaN/inf dersi).
+
+    ONEMLI (kullanici geri bildirimi -- "aktif uçuş ile gösterilen
+    farklı, Yerde açıkken de böyle"): AYNI sorun ALT sinirda da vardi --
+    MIN tutamac EN BASTAYSA (0, ilk durak) alt sinir GERCEK 0m
+    kullaniliyordu, ama barometrik irtifa (QNH kalibrasyonu / pist
+    yuksekligi farki) YERDEKI/PISTTEKI bircok ucakta dogal olarak HAFIF
+    NEGATIF gelir (orn. -7.6m, -45.7m) -- "Yerde" filtresiyle HICBIR
+    ILGISI YOK (bu ucaklarin coğu is_ground=False), SADECE 0'in alti
+    oldugu icin yanlislikla tamamen gizleniyorlardi. Ust sinirdaki AYNI
+    "sinirsiz" mantigini simetrik olarak alt sinira da uyguluyoruz."""
+    if not value or len(value) != 2:
+        return dash.no_update
+    lo_v, hi_v = min(value), max(value)
+    lo_m = -1_000_000 if lo_v <= 0 else _slider_value_to_altitude_m(lo_v)
+    if hi_v >= _ALT_LEGEND_N:
+        hi_m = 1_000_000
+    else:
+        hi_m = _slider_value_to_altitude_m(hi_v)
+    return [lo_m, hi_m]
+
+
+# ONEMLI: bu callback CLIENTSIDE (JS, tarayicida calisir, Python'a HIC
+# UGRAMAZ) -- irtifa kaydiricisinin HAM (kesirli, updatemode="drag" ile
+# surukleme sirasinda ONLARCA kez gelen) degerini EN YAKIN durağa (0..10
+# tam sayi, ALTITUDE_COLOR_STOPS index'i) yuvarlar. window.__altSnapPrev
+# modul-seviyesi degiskeninde bir onceki yuvarlanmis degeri saklar --
+# YENI yuvarlanmis deger ONCEKIYLE AYNIYSA no_update doner, Store HIC
+# guncellenmez, Python tarafindaki update_altitude_filter_range (ve onun
+# tetikledigi pahali update_map) calismaz. Sadece GERCEKTEN farkli bir
+# duraga geçildiginde (en fazla 11 kez) bir deger yayinlanir -- boylece
+# ekstra bir "Uygula" butonuna gerek kalmadan, kullanici istegi uzerine
+# (bkz. proje sohbet gecmisi) yaris durumu riski ~1000 olasi tetikleyiciden
+# 11'e dusuruluyor.
+app_dash.clientside_callback(
+    """
+    function(value) {
+        if (!value || value.length !== 2) {
+            return window.dash_clientside.no_update;
+        }
+        const snapped = [Math.round(value[0]), Math.round(value[1])];
+        const prev = window.__altSnapPrev;
+        if (prev && prev[0] === snapped[0] && prev[1] === snapped[1]) {
+            return window.dash_clientside.no_update;
+        }
+        window.__altSnapPrev = snapped;
+        return snapped;
+    }
+    """,
+    Output("altitude-filter-snapped", "data"),
+    Input("altitude-filter-slider", "value"),
+)
+
+
+# ONEMLI (gercek surukleme testiyle DOGRULANMIS yaris durumu -- bkz. proje
+# sohbet gecmisi): irtifa kaydiricisi hizli surukleninde (tek surukleme
+# hareketinde 6-7 durak gecilebiliyor) update_map'e ust uste BINEN cagrilar
+# gidiyor -- her biri /api/flights'i cekip binlerce ucagi filtreleyen PAHALI
+# bir islem, ve YANITLAR GONDERILDIKLERI SIRAYLA DEGIL TAMAMLANDIKLARI SIRAYLA
+# donuyor (Playwright ile olculdu: 7 istek 0.3sn icinde gonderildi ama yanitlar
+# 9.7-10.4sn arasinda TAMAMEN KARISIK sirada geldi -- 3. gonderilen istek EN
+# SON yanit verdi ve Store'u kendi (ARTIK ESKI) degeriyle EZDI). Sonuc:
+# kaydirici GORSEL olarak dogru son durakta dursa bile, haritadaki GERCEK
+# filtre surukleme sirasindaki ESKI bir ARA durağa donebiliyordu -- kullanici
+# geri bildirimi tam bu ("tutamaçlar filtreyi doğru uygulamıyor").
+#
+# COZUM: her update_map cagrisi baslarken KENDI sira numarasini alir
+# (_altitude_map_seq, kilitli/atomik artan sayac). Cagri (ozellikle
+# /api/flights istegi) TAMAMLANDIKTAN SONRA, sonucu Store'a YAZMADAN HEMEN
+# ONCE kontrol eder: "ben hala EN SON BASLATILAN cagri miyim?" Eger bu
+# calisirken DAHA YENI bir cagri BASLAMISSA (ne sebeple olursa olsun --
+# irtifa filtresi, tick, askeri/sivil butonu...), bu cagri ARTIK BAYAT
+# demektir -- sonucunu ATAR (dash.no_update), boylece daha yeni ama daha ERKEN
+# biten bir cagrinin sonucunu asla EZMEZ. Bu, HANGI Input'un tetikledigine
+# bakmaksizin genel bir "en son BASLATILAN kazanir" garantisi saglar.
+_altitude_map_seq_lock = threading.Lock()
+_altitude_map_latest_seq = 0
+
+
+@app_dash.callback(
+    [Output("aircraft-raw", "data"), Output("status-main", "children"),
+     Output("emergency-alerts-data", "data"), Output("status-alarm", "children")],
     [Input("tick", "n_intervals"), Input("timezone-setting", "data"),
      Input("language-setting", "data"), Input("show-civil", "data"),
      Input("show-military", "data"), Input("show-ground", "data"),
-     Input("replay-mode", "data")]
+     Input("replay-mode", "data"), Input("altitude-filter-range", "data"),
+     Input("signal-staleness-setting", "data")]
 )
-def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_mode):
+def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_mode,
+               altitude_filter_range, staleness_threshold):
+    global _altitude_map_latest_seq
+    with _altitude_map_seq_lock:
+        _altitude_map_latest_seq += 1
+        my_seq = _altitude_map_latest_seq
     # ONEMLI: bu artik haritaya DOGRUDAN cizilen "aircraft-geojson"u degil,
     # HAM nokta verisini ("aircraft-raw") dolduruyor -- ucak sekli/boyutu
     # (poligon geometrisi) artik clientside_callback'te (asagida, sayfa
@@ -1811,11 +2349,12 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_
     # basar basmaz, bir sonraki tick'i beklemeden ANINDA canli goruntuye
     # doner.
     if replay_mode:
-        return dash.no_update, dash.no_update, dash.no_update
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
     tz = _resolve_tz(tz_name)
     t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
     cat_labels = CATEGORY_LABELS.get(lang, CATEGORY_LABELS[DEFAULT_LANGUAGE])
+    staleness_threshold = staleness_threshold or DEFAULT_SIGNAL_STALENESS_SEC
     try:
         flights = requests.get("http://localhost:8000/api/flights", timeout=3).json()
     except Exception:
@@ -1871,14 +2410,28 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_
     # uygulanir (VE ile): once askeri/sivil turune gore, sonra (sadece
     # yerdeki ucaklara) yerde-gorunurlugune gore. Havadaki bir ucak
     # show_ground'dan hic etkilenmez.
+    # ONEMLI: irtifa lejandi uzerindeki kaydiricidan (bkz. update_altitude_filter_range)
+    # gelen [alt_min_m, alt_max_m] araligi -- irtifasi bilinmeyen ucaklar
+    # (alt=None) FILTRELENMIYOR (guvenli varsayilan, sahte bir "irtifa
+    # araligi disinda" varsaymiyoruz).
+    alt_lo_m, alt_hi_m = (altitude_filter_range if altitude_filter_range
+                          and len(altitude_filter_range) == 2 else (0, 1_000_000))
+
     def _passes_filter(f):
         is_mil = bool(f.get("is_military"))
         if not (show_military if is_mil else show_civil):
             return False
         if f.get("is_ground") and not show_ground:
             return False
+        alt = f.get("alt")
+        if alt is not None and not (alt_lo_m <= alt <= alt_hi_m):
+            return False
         return True
 
+    total_flight_count = len(flights)  # HICBIR filtre (sivil/askeri/yerde/
+                                        # irtifa/firma) uygulanmadan ONCEKI
+                                        # toplam -- status cubugundaki
+                                        # "toplam" sayisi bu (bkz. asagida)
     flights = [f for f in flights if _passes_filter(f)]
 
     # Her ucak icin GOSTERIME HAZIR (formatlanmis) degerleri Python'da
@@ -1911,19 +2464,22 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_
 
         # ONEMLI: adsb.lol/readsb, bir ucaktan mesaj kesilse bile onu 60
         # saniyeye kadar listede TUTAR ("seen" alani = mesajin GERCEKTE
-        # kac saniye once alindigi). Bu sureyi KULLANMADAN once, sinyali
-        # onlarca saniyedir kesilmis bir ucak bile haritada "taze"
-        # gorunuyordu -- kullanicinin fark ettigi "olu sinyal" sorunu bu.
-        # 10sn'nin altinda tam opak, 40sn+ icin belirgin soluk (0.35),
-        # arasinda dogrusal geciyor. signal_age_sec None ise (kaynak
-        # saglamiyorsa) GUVENLI VARSAYILAN: tam opak (dim etmeyecek kadar
-        # bilgimiz yok).
+        # kac saniye once alindigi) -- OpenSky'de bu daha da uzun (90-300sn,
+        # bkz. adsb_producer.py SOURCES). Once SABIT bir 10-40sn dogrusal
+        # soluklasma vardi -- adsb.lol icin makuldu ama OpenSky'nin dogal
+        # sorgulama araligi bu sabit esigi HER ucak icin astigi icin
+        # ekrandaki NEREDEYSE TUM filo soluk gorunuyordu. Artik kullanicinin
+        # ayarlardan sectigi esik (staleness_threshold) kullaniliyor:
+        # esigin ALTI tam opak, USTU sabit soluk (STALE_SIGNAL_OPACITY) --
+        # kaynaga gore dogrusal ayar yerine kullanici kendi esigini secer.
+        # signal_age_sec None ise (kaynak saglamiyorsa) GUVENLI VARSAYILAN:
+        # tam opak (dim etmeyecek kadar bilgimiz yok).
         signal_age = f.get("signal_age_sec")
         if signal_age is None:
             opacity = 1.0
             signal_age_text = None
         else:
-            opacity = max(0.35, min(1.0, 1.0 - (signal_age - 10) / 30))
+            opacity = 1.0 if signal_age <= staleness_threshold else STALE_SIGNAL_OPACITY
             signal_age_text = f"{signal_age:.0f}sn" if signal_age >= 10 else None
 
         lat, lon = f.get("lat", 39), f.get("lon", 35)
@@ -1958,9 +2514,17 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_
     raw_data = {"type": "FeatureCollection", "features": features}
 
     ts = datetime.now(tz).strftime("%H:%M:%S")
-    status = t["status_bar"].format(ts=ts, n=len(flights), a=len(alerts))
+    status_main = t["status_bar_main"].format(ts=ts, n=total_flight_count)
+    status_alarm = t["status_bar_alarm"].format(a=len(alerts))
 
-    return raw_data, status, emergency_rows
+    # ONEMLI: yukaridaki _altitude_map_seq aciklamasina bkz -- eger bu cagri
+    # calisirken (esp. /api/flights isteği surerken) DAHA YENI bir update_map
+    # cagrisi BASLAMISSA, bu sonuc ARTIK BAYAT -- yazmadan at, daha yeni
+    # cagrinin (ne zaman bitecegi onemli degil) sonucunu asla ezme.
+    if my_seq != _altitude_map_latest_seq:
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update
+
+    return raw_data, status_main, emergency_rows, status_alarm
 
 
 @app_dash.callback(
@@ -1996,12 +2560,14 @@ def select_or_close(geojson_clicks, close_clicks, feature):
 
 @app_dash.callback(
     [Output("aircraft-select", "data", allow_duplicate=True),
-     Output("callsign-search-feedback", "children")],
+     Output("callsign-search-feedback", "children"),
+     Output("map", "viewport")],
     [Input("callsign-search-btn", "n_clicks"), Input("callsign-search-input", "n_submit")],
-    [State("callsign-search-input", "value"), State("language-setting", "data")],
+    [State("callsign-search-input", "value"), State("language-setting", "data"),
+     State("map", "zoom")],
     prevent_initial_call=True,
 )
-def search_by_callsign(n_clicks, n_submit, query, lang):
+def search_by_callsign(n_clicks, n_submit, query, lang, current_zoom):
     """Cagri koduna gore arama -- tiklama secimiyle AYNI Output'u
     (aircraft-select) yazdigi icin allow_duplicate=True gerekiyor (Dash,
     ayni Output'u birden fazla callback'in yazmasina bunu isaretlersen
@@ -2009,11 +2575,23 @@ def search_by_callsign(n_clicks, n_submit, query, lang):
     edilerek -- adsb.lol callsign'lari bazen "VATOZ 16" gibi ic bosluklu
     donuyor), yoksa KISMI eslesme (kullanici callsign'in bir kismini
     yazmis olabilir) denenir. Bulunamazsa secim DEGISTIRILMEZ, sadece
-    kisa bir "bulunamadi" mesaji gosterilir."""
+    kisa bir "bulunamadi" mesaji gosterilir.
+
+    ONEMLI (kullanici istegi, YANLIS YERE zoom hatasi DUZELTILDI): ucak
+    bulununca harita da OTOMATIK o ucaga kayiyor. ILK DENEMEDE
+    Output("map","center")/Output("map","zoom") kullanilmisti -- ama
+    dash-leaflet'in kendi dokumantasyonu acikca soyluyor: "center"
+    SADECE haritanin ILK KURULUMUNDA kullanilir, sonradan degistirmek
+    Leaflet'e YANSIMAZ (harita zaten kurulu oldugu icin "yanlis yere
+    zoom" gibi gorunuyordu -- aslinda hicbir yere gitmiyordu, harita
+    oldugu yerde kaliyordu VEYA eski/varsayilan degere donuyordu).
+    Mount-SONRASI navigasyon icin ozel bir "viewport" prop'u var (bkz.
+    site-packages/dash_leaflet/MapContainer.py), transition="flyTo" ile
+    duzgun ve animasyonlu sekilde gercekten o konuma gidiyor."""
     t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
     query = (query or "").strip().upper()
     if not query:
-        return dash.no_update, ""
+        return dash.no_update, "", dash.no_update
 
     try:
         flights = requests.get("http://localhost:8000/api/flights", timeout=3).json()
@@ -2027,9 +2605,13 @@ def search_by_callsign(n_clicks, n_submit, query, lang):
     if not match:
         match = next((f for f in flights if query in norm(f.get("callsign"))), None)
 
+    if match and match.get("lat") is not None and match.get("lon") is not None:
+        zoom = max(current_zoom or 5, 8)
+        viewport = {"center": [match["lat"], match["lon"]], "zoom": zoom, "transition": "flyTo"}
+        return match["icao24"], "", viewport
     if match:
-        return match["icao24"], ""
-    return dash.no_update, t["callsign_not_found"].format(callsign=query)
+        return match["icao24"], "", dash.no_update
+    return dash.no_update, t["callsign_not_found"].format(callsign=query), dash.no_update
 
 
 @app_dash.callback(
@@ -2283,14 +2865,7 @@ def update_timezone_setting(value):
 def update_timezone_options(lang):
     """Saat dilimi listesinin etiketlerini secili dile gore uretir --
     deger (UTC ofseti, int) hep ayni kalir, sadece gorunen metin degisir."""
-    t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
-    options = []
-    for h in range(-12, 15):
-        label = f"UTC{h:+d}"
-        if h == DEFAULT_TIMEZONE:
-            label += t["tz_default_suffix"]
-        options.append({"label": label, "value": h})
-    return options
+    return _build_timezone_options(lang)
 
 
 @app_dash.callback(
@@ -2322,10 +2897,11 @@ def update_language_buttons(lang):
 
 @app_dash.callback(
     Output("map-style-setting", "data"),
-    [Input("map-style-street-btn", "n_clicks"), Input("map-style-satellite-btn", "n_clicks")],
+    [Input("map-style-street-btn", "n_clicks"), Input("map-style-satellite-btn", "n_clicks"),
+     Input("map-style-dark-btn", "n_clicks")],
     prevent_initial_call=True,
 )
-def update_map_style_setting(street_clicks, satellite_clicks):
+def update_map_style_setting(street_clicks, satellite_clicks, dark_clicks):
     ctx = dash.callback_context
     if not ctx.triggered:
         return dash.no_update
@@ -2334,17 +2910,43 @@ def update_map_style_setting(street_clicks, satellite_clicks):
         return "street"
     if trigger == "map-style-satellite-btn.n_clicks":
         return "satellite"
+    if trigger == "map-style-dark-btn.n_clicks":
+        return "dark"
     return dash.no_update
 
 
 @app_dash.callback(
-    [Output("map-style-street-btn", "style"), Output("map-style-satellite-btn", "style")],
+    [Output("map-style-street-btn", "style"), Output("map-style-satellite-btn", "style"),
+     Output("map-style-dark-btn", "style")],
     Input("map-style-setting", "data"),
 )
 def update_map_style_buttons(style):
-    if style == "satellite":
-        return LANG_BTN_INACTIVE_STYLE, LANG_BTN_ACTIVE_STYLE
-    return LANG_BTN_ACTIVE_STYLE, LANG_BTN_INACTIVE_STYLE
+    styles = [LANG_BTN_INACTIVE_STYLE] * 3
+    idx = {"street": 0, "satellite": 1, "dark": 2}.get(style, 0)
+    styles[idx] = LANG_BTN_ACTIVE_STYLE
+    return tuple(styles)
+
+
+@app_dash.callback(
+    Output("signal-staleness-setting", "data"),
+    Input("signal-staleness-dropdown", "value"),
+)
+def update_signal_staleness_setting(value):
+    # ONEMLI: "if not value" DEGIL -- timezone-dropdown'daki ayni hataya
+    # dusmemek icin None kontrolu (bkz. update_timezone_setting yorumu);
+    # buradaki en kucuk secenek (30) zaten falsy degil ama tutarlilik icin
+    # aynı deseni koruyoruz.
+    if value is None:
+        return dash.no_update
+    return value
+
+
+@app_dash.callback(
+    Output("signal-staleness-dropdown", "options"),
+    Input("language-setting", "data"),
+)
+def update_signal_staleness_options(lang):
+    return _build_signal_staleness_options(lang)
 
 
 @app_dash.callback(
@@ -2425,7 +3027,7 @@ def update_base_tile_layer(style):
      Output("filter-civil-btn", "children"), Output("filter-military-btn", "children"),
      Output("filter-ground-btn", "children"),
      Output("map-style-label", "children"), Output("map-style-street-btn", "children"),
-     Output("map-style-satellite-btn", "children"),
+     Output("map-style-satellite-btn", "children"), Output("map-style-dark-btn", "children"),
      Output("history-start-label", "children"), Output("history-end-label", "children"),
      Output("history-start-day", "placeholder"), Output("history-end-day", "placeholder"),
      Output("history-start-hour", "placeholder"), Output("history-end-hour", "placeholder"),
@@ -2437,7 +3039,10 @@ def update_base_tile_layer(style):
      Output("emergency-title", "children"),
      Output("replay-title", "children"),
      Output("replay-start-label", "children"), Output("replay-end-label", "children"),
-     Output("replay-load-btn", "children"), Output("replay-live-btn", "children")],
+     Output("replay-load-btn", "children"), Output("replay-live-btn", "children"),
+     Output("altitude-legend-title", "children"),
+     Output("airline-filter-dropdown", "placeholder"),
+     Output("signal-staleness-label", "children")],
     Input("language-setting", "data"),
 )
 def update_static_texts(lang):
@@ -2448,7 +3053,7 @@ def update_static_texts(lang):
     return (t["settings_title"], t["timezone_label"],
             t["language_label"], t["aircraft_info_title"], t["history_panel_title"],
             t["filter_civil_label"], t["filter_military_label"], t["filter_ground_label"],
-            t["map_style_label"], t["map_style_street"], t["map_style_satellite"],
+            t["map_style_label"], t["map_style_street"], t["map_style_satellite"], t["map_style_dark"],
             t["history_range_placeholder_start"], t["history_range_placeholder_end"],
             t["history_day_placeholder"], t["history_day_placeholder"],
             t["history_hour_placeholder"], t["history_hour_placeholder"],
@@ -2456,7 +3061,9 @@ def update_static_texts(lang):
             t["stats_title"], t["data_source_label"], t["previous_flights_title"],
             t["emergency_panel_title"], t["replay_panel_title"],
             t["history_range_placeholder_start"], t["history_range_placeholder_end"],
-            t["replay_load_label"], t["replay_live_label"])
+            t["replay_load_label"], t["replay_live_label"],
+            t["altitude_legend_title"], t["airline_filter_placeholder"],
+            t["signal_staleness_label"])
 
 
 @app_dash.callback(
@@ -3381,6 +3988,23 @@ def exit_replay_mode(n_clicks):
     return False, False
 
 
+# ONEMLI (kullanici geri bildirimi -- "1de takılı kalıyor, durdurunca 8e
+# geçiyor"): update_map'teki AYNI yaris durumu (bkz. _altitude_map_seq
+# yorumu) burada da var -- replay-tick her 2sn'de bir "replay-index"i
+# ilerletiyor, HER index degisimi render_replay_frame'i tetikleyip
+# /api/replay_frame'e YENI bir HTTP istegi atiyor. Bu istek 2sn'den UZUN
+# surerse (yavas InfluxDB sorgusu / agir kare), bir SONRAKI tick zaten
+# YENI bir istek baslatir -- BIRDEN FAZLA istek CAKISIR ve YANITLAR
+# GONDERILDIKLERI SIRAYLA DEGIL TAMAMLANDIKLARI SIRAYLA doner. Sonuc:
+# ekran ESKI bir karede "takili" kalir (surekli daha eski bir yanitla
+# EZILIYOR), oynatmayi DURDURUNCA (yeni istek baslamayi kesince) en son
+# baslatilan istek nihayet doner ve GORUNURDE bir anda ileri "atlar."
+# AYNI cozum: her cagri kendi sira numarasini alir, sonucu YAZMADAN once
+# hala EN SON BASLATILAN cagri oldugunu dogrular -- degilse atar.
+_replay_frame_seq_lock = threading.Lock()
+_replay_frame_latest_seq = 0
+
+
 @app_dash.callback(
     [Output("aircraft-raw", "data", allow_duplicate=True),
      Output("replay-step-label", "children")],
@@ -3389,6 +4013,10 @@ def exit_replay_mode(n_clicks):
     prevent_initial_call=True,
 )
 def render_replay_frame(index, data, lang):
+    global _replay_frame_latest_seq
+    with _replay_frame_seq_lock:
+        _replay_frame_latest_seq += 1
+        my_seq = _replay_frame_latest_seq
     """index'teki adimin ucak listesini AYRI/hafif bir istekle
     (/api/replay_frame) ceker, update_map'in ciktisiyla AYNI GeoJSON-Point/
     properties semasinda "aircraft-raw"a yazar -- boylece haritanin geri
@@ -3446,6 +4074,14 @@ def render_replay_frame(index, data, lang):
     raw_data = {"type": "FeatureCollection", "features": features}
     ts_display = steps[index][:19].replace("T", " ")
     label = f"{index + 1}/{len(steps)}  ·  {ts_display}"
+
+    # ONEMLI: yukaridaki _replay_frame_seq aciklamasina bkz -- bu istek
+    # surerken DAHA YENI bir tick/kare zaten baslamissa, bu sonuc ARTIK
+    # BAYAT -- yazmadan at, ekranin eski bir kareye "geri sicramasina"
+    # izin verme.
+    if my_seq != _replay_frame_latest_seq:
+        return dash.no_update, dash.no_update
+
     return raw_data, label
 
 
@@ -3461,12 +4097,24 @@ def render_replay_frame(index, data, lang):
 # -- sadece JS'e tasindi.
 app_dash.clientside_callback(
     """
-    function(rawData, zoom) {
+    function(rawData, zoom, airlineCodes, lang) {
         if (!rawData || !rawData.features) {
-            return window.dash_clientside.no_update;
+            return [window.dash_clientside.no_update, window.dash_clientside.no_update];
         }
         const z = (zoom === null || zoom === undefined) ? 5 : zoom;
-        const features = rawData.features.map(function(f) {
+        // ONEMLI (firma filtresi -- bkz. AIRLINE_PREFIXES Python yorumu):
+        // secili firma YOKSA (bos liste) hicbir sey elenmez -- tabloda
+        // olmayan cagri kodlari (askeri/genel havacilik/taninmayan) da
+        // varsayilan olarak HEP gorunur kalir. Bu TAMAMEN tarayicida
+        // calisiyor -- update_map'e (sunucu) HICBIR yeni istek gitmiyor.
+        const wanted = (airlineCodes && airlineCodes.length) ? new Set(airlineCodes) : null;
+        const sourceFeatures = wanted
+            ? rawData.features.filter(function(f) {
+                const cs = (f.properties && f.properties.callsign) || "";
+                return wanted.has(cs.trim().slice(0, 3).toUpperCase());
+            })
+            : rawData.features;
+        const features = sourceFeatures.map(function(f) {
             const p = f.properties;
             const lon = f.geometry.coordinates[0];
             const lat = f.geometry.coordinates[1];
@@ -3522,11 +4170,21 @@ app_dash.clientside_callback(
                 properties: p,
             };
         });
-        return {type: 'FeatureCollection', features: features};
+        // ONEMLI (kullanici geri bildirimi -- "firma filtresi bu sayiyi
+        // hic etkilemiyor"): status cubugundaki "toplam" Python'da
+        // hesaplaniyor (hicbir filtre yok) ama firma filtresi SADECE burada
+        // (JS) uygulandigi icin "kalan/gosterilen" sayiyi da BURADA
+        // yazmak zorundayiz -- sourceFeatures.length TAM OLARAK sivil/
+        // askeri/yerde/irtifa (sunucuda) + firma (burada) filtrelerinin
+        // HEPSI uygulandiktan SONRAKI nihai sayidir.
+        const shownLabel = (lang === 'en') ? 'shown' : 'gösteriliyor';
+        const shownText = sourceFeatures.length + ' ' + shownLabel;
+        return [{type: 'FeatureCollection', features: features}, shownText];
     }
     """,
-    Output("aircraft-geojson", "data"),
-    [Input("aircraft-raw", "data"), Input("map", "zoom")],
+    [Output("aircraft-geojson", "data"), Output("status-shown", "children")],
+    [Input("aircraft-raw", "data"), Input("map", "zoom"),
+     Input("airline-filter-dropdown", "value"), Input("language-setting", "data")],
 )
 
 
