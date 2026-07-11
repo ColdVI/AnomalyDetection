@@ -1,0 +1,36 @@
+{
+  "split": "split_04",
+  "seed": 4,
+  "architecture": "dense_ae",
+  "n_test_windows": 229554,
+  "correlations": {
+    "relerr": {
+      "trained_vs_untrained_random_init_spearman": {
+        "spearman": 0.5015425897044152,
+        "n_windows": 229554
+      },
+      "trained_vs_magnitude_only_spearman": {
+        "spearman": 0.2561609435489434,
+        "n_windows": 229554
+      },
+      "untrained_vs_magnitude_only_spearman": {
+        "spearman": 0.1681316503044587,
+        "n_windows": 229554
+      }
+    },
+    "rankpct": {
+      "trained_vs_untrained_random_init_spearman": {
+        "spearman": 0.866221777345329,
+        "n_windows": 229554
+      },
+      "trained_vs_magnitude_only_spearman": {
+        "spearman": 0.8366254309362076,
+        "n_windows": 229554
+      },
+      "untrained_vs_magnitude_only_spearman": {
+        "spearman": 0.8959056949753016,
+        "n_windows": 229554
+      }
+    }
+  }
+}

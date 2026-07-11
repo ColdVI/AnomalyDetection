@@ -1,0 +1,32 @@
+{
+  "source": "rflymad",
+  "bronze_dir": "data/objectstore/bronze/rflymad",
+  "candidate_cases": 490,
+  "parsed_cases": 490,
+  "skipped_cases": [],
+  "blind_holdout_read": false,
+  "subsets": [
+    "SampleData",
+    "Real-NoFault",
+    "Real-No_Fault",
+    "Real-Motor",
+    "Real-Sensors"
+  ],
+  "fault_interval_coverage": {
+    "anomalous_flights": 439,
+    "with_interval": 434,
+    "missing_interval": 5,
+    "source_counts": {
+      "rfly_ctrl_lxl": 434,
+      "normal_no_fault": 51,
+      "rfly_ctrl_lxl_no_active_fault": 5
+    },
+    "missing_source_ids": [
+      "Real-Motor/circling/328_2/log_11_2023-6-7-08-29-38",
+      "Real-Motor/hover/2_2/log_7_2023-5-18-10-29-00",
+      "Real-Motor/waypoint/148_1/log_8_2023-5-26-08-12-00",
+      "Real-Motor/waypoint/150_1/log_11_2023-5-26-08-27-04",
+      "Real-Motor/waypoint/171_1/log_34_2023-5-26-11-13-16"
+    ]
+  }
+}

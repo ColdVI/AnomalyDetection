@@ -243,6 +243,12 @@ def main():
                     .field("lon", float(data.get("lon", 0.0)))
                     .field("alt", float(data.get("alt", 0.0)))
                     .field("is_ground", bool(data.get("is_ground", False)))
+                    # 2026-07-10 (kullanici istegi): adsb_producer.py zaten dbFlags'ten
+                    # is_military hesaplayip Kafka'ya koyuyor -- burada da yaziyoruz ki
+                    # individual/metehan_geo'nun realtime (live/24h/7d) haritalari
+                    # sivil/askeri filtresini uygulayabilsin. Sadece BUNDAN SONRA yazilan
+                    # noktalarda olacak -- gecmis InfluxDB verisinde bu alan yok.
+                    .field("is_military", bool(data.get("is_military", False)))
                     .time(datetime.now(timezone.utc))
                 )
                 # ONEMLI: velocity/vertical_rate/track icin data.get(..., 0.0)

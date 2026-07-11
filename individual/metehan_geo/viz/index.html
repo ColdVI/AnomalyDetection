@@ -163,10 +163,21 @@
       </div>
     </div>
 
+    <div class="field" id="civMilField">
+      <label>Uçak Türü</label>
+      <div class="segmented" id="civMilSegmented">
+        <button type="button" data-value="all" class="active">Tümü</button>
+        <button type="button" data-value="civil">Sivil</button>
+        <button type="button" data-value="military">Askeri</button>
+      </div>
+    </div>
+
     <div class="field" id="clustersHint" style="display:none">
       DBSCAN ile bulunan hava trafiği hub'ları — ülke/şehir sınırı önceden
       verilmedi, sadece hex başına düşen benzersiz uçuş yoğunluğuna bakılarak
       keşfedildi. Bu bir "sapma/anomali" analizi değil, coğrafi kümeleme.
+      Kümeleme her zaman TÜM uçaklar üzerinden hesaplanır — Uçak Türü
+      filtresi bu modda etkisizdir.
     </div>
 
     <div class="field" id="realtimeHint" style="display:none">
@@ -298,6 +309,25 @@ let currentMetric = "flight"; // varsayilan: duzeltilmis metrik (2026-07-07 kara
 let renderMode = "hexagon"; // "hexagon" | "heatmap" (2026-07-07 eklendi)
 let minDayCount = 0;
 
+// --- Uçak Türü (Sivil/Askeri) filtresi (2026-07-10, kullanici istegi) ---
+// adsb.lol verisinde ucaklar zaten dbFlags bit alaniyla asgari sivil/askeri
+// flaglenmis (bkz. src/silver/parse_adsblol_historical.py). Yeniden DBSCAN/
+// fetch GEREKMEZ -- her GeoJSON hex/nokta'si zaten flight_count (toplam),
+// flight_count_civil, flight_count_military kolonlarinin UCUNU de tasiyor
+// (build_flight_density.py / realtime_density.py / build_heatmap_points.py),
+// secim degisince sadece HANGI kolonun renklendirmede kullanildigi degisir.
+let currentCivMil = "all"; // "all" | "civil" | "military"
+function civMilPropertyName(base = "point_count") {
+  if (currentCivMil === "civil") return "flight_count_civil";
+  if (currentCivMil === "military") return "flight_count_military";
+  return base;
+}
+// En son yuklenen hexagon/heatmap GeoJSON'u -- Uçak Türü degisince (veri
+// zaten elde oldugu icin) yeniden fetch YAPMADAN sadece boyama (paint)
+// yeniden hesaplanabilsin diye saklaniyor.
+let currentHexGeojson = null;
+let currentPointsGeojson = null;
+
 // --- Realtime (--live/--24h/--7d) katmani (2026-07-07 eklendi) ---
 // docs/realtime_pipeline_prompt.md: InfluxDB'den (Dashboard/dashboard_consumer.py
 // zaten yaziyor) individual/metehan_geo/realtime_density.py ile hesaplanan
@@ -315,8 +345,8 @@ const REALTIME_FILES = {
 // Realtime dosyalari surekli degisen/kucuk olcekli veri oldugu icin sabit
 // colorBreaks kalibre etmek anlamsiz (historical'in aksine) -- her yuklemede
 // KENDI point_count dagilimindan (p10/p50/p75/p90/p99) dinamik hesaplaniyor.
-function computeBreaksFromFeatures(geojson) {
-  const values = geojson.features.map(f => f.properties.point_count).sort((a, b) => a - b);
+function computeBreaksFromFeatures(geojson, propName = "point_count") {
+  const values = geojson.features.map(f => f.properties[propName] ?? 0).sort((a, b) => a - b);
   if (values.length === 0) return [1, 1, 1, 1, 1];
   const pct = (p) => values[Math.min(values.length - 1, Math.floor(p * values.length))];
   return [pct(0.10), pct(0.50), pct(0.75), pct(0.90), pct(0.99)];
@@ -349,9 +379,13 @@ const HEATMAP_COLOR_GLOW = [
   1.0, "rgba(255,220,140,0.55)",
 ];
 
-function heatmapWeightExpression(breaks) {
+// propName: varsayilan "weight" (build_heatmap_points.py'nin her zaman
+// yazdigi toplam flight_count alani) -- Uçak Türü filtresi Sivil/Askeri
+// secilince "flight_count_civil"/"flight_count_military" kullanilir (ayni
+// nokta dosyasinda extra_cols olarak zaten mevcut, bkz. build_heatmap_points.py).
+function heatmapWeightExpression(breaks, propName = "weight") {
   return [
-    "interpolate", ["linear"], ["log10", ["max", ["get", "weight"], 1]],
+    "interpolate", ["linear"], ["log10", ["max", ["get", propName], 1]],
     Math.log10(Math.max(breaks[0], 1)), 0,
     Math.log10(Math.max(breaks[4], 1)), 1,
   ];
@@ -374,11 +408,14 @@ function sanitizeBreaks(breaks) {
   }
   return b;
 }
-function log10ColorExpression(breaks) {
+// propName: 2026-07-10 eklendi -- Uçak Türü (Tümü/Sivil/Askeri) filtresi
+// ayni GeoJSON icindeki farkli bir sayisal alana (point_count/flight_count_civil/
+// flight_count_military) bakarak renklendirir, yeniden fetch gerekmez.
+function log10ColorExpression(breaks, propName = "point_count") {
   const sanitized = sanitizeBreaks(breaks);
   const stops = [];
   sanitized.forEach((b, i) => stops.push(Math.log10(Math.max(b, 1)), HEX_COLORS[i]));
-  return ["interpolate", ["linear"], ["log10", ["max", ["get", "point_count"], 1]], ...stops];
+  return ["interpolate", ["linear"], ["log10", ["max", ["get", propName], 1]], ...stops];
 }
 
 // Yogunluk opaklik olcegi (metehan_geo_country projesinden tasindi,
@@ -386,11 +423,11 @@ function log10ColorExpression(breaks) {
 // yogunlugu ayirt etmiyordu; 2-3 nokta iceren hucreler artik cok daha
 // SOLUK, yogun hub'lar cok daha BASKIN gorunuyor, ayni log10 skalasinda.
 const OPACITY_LEVELS = [0.12, 0.32, 0.55, 0.78, 0.95];
-function log10OpacityExpression(breaks) {
+function log10OpacityExpression(breaks, propName = "point_count") {
   const sanitized = sanitizeBreaks(breaks);
   const stops = [];
   sanitized.forEach((b, i) => stops.push(Math.log10(Math.max(b, 1)), OPACITY_LEVELS[i]));
-  return ["interpolate", ["linear"], ["log10", ["max", ["get", "point_count"], 1]], ...stops];
+  return ["interpolate", ["linear"], ["log10", ["max", ["get", propName], 1]], ...stops];
 }
 
 // Kompakt renk-skalasi legend'i (eski uzun aciklama metni yerine, 2026-07-07) --
@@ -455,10 +492,10 @@ function addDensityLayers(geojson, colorExpr, opacityExpr) {
 // Heatmap layer -- Point geometry + weight property bekliyor (bkz.
 // build_heatmap_points.py). Ayni "density-points" source'undan IKI katman:
 // once genis/yumusak "glow" (altta), sonra dar/parlak "core" (ustte).
-function addHeatmapLayer(geojson, breaks) {
+function addHeatmapLayer(geojson, breaks, propName = "weight") {
   if (map.getSource("density-points")) return; // zaten ekli
   map.addSource("density-points", { type: "geojson", data: geojson });
-  const weightExpr = heatmapWeightExpression(breaks);
+  const weightExpr = heatmapWeightExpression(breaks, propName);
 
   map.addLayer({
     id: "density-heatmap-glow",
@@ -594,28 +631,44 @@ async function render() {
       // veri, tekrar fetch anlamsiz). Realtime: HER render() cagrisinda taze
       // veri cek -- sourceKey (rt:live/24h/7d) ayni kalsa bile arkadaki
       // GeoJSON dosyasi surekli degisiyor.
-      if (isHistorical ? loadedHexMetric !== sourceKey : true) {
+      const needsFetch = isHistorical ? loadedHexMetric !== sourceKey : true;
+      let geojson;
+      if (needsFetch) {
         const file = isHistorical ? METRICS[currentMetric].file : REALTIME_FILES[currentTimeRange];
-        const geojson = isHistorical
+        geojson = isHistorical
           ? await fetchJsonCached(geojsonCache, sourceKey, file)
           : await fetchJsonFresh(file);
         if (mySeq !== requestSeq) return;
-        const breaks = isHistorical ? METRICS[currentMetric].colorBreaks : computeBreaksFromFeatures(geojson);
-        const colorExpr = log10ColorExpression(breaks);
-        const opacityExpr = log10OpacityExpression(breaks);
-        const source = map.getSource("density");
+        currentHexGeojson = geojson;
+        loadedHexMetric = sourceKey;
+      } else {
+        geojson = currentHexGeojson;
+      }
+      // Uçak Türü "Tümü" ise TARIHSEL icin onceden kalibre edilmis sabit
+      // breaks (regresyon riski yok) -- Sivil/Askeri secilince (cok daha
+      // seyrek dagilim) VEYA realtime'da (zaten dinamikti) breaks o an
+      // yuklu GeoJSON'un SECILI kolonundan hesaplanir.
+      const propName = civMilPropertyName();
+      const breaks = currentCivMil === "all"
+        ? (isHistorical ? METRICS[currentMetric].colorBreaks : computeBreaksFromFeatures(geojson))
+        : computeBreaksFromFeatures(geojson, propName);
+      const colorExpr = log10ColorExpression(breaks, propName);
+      const opacityExpr = log10OpacityExpression(breaks, propName);
+      const source = map.getSource("density");
+      if (needsFetch) {
         if (source) {
           source.setData(geojson);
-          map.setPaintProperty("density-fill", "fill-color", colorExpr);
-          map.setPaintProperty("density-fill", "fill-opacity", opacityExpr);
         } else {
           addDensityLayers(geojson, colorExpr, opacityExpr);
         }
-        loadedHexMetric = sourceKey;
-        currentLegendBreaks = breaks;
-        const suffix = isHistorical ? "" : ` (guncellendi: ${new Date().toLocaleTimeString("tr-TR")})`;
-        document.getElementById("status").textContent = `hexagon/${sourceKey}: ${geojson.features.length} hex${suffix}`;
       }
+      if (map.getLayer("density-fill")) {
+        map.setPaintProperty("density-fill", "fill-color", colorExpr);
+        map.setPaintProperty("density-fill", "fill-opacity", opacityExpr);
+      }
+      currentLegendBreaks = breaks;
+      const suffix = isHistorical ? "" : ` (guncellendi: ${new Date().toLocaleTimeString("tr-TR")})`;
+      document.getElementById("status").textContent = `hexagon/${sourceKey}: ${geojson.features.length} hex${suffix}`;
     } else if (renderMode === "clusters") {
       // Trafik Kumeleri (dbscan_geo_hotspot_prompt.md) -- DBSCAN'in ONCEDEN
       // hesaplanmis ciktisi. Tarihsel: build_traffic_clusters.py (11 gunluk
@@ -663,23 +716,34 @@ async function render() {
       return render();
     } else {
       const metricKey = currentMetric;
-      if (loadedHeatmapMetric !== metricKey) {
-        const geojson = await fetchJsonCached(pointsCache, metricKey, METRICS[metricKey].pointsFile);
+      const needsFetch = loadedHeatmapMetric !== metricKey;
+      let geojson;
+      if (needsFetch) {
+        geojson = await fetchJsonCached(pointsCache, metricKey, METRICS[metricKey].pointsFile);
         if (mySeq !== requestSeq) return;
-        const source = map.getSource("density-points");
+        currentPointsGeojson = geojson;
+        loadedHeatmapMetric = metricKey;
+      } else {
+        geojson = currentPointsGeojson;
+      }
+      const propName = civMilPropertyName("weight");
+      const breaks = currentCivMil === "all"
+        ? METRICS[metricKey].colorBreaks
+        : computeBreaksFromFeatures(geojson, propName);
+      const weightExpr = heatmapWeightExpression(breaks, propName);
+      const source = map.getSource("density-points");
+      if (needsFetch) {
         if (source) {
           source.setData(geojson);
-          const weightExpr = heatmapWeightExpression(METRICS[metricKey].colorBreaks);
-          for (const id of HEATMAP_LAYER_IDS) {
-            map.setPaintProperty(id, "heatmap-weight", weightExpr);
-          }
         } else {
-          addHeatmapLayer(geojson, METRICS[metricKey].colorBreaks);
+          addHeatmapLayer(geojson, breaks, propName);
         }
-        loadedHeatmapMetric = metricKey;
-        currentLegendBreaks = METRICS[metricKey].colorBreaks;
-        document.getElementById("status").textContent = `heatmap/${metricKey}: ${geojson.features.length} nokta`;
       }
+      for (const id of HEATMAP_LAYER_IDS) {
+        if (map.getLayer(id)) map.setPaintProperty(id, "heatmap-weight", weightExpr);
+      }
+      currentLegendBreaks = breaks;
+      document.getElementById("status").textContent = `heatmap/${metricKey}: ${geojson.features.length} nokta`;
     }
     setRenderModeVisibility();
     applyDayCountFilter();
@@ -793,6 +857,15 @@ function updateFieldVisibilityForTimeRange() {
   document.getElementById("densityLegendField").style.display = isClusters ? "none" : "block";
   document.getElementById("realtimeHint").style.display = (!isHistorical && !isClusters) ? "block" : "none";
   document.getElementById("clustersHint").style.display = isClusters ? "block" : "none";
+
+  // Trafik Kümeleri (DBSCAN) her zaman TÜM uçaklar üzerinden hesaplanir --
+  // yeniden kumeleme calistirmadan Sivil/Askeri'ye gore filtrelemenin bir
+  // yolu yok, bu yuzden bu modda kontrol GORSEL OLARAK devre disi (2026-07-09
+  // Rotalar modundaki zaman-araligi butonlariyla AYNI desen).
+  for (const b of document.querySelectorAll("#civMilSegmented button")) {
+    b.disabled = isClusters;
+    b.title = isClusters ? "Trafik Kümeleri her zaman tüm uçaklar üzerinden hesaplanır" : "";
+  }
 }
 
 // Trafik Kumeleri SADECE Tarihsel ve 7 Gun'de mevcut -- DBSCAN'in anlamli
@@ -856,6 +929,14 @@ document.getElementById("metricSegmented").addEventListener("click", (e) => {
   for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
   updateFieldVisibilityForTimeRange();
   render();
+});
+
+document.getElementById("civMilSegmented").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-value]");
+  if (!btn || btn.disabled) return;
+  currentCivMil = btn.dataset.value;
+  for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
+  render(); // veri zaten yuklu (cache/currentHexGeojson) -- sadece yeniden boyar, fetch yapmaz
 });
 
 document.getElementById("dayCountSlider").addEventListener("input", (e) => {

@@ -1,46 +1,19 @@
-# UAV Anomaly Detection Data Platform
+# ADS-B Anomaly Detection — Clean Restart
 
-Bu repo, IHA anomali tespiti calismasinin veri platformudur. Su anda yalnizca **Bronze
-fazindayiz**; Silver ve Gold implementasyonu ekip review'u tamamlanmadan baslamayacaktir.
+Bu repo 2026-07-10 tarihinde sadeleştirildi. Önceki ALFA, UAV Attack, UAV-SEAD,
+RFLY ve ML-0…ML-16 deneyleri aktif çalışma alanından çıkarıldı. Aynı gün yazılan
+iki ADS-B model denemesi de kullanıcı tarafından baseline olarak kabul edilmedi ve
+ayrı bir arşive kaldırıldı.
 
-```text
-adsb.lol historical --\
-adsb.lol realtime  ---+--> Bronze (raw + provenance) --> Silver --> Gold
-ALFA               ---+                               [review bekliyor]
-UAV Attack         --/
-```
+Aktif hedef: gerçek ADS-B arşivlerinden, tanımı baştan açık kurulmuş bir
+`anomaly = yes/no` sistemi geliştirmek.
 
-Bronze kaynak alanlarini ve degerlerini degistirmez. Yalnizca standart provenance
-kolonlarini ekler; adsb.lol kayitlarinda Turkiye bbox filtresi uygular. Birim donusumleri
-ve ortak sema Silver'in isidir.
+Başlangıç noktaları:
 
-## Kurulum
+- `adsb/README.md`: sıfırdan başlangıç sözleşmesi;
+- `docs/adsblo_data_format_reference (1) 2026-07-10 amt 11.03.27.md`: veri formatı;
+- `src/silver/parse_adsblol_historical.py`: korunmuş ham veri okuma altyapısı;
+- `archive/README.md`: önceki çalışmaların indeksi.
 
-Python 3.10+ ve Docker gereklidir.
-
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-python -m pytest
-docker compose up -d
-```
-
-Kafka `localhost:9092` uzerinde calisir. Kapatmak icin `docker compose down` kullanin.
-GNU Make bulunan ortamlarda `make test`, `make up` ve `make down` da kullanilabilir.
-
-## Yerel veri dizinleri
-
-Veri repoya girmez. Indirilen dosyalari su dizinlere koyun:
-
-```text
-data/bronze/adsblol_historical/_input/   # gunluk .tar arsivleri
-data/bronze/adsblol_realtime/_landing/   # ham JSONL (uygulama olusturur)
-data/bronze/alfa/_input/                 # ALFA processed CSV agaci
-data/bronze/uav_attack/_input/           # UAV Attack CSV/ULog agaci
-```
-
-ALFA ve UAV Attack loader'lari gercek dosya/klasor adlari gorulmeden label cikarimi
-varsaymayacaktir. Kaynak kararlari [docs/decisions.md](docs/decisions.md), Bronze metadata
-sozlesmesi [docs/bronze_schema.md](docs/bronze_schema.md) icindedir..
-no intro
+`archive/` altındaki kod ve sonuçlar aktif baseline değildir; yeni modele import
+edilmez veya başarı kanıtı olarak kullanılmaz.

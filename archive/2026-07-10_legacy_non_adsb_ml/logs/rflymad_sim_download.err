@@ -1,0 +1,9 @@
+INFO __main__: secim: 886 case, 1772 dosya, 8.74 GB (SIL-Wind,HIL-Wind)
+INFO __main__: [20/886 case] indirilen=40 atlanan=0 hata=0
+INFO __main__: [40/886 case] indirilen=80 atlanan=0 hata=0
+INFO __main__: [60/886 case] indirilen=120 atlanan=0 hata=0
+INFO __main__: [80/886 case] indirilen=160 atlanan=0 hata=0
+INFO __main__: [100/886 case] indirilen=200 atlanan=0 hata=0
+INFO __main__: [120/886 case] indirilen=240 atlanan=0 hata=0
+INFO __main__: [140/886 case] indirilen=280 atlanan=0 hata=0
+INFO __main__: [160/886 case] indirilen=320 atlanan=0 hata=0

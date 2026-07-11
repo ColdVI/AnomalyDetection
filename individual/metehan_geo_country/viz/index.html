@@ -41,6 +41,16 @@
   }
   .field select:hover { border-color: rgba(255, 255, 255, 0.22); }
   .field select:focus { outline: 2px solid #3b6fe0; outline-offset: 1px; }
+  .field select:disabled { opacity: 0.35; cursor: not-allowed; }
+  /* ONEMLI: <select>'in kendi arka plani/rengi acik dropdown LISTESINI
+     (option'lar) etkilemiyor -- tarayici bunu genelde platform-native
+     (BEYAZ) bir yuzeyde ciziyor, sadece "color" miras kaldigi icin acik
+     renkli yazi beyaz zemin uzerinde OKUNMUYORDU (2026-07-09 kullanici
+     bildirimi). option'lara ACIKCA koyu zemin veriyoruz. */
+  .field select option {
+    background: #1a1a1f;
+    color: #e9e9ee;
+  }
 
   .segmented { display: flex; background: rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 3px; gap: 2px; }
   .segmented button {
@@ -52,6 +62,7 @@
   #timeRangeSegmented button { font-size: 10px; padding: 7px 2px; }
   .segmented button.active { background: #3b6fe0; color: #fff; }
   .segmented button:not(.active):hover { background: rgba(255, 255, 255, 0.07); color: #e9e9ee; }
+  .segmented button:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
 
   .legend-swatch { height: 10px; border-radius: 5px; margin-bottom: 4px; }
   .legend-scale { display: flex; justify-content: space-between; font-size: 10.5px; color: #93939f; font-variant-numeric: tabular-nums; }
@@ -82,6 +93,37 @@
   }
   .switch input:checked + .slider { background: #3b6fe0; }
   .switch input:checked + .slider::before { transform: translateX(15px); }
+
+  .day-slider-row { display: flex; align-items: center; gap: 8px; }
+  .day-slider-row input[type="range"] { flex: 1; accent-color: #3b6fe0; }
+  .day-slider-row button {
+    border: none; background: rgba(255,255,255,0.08); color: #e9e9ee;
+    width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 13px; flex-shrink: 0;
+  }
+  .day-slider-row button:hover { background: rgba(255,255,255,0.16); }
+  .day-slider-row button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .day-pair-label {
+    font-size: 11.5px; color: #cfd0d8; text-align: center; margin-top: 6px;
+    font-variant-numeric: tabular-nums; font-weight: 600;
+  }
+  .day-dropdowns { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+  .day-dropdowns select { flex: 1; font-size: 11px; padding: 5px 6px; }
+  .day-dropdowns span { font-size: 11px; color: #6d6d78; }
+
+  #anomalyWarningPanel {
+    max-height: 190px; overflow-y: auto; display: flex; flex-direction: column; gap: 3px;
+  }
+  .anomaly-empty { font-size: 11px; color: #6d6d78; padding: 4px 2px; }
+  .anomaly-item {
+    display: flex; justify-content: space-between; gap: 6px; padding: 6px 7px;
+    border-radius: 6px; cursor: pointer; font-size: 11px; background: rgba(255,255,255,0.03);
+  }
+  .anomaly-item:hover { background: rgba(255,255,255,0.09); }
+  .anomaly-item .badge { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .anomaly-item.cat-new .badge { color: #f472b6; }
+  .anomaly-item.cat-vanished .badge { color: #7a8bbf; }
+  .anomaly-item.cat-up .badge { color: #f03b20; }
+  .anomaly-item.cat-down .badge { color: #3b82f6; }
 
   .maplibregl-popup-content {
     background: rgba(20, 20, 24, 0.92); color: #e9e9ee; font: 12px/1.5 -apple-system, "Segoe UI", system-ui, sans-serif;
@@ -114,18 +156,91 @@
       </select>
     </div>
 
+    <div class="field">
+      <label>Görünüm</label>
+      <div class="segmented" id="viewSegmented">
+        <button type="button" data-value="density" class="active">Yoğunluk</button>
+        <button type="button" data-value="routes">Rotalar</button>
+        <button type="button" data-value="changes">Değişim</button>
+      </div>
+    </div>
+
+    <div class="field" id="civMilField">
+      <label>Uçak Türü</label>
+      <div class="segmented" id="civMilSegmented">
+        <button type="button" data-value="all" class="active">Tümü</button>
+        <button type="button" data-value="civil">Sivil</button>
+        <button type="button" data-value="military">Askeri</button>
+      </div>
+    </div>
+
     <div id="limitNote">
       Bu harita, uçağın <b>tescilli olduğu</b> ülkeyi gösterir — o an
       <b>hangi ülke üzerinde uçtuğunu değil</b>. Bir ülke seçildiğinde, o
       ülkeye tescilli uçakların <b>geçtiği tüm hex'ler</b> gösterilir (sadece
       baskın olduğu hex'ler değil). Zaman aralığı, verinin kendi son kaydına
       (2026-07-07) göre hesaplanır.
+      <br><br><b>Uçak Türü:</b> adsb.lol verisinde uçaklar zaten asgari
+      sivil/askeri olarak flaglenmiştir. Bu veri setinde askeri uçuş sayısı
+      çok daha az olabilir — "Askeri" seçiliyken bazı ülkeler/rotalar hiç
+      görünmeyebilir, bu bir hata değildir.
     </div>
 
-    <div class="field">
+    <div id="routesHint" style="display:none; font-size: 10.5px; line-height: 1.5; color: #9d9da8; background: rgba(255, 138, 61, 0.1); border: 1px solid rgba(255, 138, 61, 0.3); border-radius: 8px; padding: 8px 10px;">
+      Seçili ülkeye tescilli uçakların <b>en sık gittiği rotalar</b> (havalimanı
+      eşleştirmesi + zaman-boşluğu ile ayrılmış uçuş bacakları üzerinden), gerçek
+      uçuş yolu (H3 altıgen koridor) olarak gösterilir.
+      <b style="color:#ff8a3d">Turuncu, koyu</b> altıgenler o ülkenin en sık
+      rotasıdır, diğer rotalar soluk gösterilir. Ülke seçilmezse rota gösterilmez.
+      <br><br><b>Not:</b> rotalar verinin <b>tüm 62 günlük geçmişinden</b>
+      hesaplanmıştır — soldaki "Zaman Aralığı" sadece Yoğunluk görünümünü
+      etkiler, kısa bir aralıkta (ör. "1 Gün") görünmeyen bir hex, rotalarda
+      yine de görünebilir (o rota geçmişte başka bir günde uçulmuş olabilir).
+      <br><br><b>Dikkat:</b> "en sık rota" her ülke için her zaman BİR
+      kazanan seçer, örneklem büyüklüğüne bakmaksızın — birçok ülkede bu
+      sadece birkaç uçuşa dayanıyor (⚠ işaretli rotalara bakın). Az veri
+      olan ülkelerde bu sıralama tesadüfi olabilir.
+    </div>
+
+    <div class="field" id="densityLegendField">
       <label>Benzersiz Uçak Sayısı</label>
       <div class="legend-swatch" id="legendSwatch"></div>
       <div class="legend-scale"><span id="legendMin"></span><span id="legendMax"></span></div>
+    </div>
+
+    <div class="field" id="changesField" style="display:none">
+      <label>Gün Karşılaştırma</label>
+      <div class="day-slider-row">
+        <button type="button" id="dayPrevBtn">◀</button>
+        <input type="range" id="daySlider" min="1" max="1" value="1" step="1" />
+        <button type="button" id="dayNextBtn">▶</button>
+      </div>
+      <div class="day-pair-label" id="dayPairLabel">—</div>
+      <div class="day-dropdowns">
+        <select id="dayASelect"></select>
+        <span>→</span>
+        <select id="dayBSelect"></select>
+      </div>
+    </div>
+
+    <div id="changesHint" style="display:none; font-size: 10.5px; line-height: 1.5; color: #9d9da8; background: rgba(244, 114, 182, 0.1); border: 1px solid rgba(244, 114, 182, 0.3); border-radius: 8px; padding: 8px 10px;">
+      Seçilen İKİ GÜN arasında yoğunluğu (benzersiz uçak sayısı) <b>anormal
+      değişen</b> hex'ler işaretlenir — <b style="color:#f03b20">kırmızı</b>
+      artış, <b style="color:#3b82f6">mavi</b> azalış, <b style="color:#f472b6">pembe</b>
+      daha önce hiç görülmemiş yeni trafik, <b style="color:#7a8bbf">gri-mavi</b>
+      tamamen kaybolan trafik. Kaydırıcı ile art arda günleri hızlıca
+      tarayabilir, ya da aşağıdaki iki menüden belirli iki günü doğrudan
+      seçebilirsiniz. Bu görünüm <b>ülke seçiminden bağımsızdır</b> (tüm
+      dünya taranır).
+      <br><br><b>Not:</b> şu an son 7 güne kadar geriye bakabiliyor (canlı
+      InfluxDB'ye bağlanınca da yapısı gereği zaten sadece bu kadarını
+      tutacak) — kısıtlı örneklem nedeniyle "anormal" burada istatistiksel
+      bir yaklaşım, kesin bir tespit değildir.
+    </div>
+
+    <div class="field" id="anomalyWarningField" style="display:none">
+      <label id="anomalyWarningLabel">Anormal Değişimler</label>
+      <div id="anomalyWarningPanel"></div>
     </div>
 
     <div class="field">
@@ -250,9 +365,231 @@ let h3ByCell = new Map();   // h3_cell -> properties (popup icin -- MapLibre'ye 
 // hex iken h3_1d.geojson sadece 6.11MB/10.951 hex, ilk render COK daha hizli.
 let currentTimeRange = "1d";
 let currentCountry = "";    // "" = Tum Ulkeler
+let currentView = "density";     // "density" | "routes"
+
+// --- Uçak Türü (Sivil/Askeri) filtresi (2026-07-10, kullanici istegi) ---
+// adsb.lol verisinde ucaklar zaten dbFlags ile asgari sivil/askeri flaglenmis.
+// Bu projenin ham CSV dump'i bu alani TASIMADIGI icin (bkz. step2.py'deki
+// arastirma notu), ana projenin (individual/metehan_geo) urettigi paylasilan
+// lookup dosyasindan JOIN edilip step2/step3 ciktilarina islendi -- burada
+// sadece HANGI onceden-hesaplanmis alanin/dosyanin kullanilacagini seciyoruz.
+let currentCivMil = "all"; // "all" | "civil" | "military"
+function civMilCountsFieldName() {
+  if (currentCivMil === "civil") return "per_country_counts_civil";
+  if (currentCivMil === "military") return "per_country_counts_military";
+  return "per_country_counts";
+}
+function sumCounts(dict) {
+  return Object.values(dict || {}).reduce((a, b) => a + b, 0);
+}
 
 const H3_FILES = { "1d": "data/h3_1d.geojson", "7d": "data/h3_7d.geojson", "30d": "data/h3_30d.geojson", "all": "data/h3_all.geojson" };
 const geojsonCache = new Map();
+
+// step3_build_country_routes.py ciktisi -- TUM ulkeler tek dosyada bundle,
+// istemci tarafinda currentCountry'ye gore filtreleniyor (h3_{window}.geojson
+// ile ayni desen). Zaman araligindan BAGIMSIZ (rota rekonstruksiyonu TUM
+// 62 gunluk veriden, tek seferlik hesaplandi) -- bu yuzden currentTimeRange
+// degisince YENIDEN YUKLENMEZ (bkz. #routesHint aciklamasi).
+// 2026-07-10: Uçak Türü filtresi icin AYRI dosyalar -- step3_build_country_
+// routes.py "Tumu" (mevcut, degismedi) + "_civil" + "_military" varyantlarini
+// yaziyor, her biri kendi cache'inde tutuluyor (filtre degisince yeniden
+// fetch, ama AYNI filtreye tekrar donulunce cache'ten).
+const ROUTE_FILES = {
+  all: "data/route_corridors.geojson",
+  civil: "data/route_corridors_civil.geojson",
+  military: "data/route_corridors_military.geojson",
+};
+const routeCorridorsCache = new Map();
+async function ensureRouteDataLoaded() {
+  if (!routeCorridorsCache.has(currentCivMil)) {
+    routeCorridorsCache.set(currentCivMil, await fetchJson(ROUTE_FILES[currentCivMil]));
+  }
+  return routeCorridorsCache.get(currentCivMil);
+}
+
+// --- Değişim / Anomali görünümü (2026-07-10, kullanıcı isteği) ---
+// step4_build_daily_snapshots.py çıktısı: her hex'in son 7 (ya da eldeki
+// kadar) takvim gününün HER BİRİ için flight_count'u + o hex'in KENDİ bu
+// penceredeki ortalama/std'si. Anomali skoru (z) TAMAMEN istemci
+// tarafında, seçilen iki gün için hesaplanır -- gün çifti değişince
+// yeniden fetch GEREKMEZ (civil/military ile aynı desen).
+let dailySnapshotData = null;
+let dayIndexA = 0;
+let dayIndexB = 1;
+
+async function ensureDailySnapshotLoaded() {
+  if (!dailySnapshotData) {
+    dailySnapshotData = await fetchJson("data/daily_hex_snapshots.geojson");
+    dayIndexB = dailySnapshotData.days.length - 1;
+    dayIndexA = Math.max(0, dayIndexB - 1);
+  }
+  return dailySnapshotData;
+}
+
+// 2026-07-10 (kullanıcı isteği -- "iki gün arasında ANORMAL değişen"): tek
+// bir sabit yüzde/sayı eşiği YANLIŞ olur (bu projede defalarca öğrenildi --
+// bkz. compute_knn_local_mask) -- kalabalık bir hub'da 500→550 sıradan ama
+// sessiz bir hex'te 2→8 çok çarpıcı olabilir. Bunun yerine hex'in KENDİ
+// 7-günlük std'sine göre z-skor kullanılıyor. Küçük mutlak sayılarda
+// (min_absolute altında) hiç aday sayılmıyor (gürültü).
+const Z_THRESHOLD = 2;
+
+function classifyChange(countA, countB, std, minAbsolute) {
+  const maxCount = Math.max(countA, countB);
+  const delta = countB - countA;
+  if (maxCount < minAbsolute) return { category: "normal", z: null, delta };
+  if (countA === 0 && countB > 0) return { category: "new", z: null, delta };
+  if (countA > 0 && countB === 0) return { category: "vanished", z: null, delta };
+  if (!std) return { category: "normal", z: null, delta };
+  const z = Math.abs(delta) / std;
+  if (z < Z_THRESHOLD) return { category: "normal", z, delta };
+  return { category: delta > 0 ? "up" : "down", z, delta };
+}
+
+function buildChangesGeojson() {
+  const minAbsolute = dailySnapshotData.min_absolute;
+  const features = [];
+  const anomalies = [];
+  for (const f of dailySnapshotData.features) {
+    const p = f.properties;
+    const countA = p.counts[dayIndexA];
+    const countB = p.counts[dayIndexB];
+    const { category, z, delta } = classifyChange(countA, countB, p.std, minAbsolute);
+    const feature = {
+      type: "Feature",
+      properties: {
+        h3_cell: p.h3_cell, category, delta, countA, countB,
+        z: z === null ? null : Math.round(z * 100) / 100,
+      },
+      geometry: f.geometry,
+    };
+    features.push(feature);
+    if (category !== "normal") anomalies.push(feature);
+  }
+  anomalies.sort((a, b) => (b.properties.z ?? 99) - (a.properties.z ?? 99));
+  return { features, anomalies };
+}
+
+const CHANGES_FILL_COLOR = [
+  "match", ["get", "category"],
+  "new", "#f472b6",
+  "vanished", "#7a8bbf",
+  "up", "#f03b20",
+  "down", "#3b82f6",
+  "rgba(0,0,0,0)",
+];
+const CHANGES_FILL_OPACITY_RAMP = ["interpolate", ["linear"], ["coalesce", ["get", "z"], 2], 2, 0.35, 6, 0.9];
+const CHANGES_FILL_OPACITY = [
+  "match", ["get", "category"],
+  "new", 0.85,
+  "vanished", 0.7,
+  "up", CHANGES_FILL_OPACITY_RAMP,
+  "down", CHANGES_FILL_OPACITY_RAMP,
+  0,
+];
+
+function addChangesLayer() {
+  if (map.getSource("changes")) return;
+  map.addSource("changes", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+  map.addLayer({
+    id: "changes-fill", type: "fill", source: "changes", layout: { visibility: "none" },
+    paint: { "fill-color": CHANGES_FILL_COLOR, "fill-opacity": CHANGES_FILL_OPACITY },
+  });
+  map.addLayer({
+    id: "changes-outline", type: "line", source: "changes", layout: { visibility: "none" },
+    paint: { "line-color": CHANGES_FILL_COLOR, "line-width": 0.6, "line-opacity": 0.9 },
+  });
+  wireChangesHoverPopup();
+}
+
+const CHANGES_CATEGORY_LABELS = {
+  new: "Yeni ortaya çıkan trafik", vanished: "Trafik tamamen kayboldu",
+  up: "Anormal artış", down: "Anormal azalış",
+};
+
+function changesPopupHtml(props) {
+  const zRow = props.z === null ? "" : `<div class="popup-row">z-skor: <b>${props.z}</b></div>`;
+  return `<div class="popup-title">${CHANGES_CATEGORY_LABELS[props.category] || props.category}</div>
+    <div class="popup-row">Gün A: <b>${props.countA}</b> uçak</div>
+    <div class="popup-row">Gün B: <b>${props.countB}</b> uçak</div>
+    <div class="popup-row">Fark: <b>${props.delta > 0 ? "+" : ""}${props.delta}</b></div>
+    ${zRow}`;
+}
+
+function wireChangesHoverPopup() {
+  map.on("mousemove", "changes-fill", (e) => {
+    const props = e.features[0].properties;
+    if (props.category === "normal") return;
+    map.getCanvas().style.cursor = "pointer";
+    if (!popup) popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false });
+    popup.setLngLat(e.lngLat).setHTML(changesPopupHtml(props)).addTo(map);
+  });
+  map.on("mouseleave", "changes-fill", () => {
+    map.getCanvas().style.cursor = "";
+    if (popup) { popup.remove(); popup = null; }
+  });
+}
+
+function updateDayControlsUI() {
+  const days = dailySnapshotData.days;
+  const slider = document.getElementById("daySlider");
+  slider.min = "1";
+  slider.max = String(days.length - 1);
+  slider.value = String(dayIndexB);
+  document.getElementById("dayPrevBtn").disabled = dayIndexB <= 1;
+  document.getElementById("dayNextBtn").disabled = dayIndexB >= days.length - 1;
+  document.getElementById("dayPairLabel").textContent = `${days[dayIndexA]}  →  ${days[dayIndexB]}`;
+
+  const aSel = document.getElementById("dayASelect");
+  const bSel = document.getElementById("dayBSelect");
+  if (aSel.options.length !== days.length) {
+    const optionsHtml = days.map((d, i) => `<option value="${i}">${d}</option>`).join("");
+    aSel.innerHTML = optionsHtml;
+    bSel.innerHTML = optionsHtml;
+  }
+  aSel.value = String(dayIndexA);
+  bSel.value = String(dayIndexB);
+}
+
+function updateAnomalyWarningPanel(anomalies) {
+  const panel = document.getElementById("anomalyWarningPanel");
+  document.getElementById("anomalyWarningLabel").textContent = `Anormal Değişimler (${anomalies.length})`;
+  if (anomalies.length === 0) {
+    panel.innerHTML = `<div class="anomaly-empty">Bu iki gün arasında anormal bir değişim bulunamadı.</div>`;
+    return;
+  }
+  const badgeLabels = { new: "YENİ", vanished: "KAYIP", up: "ARTIŞ", down: "AZALIŞ" };
+  const catClass = { new: "cat-new", vanished: "cat-vanished", up: "cat-up", down: "cat-down" };
+  const top = anomalies.slice(0, 30);
+  panel.innerHTML = top.map((f) => {
+    const p = f.properties;
+    return `<div class="anomaly-item ${catClass[p.category]}">
+      <span>${p.h3_cell.slice(0, 7)}… (${p.countA}→${p.countB})</span>
+      <span class="badge">${badgeLabels[p.category]}</span>
+    </div>`;
+  }).join("");
+  panel.querySelectorAll(".anomaly-item").forEach((el, i) => {
+    el.addEventListener("click", () => {
+      const bbox = bboxOfFeatures([top[i]]);
+      if (bbox) map.fitBounds(bbox, { padding: 150, duration: 700, maxZoom: 7 });
+    });
+  });
+}
+
+async function applyChangesView() {
+  await ensureDailySnapshotLoaded();
+  updateDayControlsUI();
+  if (!map.getSource("changes")) addChangesLayer();
+
+  const { features, anomalies } = buildChangesGeojson();
+  map.getSource("changes").setData({ type: "FeatureCollection", features });
+  updateAnomalyWarningPanel(anomalies);
+
+  const days = dailySnapshotData.days;
+  document.getElementById("status").textContent =
+    `${days[dayIndexA]} → ${days[dayIndexB]}: ${anomalies.length} hex anormal değişim`;
+}
 
 function setLegend(breaks) {
   document.getElementById("legendSwatch").style.background = `linear-gradient(to right, ${HEX_COLORS.join(",")})`;
@@ -260,10 +597,14 @@ function setLegend(breaks) {
   document.getElementById("legendMax").textContent = breaks[4].toLocaleString("tr-TR");
 }
 
+// Polygon ([coordinates][0] halka) VE LineString (coordinates duz nokta
+// dizisi) icin ortak bbox -- rota modu LineString/Polygon karisik
+// kullanabiliyor (duz cizgi vs koridor hex'i).
 function bboxOfFeatures(features) {
   let minLon = Infinity, minLat = Infinity, maxLon = -Infinity, maxLat = -Infinity;
   for (const f of features) {
-    for (const [lon, lat] of f.geometry.coordinates[0]) {
+    const coords = f.geometry.type === "LineString" ? f.geometry.coordinates : f.geometry.coordinates[0];
+    for (const [lon, lat] of coords) {
       if (lon < minLon) minLon = lon;
       if (lon > maxLon) maxLon = lon;
       if (lat < minLat) minLat = lat;
@@ -298,14 +639,24 @@ function populateCountrySelect() {
 // (number). "countries"/"per_country_counts" gibi ic ice yapilar buraya HIC
 // girmiyor (2026-07-08 duzeltmesi -- neden: asagidaki not).
 function buildViewGeojson() {
+  const countsField = civMilCountsFieldName();
   if (!currentCountry) {
     return {
       type: "FeatureCollection",
-      features: h3Data.features.map((f) => ({
-        type: "Feature",
-        properties: { h3_cell: f.properties.h3_cell, color_value: f.properties.total_hex_count },
-        geometry: f.geometry,
-      })),
+      features: h3Data.features
+        .map((f) => {
+          const value = currentCivMil === "all"
+            ? f.properties.total_hex_count
+            : sumCounts(f.properties[countsField]);
+          return {
+            type: "Feature",
+            properties: { h3_cell: f.properties.h3_cell, color_value: value },
+            geometry: f.geometry,
+          };
+        })
+        // Sivil/Askeri seciliyken bu turde hic ucak gecmeyen hexler
+        // (deger 0) gorunmemeli -- "Tumu" icin zaten hep >0 (no-op).
+        .filter((f) => f.properties.color_value > 0),
     };
   }
   // Ulke secili: SADECE baskin oldugu degil, UGRADIGI TUM hexler (2026-07-08
@@ -316,26 +667,27 @@ function buildViewGeojson() {
       .filter((f) => f.properties.countries.includes(currentCountry))
       .map((f) => ({
         type: "Feature",
-        properties: { h3_cell: f.properties.h3_cell, color_value: f.properties.per_country_counts[currentCountry] || 0 },
+        properties: { h3_cell: f.properties.h3_cell, color_value: (f.properties[countsField] || {})[currentCountry] || 0 },
         geometry: f.geometry,
-      })),
+      }))
+      .filter((f) => f.properties.color_value > 0),
   };
 }
 
-function applyView() {
+function applyDensityView() {
   const source = map.getSource("h3");
   if (!source) return;
 
   const viewGeojson = buildViewGeojson();
   source.setData(viewGeojson);
 
-  const breaks = currentCountry
-    // Renk: TOPLAM degil, SECILI ULKENIN o hucredeki kendi sayisi -- dinamik
-    // breaks (ana projenin realtime mantigi ile ayni yaklasim, sabit dagilim
-    // yerine anlik alt-kumeden hesaplaniyor).
+  // 2026-07-10: Uçak Türü "Tümü" DISINDA bir sey secildiginde de (ulke
+  // secili olmasa BILE) breaks'i DINAMIK hesapla -- h3Data.breaks Python'da
+  // TOPLAM dagilimina gore kalibre edildi, Sivil/Askeri alt-kumesi cok daha
+  // seyrek/farkli olabilir (sabit breaks kullanirsak neredeyse her hucre en
+  // dusuk kategoride gorunurdu).
+  const breaks = (currentCountry || currentCivMil !== "all")
     ? computeBreaksFromValues(viewGeojson.features.map((f) => f.properties.color_value))
-    // Varsayilan: TUM hexler, renk = toplam benzersiz ucak (bu pencerenin
-    // kendi onceden hesaplanmis breaks'i ile).
     : h3Data.breaks;
 
   map.setPaintProperty("h3-fill", "fill-color", log10ColorExpression(COLOR_FIELD, breaks));
@@ -350,6 +702,145 @@ function applyView() {
   const bbox = bboxOfFeatures(viewGeojson.features);
   if (bbox) map.fitBounds(bbox, { padding: 60, duration: 800 });
   document.getElementById("status").textContent = `${currentCountry}: ${viewGeojson.features.length} hex (uğradığı tüm hexler)`;
+}
+
+// is_top (rank==1, secili ulkenin EN SIK rotasi) turuncu+kalin, digerleri
+// soluk gri-mavi+ince -- kullanicinin istedigi "digerlerinden ayirt edilsin"
+// vurgusu (bkz. 2026-07-09 istegi).
+const ROUTE_TOP_COLOR = "#ff8a3d";
+const ROUTE_OTHER_COLOR = "#7a8bbf";
+const ROUTE_COLOR_EXPR = ["case", ["get", "is_top"], ROUTE_TOP_COLOR, ROUTE_OTHER_COLOR];
+
+function addRouteLayers() {
+  map.addSource("route-corridors", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+  // Opaklik = (is_top ise 1.0, degilse 0.4 taban carpani) x (ratio'ya gore
+  // 0.15-0.85 arasi gradyan) -- "ratio" artik SERT bir filtre esigi degil
+  // (bkz. build_corridor_geojson, 2026-07-09 duzeltmesi), o yuzden burada
+  // GORSEL yogunluga ceviriyoruz: bir ucagin sadece SAPTIGI kenar hucreler
+  // soluk, cogunlugun izledigi "gercek cekirdek" hucreler baskin gorunur.
+  const CORRIDOR_RATIO_OPACITY = ["interpolate", ["linear"], ["get", "ratio"], 0, 0.15, 1, 0.85];
+  map.addLayer({
+    id: "route-corridors-fill", type: "fill", source: "route-corridors", layout: { visibility: "none" },
+    paint: {
+      "fill-color": ROUTE_COLOR_EXPR,
+      "fill-opacity": ["*", ["case", ["get", "is_top"], 1.0, 0.4], CORRIDOR_RATIO_OPACITY],
+    },
+  });
+  map.addLayer({
+    id: "route-corridors-line", type: "line", source: "route-corridors", layout: { visibility: "none" },
+    paint: { "line-color": ROUTE_COLOR_EXPR, "line-width": 0.6, "line-opacity": 0.8 },
+  });
+
+  wireRouteHoverPopup("route-corridors-fill");
+}
+
+// 2026-07-09 (kullanici geri bildirimi): rank==1 HER ZAMAN bir "kazanan"
+// secer, ornek buyuklugune bakmaksizin -- 4 ucusla rank=1 olan bir rota,
+// 400 ucusla rank=1 olanla AYNI turuncu vurguyu alirdi. flight_count zaten
+// gosteriliyordu ama "bu az veriyle mi belirlendi" ayrimi YOKTU -- simdi
+// low_confidence (bkz. step3_build_country_routes.py, <15 ucus esigi,
+// bireysel projedeki route_deviation ile ayni esik) acikca uyari olarak
+// ekleniyor.
+function routePopupHtml(props) {
+  const confidenceWarning = props.low_confidence
+    ? `<div class="popup-row" style="color:#ffb84d">⚠ Düşük örneklem -- bu sıralama az sayıda uçuşla belirlendi, tesadüfi olabilir</div>`
+    : "";
+  return `<div class="popup-title">${props.pair}</div>
+    <div class="popup-row">Sıra: <b>#${props.rank}</b>${props.is_top ? " (en sık rota)" : ""}</div>
+    <div class="popup-row">Uçuş sayısı: <b>${props.flight_count.toLocaleString("tr-TR")}</b></div>
+    ${props.ratio !== undefined ? `<div class="popup-row">Koridor oranı: <b>%${Math.round(props.ratio * 100)}</b></div>` : ""}
+    ${confidenceWarning}`;
+}
+
+function wireRouteHoverPopup(layerId) {
+  map.on("mousemove", layerId, (e) => {
+    map.getCanvas().style.cursor = "pointer";
+    if (!popup) popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false });
+    popup.setLngLat(e.lngLat).setHTML(routePopupHtml(e.features[0].properties)).addTo(map);
+  });
+  map.on("mouseleave", layerId, () => {
+    map.getCanvas().style.cursor = "";
+    if (popup) { popup.remove(); popup = null; }
+  });
+}
+
+function setViewLayerVisibility() {
+  const densityVisible = currentView === "density" ? "visible" : "none";
+  map.setLayoutProperty("h3-fill", "visibility", densityVisible);
+  const routesVisible = currentView === "routes" ? "visible" : "none";
+  map.setLayoutProperty("route-corridors-fill", "visibility", routesVisible);
+  map.setLayoutProperty("route-corridors-line", "visibility", routesVisible);
+  if (map.getLayer("changes-fill")) {
+    const changesVisible = currentView === "changes" ? "visible" : "none";
+    map.setLayoutProperty("changes-fill", "visibility", changesVisible);
+    map.setLayoutProperty("changes-outline", "visibility", changesVisible);
+  }
+}
+
+function updateFieldVisibilityForView() {
+  const isRoutes = currentView === "routes";
+  const isChanges = currentView === "changes";
+  document.getElementById("routesHint").style.display = isRoutes ? "block" : "none";
+  document.getElementById("changesHint").style.display = isChanges ? "block" : "none";
+  document.getElementById("changesField").style.display = isChanges ? "block" : "none";
+  document.getElementById("anomalyWarningField").style.display = isChanges ? "block" : "none";
+  document.getElementById("densityLegendField").style.display = (isRoutes || isChanges) ? "none" : "block";
+  // 2026-07-09 (kullanici geri bildirimi): Rotalar gorunumunde Zaman Araligi
+  // butonlari hicbir seyi degistirmiyordu (rotalar TUM 62 gunluk gecmisten,
+  // TEK seferlik hesaplaniyor -- bkz. #routesHint aciklamasi) ama tiklanabilir
+  // gorundukleri icin kullanici "bir sey degisecek" bekliyordu. Rotalar
+  // modundayken butonlar devre disi birakiliyor, boylece etkisiz olduklari
+  // ac ikca gorunuyor. Degisim modu da ayni sebeple (TUM ulkeler/zaman
+  // araliklarindan BAGIMSIZ, kendi sabit son-7-gun penceresi) devre disi
+  // birakiyor -- ayrica ulke secimi de bu modda ETKISIZ (global tarama).
+  for (const b of document.querySelectorAll("#timeRangeSegmented button")) {
+    b.disabled = isRoutes || isChanges;
+    b.title = isRoutes ? "Rotalar tüm 62 günlük geçmişten hesaplanır, zaman aralığından etkilenmez"
+      : isChanges ? "Değişim görünümü kendi sabit son-7-gün penceresini kullanır" : "";
+  }
+  document.getElementById("countrySelect").disabled = isChanges;
+  document.getElementById("countrySelect").title = isChanges ? "Değişim görünümü ülke seçiminden bağımsızdır (global tarama)" : "";
+}
+
+async function applyRoutesView() {
+  if (!currentCountry) {
+    map.getSource("route-corridors").setData({ type: "FeatureCollection", features: [] });
+    document.getElementById("status").textContent = "rotalar için bir ülke seçin";
+    return;
+  }
+
+  document.getElementById("status").textContent = "rotalar yükleniyor...";
+  const routeData = await ensureRouteDataLoaded();
+
+  const features = routeData.features.filter((f) => f.properties.country === currentCountry);
+  map.getSource("route-corridors").setData({ type: "FeatureCollection", features });
+
+  if (features.length === 0) {
+    const civMilNote = currentCivMil === "all" ? "" : ` (${currentCivMil === "civil" ? "Sivil" : "Askeri"} filtresinde)`;
+    document.getElementById("status").textContent =
+      `${currentCountry}: bu ülke için yeterli rota verisi yok${civMilNote} (min. 2 uçuşluk eşleşen rota bulunamadı)`;
+    return;
+  }
+  // SADECE en sik rotaya (is_top) gore zoom -- TUM rotalarin (kisa yerel +
+  // uzun kita-arasi karisimi) birlestirilmis bbox'ina gore zoom, en sik
+  // rotayi ekranda GORULMEYECEK kadar ufacik gosterebiliyordu (2026-07-09
+  // kullanici geri bildirimi: "cizgiler ufacik").
+  const topFeatures = features.filter((f) => f.properties.is_top);
+  const bbox = bboxOfFeatures(topFeatures.length > 0 ? topFeatures : features);
+  if (bbox) map.fitBounds(bbox, { padding: 100, duration: 800, maxZoom: 9 });
+  const nRoutes = new Set(features.map((f) => f.properties.pair)).size;
+  document.getElementById("status").textContent = `${currentCountry}: ${nRoutes} rota (en sık rota turuncu)`;
+}
+
+function applyView() {
+  setViewLayerVisibility();
+  if (currentView === "density") {
+    applyDensityView();
+  } else if (currentView === "routes") {
+    applyRoutesView();
+  } else {
+    applyChangesView();
+  }
 }
 
 async function loadTimeRange(range) {
@@ -382,7 +873,9 @@ async function loadTimeRange(range) {
 // istegi) -- ozellikle sinir/havalimani yakini hexlerde tek ulke yaniltici
 // olabiliyor (ör. %55 A / %45 B), top-3 gercek kompozisyonu gosterir.
 function topCountries(properties, n = 3) {
-  return Object.entries(properties.per_country_counts)
+  const counts = properties[civMilCountsFieldName()] || properties.per_country_counts;
+  return Object.entries(counts)
+    .filter(([, count]) => count > 0)
     .sort((a, b) => b[1] - a[1])
     .slice(0, n);
 }
@@ -405,10 +898,15 @@ function wireHoverPopup() {
       .join("");
     let selectedNote = "";
     if (currentCountry && !top3.some(([c]) => c === currentCountry)) {
-      const own = props.per_country_counts[currentCountry] || 0;
+      const counts = props[civMilCountsFieldName()] || props.per_country_counts;
+      const own = counts[currentCountry] || 0;
       selectedNote = `<div class="popup-row">… ${currentCountry}: <b>${own}</b></div>`;
     }
-    const html = `<div class="popup-title">Toplam: ${props.total_hex_count} uçak</div>${rows}${selectedNote}`;
+    const totalForFilter = currentCivMil === "all"
+      ? props.total_hex_count
+      : sumCounts(props[civMilCountsFieldName()]);
+    const civMilLabel = currentCivMil === "all" ? "Toplam" : currentCivMil === "civil" ? "Sivil" : "Askeri";
+    const html = `<div class="popup-title">${civMilLabel}: ${totalForFilter} uçak</div>${rows}${selectedNote}`;
     popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
   });
   map.on("mouseleave", "h3-fill", () => {
@@ -422,6 +920,7 @@ async function init() {
   map.addSource("countries", { type: "geojson", data: basemap });
   map.addLayer({ id: "basemap-fill", type: "fill", source: "countries", paint: { "fill-color": "#1c1c22" } });
 
+  addRouteLayers();
   await loadTimeRange("1d");
 
   map.addLayer({
@@ -445,6 +944,51 @@ document.getElementById("countrySelect").addEventListener("change", (e) => {
   currentCountry = e.target.value;
   if (!currentCountry) map.flyTo({ center: [10, 20], zoom: 1.3, duration: 800 });
   applyView();
+});
+
+document.getElementById("viewSegmented").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-value]");
+  if (!btn) return;
+  for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
+  currentView = btn.dataset.value;
+  updateFieldVisibilityForView();
+  applyView();
+});
+
+document.getElementById("civMilSegmented").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-value]");
+  if (!btn) return;
+  for (const b of e.currentTarget.querySelectorAll("button")) b.classList.toggle("active", b === btn);
+  currentCivMil = btn.dataset.value;
+  applyView();
+});
+
+document.getElementById("daySlider").addEventListener("input", (e) => {
+  dayIndexB = Number(e.target.value);
+  dayIndexA = Math.max(0, dayIndexB - 1);
+  applyChangesView();
+});
+document.getElementById("dayPrevBtn").addEventListener("click", () => {
+  if (dayIndexB > 1) {
+    dayIndexB -= 1;
+    dayIndexA = Math.max(0, dayIndexB - 1);
+    applyChangesView();
+  }
+});
+document.getElementById("dayNextBtn").addEventListener("click", () => {
+  if (dayIndexB < dailySnapshotData.days.length - 1) {
+    dayIndexB += 1;
+    dayIndexA = Math.max(0, dayIndexB - 1);
+    applyChangesView();
+  }
+});
+document.getElementById("dayASelect").addEventListener("change", (e) => {
+  dayIndexA = Number(e.target.value);
+  applyChangesView();
+});
+document.getElementById("dayBSelect").addEventListener("change", (e) => {
+  dayIndexB = Number(e.target.value);
+  applyChangesView();
 });
 
 document.getElementById("globeToggle").addEventListener("change", (e) => {

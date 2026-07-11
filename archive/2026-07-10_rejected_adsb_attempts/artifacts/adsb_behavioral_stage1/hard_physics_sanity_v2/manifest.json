@@ -1,0 +1,43 @@
+{
+  "created_utc": "2026-07-10T11:45:03.177972+00:00",
+  "stage": "corrected hard-physics implementation sanity baseline",
+  "not_independent_final_test": true,
+  "reason": "2026-03-16 was already observed in V1; this run validates implementation sanity only",
+  "archive_dates": [
+    "2026-02-28",
+    "2026-03-01",
+    "2026-03-16"
+  ],
+  "source_archive_sha256_from_v1": {
+    "v2026.02.28-planes-readsb-prod-0.tar": {
+      "path": "C:\\Users\\PC_5812_YD26\\Downloads\\v2026.02.28-planes-readsb-prod-0.tar",
+      "size": 3226359808,
+      "sha256": "15820b6881fa6a7c4822b24534375f6d3c1c251e3801b6d1bb6a47faa8ab0bed"
+    },
+    "v2026.03.01-planes-readsb-prod-0.tar": {
+      "path": "C:\\Users\\PC_5812_YD26\\Downloads\\v2026.03.01-planes-readsb-prod-0.tar",
+      "size": 3126962688,
+      "sha256": "dd5a55d7f9eda6ff22724975433a3818e2fb6219bbf0737ce7b54ac4a4c11c33"
+    },
+    "v2026.03.16-planes-readsb-prod-0.tar": {
+      "path": "C:\\Users\\PC_5812_YD26\\Downloads\\v2026.03.16-planes-readsb-prod-0.tar",
+      "size": 2957221376,
+      "sha256": "2f0103c88a47457d96868faeae9e3510cabcbe57315b5a4d4ceda1ffd11a3270"
+    }
+  },
+  "files": {
+    "breakdown_metrics.csv": "caa1dcce8e741da2c666d6dd470da78f3eb6b3a5b19cb5388739016fd10c068e",
+    "event_metrics.csv": "cc20ce49366dd9abbd147266ca2febe3830a5741f9707da99110d573c6c37218",
+    "gates.json": "0de27284af90c49462ffba17182f1e519222f0d48d67ea89ac99fd6510ed415f",
+    "hard_limits.json": "f435b915abb4bd10363a20e9d893886ba1ff9770ccc3625bb7d542e74c779e27",
+    "overall_metrics.csv": "e78043fd3741fa43a2d62ad4d887b69a51207e5f02d712683f1b0b8d499141f2",
+    "plots/hard_rule_example_00.png": "17eac800820dd7758ceb8a38e68a5908da626e2bbae8c4a468a108395b51aee6",
+    "plots/hard_rule_example_01.png": "1ef62b28419aec6839e8fa86ecc50a1943122f7719042b44ac83d653cb0ef59d",
+    "plots/hard_rule_example_02.png": "f2ef09067d6aa7c78caf9d9693107e0b94296fd1d2d20379cbeb342f62692852",
+    "plots/hard_rule_example_03.png": "8c98d0028d6ca2ec53e477e147831196c73f98e08df346beb8bc6c070c3aba08",
+    "plots/hard_rule_example_04.png": "869d6f9bd174072117c31da3b8ba286ed61caa4f9bf581c209296167537a032f",
+    "plots/hard_rule_example_05.png": "971d1a3c95872329bf703858b1a3ab780eb1746fb98fd751aaa7438d1523539b",
+    "plots/hard_rule_example_06.png": "b09c9ac547e0d3b61dbda6350a7b2d1b817e2d8bfc4267af750dcaa4942f440d",
+    "plots/hard_rule_example_07.png": "31ddc2cff3ea918216023cc156e5ab3cc02fa8ed736f01d7cc9967c1617c359a"
+  }
+}

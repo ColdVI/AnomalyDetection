@@ -52,13 +52,26 @@ def get_influx_client() -> InfluxDBClient:
     return InfluxDBClient(url=INFLUX_HOST, token=_load_token(), org=INFLUX_ORG, timeout=240_000)
 
 
-def load_realtime_window(range_start: str, client: InfluxDBClient | None = None) -> pd.DataFrame:
+def load_realtime_window(
+    range_start: str, client: InfluxDBClient | None = None, *, agg_every: str | None = None,
+) -> pd.DataFrame:
     """InfluxDB'den `range_start` (Flux relatif sure, ör. "-2m"/"-24h"/"-7d")
     kadar geriye giden pencereyi ceker, tek bir DataFrame dondurur.
 
     Kolonlar: source_id (icao24 -- historical Gold ile AYNI isim, boylece
     clean_coordinates/assign_h3_cell/flight_count mantigi degismeden calisir),
-    lat, lon, _time.
+    lat, lon, _time, is_military (2026-07-10 eklendi -- dashboard_consumer.py
+    SADECE bu tarihten sonra yazilan noktalarda bu alani dolduruyor, daha eski
+    noktalarda NaN/eksik olur -- asagida False'a doldurulur, "askeri oldugu
+    dogrulanmamis = sivil sayilir" varsayimi diger butun katmanlarla tutarli).
+
+    agg_every: verilirse (ör. "2m") SUNUCU-TARAFI aggregateWindow(fn: last)
+    uygulanir -- her ucak+alan (lat/lon) icin pencere basina TEK (son) deger
+    doner, InfluxDB'den cekilen ham satir sayisini azaltir. 1-2 dakika araligi
+    KASITLI: producer zaten ~60sn'de bir yaziyor (bkz. Dashboard/adsb_producer.py
+    SOURCE_INTERVALS), yani 1-2dk pencere ham cozunurlugu pratikte KAYBETMEZ --
+    5-10dk gibi genis bir pencere ise hizli bir ucagin pencere icinde gectigi
+    ARA hex'leri (sadece son nokta tutuldugu icin) sessizce dusurebilirdi.
     """
     client = client or get_influx_client()
     # Flux'un SUNUCU-TARAFI pivot()'u BUYUK pencerelerde (2026-07-09: 7d
@@ -66,12 +79,13 @@ def load_realtime_window(range_start: str, client: InfluxDBClient | None = None)
     # istemci timeout'unu bile asiyordu). Duzeltme: pivot'u InfluxDB'ye
     # YAPTIRMAK yerine (lat, lon) satirlarini DUZ (long-format) cekip
     # pandas.pivot_table ile YERELDE (cok daha hizli) genisletiyoruz.
+    agg_stage = f'|> aggregateWindow(every: {agg_every}, fn: last, createEmpty: false)\n      ' if agg_every else ""
     query = f'''
     from(bucket: "{INFLUX_BUCKET}")
       |> range(start: {range_start})
       |> filter(fn: (r) => r._measurement == "flights")
-      |> filter(fn: (r) => r._field == "lat" or r._field == "lon")
-      |> keep(columns: ["_time", "icao24", "_field", "_value"])
+      |> filter(fn: (r) => r._field == "lat" or r._field == "lon" or r._field == "is_military")
+      {agg_stage}|> keep(columns: ["_time", "icao24", "_field", "_value"])
     '''
     result = client.query_api().query_data_frame(query, org=INFLUX_ORG)
     long_df = pd.concat(result, ignore_index=True) if isinstance(result, list) else result
@@ -84,8 +98,12 @@ def load_realtime_window(range_start: str, client: InfluxDBClient | None = None)
         index=["_time", "icao24"], columns="_field", values="_value", aggfunc="first",
     ).reset_index()
     df = df.rename(columns={"icao24": "source_id"})
-    keep_cols = [c for c in ["source_id", "lat", "lon", "_time"] if c in df.columns]
+    keep_cols = [c for c in ["source_id", "lat", "lon", "_time", "is_military"] if c in df.columns]
     df = df[keep_cols]
+    if "is_military" in df.columns:
+        df["is_military"] = df["is_military"].fillna(False).astype(bool)
+    else:
+        df["is_military"] = False
     logger.info(
         "InfluxDB %s penceresi: %d satir, %d benzersiz ucak",
         range_start, len(df), df["source_id"].nunique() if "source_id" in df.columns else 0,

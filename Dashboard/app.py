@@ -3809,22 +3809,41 @@ def download_history_csv(n_clicks, icao24, tz_name, start_day, start_hour, end_d
 
 
 @app_dash.callback(
-    Output("replay-open", "data"),
+    [Output("replay-open", "data"),
+     Output("replay-mode", "data", allow_duplicate=True),
+     Output("replay-playing", "data", allow_duplicate=True)],
     [Input("replay-btn", "n_clicks"), Input("close-replay-btn", "n_clicks")],
     State("replay-open", "data"),
     prevent_initial_call=True,
 )
 def toggle_replay_open(open_clicks, close_clicks, is_open):
-    """toggle_stats_open/toggle_emergency_open ile AYNI ac/kapa deseni."""
+    """toggle_stats_open/toggle_emergency_open ile AYNI ac/kapa deseni.
+
+    ONEMLI (2026-07-09, kullanici bulgusu -- "bazen ozellik degistirince
+    veri gelmiyor, F5 gerekiyor"): bu callback ONCEDEN sadece paneli
+    (replay-open) kapatiyordu -- replay-mode SADECE "Canliya Don"
+    (replay-live-btn -> exit_replay_mode) ile False'a donuyordu. Kullanici
+    paneli "x" ile (close-replay-btn) veya replay-btn'e TEKRAR basarak
+    kapatirsa, replay-mode SESSIZCE True KALIYORDU -- update_map bunu
+    gordugu surece (asagida, erken "return dash.no_update" blogu) canli
+    tick'ler 15sn'de bir gelmeye devam etse bile haritayi hic
+    guncellemiyordu, harita donuk kaliyordu. Sadece F5 (Store'un
+    varsayilan False'a donmesiyle) duzeltiyordu. Simdi panel HANGI
+    yoldan kapanirsa kapansin (x, toggle veya "Canliya Don"),
+    replay-mode/replay-playing da BIRLIKTE False'a donuyor.
+    """
     ctx = dash.callback_context
     if not ctx.triggered:
-        return dash.no_update
+        return dash.no_update, dash.no_update, dash.no_update
     trigger = ctx.triggered[0]["prop_id"]
     if trigger == "close-replay-btn.n_clicks":
-        return False
+        return False, False, False
     if trigger == "replay-btn.n_clicks":
-        return not is_open
-    return dash.no_update
+        new_open = not is_open
+        if new_open:
+            return True, dash.no_update, dash.no_update
+        return False, False, False
+    return dash.no_update, dash.no_update, dash.no_update
 
 
 @app_dash.callback(
