@@ -1002,7 +1002,7 @@ def _run_api():
 
 # --------------------------------------------------------------------- Dash --
 
-app_dash = Dash(__name__, title="ADS-B Local Dashboard")
+app_dash = Dash(__name__, title="Dashboard")
 
 # --------------------------------------------------------------------------
 # UCAK KATMANI RENDER MANTIGI -- artik CLIENT-SIDE (JavaScript)
