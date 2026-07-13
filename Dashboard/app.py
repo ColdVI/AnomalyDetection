@@ -1610,8 +1610,10 @@ app_dash.layout = html.Div(id="app-root", style={
     # ONEMLI (15sn'nin kaynagi): bu deger OLCUME/hesaba dayanmiyor, bastan
     # beri sabit pragmatik bir varsayilan -- "kullanici icin yeterince
     # duyarli hissettirsin ama sunucuyu/Redis'i gereksiz yormasin" dengesi.
-    # GERCEK veri uretim hizina (bkz. uav_producer.py SOURCES: adsblol=60sn,
-    # opensky=300sn) KASITLI olarak BAGLI DEGIL -- coğu tick'te (orn.
+    # GERCEK veri uretim hizina (bkz. uav_producer.py SOURCES: adsblol=60sn;
+    # opensky KIMLIK DOGRULAMASIZ 300sn ama credential'lar (.env) DOLUYSA --
+    # bu ortamda oyle -- interval_override devreye girip OPENSKY_AUTH_INTERVAL'e,
+    # yani 90sn'ye duser) KASITLI olarak BAGLI DEGIL -- coğu tick'te (orn.
     # adsblol'de 4 sorgudan 3'unde) Redis'te henuz YENI veri yok, bir onceki
     # cycle'in ayni sonucu geri donuyor. Bu ZARARSIZ (ucuz bir HTTP+Redis
     # round-trip'i) ama "tick" TEK amacli bir "ucus verisini yenile" sinyali
