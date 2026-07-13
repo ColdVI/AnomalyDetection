@@ -6,7 +6,7 @@ thread olarak calisir, Dash ondan besleniyor.
 
 ONEMLI: Bunu calistirmadan once dashboard_consumer.py'nin AYRI bir
 terminalde calisiyor olmasi lazim, yoksa Redis/InfluxDB'de veri olmaz.
-Alert paneli, model ekibi "adsb.alerts" topic'ine yazmaya baslayana
+Alert paneli, model ekibi "uav.alerts" topic'ine yazmaya baslayana
 kadar bos gorunur -- bu normaldir, kod degisikligi gerekmeyecek.
 
 Kullanim:
@@ -21,7 +21,6 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 from datetime import datetime, timedelta, timezone
-from zoneinfo import ZoneInfo, available_timezones
 from pathlib import Path
 
 import pandas as pd
@@ -303,7 +302,7 @@ DEFAULT_MAP_STYLE = "dark"
 # esigin ALTINDAKI ucaklar tam opak, USTUNDEKILER soluk (bkz. update_map
 # icindeki opacity hesabi). Onceden SABIT bir 10-40sn dogrusal soluklasma
 # vardi -- adsb.lol (60sn'de bir sorgulama) icin makuldu ama OpenSky
-# (90-300sn'de bir sorgulama, bkz. adsb_producer.py SOURCES) icin neredeyse
+# (90-300sn'de bir sorgulama, bkz. uav_producer.py SOURCES) icin neredeyse
 # HER ucak daha ilk fetch'te esigin ustune cikip ekrandaki NEREDEYSE TUM
 # filo soluk gorunuyordu -- kullanici geri bildirimi bu. Kaynaga gore SABIT
 # bir esik yerine, kullanicinin secili kaynaga gore kendi esigini ayarlar
@@ -351,7 +350,7 @@ REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", "6379"))
 INFLUX_HOST = os.environ.get("INFLUX_HOST", "http://localhost:8086")
 INFLUX_ORG = os.environ.get("INFLUX_ORG", "iha-org")
-INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "adsb-history")
+INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "uav-history")
 
 INFLUX_TOKEN = os.environ.get("INFLUX_TOKEN")
 if not INFLUX_TOKEN:
@@ -566,7 +565,7 @@ def health():
 
 # ============================================================ Kayit --
 # Yeni bir kaynak eklemek icin buraya BIR giris ekle (ayrica
-# adsb_producer.py'deki SOURCES sozlugune ayni "key" ile fetch fonksiyonunu
+# uav_producer.py'deki SOURCES sozlugune ayni "key" ile fetch fonksiyonunu
 # ekle) -- butonlar ve callback bu listeden turetiliyor, baska hicbir yeri
 # degistirmen gerekmiyor.
 DATA_SOURCE_DEFS = [
@@ -582,7 +581,7 @@ REDIS_PRODUCER_STATUS_KEY = "iha:producer_status"
 @app_api.get("/api/data_source")
 def get_data_source():
     """Dashboard'un kaynak butonlarinin okudugu endpoint -- HEM istenen
-    (dashboard'dan en son yazilan) HEM de GERCEKTE aktif (adsb_producer.py
+    (dashboard'dan en son yazilan) HEM de GERCEKTE aktif (uav_producer.py
     kendi cycle'inda yazdigi) kaynagi ayri ayri donduruyor. Producer bir
     sonraki cycle'a kadar (60/300sn) istenen degisikligi henuz uygulamamis
     olabilir -- ikisi FARKLIYSA arayuz "gecis bekleniyor" gosterebiliyor."""
@@ -1098,43 +1097,57 @@ app_dash.index_string = '''
         {%favicon%}
         {%css%}
         <style>
+            /* Koyu tema renk paleti -- asagida TEK TEK hex kodu tekrarlamak
+               yerine (once boyleydi, ~40 tekrar) burada bir kez tanimlanip
+               var(--...) ile kullaniliyor: hem tema degisikligi tek yerden
+               yapilabiliyor hem de bir renk kodunun ANLAMI (orn. --dash-border)
+               ham "#2a2a4a"den daha okunakli. */
+            :root {
+                --dash-bg: #161625;          /* panel/kutu zemin */
+                --dash-border: #2a2a4a;      /* kenarlik */
+                --dash-text: #c8d0e0;        /* birincil acik metin */
+                --dash-text-strong: #ffffff; /* hover/vurgu metin */
+                --dash-bg-hover: #22224a;    /* hover/secili zemin */
+                --dash-accent: #00b4d8;      /* camgobegi vurgu */
+                --dash-bg-page: #07070e;     /* en koyu, sayfa/harita zemin */
+            }
             html, body {
                 margin: 0;
                 padding: 0;
                 overflow: hidden;
-                background-color: #07070e;
+                background-color: var(--dash-bg-page);
             }
             /* Leaflet'in varsayilan tooltip'i beyaz kutu/siyah yazi --
                koyu temaya uydurmak icin gecersiz kiliyoruz. */
             .leaflet-tooltip {
-                background-color: #161625 !important;
-                border: 1px solid #2a2a4a !important;
-                color: #c8d0e0 !important;
+                background-color: var(--dash-bg) !important;
+                border: 1px solid var(--dash-border) !important;
+                color: var(--dash-text) !important;
                 border-radius: 8px !important;
                 box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
                 padding: 8px 10px !important;
             }
-            .leaflet-tooltip-top:before   { border-top-color: #2a2a4a !important; }
-            .leaflet-tooltip-bottom:before{ border-bottom-color: #2a2a4a !important; }
-            .leaflet-tooltip-left:before  { border-left-color: #2a2a4a !important; }
-            .leaflet-tooltip-right:before { border-right-color: #2a2a4a !important; }
+            .leaflet-tooltip-top:before   { border-top-color: var(--dash-border) !important; }
+            .leaflet-tooltip-bottom:before{ border-bottom-color: var(--dash-border) !important; }
+            .leaflet-tooltip-left:before  { border-left-color: var(--dash-border) !important; }
+            .leaflet-tooltip-right:before { border-right-color: var(--dash-border) !important; }
 
             /* Sol-ust +/- yakinlastirma butonlari -- Leaflet'in varsayilani
                beyaz kutu/siyah yazi, koyu temaya uydurmak icin gecersiz
-               kiliyoruz (digerleriyle AYNI renk paleti: #161625/#2a2a4a). */
+               kiliyoruz (digerleriyle AYNI renk paleti). */
             .leaflet-control-zoom {
-                border: 1px solid #2a2a4a !important;
+                border: 1px solid var(--dash-border) !important;
             }
             .leaflet-control-zoom-in,
             .leaflet-control-zoom-out {
-                background-color: #161625 !important;
-                color: #c8d0e0 !important;
-                border-color: #2a2a4a !important;
+                background-color: var(--dash-bg) !important;
+                color: var(--dash-text) !important;
+                border-color: var(--dash-border) !important;
             }
             .leaflet-control-zoom-in:hover,
             .leaflet-control-zoom-out:hover {
-                background-color: #22224a !important;
-                color: #ffffff !important;
+                background-color: var(--dash-bg-hover) !important;
+                color: var(--dash-text-strong) !important;
             }
 
             /* dcc.Dropdown -- Dash 4.x KENDI bilesenini kullaniyor (Radix UI
@@ -1150,15 +1163,15 @@ app_dash.index_string = '''
                Gercek sinif adlari, calisan container icindeki
                dash/dcc/async-dropdown.js dosyasindan dogrulandi. */
             .dark-dropdown.dash-dropdown {
-                background-color: #161625 !important;
-                border: 1px solid #2a2a4a !important;
+                background-color: var(--dash-bg) !important;
+                border: 1px solid var(--dash-border) !important;
                 border-radius: 6px !important;
-                color: #c8d0e0 !important;
+                color: var(--dash-text) !important;
             }
             .dark-dropdown .dash-dropdown-value,
             .dark-dropdown .dash-dropdown-placeholder,
             .dark-dropdown .dash-dropdown-trigger-icon {
-                color: #c8d0e0 !important;
+                color: var(--dash-text) !important;
             }
             /* ONEMLI (kullanici geri bildirimi -- "firmalari kaydirdigimizda
                search'un altinda kaliyorlar"): panelin KENDISI (.dash-dropdown-content,
@@ -1169,8 +1182,8 @@ app_dash.index_string = '''
                SABIT kaliyor, SADECE .dash-dropdown-options (liste) kendi
                ic scroll'unu aliyor (overflow-y:auto + flex:1). */
             .dash-dropdown-content {
-                background-color: #161625 !important;
-                border: 1px solid #2a2a4a !important;
+                background-color: var(--dash-bg) !important;
+                border: 1px solid var(--dash-border) !important;
                 border-radius: 6px !important;
                 z-index: 2000 !important;
                 box-shadow: 0 8px 24px rgba(0,0,0,0.6) !important;
@@ -1179,8 +1192,8 @@ app_dash.index_string = '''
                 overflow: hidden !important;
             }
             .dash-dropdown-search-container {
-                background-color: #161625 !important;
-                border-bottom: 1px solid #2a2a4a !important;
+                background-color: var(--dash-bg) !important;
+                border-bottom: 1px solid var(--dash-border) !important;
                 flex-shrink: 0 !important;
             }
             /* ONEMLI (kullanici geri bildirimi -- "kutunun kendisi hala
@@ -1190,8 +1203,8 @@ app_dash.index_string = '''
                -webkit-appearance:none ile varsayilan gorunum tamamen
                kaldirilip KENDI koyu arka planimiz veriliyor. */
             .dash-dropdown-search {
-                background-color: #161625 !important;
-                color: #c8d0e0 !important;
+                background-color: var(--dash-bg) !important;
+                color: var(--dash-text) !important;
                 border: none !important;
                 -webkit-appearance: none !important;
                 appearance: none !important;
@@ -1204,13 +1217,13 @@ app_dash.index_string = '''
                 color: #888 !important;
             }
             .dash-dropdown-actions {
-                background-color: #161625 !important;
-                border-bottom: 1px solid #2a2a4a !important;
+                background-color: var(--dash-bg) !important;
+                border-bottom: 1px solid var(--dash-border) !important;
                 flex-shrink: 0 !important;
             }
             .dash-dropdown-action-button {
                 background: transparent !important;
-                color: #00b4d8 !important;
+                color: var(--dash-accent) !important;
             }
             .dash-dropdown-options {
                 overflow-y: auto !important;
@@ -1218,31 +1231,31 @@ app_dash.index_string = '''
                 min-height: 0 !important;
             }
             .dash-dropdown-option {
-                background-color: #161625 !important;
-                color: #c8d0e0 !important;
+                background-color: var(--dash-bg) !important;
+                color: var(--dash-text) !important;
             }
             .dash-dropdown-option:hover {
-                background-color: #22224a !important;
-                color: #ffffff !important;
+                background-color: var(--dash-bg-hover) !important;
+                color: var(--dash-text-strong) !important;
             }
             .dash-dropdown-option[aria-selected="true"] {
                 background-color: #0d3a45 !important;
-                color: #00b4d8 !important;
+                color: var(--dash-accent) !important;
             }
             .dash-options-list-option-checkbox {
-                accent-color: #00b4d8;
+                accent-color: var(--dash-accent);
             }
             /* ONEMLI (kullanici geri bildirimi -- "yazilarin altinda koyu
                mavi gibi bir sey kalmis"): secili deger(ler) .dash-dropdown-
                value-item span'ina sariliyor; buna ayrica bir arka plan
-               (#22224a) verilince disaridaki kutunun (#161625) icinde
-               "kutu icinde kutu" gorunumu olusuyordu -- hem tekli (saat
-               dilimi) hem coklu (firma) secimde. Arka plani seffaf yapip
-               metnin dogrudan disaridaki koyu zemin uzerinde durmasini
-               sagliyoruz. */
+               (--dash-bg-hover) verilince disaridaki kutunun (--dash-bg)
+               icinde "kutu icinde kutu" gorunumu olusuyordu -- hem tekli
+               (saat dilimi) hem coklu (firma) secimde. Arka plani seffaf
+               yapip metnin dogrudan disaridaki koyu zemin uzerinde
+               durmasini sagliyoruz. */
             .dash-dropdown-value-item {
                 background-color: transparent !important;
-                color: #c8d0e0 !important;
+                color: var(--dash-text) !important;
             }
             /* Irtifa filtre kaydiricisi -- Dash 4.x KENDI slider bilesenini
                kullaniyor (Radix UI tabanli), sinif isimleri dash-slider-*
@@ -1276,13 +1289,13 @@ app_dash.index_string = '''
             .altitude-slider .dash-slider-thumb {
                 width: 15px !important;
                 height: 15px !important;
-                background-color: #ffffff !important;
-                border: 2px solid #07070e !important;
+                background-color: var(--dash-text-strong) !important;
+                border: 2px solid var(--dash-bg-page) !important;
                 box-shadow: 0 0 4px rgba(0, 0, 0, 0.7) !important;
             }
             .altitude-slider .dash-slider-thumb:hover,
             .altitude-slider .dash-slider-thumb:focus {
-                border-color: #00b4d8 !important;
+                border-color: var(--dash-accent) !important;
                 box-shadow: 0 0 0 4px rgba(0, 180, 216, 0.3) !important;
                 transform: scale(1.125);
             }
@@ -2067,7 +2080,7 @@ app_dash.layout = html.Div(id="app-root", style={
         html.Div(style={"marginBottom": "14px"}, children=[
             # ONEMLI: adsb.lol/OpenSky secimi digerlerinden (dil/harita/
             # saat dilimi) FARKLI -- pure client-side bir dcc.Store degil,
-            # AYRI BIR PROCESS'E (adsb_producer.py) Redis uzerinden
+            # AYRI BIR PROCESS'E (uav_producer.py) Redis uzerinden
             # iletilen GERCEK/paylasilan bir ayar. Bu yuzden tik'te
             # (15sn'de bir) backend'den okunup gosteriliyor -- bkz.
             # manage_data_source callback'i.
@@ -2088,7 +2101,7 @@ app_dash.layout = html.Div(id="app-root", style={
         html.Div(style={"marginBottom": "14px"}, children=[
             # ONEMLI: kaynaga gore SABIT 10-40sn soluklasma esigi
             # kaldirildi -- OpenSky'nin dogal sorgulama araligi (90-300sn,
-            # bkz. adsb_producer.py SOURCES) bu sabit esigi neredeyse HER
+            # bkz. uav_producer.py SOURCES) bu sabit esigi neredeyse HER
             # ucak icin asiyordu, ekrandaki TUM filo soluk gorunuyordu.
             # Kullanici artik esigi kendi secili kaynagina gore kendisi
             # ayarliyor (bkz. SIGNAL_STALENESS_OPTIONS, update_map).
@@ -2339,12 +2352,18 @@ _altitude_map_latest_seq = 0
 def _passes_filter(f, show_civil, show_military, show_ground, alt_lo_m, alt_hi_m):
     """update_map icindeki ucak-listesi filtresi -- test edilebilirlik icin
     (eskiden update_map'in icinde bir closure'du) modul seviyesine tasindi.
-    ONEMLI: alt_lo_m/alt_hi_m sinirlarini caniran taraf (update_map)
-    saglamali -- "sinirsiz" sentinel degerleri -1_000_000/1_000_000'dir,
-    GERCEK 0 DEGIL (bkz. update_altitude_filter_range'deki alt sinir
-    yorumu -- 0 kullanilsaydi, yerdeki/pistteki ucaklarin dogal olarak
-    HAFIF NEGATIF gelen barometrik irtifasi yanlislikla filtrelenirdi,
-    gercekten yasanmis bir hataydi)."""
+
+    - Sivil/askeri: sol-ust butonlardan geliyor, ikisi de acikken (varsayilan)
+      hicbir ucak elenmiyor.
+    - Yerde: sivil/askeri ekseninden BAGIMSIZ (bir ucak ayni anda hem askeri
+      hem yerde olabilir) -- IKI kosul AYRI AYRI uygulanir, havadaki bir ucak
+      show_ground'dan hic etkilenmez.
+    - Irtifa: alt=None (irtifasi bilinmeyen ucak) FILTRELENMIYOR (guvenli
+      varsayilan). alt_lo_m/alt_hi_m'i caniran taraf (update_map) saglamali --
+      "sinirsiz" sentinel degerleri -1_000_000/1_000_000'dir, GERCEK 0 DEGIL
+      (0 kullanilsaydi, yerdeki/pistteki ucaklarin dogal olarak HAFIF NEGATIF
+      gelen barometrik irtifasi yanlislikla filtrelenirdi -- gercekten
+      yasanmis bir hataydi, bkz. update_altitude_filter_range)."""
     is_mil = bool(f.get("is_military"))
     if not (show_military if is_mil else show_civil):
         return False
@@ -2404,7 +2423,7 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_
     # alert_icaos hala gerekli, o yuzden fetch etmeye devam ediyoruz.
     alert_icaos = {a.get("icao24") for a in alerts}
 
-    # ONEMLI: bu, /api/alerts'ten (ML ekibinin ileride "adsb.alerts" Kafka
+    # ONEMLI: bu, /api/alerts'ten (ML ekibinin ileride "uav.alerts" Kafka
     # topic'ine yazacagi, henuz BOS olan anomali alarmlari) TAMAMEN AYRI --
     # burada ucagin KENDI yaydigi ADS-B acil durum sinyali (squawk 7500/
     # 7600/7700 veya emergency alani "none" degil) kontrol ediliyor. Ayni
@@ -2435,20 +2454,9 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_
             "ts": ts_display,
         })
 
-    # ONEMLI: askeri/sivil filtre sol-ust butonlarindan geliyor. Ikisi de
-    # acikken (varsayilan) davranis eskisiyle birebir ayni -- hicbir ucak
-    # elenmiyor. Biri kapatilinca o gruptaki ucaklar hem haritadan hem de
-    # asagidaki "aktif ucus" sayacindan (status bar) dusuyor, cunku sayac
-    # goruntulenen/secilebilir ucaklari yansitmali.
-    # ONEMLI: "Yerde" filtresi askeri/sivil ekseninden BAGIMSIZ -- bir ucak
-    # ayni anda hem askeri hem yerde olabilir. Bu yuzden IKI kosul AYRI AYRI
-    # uygulanir (VE ile): once askeri/sivil turune gore, sonra (sadece
-    # yerdeki ucaklara) yerde-gorunurlugune gore. Havadaki bir ucak
-    # show_ground'dan hic etkilenmez.
-    # ONEMLI: irtifa lejandi uzerindeki kaydiricidan (bkz. update_altitude_filter_range)
-    # gelen [alt_min_m, alt_max_m] araligi -- irtifasi bilinmeyen ucaklar
-    # (alt=None) FILTRELENMIYOR (guvenli varsayilan, sahte bir "irtifa
-    # araligi disinda" varsaymiyoruz).
+    # Sivil/askeri/yerde/irtifa filtrelerinin SEMANTIGI icin bkz. _passes_filter
+    # docstring'i -- burada sadece irtifa lejandindan (bkz.
+    # update_altitude_filter_range) gelen araligi coziyoruz, [alt_min_m, alt_max_m].
     alt_lo_m, alt_hi_m = (altitude_filter_range if altitude_filter_range
                           and len(altitude_filter_range) == 2 else (-1_000_000, 1_000_000))
 
@@ -2490,15 +2498,10 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_
         # ONEMLI: adsb.lol/readsb, bir ucaktan mesaj kesilse bile onu 60
         # saniyeye kadar listede TUTAR ("seen" alani = mesajin GERCEKTE
         # kac saniye once alindigi) -- OpenSky'de bu daha da uzun (90-300sn,
-        # bkz. adsb_producer.py SOURCES). Once SABIT bir 10-40sn dogrusal
-        # soluklasma vardi -- adsb.lol icin makuldu ama OpenSky'nin dogal
-        # sorgulama araligi bu sabit esigi HER ucak icin astigi icin
-        # ekrandaki NEREDEYSE TUM filo soluk gorunuyordu. Artik kullanicinin
-        # ayarlardan sectigi esik (staleness_threshold) kullaniliyor:
-        # esigin ALTI tam opak, USTU sabit soluk (STALE_SIGNAL_OPACITY) --
-        # kaynaga gore dogrusal ayar yerine kullanici kendi esigini secer.
-        # signal_age_sec None ise (kaynak saglamiyorsa) GUVENLI VARSAYILAN:
-        # tam opak (dim etmeyecek kadar bilgimiz yok).
+        # bkz. uav_producer.py SOURCES). Once SABIT bir 10-40sn esik vardi,
+        # OpenSky'nin dogal sorgulama araligi bunu HER ucak icin astigi icin
+        # ekrandaki NEREDEYSE TUM filo soluk gorunuyordu -- artik esik
+        # ayarlardan seciliyor (bkz. _signal_opacity, hesabin kendisi).
         signal_age = f.get("signal_age_sec")
         opacity = _signal_opacity(signal_age, staleness_threshold)
         signal_age_text = (f"{signal_age:.0f}sn"
@@ -2981,7 +2984,7 @@ def update_signal_staleness_options(lang):
 )
 def manage_data_source(n, btn_clicks, lang, btn_ids):
     """Diger ayarlardan (dil/harita/saat dilimi) FARKLI -- bu, AYRI BIR
-    PROCESS'in (adsb_producer.py) okudugu paylasilan bir ayar, pure
+    PROCESS'in (uav_producer.py) okudugu paylasilan bir ayar, pure
     client-side degil. Butona basilinca ONCE backend'e YAZIYORUZ
     (POST /api/data_source -- Redis'e yaziyor), SONRA (butonlar da dahil
     her tetiklemede) GERCEK durumu OKUYUP gosteriyoruz -- boylece "istenen"

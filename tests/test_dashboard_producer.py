@@ -1,4 +1,4 @@
-"""Dashboard/adsb_producer.py -- kaynak-normalize edici (adsb.lol/OpenSky)
+"""Dashboard/uav_producer.py -- kaynak-normalize edici (adsb.lol/OpenSky)
 saf ayristirma fonksiyonlari testleri.
 
 ONEMLI: signal_age_sec testleri, proje sohbet gecmisindeki "OpenSky'de
@@ -13,7 +13,7 @@ import time
 
 import pytest
 
-from Dashboard import adsb_producer as prod
+from Dashboard import uav_producer as prod
 
 
 # ------------------------------------------------------------- _normalize_common --
@@ -201,7 +201,7 @@ def test_sources_opensky_anonymous_interval_respects_daily_credit_budget():
 
 
 def test_opensky_auth_interval_stays_within_daily_credit_budget():
-    """CANLI OLCUM (bkz. adsb_producer.py yorumu): bbox'siz TEK istek 4
+    """CANLI OLCUM (bkz. uav_producer.py yorumu): bbox'siz TEK istek 4
     kredi tuketiyor. Kimlik dogrulamali erisimde 4000 kredi/gun ->
     4000/4=1000 istek/gun -> minimum 86400/1000=86.4sn. OPENSKY_AUTH_INTERVAL
     bunun ALTINDA OLURSA kota gun ortasinda biter (regresyon)."""

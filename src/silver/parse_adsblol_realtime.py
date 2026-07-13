@@ -97,7 +97,7 @@ def _parse_ac_record(record: dict, batch_ts: float | None) -> dict:
     alt_m = None if (on_ground or alt_baro_raw is None) else _feet_to_m(alt_baro_raw)
     alt_geom_raw = record.get("alt_geom")
     alt_geom_m = None if alt_geom_raw is None else _feet_to_m(alt_geom_raw)
-    # 2026-07-10 (kullanici istegi): dbFlags bit 1 = askeri (Dashboard/adsb_producer.py
+    # 2026-07-10 (kullanici istegi): dbFlags bit 1 = askeri (Dashboard/uav_producer.py
     # ve parse_adsblol_historical.py ile AYNI mantik). Bu raw kayit adsb.lol'un ham
     # `ac` girdisi oldugu icin dbFlags per-ucak burada mevcut (dosya-seviyesi degil).
     try:
@@ -294,7 +294,7 @@ if __name__ == "__main__":
             uris = run(args.bronze_prefix)
             _write_heartbeat(f"basarili -- {len(uris)} parca yazildi")
         except Exception:
-            # ONEMLI: adsb_producer.py/minio_archiver.py ile AYNI ilke -- gecici
+            # ONEMLI: uav_producer.py/minio_archiver.py ile AYNI ilke -- gecici
             # bir hata (orn. MinIO o an erisilemez) TUM dongunun crash olmasina
             # sebep olmamali, bir sonraki denemede devam edilmeli. Heartbeat
             # BILEREK yazilmiyor -- dosyanin "son basarili" anlami korunuyor,

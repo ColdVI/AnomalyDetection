@@ -7,7 +7,7 @@ echo.
 REM ONEMLI: eskiden pencere BASLIGINA gore ariyorduk (WINDOWTITLE eq
 REM "ADS-B Producer" vb.) -- bu SADECE start_all.bat'in "start "Baslik"
 REM ..." ile actigi pencerelerde calisir. Bu proje boyunca cogu zaman
-REM adsb_producer.py / dashboard_consumer.py ELLE (mevcut bir pencerede
+REM uav_producer.py / dashboard_consumer.py ELLE (mevcut bir pencerede
 REM Ctrl+C + yeniden yazarak) yeniden baslatildi -- o pencerelerin
 REM basligi "ADS-B Producer" DEGIL, bu yuzden eski stop_all.bat onlari
 REM GOREMIYOR/KAPATAMIYORDU.

@@ -35,8 +35,8 @@ logger = logging.getLogger(__name__)
 OUT_DIR = Path(__file__).parent / "viz" / "data"
 
 RANGE_PRESETS = {
-    # "-2m" degil "-3m": adsb-producer'in GERCEK dongu suresi hedeflenen 15sn
-    # degil, adsb.lol fetch'i yuzunden ~130-143sn (bkz. adsb-producer
+    # "-2m" degil "-3m": uav-producer'in GERCEK dongu suresi hedeflenen 15sn
+    # degil, adsb.lol fetch'i yuzunden ~130-143sn (bkz. uav-producer
     # loglari, 2026-07-07 dogrulamasi). Bir onceki burst 120sn'den once
     # "-2m" penceresinden dusuyor, yeni burst henuz gelmemis oluyordu --
     # sonuc: "live" modu periyodik olarak SIFIR veri donduruyordu (gercek bir

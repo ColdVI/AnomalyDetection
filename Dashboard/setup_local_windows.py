@@ -30,7 +30,7 @@ INFLUX_DIR = BASE_DIR / "influxdb"
 TOKEN_FILE = BASE_DIR / "influx_token.txt"
 
 INFLUX_ORG = "iha-org"
-INFLUX_BUCKET = "adsb-history"
+INFLUX_BUCKET = "uav-history"
 INFLUX_RETENTION_SECONDS = 7 * 24 * 3600  # 1 hafta
 INFLUX_USER = "admin"
 INFLUX_PASS = "admin12345"
@@ -214,7 +214,7 @@ def main():
 
     print("\n" + "=" * 50)
     print("HAZIR. Simdi sirayla (ayri terminallerde):")
-    print("  1. python adsb_poller.py     (veri toplamaya baslar)")
+    print("  1. python uav_producer.py    (veri toplamaya baslar)")
     print("  2. python app.py             (dashboard'u acar)")
     print("=" * 50)
 

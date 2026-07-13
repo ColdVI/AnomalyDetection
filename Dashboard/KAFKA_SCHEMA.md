@@ -6,7 +6,7 @@ dokunmana gerek yok, ben de senin koduna dokunmam.
 
 Bağlantı: `bootstrap.servers = localhost:9092`
 
-**NOT (kalıcı olarak yüksek hacim):** `adsb_producer.py` artık her zaman DÜNYA
+**NOT (kalıcı olarak yüksek hacim):** `uav_producer.py` artık her zaman DÜNYA
 çapında sorgu yapıyor (bölge seçimi kaldırıldı) — bu topic'e düşen mesaj sayısı
 cycle başına birkaç bin ile on binler arasında olabilir (sabit, sürekli). Kendi
 consumer'ını yazarken bunu hesaba kat (özellikle MinIO arşivleyici ve model
@@ -23,9 +23,9 @@ bu alanı hiç kullanmıyordu, ama olur da bir yerde referans varsa diye belirti
 
 ---
 
-## 1. `adsb.flights`
+## 1. `uav.flights`
 
-**Kim yazıyor:** `adsb_producer.py` (ben) — adsb.lol'den dünya çapında çekip yazıyor
+**Kim yazıyor:** `uav_producer.py` (ben) — adsb.lol'den dünya çapında çekip yazıyor
 (hedef aralık 15sn, ama gerçek cycle süresi veri hacmine göre daha uzun olabilir).
 **Kim okuyabilir:** herkes — kendi `group.id`'ni verirsen benim dashboard consumer'ımdan
 bağımsız, kendi hızında okursun. Aynı mesajı ikimiz de görürüz, biri diğerini bloklamaz.
@@ -71,7 +71,7 @@ bağımsız, kendi hızında okursun. Aynı mesajı ikimiz de görürüz, biri d
 
 **Model consumer'ın için öneri:** `group.id="anomaly-model"` kullan, `auto.offset.reset="latest"`
 ile abone ol. Kendi feature engineering'ini yapıp skorunu hesapla, anomali tespit edersen
-aşağıdaki `adsb.alerts` şemasına göre yaz.
+aşağıdaki `uav.alerts` şemasına göre yaz.
 
 **MinIO arşivleyici için öneri:** `group.id="minio-archiver"` kullan, mesajları
 biriktirip (örn. 100 mesajda bir veya 60 saniyede bir) Parquet batch olarak yaz —
@@ -79,7 +79,7 @@ daha önceki Colab pipeline'ındaki `_flush_alerts` fonksiyonu aynı mantıkla u
 
 ---
 
-## 2. `adsb.alerts`
+## 2. `uav.alerts`
 
 **Kim yazacak:** model ekibi (henüz kimse yazmıyor — topic hazır, bekliyor).
 **Kim okuyor:** `dashboard_consumer.py` (ben) — bu topic'e bir şey düştüğü anda
@@ -122,7 +122,7 @@ alert = {
     "score": 0.87,
     "ts": datetime.now(timezone.utc).isoformat(),
 }
-producer.produce("adsb.alerts", key=alert["icao24"],
+producer.produce("uav.alerts", key=alert["icao24"],
                  value=json.dumps(alert).encode())
 producer.flush()
 ```
@@ -136,7 +136,7 @@ görmek istersen, Kafka'nın kendi CLI aracıyla (kurulum sonrası `kafka/`
 klasöründe) kontrol edebilirsin:
 
 ```
-kafka\bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic adsb.flights --from-beginning
+kafka\bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic uav.flights --from-beginning
 ```
 
 Ctrl+C ile durdurulur, veriyi bozmaz (sadece okur).

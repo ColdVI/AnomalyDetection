@@ -4,9 +4,9 @@
 # elle (Ctrl+C + yeniden yazarak) baslatilmis pencereler de yakalanir,
 # sadece start_all.bat ile acilanlar degil.
 
-Write-Host "[1/3] Python surecleri kapatiliyor (adsb_producer/dashboard_consumer/app)..."
+Write-Host "[1/3] Python surecleri kapatiliyor (uav_producer/dashboard_consumer/app)..."
 $pyProcs = Get-CimInstance Win32_Process -Filter "Name='python.exe'" -ErrorAction SilentlyContinue |
-    Where-Object { $_.CommandLine -match 'adsb_producer\.py|dashboard_consumer\.py|app\.py' }
+    Where-Object { $_.CommandLine -match 'uav_producer\.py|dashboard_consumer\.py|app\.py' }
 
 if ($pyProcs) {
     foreach ($p in $pyProcs) {

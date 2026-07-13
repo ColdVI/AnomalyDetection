@@ -1,7 +1,7 @@
 """influx_client.py -- realtime (--live/--24h/--7d) veri kaynagi.
 
 Yusuf'un dashboard_consumer.py'sinin zaten yazdigi InfluxDB bucket'ini
-(adsb-history, measurement "flights", tag icao24) OKUR -- yeni bir yazici
+(uav-history, measurement "flights", tag icao24) OKUR -- yeni bir yazici
 kurmaya gerek yok. (docs/realtime_pipeline_prompt.md Soru #1: ayri modul mu --
 evet, ama sadece OKUMA icin; yazma tarafi zaten Dashboard/dashboard_consumer.py'de var.)
 
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 INFLUX_HOST = os.environ.get("INFLUX_HOST", "http://localhost:8086")
 INFLUX_ORG = os.environ.get("INFLUX_ORG", "iha-org")
-INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "adsb-history")
+INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "uav-history")
 
 
 def _load_token() -> str:
@@ -68,7 +68,7 @@ def load_realtime_window(
     agg_every: verilirse (ör. "2m") SUNUCU-TARAFI aggregateWindow(fn: last)
     uygulanir -- her ucak+alan (lat/lon) icin pencere basina TEK (son) deger
     doner, InfluxDB'den cekilen ham satir sayisini azaltir. 1-2 dakika araligi
-    KASITLI: producer zaten ~60sn'de bir yaziyor (bkz. Dashboard/adsb_producer.py
+    KASITLI: producer zaten ~60sn'de bir yaziyor (bkz. Dashboard/uav_producer.py
     SOURCE_INTERVALS), yani 1-2dk pencere ham cozunurlugu pratikte KAYBETMEZ --
     5-10dk gibi genis bir pencere ise hizli bir ucagin pencere icinde gectigi
     ARA hex'leri (sadece son nokta tutuldugu icin) sessizce dusurebilirdi.

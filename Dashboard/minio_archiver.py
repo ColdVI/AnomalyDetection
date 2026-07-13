@@ -1,6 +1,6 @@
 """
 minio_archiver.py
-Kafka adsb.flights → MinIO Bronze (adsblol_realtime/_landing/) arşivleyici.
+Kafka uav.flights → MinIO Bronze (adsblol_realtime/_landing/) arşivleyici.
 
 dashboard_consumer.py ile AYRI group.id kullanır, aynı mesajları bağımsız
 okur -- dashboard_consumer'ı etkilemez.
@@ -11,7 +11,7 @@ parse_adsblol_realtime.py bu dosyaları Silver Parquet'e çevirir VE ISLENEN
 dosyalari Bronze'dan siler (bkz. o script'teki _delete_processed).
 
 2026-07-09 KARARI: MinIO'da 7 GUNLUK OTOMATIK SILME KURALI YOK/KALDIRILDI --
-sadece InfluxDB'de (adsb-history bucket, 168h retention) gecici 7 gunluk
+sadece InfluxDB'de (uav-history bucket, 168h retention) gecici 7 gunluk
 saklama var. MinIO'daki realtime landing verisi (bu dosya) kalici olmali:
 parse_adsblol_realtime.py --loop calisir durumda tutularak duzenli araliklarla
 Silver'a (ve oradan Gold'a) islenip KALICI hale getirilir -- silinmez, sadece
@@ -21,12 +21,10 @@ Bronze'da JSONL birikir (bu ZARARSIZ, sadece disk kullanir) ama KAYBOLMAZ.
 Kullanim:
     python minio_archiver.py
 """
-import json
 import time
 import os
 import io
 from datetime import datetime, timezone
-from pathlib import Path
 
 from confluent_kafka import Consumer
 from minio import Minio
@@ -35,7 +33,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BOOTSTRAP    = os.environ.get("KAFKA_BOOTSTRAP", "localhost:9092")
-TOPIC        = "adsb.flights"
+TOPIC        = "uav.flights"
 GROUP_ID     = "minio-archiver"
 BATCH_SIZE   = 500          # kaç mesajda bir dosya yaz
 FLUSH_SECS   = 60           # en fazla kaç saniyede bir yaz (mesaj az olsa bile)

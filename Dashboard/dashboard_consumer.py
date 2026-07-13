@@ -6,8 +6,8 @@ model anomali tespiti) bu script'ten tamamen bagimsiz calisir -- ayni
 mesaji herkes kendi hizinda okur, birbirini etkilemez.
 
 Iki topic dinler:
-  - adsb.flights  -> Redis (canli durum) + InfluxDB (7 gunluk gecmis)
-  - adsb.alerts   -> Redis (son alert listesi) -- SIMDILIK BOS, model ekibi
+  - uav.flights  -> Redis (canli durum) + InfluxDB (7 gunluk gecmis)
+  - uav.alerts   -> Redis (son alert listesi) -- SIMDILIK BOS, model ekibi
                      hazir olunca buraya yazmaya baslayacak, bu consumer
                      otomatik olarak onlari da yakalayip dashboard'a
                      yansitmaya baslayacak, kod degisikligi gerekmez.
@@ -17,7 +17,6 @@ Kullanim:
 """
 import json
 import os
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -30,15 +29,15 @@ from influxdb_client.client.write_api import WriteOptions
 # BOOTSTRAP/REDIS_HOST/INFLUX_HOST bu yuzden ortam degiskeniyle
 # ayarlanabilir (docker-compose.yml servis adlarini enjekte eder).
 BOOTSTRAP = os.environ.get("KAFKA_BOOTSTRAP", "localhost:9092")
-FLIGHTS_TOPIC = "adsb.flights"
-ALERTS_TOPIC = "adsb.alerts"
+FLIGHTS_TOPIC = "uav.flights"
+ALERTS_TOPIC = "uav.alerts"
 
 TOKEN_FILE = Path("influx_token.txt")
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", "6379"))
 INFLUX_HOST = os.environ.get("INFLUX_HOST", "http://localhost:8086")
 INFLUX_ORG = os.environ.get("INFLUX_ORG", "iha-org")
-INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "adsb-history")
+INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "uav-history")
 
 # ============================================================
 # CYCLE-ID TABANLI "GOR-YOKSA-SIL" MODELI (once TTL, sonra zaman-pencereli
@@ -61,7 +60,7 @@ INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET", "adsb-history")
 # riski araninda hep bir denge kurulmasi gerekiyordu.
 #
 # 3. (GUNCEL) CYCLE-ID: saniye TAHMIN ETMEK yerine, producer'in KENDI
-# dogal cycle sinirini kullaniyoruz. adsb_producer.py her kayda hangi
+# dogal cycle sinirini kullaniyoruz. uav_producer.py her kayda hangi
 # cycle'a ait oldugunu gosteren bir "cycle_id" ekliyor (stats["cycles"]).
 # Bu consumer, gelen mesajlardaki cycle_id DEGISTIGINDE "onceki cycle
 # TAMAMLANDI" sinyalini alir ve o cycle'da hic gorulmeyen eski kayitlari
@@ -243,7 +242,7 @@ def main():
                     .field("lon", float(data.get("lon", 0.0)))
                     .field("alt", float(data.get("alt", 0.0)))
                     .field("is_ground", bool(data.get("is_ground", False)))
-                    # 2026-07-10 (kullanici istegi): adsb_producer.py zaten dbFlags'ten
+                    # 2026-07-10 (kullanici istegi): uav_producer.py zaten dbFlags'ten
                     # is_military hesaplayip Kafka'ya koyuyor -- burada da yaziyoruz ki
                     # individual/metehan_geo'nun realtime (live/24h/7d) haritalari
                     # sivil/askeri filtresini uygulayabilsin. Sadece BUNDAN SONRA yazilan
@@ -277,7 +276,7 @@ def main():
                 stats["flights"] += 1
 
             elif topic == ALERTS_TOPIC:
-                # sema: KAFKA_SCHEMA.md'deki adsb.alerts bolumune bakiniz
+                # sema: KAFKA_SCHEMA.md'deki uav.alerts bolumune bakiniz
                 rdb.lpush("iha:recent_alerts", json.dumps(data))
                 rdb.ltrim("iha:recent_alerts", 0, 19)
                 stats["alerts"] += 1

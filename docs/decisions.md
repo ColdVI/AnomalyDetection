@@ -187,7 +187,7 @@ gösteriyordu (3 sink, 1 consumer). Uygulamada **iki ayrı consumer** tercih edi
 
 **Neden?** Separation of Concerns: arşivleyici çöktüğünde dashboard etkilenmiyor;
 arşivleyici bağımsız ölçeklenebilir; her consumer kendi offset'ini yönetiyor.
-Her iki consumer da aynı Kafka topic'i `adsb.flights`'ı bağımsız okuyor — Kafka'nın
+Her iki consumer da aynı Kafka topic'i `uav.flights`'ı bağımsız okuyor — Kafka'nın
 consumer group modeli buna tasarım gereği izin veriyor, veri kaybı yok.
 
 ## ADR-008: ML-8A Gate A geçti; Gate B/C reddedildi

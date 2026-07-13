@@ -31,8 +31,8 @@ BASE_DIR = Path.cwd()
 KAFKA_DIR = Path("C:/kafka")
 
 TOPICS = [
-    ("adsb.flights", 3),  # ham parse edilmis ucus verisi (producer -> burasi)
-    ("adsb.alerts", 1),   # model ekibi ileride buraya anomali alert'i yazacak
+    ("uav.flights", 3),  # ham parse edilmis ucus verisi (producer -> burasi)
+    ("uav.alerts", 1),   # model ekibi ileride buraya anomali alert'i yazacak
 ]
 
 _JAVA_HOME = None  # find_java17() tarafindan doldurulur
@@ -258,7 +258,7 @@ def main():
 
     print("\n" + "=" * 55)
     print("KAFKA HAZIR. Simdi sirayla (ayri terminallerde):")
-    print("  1. python adsb_producer.py       (adsb.lol -> Kafka)")
+    print("  1. python uav_producer.py        (adsb.lol -> Kafka)")
     print("  2. python dashboard_consumer.py  (Kafka -> Redis + InfluxDB)")
     print("  3. python app.py                 (dashboard)")
     print()

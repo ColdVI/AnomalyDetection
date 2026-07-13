@@ -111,7 +111,7 @@ def test_update_map_normal_squawk_no_emergency_row(monkeypatch):
 
 
 def test_update_map_alerts_endpoint_also_colors_aircraft_red(monkeypatch):
-    """/api/alerts (ML ekibinin adsb.alerts topic'i, henuz bos) -- oradan
+    """/api/alerts (ML ekibinin uav.alerts topic'i, henuz bos) -- oradan
     gelen bir icao24 de kirmizi renklendirilmeli, kendi squawk/emergency
     alanindan BAGIMSIZ."""
     flights = [{"icao24": "ml-flagged", "is_military": False, "alt": 3000.0,

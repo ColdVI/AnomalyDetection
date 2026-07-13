@@ -20,7 +20,7 @@ belgelendi (neden, ne zaman, hangi hata bulundu) — Claude Code repo'yu okuyunc
 2. **Zaman penceresi:** TTL yerine sabit saniyelik bir pencere (`WINDOW_SEC`) denendi — hayaletleri
    çözdü ama pencere birden fazla üretim cycle'ını kapsadığında ekranda **%13'e kadar fazlalık**
    yarattı (birden fazla cycle'ın birleşimi gösteriliyordu).
-3. **(GÜNCEL) Cycle-ID:** `adsb_producer.py` artık her kayda bir `cycle_id` (artan sayaç) ekliyor.
+3. **(GÜNCEL) Cycle-ID:** `uav_producer.py` artık her kayda bir `cycle_id` (artan sayaç) ekliyor.
    `dashboard_consumer.py`, gelen `cycle_id` değiştiğinde "önceki cycle tamamlandı" der ve o
    cycle'da hiç görünmeyen eski kayıtları **o an** siler — saniye tahmini YOK, ortalama fazlalık
    ~%0'a indi. **ÖNEMLİ:** "Tüm cycle'ı bellekte toplayıp tek seferde atomik yaz" da denendi
@@ -87,7 +87,7 @@ bölgesinde konum donarken diğer mesajların gelmeye devam etmesi) ortaya çık
 | `INFLUX_HOST` | `http://localhost:8086` | örn. `http://influxdb:8086` |
 | `KAFKA_BOOTSTRAP` | `localhost:9092` | örn. `kafka:9092` |
 
-`adsb_producer.py` zaten `KAFKA_BOOTSTRAP` ortam değişkenini kullanıyordu (Docker'a hazırdı).
+`uav_producer.py` zaten `KAFKA_BOOTSTRAP` ortam değişkenini kullanıyordu (Docker'a hazırdı).
 
 `app.py` içindeki `http://localhost:8000/api/...` çağrıları (Dash→FastAPI arası) **DEĞİŞMEDİ**
 ve değişmemeli — FastAPI ve Dash aynı process içinde (`app.py`), aynı container'da kalmalı.

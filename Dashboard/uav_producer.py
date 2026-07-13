@@ -1,5 +1,5 @@
 """
-adsb_producer.py
+uav_producer.py
 SADECE veri kaynagindan (adsb.lol, OpenSky, ...) veri ceker ve Kafka'ya
 yazar. UCUS VERISI icin Redis/InfluxDB/MinIO gibi hicbir depoyu bilmez --
 o is tuketicilerin (consumer) sorumlulugunda. Bu ayrim sayesinde ekip
@@ -60,11 +60,11 @@ DATA_SOURCE/INTERVAL/... isimleri, hic kod degisikligi gerekmeden calisir.
       ile calismaya devam eder.
 
 Kullanim (CLI):
-    python adsb_producer.py [--source adsblol] [--interval 15]
-    python adsb_producer.py --source opensky --interval 300
+    python uav_producer.py [--source adsblol] [--interval 15]
+    python uav_producer.py --source opensky --interval 300
 
 Kullanim (ortam degiskeni -- Docker'da boyle kullanilacak):
-    set DATA_SOURCE=opensky & set INTERVAL=300 & python adsb_producer.py
+    set DATA_SOURCE=opensky & set INTERVAL=300 & python uav_producer.py
     # Docker: docker run -e DATA_SOURCE=opensky -e INTERVAL=300 ...
 """
 import argparse
@@ -78,7 +78,7 @@ import requests
 from confluent_kafka import Producer
 
 BOOTSTRAP = os.environ.get("KAFKA_BOOTSTRAP", "localhost:9092")
-TOPIC = "adsb.flights"
+TOPIC = "uav.flights"
 
 DEFAULT_WORLD_RADIUS_NM = 12000
 
@@ -470,7 +470,7 @@ def main():
     # ONEMLI: her arg once CLI'dan (--source vb.), verilmezse ortam
     # degiskeninden (DATA_SOURCE vb.), o da yoksa sabit varsayilandan
     # okunuyor. Boylece bu script'i HIC DEGISTIRMEDEN hem "python
-    # adsb_producer.py --source opensky" ile hem de Docker'da
+    # uav_producer.py --source opensky" ile hem de Docker'da
     # "docker run -e DATA_SOURCE=opensky ..." ile calistirabilirsin.
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", choices=list(SOURCES.keys()),

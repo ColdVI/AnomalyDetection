@@ -1,4 +1,4 @@
-"""Dashboard/minio_archiver.py -- Kafka adsb.flights -> MinIO Bronze
+"""Dashboard/minio_archiver.py -- Kafka uav.flights -> MinIO Bronze
 arşivleyici testleri."""
 
 from __future__ import annotations
