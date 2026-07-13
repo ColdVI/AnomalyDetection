@@ -1,9 +1,15 @@
-"""step4_build_daily_snapshots.py -- Adim 4, gun-bazli hex anomali tespiti.
+"""step4_build_daily_snapshots.py -- Adim 4, son 7 gunun GUNLUK yogunluk haritasi.
 
-2026-07-10 (kullanici istegi): "son 7 gun isi haritasi degisimi" -- herhangi
-iki gun arasinda yogunlugu (benzersiz ucak sayisi) ANORMAL degisen hex'leri
-isaretleyip kullaniciyi arayuzde uyarmak. Kapsam GLOBAL (ulke secimine
-bagli degil, TUM hex'ler taranir).
+2026-07-10 (kullanici istegi): "son 7 gun isi haritasi" -- her takvim gunu
+icin ayri bir yogunluk (benzersiz ucak sayisi) anlik goruntusu, kullanici
+gunler arasinda gezinerek trafigin gun gun nasil degistigini gorebilsin.
+Kapsam GLOBAL (ulke secimine bagli degil, TUM hex'ler taranir).
+
+2026-07-11 (kullanici geri bildirimi): bu script'in ilk versiyonu iki gun
+arasindaki degisimi z-skorla "anormal" olarak isaretleyen bir katman da
+uretiyordu -- kullanici bunu "boş bir özellik" bulup kaldirilmasini istedi,
+gunluk gorunum ("işiyi miş") kaldi. Bu yuzden mean/std/min_absolute (SADECE
+o anomali hesabi icin vardi) kaldirildi -- artik sadece gun basina flight_count.
 
 ONEMLI -- neden sadece son 7 gun (62 gunluk veri varken)?: bu ozellik
 ILERIDE (bu is degil, ayri bir takip -- bkz. proje hafizasi
@@ -11,16 +17,13 @@ ILERIDE (bu is degil, ayri bir takip -- bkz. proje hafizasi
 InfluxDB'nin kendi mimarisi geregi SADECE 7 gunluk rolling pencere tutuluyor
 (bkz. individual/metehan_geo/influx_client.py). Su an statik CSV 62 gun
 tasisa da BILEREK sadece son 7 takvim gunu kullaniliyor -- veri kaynagi
-CSV'den InfluxDB'ye gecince frontend/anomali mantiginda HICBIR SEY
-degismesin diye (sadece load_daily_counts()'un veri kaynagi degisecek).
+CSV'den InfluxDB'ye gecince frontend mantiginda HICBIR SEY degismesin diye
+(sadece load_daily_counts()'un veri kaynagi degisecek).
 
 Cikti: tek bir GeoJSON (`daily_hex_snapshots.geojson`) -- her hex feature'i
 7 gunun HER BIRI icin flight_count tasir (`counts` dizisi, days ile ayni
-sirada) + o hex'in kendi 7-gunluk ortalama/std'si (z-skor hesaplamasi icin).
-Anomali skoru (z-skor) VE hangi iki gun karsilastirilacagi TAMAMEN
-istemci tarafinda (index.html) hesaplanir -- boylece kullanici hangi gun
-ciftini secerse secsin yeniden fetch/hesaplama gerekmez (civil/military
-filtresiyle ayni "tek dosya, istemci karsilastirir" deseni).
+sirada). Hangi gunun gosterilecegi TAMAMEN istemci tarafinda (index.html)
+secilir -- kullanici hangi gunu secerse secsin yeniden fetch gerekmez.
 
 Kullanim:
     python -m individual.metehan_geo_country.step4_build_daily_snapshots
@@ -32,7 +35,6 @@ import json
 import logging
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 from individual.metehan_geo.geo import assign_h3_cell, h3_cell_to_polygon
@@ -48,11 +50,6 @@ H3_RESOLUTION = 5
 # 2026-07-10: InfluxDB'nin 7-gunluk rolling penceresiyle BIREBIR eslessin diye
 # kasitli olarak 7 -- bkz. modul docstring'i.
 WINDOW_DAYS = 7
-# Kucuk mutlak sayilarda (ör. 1 ucaktan 3 ucaga cikmak) z-skor/oransal degisim
-# yapay derecede carpici cikabilir -- iki gunden EN AZ biri bu esigi
-# gecmedikce hex anomali adayi bile sayilmiyor (frontend'de uygulanir,
-# burada sadece parametre olarak tasiniyor).
-MIN_ABSOLUTE = 3
 
 
 def build_daily_hex_counts(df: pd.DataFrame) -> pd.DataFrame:
@@ -79,34 +76,21 @@ def build_daily_hex_counts(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def build_snapshot_payload(daily: pd.DataFrame) -> dict:
-    """Her hex icin gun-sirali flight_count dizisi + o hex'in KENDI 7-gunluk
-    ortalama/std'si (mutlak bir esik yerine goreceli anomali icin -- bu
-    projede defalarca ogrenildi: tek global esik farkli olcekteki hex'ler
-    icin adil degil, bkz. geo_clustering.compute_knn_local_mask)."""
+    """Her hex icin gun-sirali flight_count dizisi."""
     days = sorted(daily["day"].unique())
     pivot = daily.pivot_table(index="h3_cell", columns="day", values="flight_count", fill_value=0)
     pivot = pivot.reindex(columns=days, fill_value=0)
-
-    mean = pivot.mean(axis=1)
-    std = pivot.std(axis=1)
 
     features = []
     for h3_cell, row in pivot.iterrows():
         ring = h3_cell_to_polygon(h3_cell)
         if ring is None:
             continue
-        hex_std = std[h3_cell]
         features.append({
             "type": "Feature",
             "properties": {
                 "h3_cell": h3_cell,
                 "counts": [int(v) for v in row.to_numpy()],
-                "mean": round(float(mean[h3_cell]), 2),
-                # sabit-degerli (7 gun boyunca hep ayni sayi) hex'te std=0 --
-                # z-skor tanimsiz/sonsuz olur, None birakiyoruz (frontend
-                # bunu "yeni/kayip" disindaki normal degisim analizinden
-                # haric tutar).
-                "std": None if hex_std == 0 else round(float(hex_std), 3),
             },
             "geometry": {"type": "Polygon", "coordinates": [ring]},
         })
@@ -115,7 +99,6 @@ def build_snapshot_payload(daily: pd.DataFrame) -> dict:
     return {
         "type": "FeatureCollection",
         "days": days,
-        "min_absolute": MIN_ABSOLUTE,
         "features": features,
     }
 

@@ -3,126 +3,285 @@
 <head>
 <meta charset="utf-8" />
 <title>Metehan — ADS-B Yoğunluk / Rota Haritası</title>
+<script>
+  // Sayfa CSS'ten ONCE calisir -- kayitli tema tercihini <html> uzerine
+  // hemen uygular, aksi halde bir an icin varsayilan (koyu) tema gorunup
+  // hemen acik temaya "flash" edebilirdi.
+  (function () {
+    try {
+      if (localStorage.getItem("theme") === "light") {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    } catch (e) {}
+  })();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
 <link href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css" rel="stylesheet" />
 <style>
+  :root {
+    --bg: #0a0d12;
+    --panel-bg: rgba(13, 17, 23, 0.86);
+    --panel-border: rgba(255, 255, 255, 0.09);
+    --text-primary: #edf0f4;
+    --text-secondary: #8b93a3;
+    --text-tertiary: #7d8494; /* 2026-07-11: WCAG AA icin acildi (5.19:1), eski #5a6372 sadece 3.2:1 idi */
+    --accent: #3fd2a0;
+    --accent-strong: #63e0b6;
+    --accent-dim: rgba(63, 210, 160, 0.16);
+    --accent-line: rgba(63, 210, 160, 0.45);
+    --surface: rgba(255, 255, 255, 0.05);
+    --surface-hover: rgba(255, 255, 255, 0.09);
+    --surface-border: rgba(255, 255, 255, 0.04);
+    --divider: rgba(255, 255, 255, 0.08);
+    --switch-track: rgba(255, 255, 255, 0.14);
+    --popup-bg: rgba(13, 17, 23, 0.94);
+    --active-text: #06231a;
+    --danger: #ff6b6b;
+    --radius-sm: 7px;
+    --radius-md: 11px;
+    --radius-lg: 18px;
+    --font-ui: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+  }
+
+  /* 2026-07-11 (kullanici istegi): acik/koyu tema toggle -- SADECE panel/UI
+     chrome'u degistirir (harita taban stili -- styleSelect -- zaten bagimsiz
+     bir secim, buradan otomatik degismiyor, kasitli -- ikisi ayri kavramlar).
+     Varsayilan koyu (mevcut davranisla ayni); localStorage'da "theme" anahtari
+     ile hatirlanir, JS acilista <html data-theme="..."> olarak uygular. */
+  :root[data-theme="light"] {
+    --bg: #eef1f4;
+    --panel-bg: rgba(255, 255, 255, 0.86);
+    --panel-border: rgba(15, 23, 32, 0.1);
+    --text-primary: #161b22;
+    --text-secondary: #4c5563;
+    --text-tertiary: #5f6673; /* 2026-07-11: WCAG AA icin koyultuldu (5.10:1), eski #838d9c sadece 2.97:1 idi */
+    --accent: #0e9d6e;
+    --accent-strong: #0c8760;
+    --accent-dim: rgba(14, 157, 110, 0.12);
+    --accent-line: rgba(14, 157, 110, 0.4);
+    --surface: rgba(15, 23, 32, 0.045);
+    --surface-hover: rgba(15, 23, 32, 0.09);
+    --surface-border: rgba(15, 23, 32, 0.05);
+    --divider: rgba(15, 23, 32, 0.09);
+    --switch-track: rgba(15, 23, 32, 0.16);
+    --popup-bg: rgba(255, 255, 255, 0.96);
+    --active-text: #eafff5;
+    --danger: #d1373f;
+  }
+
   * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; height: 100%; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); }
   #map { position: absolute; inset: 0; }
 
   #panel {
-    position: absolute; top: 16px; left: 16px; z-index: 1;
-    width: 270px;
-    background: rgba(16, 16, 20, 0.7);
-    backdrop-filter: blur(16px) saturate(150%);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
-    color: #e9e9ee;
-    font: 13px/1.4 -apple-system, "Segoe UI", system-ui, sans-serif;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    position: absolute; top: 18px; left: 18px; z-index: 1;
+    width: 288px;
+    background: var(--panel-bg);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-lg);
+    color: var(--text-primary);
+    font: 13px/1.45 var(--font-ui);
+    box-shadow: 0 24px 60px -16px rgba(0, 0, 0, 0.7), 0 4px 18px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
     overflow: hidden;
     transition: width 0.18s ease;
   }
-  #panel.collapsed { width: 42px; }
-  #panel.collapsed .panel-body, #panel.collapsed #status { display: none; }
+  #panel.collapsed { width: 44px; }
+  #panel.collapsed .panel-body, #panel.collapsed #status, #panel.collapsed .panel-eyebrow { display: none; }
 
   .panel-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 8px 12px 14px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 14px 10px 12px 16px;
+    border-bottom: 1px solid var(--divider);
+  }
+  .panel-header-text { min-width: 0; }
+  .panel-eyebrow {
+    font: 600 9.5px/1 var(--font-mono); letter-spacing: 1.4px; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 5px;
   }
   .panel-header h1 {
-    font-size: 12.5px; font-weight: 700; margin: 0; letter-spacing: 0.3px;
-    text-transform: uppercase; color: #cfd0d8; white-space: nowrap; overflow: hidden;
+    font-size: 14px; font-weight: 600; margin: 0; letter-spacing: 0.1px;
+    color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .icon-btn {
-    width: 24px; height: 24px; border-radius: 7px; border: none; flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.07); color: #e9e9ee; cursor: pointer;
+    width: 26px; height: 26px; border-radius: var(--radius-sm); border: none; flex-shrink: 0;
+    background: var(--surface); color: var(--text-primary); cursor: pointer;
     display: flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1;
+    transition: background 0.15s;
   }
-  .icon-btn:hover { background: rgba(255, 255, 255, 0.14); }
+  .icon-btn:hover { background: var(--surface-hover); }
 
-  .panel-body { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+  .panel-body { display: flex; flex-direction: column; }
+
+  /* 2026-07-11: bilgi mimarisi -- panel artik tek duz liste degil, mantiksal
+     gruplara (Gorsellestirme/Zaman/Filtreler/Katmanlar) ayrilmis, native
+     <details>/<summary> ile (ucretsiz klavye erisimi + collapse, JS gerekmez). */
+  .panel-group { border-bottom: 1px solid var(--divider); }
+  .panel-group:last-of-type { border-bottom: none; }
+  .panel-group summary {
+    list-style: none; cursor: pointer; padding: 11px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.9px; font-weight: 700;
+    color: var(--text-secondary); user-select: none; transition: color 0.15s;
+  }
+  .panel-group summary:hover { color: var(--text-primary); }
+  .panel-group summary::-webkit-details-marker { display: none; }
+  .panel-group summary::after {
+    content: "⌄"; font-size: 13px; color: var(--text-tertiary);
+    transition: transform 0.15s ease;
+  }
+  .panel-group[open] summary::after { transform: rotate(180deg); }
+  .panel-group-body { padding: 2px 16px 16px; display: flex; flex-direction: column; gap: 15px; }
 
   .field label {
-    display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.7px;
-    color: #93939f; margin-bottom: 6px; font-weight: 700;
+    display: block; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.9px;
+    color: var(--text-tertiary); margin-bottom: 7px; font-weight: 600;
   }
   .field select {
-    width: 100%; background: rgba(255, 255, 255, 0.06); color: #e9e9ee;
-    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 7px 8px;
-    font-size: 12.5px; cursor: pointer; appearance: none;
+    width: 100%; background: var(--surface); color: var(--text-primary);
+    border: 1px solid var(--panel-border); border-radius: var(--radius-sm); padding: 7px 9px;
+    font-size: 12.5px; cursor: pointer; appearance: none; font-family: var(--font-ui);
+    transition: border-color 0.15s, background 0.15s;
   }
-  .field select:hover { border-color: rgba(255, 255, 255, 0.22); }
-  .field select:focus { outline: 2px solid #3b6fe0; outline-offset: 1px; }
+  .field select:hover { border-color: var(--accent-line); background: var(--surface-hover); }
+  .field select:focus { outline: none; border-color: var(--accent-line); box-shadow: 0 0 0 3px var(--accent-dim); }
 
-  .segmented { display: flex; background: rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 3px; gap: 2px; }
+  .segmented {
+    display: flex; background: var(--surface); border-radius: var(--radius-sm);
+    padding: 3px; gap: 2px; border: 1px solid var(--surface-border);
+  }
   .segmented button {
-    flex: 1; border: none; background: transparent; color: #9d9da8;
+    flex: 1; border: none; background: transparent; color: var(--text-secondary);
     padding: 6px 4px; font-size: 12px; border-radius: 6px; cursor: pointer; font-weight: 600;
-    transition: background 0.15s, color 0.15s; font-family: inherit;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s; font-family: var(--font-ui);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   /* 4 secenekli (zaman araligi) segmented kontrolde daha az yer var --
      kucuk fontla tut, taskmasin. */
   #timeRangeSegmented button { font-size: 10.5px; padding: 6px 2px; }
-  .segmented button.active { background: #3b6fe0; color: #fff; }
-  .segmented button:not(.active):hover { background: rgba(255, 255, 255, 0.07); color: #e9e9ee; }
+  .segmented button.active {
+    background: linear-gradient(180deg, var(--accent-strong), var(--accent));
+    color: var(--active-text); box-shadow: 0 2px 10px -2px rgba(63, 210, 160, 0.55);
+  }
+  .segmented button:not(.active):hover { background: var(--surface-hover); color: var(--text-primary); }
   .segmented button:disabled {
     opacity: 0.35; cursor: not-allowed; pointer-events: none;
   }
 
   .slider-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
   .slider-row label { margin: 0; }
-  .slider-row .value { font-variant-numeric: tabular-nums; color: #e9e9ee; font-weight: 700; font-size: 12px; }
-  input[type="range"] { width: 100%; accent-color: #3b6fe0; }
+  .slider-row .value { font-variant-numeric: tabular-nums; color: var(--text-primary); font-weight: 600; font-size: 12px; font-family: var(--font-mono); }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
 
   .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 3px 0; }
-  .toggle-row span { font-size: 12.5px; color: #d4d4dc; }
+  .toggle-row span { font-size: 12px; color: var(--text-primary); }
   .switch { position: relative; width: 34px; height: 19px; flex-shrink: 0; display: inline-block; }
   .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
   .switch .slider {
-    position: absolute; inset: 0; background: rgba(255, 255, 255, 0.14);
+    position: absolute; inset: 0; background: var(--switch-track);
     border-radius: 999px; cursor: pointer; transition: background 0.15s;
   }
   .switch .slider::before {
     content: ""; position: absolute; width: 15px; height: 15px; left: 2px; top: 2px;
     background: #fff; border-radius: 50%; transition: transform 0.15s;
   }
-  .switch input:checked + .slider { background: #3b6fe0; }
+  .switch input:checked + .slider { background: var(--accent); }
   .switch input:checked + .slider::before { transform: translateX(15px); }
 
-  .legend-swatch { height: 10px; border-radius: 5px; margin-bottom: 4px; }
-  .legend-scale { display: flex; justify-content: space-between; font-size: 10.5px; color: #93939f; font-variant-numeric: tabular-nums; }
+  .legend-swatch { height: 8px; border-radius: 4px; margin-bottom: 5px; border: 1px solid var(--panel-border); }
+  .legend-scale { display: flex; justify-content: space-between; font: 10.5px/1 var(--font-mono); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 
-  #realtimeHint {
-    font-size: 10.5px; line-height: 1.5; color: #9d9da8;
-    background: rgba(59, 111, 224, 0.12); border: 1px solid rgba(59, 111, 224, 0.3);
-    border-radius: 8px; padding: 8px 10px;
+  #realtimeHint, #clustersHint {
+    font-size: 10.5px; line-height: 1.55; color: var(--text-secondary);
+    background: var(--accent-dim); border: 1px solid var(--accent-line);
+    border-radius: var(--radius-sm); padding: 9px 11px;
   }
-  #realtimeHint b { color: #cfd6f5; }
-
-  #clustersHint {
-    font-size: 10.5px; line-height: 1.5; color: #9d9da8;
-    background: rgba(59, 111, 224, 0.12); border: 1px solid rgba(59, 111, 224, 0.3);
-    border-radius: 8px; padding: 8px 10px;
-  }
+  #realtimeHint b, #clustersHint b { color: var(--accent-strong); font-weight: 600; }
 
   .maplibregl-popup-content {
-    background: rgba(20, 20, 24, 0.92); color: #e9e9ee; font: 12px/1.5 -apple-system, "Segoe UI", system-ui, sans-serif;
-    border-radius: 8px; padding: 10px 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    background: var(--popup-bg); color: var(--text-primary); font: 12px/1.55 var(--font-ui);
+    border: 1px solid var(--panel-border); border-radius: var(--radius-md); padding: 11px 13px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
   }
-  .maplibregl-popup-tip { border-top-color: rgba(20, 20, 24, 0.92) !important; border-bottom-color: rgba(20, 20, 24, 0.92) !important; }
-  .popup-title { font-weight: 700; margin-bottom: 4px; }
-  .popup-row { color: #b7b7c2; }
-  .popup-row b { color: #e9e9ee; font-variant-numeric: tabular-nums; }
+  .maplibregl-popup-tip { border-top-color: var(--popup-bg) !important; border-bottom-color: var(--popup-bg) !important; }
+  .popup-title { font-weight: 600; margin-bottom: 5px; color: var(--accent-strong); }
+  .popup-row { color: var(--text-secondary); }
+  .popup-row b { color: var(--text-primary); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 
   #status {
-    font-size: 10.5px; color: #6d6d78; padding: 8px 14px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06); font-variant-numeric: tabular-nums;
+    font: 10.5px/1 var(--font-mono); color: var(--text-tertiary); padding: 10px 16px;
+    border-top: 1px solid var(--divider); font-variant-numeric: tabular-nums;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    display: flex; align-items: center; gap: 7px; transition: color 0.15s;
+  }
+  #status::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 6px 1px var(--accent-line); flex-shrink: 0;
+    transition: background 0.15s, box-shadow 0.15s;
+  }
+  /* 2026-07-11 (mikro-etkilesim): bir katman/GeoJSON fetch edilirken durum
+     noktasi yanip soner -- oncesinde SESSIZ bir bekleme vardi ("yukleniyor..."
+     metni disinda gorsel bir ipucu yoktu). prefers-reduced-motion'a saygili. */
+  #status.status-loading::before { animation: statusPulse 1.1s ease-in-out infinite; }
+  #status.status-error { color: var(--danger); }
+  #status.status-error::before {
+    background: var(--danger); box-shadow: 0 0 6px 1px var(--danger); animation: none;
+  }
+  @keyframes statusPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.65); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #status.status-loading::before { animation: none; }
+  }
+
+  /* Grup icerigi acilinca hafif bir fade+slide -- <details> kendisi native
+     (anlik) acilip kapaniyor, sadece ICERIGIN belirisi yumusatiliyor. */
+  .panel-group[open] .panel-group-body { animation: groupReveal 0.16s ease-out; }
+  @keyframes groupReveal {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Popup her ilk goründügünde (hover oturumu basina bir kez -- ayni popup
+     ornegi hover boyunca yeniden kullanildigi icin her mousemove'da DEGIL)
+     hafif bir giris animasyonu. */
+  .maplibregl-popup-content { animation: popupIn 0.14s ease-out; }
+  @keyframes popupIn {
+    from { opacity: 0; transform: translateY(3px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .panel-group[open] .panel-group-body, .maplibregl-popup-content { animation: none; }
+  }
+
+  /* 2026-07-11 (klavye erisilebilirligi): tarayici varsayilan outline'i
+     tutarsiz/goze batmiyordu -- fare kullanicilarini rahatsiz etmeden
+     (sadece :focus-visible, sadece klavye/programatik odakta) net bir
+     vurgu halkasi. */
+  button:focus-visible, select:focus-visible, input[type="range"]:focus-visible,
+  summary:focus-visible, .switch input:focus-visible + .slider {
+    outline: 2px solid var(--accent-line); outline-offset: 2px;
+  }
+
+  /* 2026-07-11 (duyarlilik): dar ekranlarda panel sol-ust'te yuzen sabit
+     genislikli bir kutu yerine, alt kenara yaslanan bir "kontrol cubuguna"
+     donusur -- harita her zaman ana odak kalir, panel gerekince yukari
+     kaydirilip icerik kaydirilarak (scroll) incelenebilir. */
+  @media (max-width: 640px) {
+    #panel {
+      top: auto; left: 8px; right: 8px; bottom: 8px; width: auto;
+      max-height: 62vh; display: flex; flex-direction: column;
+    }
+    #panel.collapsed { height: 46px; max-height: 46px; }
+    .panel-body { flex: 1 1 auto; overflow-y: auto; }
   }
 </style>
 </head>
@@ -130,99 +289,121 @@
 <div id="map"></div>
 <div id="panel">
   <div class="panel-header">
-    <h1>ADS-B Yoğunluk</h1>
-    <button class="icon-btn" id="collapseBtn" aria-label="Paneli daralt">−</button>
+    <div class="panel-header-text">
+      <p class="panel-eyebrow">ADS-B · Yoğunluk &amp; Rota</p>
+      <h1>Trafik Haritası</h1>
+    </div>
+    <div style="display:flex; gap:6px; flex-shrink:0;">
+      <button class="icon-btn" id="themeToggleBtn" aria-label="Açık/koyu tema" title="Açık/koyu tema">◐</button>
+      <button class="icon-btn" id="collapseBtn" aria-label="Paneli daralt">−</button>
+    </div>
   </div>
   <div class="panel-body" id="panelBody">
-    <div class="field">
-      <label>Taban Harita</label>
-      <select id="styleSelect">
-        <option value="minimal">Minimal Koyu</option>
-        <option value="dark">CARTO Dark Matter</option>
-        <option value="light">CARTO Positron</option>
-        <option value="liberty">OpenFreeMap Liberty</option>
-      </select>
-    </div>
 
-    <div class="field">
-      <label>Zaman Aralığı</label>
-      <div class="segmented" id="timeRangeSegmented">
-        <button type="button" data-value="historical" class="active">Tarihsel</button>
-        <button type="button" data-value="live">Canlı</button>
-        <button type="button" data-value="24h">24 Saat</button>
-        <button type="button" data-value="7d">7 Gün</button>
+    <details class="panel-group" open>
+      <summary>Görselleştirme</summary>
+      <div class="panel-group-body">
+        <div class="field">
+          <label>Taban Harita</label>
+          <select id="styleSelect" aria-label="Taban Harita">
+            <option value="minimal">Minimal Koyu</option>
+            <option value="dark">CARTO Dark Matter</option>
+            <option value="light">CARTO Positron</option>
+            <option value="liberty">OpenFreeMap Liberty</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Görselleştirme Modu</label>
+          <div class="segmented" id="renderModeSegmented">
+            <button type="button" data-value="hexagon" class="active">Hexagon</button>
+            <button type="button" data-value="heatmap">Heatmap</button>
+            <button type="button" data-value="clusters">Trafik Kümeleri</button>
+          </div>
+        </div>
+        <div class="field" id="clustersHint" style="display:none">
+          DBSCAN ile bulunan hava trafiği hub'ları — ülke/şehir sınırı önceden
+          verilmedi, sadece hex başına düşen benzersiz uçuş yoğunluğuna bakılarak
+          keşfedildi. Bu bir "sapma/anomali" analizi değil, coğrafi kümeleme.
+          Kümeleme her zaman TÜM uçaklar üzerinden hesaplanır — Uçak Türü
+          filtresi bu modda etkisizdir.
+        </div>
       </div>
-    </div>
+    </details>
 
-    <div class="field">
-      <label>Görselleştirme</label>
-      <div class="segmented" id="renderModeSegmented">
-        <button type="button" data-value="hexagon" class="active">Hexagon</button>
-        <button type="button" data-value="heatmap">Heatmap</button>
-        <button type="button" data-value="clusters">Trafik Kümeleri</button>
+    <details class="panel-group" open>
+      <summary>Zaman</summary>
+      <div class="panel-group-body">
+        <div class="field">
+          <label>Zaman Aralığı</label>
+          <div class="segmented" id="timeRangeSegmented">
+            <button type="button" data-value="historical" class="active">Tarihsel</button>
+            <button type="button" data-value="live">Canlı</button>
+            <button type="button" data-value="24h">24 Saat</button>
+            <button type="button" data-value="7d">7 Gün</button>
+          </div>
+        </div>
+        <div class="field" id="realtimeHint" style="display:none">
+          <b>Canlı modda</b> yalnızca "benzersiz uçuş" metriği kullanılır ve gün
+          filtresi/heatmap görünümü yoktur — pencere zaten kısa (son birkaç dakika
+          / 24 saat / 7 gün), bu ayrımlar anlamsız. Veri InfluxDB'den ~15sn'de bir
+          otomatik tazelenir.
+        </div>
       </div>
-    </div>
+    </details>
 
-    <div class="field" id="civMilField">
-      <label>Uçak Türü</label>
-      <div class="segmented" id="civMilSegmented">
-        <button type="button" data-value="all" class="active">Tümü</button>
-        <button type="button" data-value="civil">Sivil</button>
-        <button type="button" data-value="military">Askeri</button>
+    <details class="panel-group" open>
+      <summary>Filtreler</summary>
+      <div class="panel-group-body">
+        <div class="field" id="metricField">
+          <label>Metrik</label>
+          <div class="segmented" id="metricSegmented">
+            <button type="button" data-value="flight" class="active">Uçuş sayısı</button>
+            <button type="button" data-value="point">Ham nokta</button>
+          </div>
+        </div>
+        <div class="field" id="civMilField">
+          <label>Uçak Türü</label>
+          <div class="segmented" id="civMilSegmented">
+            <button type="button" data-value="all" class="active">Tümü</button>
+            <button type="button" data-value="civil">Sivil</button>
+            <button type="button" data-value="military">Askeri</button>
+          </div>
+        </div>
+        <div class="field" id="dayCountField">
+          <div class="slider-row">
+            <label>Min. gün sayısı</label>
+            <span class="value" id="dayCountValue">0</span>
+          </div>
+          <input type="range" id="dayCountSlider" min="0" max="11" value="0" aria-label="Minimum gün sayısı" />
+        </div>
       </div>
-    </div>
+    </details>
 
-    <div class="field" id="clustersHint" style="display:none">
-      DBSCAN ile bulunan hava trafiği hub'ları — ülke/şehir sınırı önceden
-      verilmedi, sadece hex başına düşen benzersiz uçuş yoğunluğuna bakılarak
-      keşfedildi. Bu bir "sapma/anomali" analizi değil, coğrafi kümeleme.
-      Kümeleme her zaman TÜM uçaklar üzerinden hesaplanır — Uçak Türü
-      filtresi bu modda etkisizdir.
-    </div>
-
-    <div class="field" id="realtimeHint" style="display:none">
-      <b>Canlı modda</b> yalnızca "benzersiz uçuş" metriği kullanılır ve gün
-      filtresi/heatmap görünümü yoktur — pencere zaten kısa (son birkaç dakika
-      / 24 saat / 7 gün), bu ayrımlar anlamsız. Veri InfluxDB'den ~15sn'de bir
-      otomatik tazelenir.
-    </div>
-
-    <div class="field" id="metricField">
-      <label>Metrik</label>
-      <div class="segmented" id="metricSegmented">
-        <button type="button" data-value="flight" class="active">Uçuş sayısı</button>
-        <button type="button" data-value="point">Ham nokta</button>
+    <details class="panel-group" open>
+      <summary>Katmanlar</summary>
+      <div class="panel-group-body">
+        <div class="field" id="densityLegendField">
+          <label>Yoğunluk Skalası</label>
+          <div class="legend-swatch" id="legendSwatch"></div>
+          <div class="legend-scale"><span id="legendMin"></span><span id="legendMax"></span></div>
+        </div>
+        <div class="field">
+          <div class="toggle-row">
+            <span id="hillshadeLabel">Fiziki (hillshade)</span>
+            <label class="switch"><input type="checkbox" id="hillshadeToggle" aria-labelledby="hillshadeLabel" /><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <span id="globeLabel">3D Küre</span>
+            <label class="switch"><input type="checkbox" id="globeToggle" aria-labelledby="globeLabel" /><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <span id="mlatLabel">MLAT kapsama</span>
+            <label class="switch"><input type="checkbox" id="mlatToggle" aria-labelledby="mlatLabel" /><span class="slider"></span></label>
+          </div>
+        </div>
       </div>
-    </div>
+    </details>
 
-    <div class="field" id="dayCountField">
-      <div class="slider-row">
-        <label>Min. gün sayısı</label>
-        <span class="value" id="dayCountValue">0</span>
-      </div>
-      <input type="range" id="dayCountSlider" min="0" max="20" value="0" />
-    </div>
-
-    <div class="field" id="densityLegendField">
-      <label>Yoğunluk Skalası</label>
-      <div class="legend-swatch" id="legendSwatch"></div>
-      <div class="legend-scale"><span id="legendMin"></span><span id="legendMax"></span></div>
-    </div>
-
-    <div class="field">
-      <div class="toggle-row">
-        <span>Fiziki (hillshade)</span>
-        <label class="switch"><input type="checkbox" id="hillshadeToggle" /><span class="slider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <span>3D Küre</span>
-        <label class="switch"><input type="checkbox" id="globeToggle" /><span class="slider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <span>MLAT kapsama</span>
-        <label class="switch"><input type="checkbox" id="mlatToggle" /><span class="slider"></span></label>
-      </div>
-    </div>
   </div>
   <div id="status">yükleniyor...</div>
 </div>
@@ -247,9 +428,9 @@ const MINIMAL_DARK_STYLE = {
     },
   },
   layers: [
-    { id: "background", type: "background", paint: { "background-color": "#030304" } },
-    { id: "land-fill", type: "fill", source: "countries", paint: { "fill-color": "#0d0d10" } },
-    { id: "land-border", type: "line", source: "countries", paint: { "line-color": "#3a3a42", "line-width": 0.6 } },
+    { id: "background", type: "background", paint: { "background-color": "#0a0d12" } },
+    { id: "land-fill", type: "fill", source: "countries", paint: { "fill-color": "#12161d" } },
+    { id: "land-border", type: "line", source: "countries", paint: { "line-color": "#333a44", "line-width": 0.6 } },
   ],
 };
 
@@ -472,6 +653,13 @@ async function fetchJsonFresh(url) {
   return res.json();
 }
 
+// 2026-07-11 (mikro-etkilesim gecisi): "-transition" paint ozellikleri
+// MapLibre'nin KENDI ozelligi -- sonraki setPaintProperty() cagrilari
+// (metrik/Uçak Türü degisince renk/opaklik guncellemesi gibi) ani
+// "atlama" yerine yumusak capraz-gecis yapar. GPU-dostu (compositor
+// tarafinda calisir), veri/fetch mantigina HIC dokunmuyor.
+const PAINT_TRANSITION = { duration: 200 };
+
 function addDensityLayers(geojson, colorExpr, opacityExpr) {
   if (map.getSource("density")) return; // zaten ekli
   map.addSource("density", { type: "geojson", data: geojson });
@@ -479,7 +667,10 @@ function addDensityLayers(geojson, colorExpr, opacityExpr) {
     id: "density-fill",
     type: "fill",
     source: "density",
-    paint: { "fill-color": colorExpr, "fill-opacity": opacityExpr },
+    paint: {
+      "fill-color": colorExpr, "fill-opacity": opacityExpr,
+      "fill-color-transition": PAINT_TRANSITION, "fill-opacity-transition": PAINT_TRANSITION,
+    },
   });
   map.addLayer({
     id: "density-outline",
@@ -507,6 +698,7 @@ function addHeatmapLayer(geojson, breaks, propName = "weight") {
       "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 14, 9, 70],
       "heatmap-color": HEATMAP_COLOR_GLOW,
       "heatmap-opacity": 0.85,
+      "heatmap-weight-transition": PAINT_TRANSITION,
     },
   });
 
@@ -520,6 +712,7 @@ function addHeatmapLayer(geojson, breaks, propName = "weight") {
       "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 2, 9, 14],
       "heatmap-color": HEATMAP_COLOR_CORE,
       "heatmap-opacity": 0.95,
+      "heatmap-weight-transition": PAINT_TRANSITION,
     },
   });
 }
@@ -550,7 +743,7 @@ function addClusterLayers(geojson) {
     id: "clusters-fill",
     type: "fill",
     source: "clusters",
-    paint: { "fill-color": colorExpr, "fill-opacity": 0.55 },
+    paint: { "fill-color": colorExpr, "fill-opacity": 0.55, "fill-opacity-transition": PAINT_TRANSITION },
   });
   map.addLayer({
     id: "clusters-outline",
@@ -621,10 +814,19 @@ let popup = null; // Trafik Kumeleri hover popup'i icin (bu proje daha once hove
 // sequence guard.
 let requestSeq = 0;
 
+// 2026-07-11 (mikro-etkilesim): durum noktasini yanip-soner hale getirir/
+// duzeltir. Sequence-guard'a (mySeq/requestSeq) DOKUNMUYOR, sadece render()
+// icindeki cagri noktalarinda gorsel bir yan-etki ekliyor.
+function setLoading(isLoading) {
+  document.getElementById("status").classList.toggle("status-loading", isLoading);
+}
+
 async function render() {
   const isHistorical = currentTimeRange === "historical";
   const sourceKey = isHistorical ? `hist:${currentMetric}` : `rt:${currentTimeRange}`;
   const mySeq = ++requestSeq;
+  setLoading(true);
+  document.getElementById("status").classList.remove("status-error");
   try {
     if (renderMode === "hexagon") {
       // Historical: sourceKey degismedigi surece cache'ten kullan (sabit
@@ -748,8 +950,11 @@ async function render() {
     setRenderModeVisibility();
     applyDayCountFilter();
     updateLegend();
+    if (mySeq === requestSeq) setLoading(false);
   } catch (err) {
     if (mySeq === requestSeq) {
+      setLoading(false);
+      document.getElementById("status").classList.add("status-error");
       document.getElementById("status").textContent = `Hata: ${err.message}`;
     }
   }
@@ -837,6 +1042,25 @@ document.getElementById("collapseBtn").addEventListener("click", () => {
   const collapsed = panel.classList.toggle("collapsed");
   document.getElementById("collapseBtn").textContent = collapsed ? "+" : "−";
 });
+
+// --- Açık/koyu tema toggle (2026-07-11, kullanıcı isteği) ---
+// SADECE panel/UI chrome'unu değiştirir -- harita taban stili (styleSelect)
+// BAĞIMSIZ kalır (kasıtlı: ikisi ayrı kavramlar, biri "hangi harita" biri
+// "hangi panel rengi"). localStorage'da "theme" anahtarıyla kalıcı;
+// <head>'deki küçük inline script sayfa yüklenirken bunu ANINDA uygular
+// (flash-of-wrong-theme olmasın diye).
+const themeToggleBtn = document.getElementById("themeToggleBtn");
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  themeToggleBtn.textContent = theme === "light" ? "◑" : "◐";
+  try { localStorage.setItem("theme", theme); } catch (e) {}
+}
+themeToggleBtn.addEventListener("click", () => {
+  const current = document.documentElement.getAttribute("data-theme") || "dark";
+  applyTheme(current === "light" ? "dark" : "light");
+});
+// Baslangic ikonu, <head>'in sayfa yuklenirken uyguladigi temayla senkron.
+themeToggleBtn.textContent = document.documentElement.getAttribute("data-theme") === "light" ? "◑" : "◐";
 
 document.getElementById("styleSelect").addEventListener("change", (e) => {
   currentStyleKey = e.target.value;
@@ -957,9 +1181,13 @@ document.getElementById("globeToggle").addEventListener("change", (e) => {
 document.getElementById("mlatToggle").addEventListener("change", async (e) => {
   mlatOn = e.target.checked;
   if (mlatOn) {
+    setLoading(true);
     try {
       addMlatLayer(await loadMlatGeoJSON());
+      setLoading(false);
     } catch (err) {
+      setLoading(false);
+      document.getElementById("status").classList.add("status-error");
       document.getElementById("status").textContent = `Hata: ${err.message}`;
       mlatOn = false;
       e.target.checked = false;
