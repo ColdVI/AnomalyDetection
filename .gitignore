@@ -27,6 +27,7 @@ __pycache__/
 .pytest_cache/
 .pytest_claude_review/
 .tmp_pytest*/
+.pytest_tmp_*/
 .tmp_pdf_reader/
 .ipynb_checkpoints/
 .idea/
