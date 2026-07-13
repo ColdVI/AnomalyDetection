@@ -67,6 +67,19 @@ def test_segment_flights_output_sorted_with_flight_id_column():
     assert out["flight_id"].nunique() == 1
 
 
+def test_segment_flights_preserves_source_order_for_equal_timestamps():
+    frame = _traces("A", [10, 0, 10, 10])
+    frame["source_order"] = ["first-at-10", "at-0", "second-at-10", "third-at-10"]
+
+    out = segment_flights(frame, gap_s=1800.0)
+
+    assert out.loc[out["timestamp_utc"].eq(10), "source_order"].tolist() == [
+        "first-at-10",
+        "second-at-10",
+        "third-at-10",
+    ]
+
+
 def test_new_leg_agreement_full():
     b = _traces("B", [0, 10, 7200 + 20, 7200 + 30], new_leg_at={7200 + 20})
     seg = segment_flights(b, gap_s=1800.0)

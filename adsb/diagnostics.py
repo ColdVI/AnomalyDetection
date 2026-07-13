@@ -21,7 +21,7 @@ Kullanim orunegi (herhangi bir mimari icin, model-bagimsiz):
 from __future__ import annotations
 
 import numpy as np
-from scipy.stats import spearmanr
+from scipy.stats import norm, spearmanr
 
 DEFAULT_RHO_THRESHOLD = 0.8
 
@@ -59,3 +59,28 @@ def magnitude_domination_check(
         "rho_threshold": rho_threshold,
         "magnitude_domination_flagged": bool(flagged),
     }
+
+
+def fit_score_baseline(train_scores: np.ndarray) -> dict:
+    """TRAIN (yalniz-normal) skor dagiliminin medyan/MAD'ini dondurur -- z-score/
+    guven hesaplamasinin referans alacagi taban. Medyan/MAD kullanilir (ortalama/std
+    degil): kirpilmamis olcekleme SEAD'de birkac asiri-genlik pencerenin skoru
+    surukledigini gostermisti (ADR-016), medyan/MAD aykiri-degerlere ortalama/std'den
+    çok daha az duyarli.
+    """
+    median = float(np.median(train_scores))
+    mad = float(np.median(np.abs(np.asarray(train_scores) - median))) * 1.4826  # normal-tutarli olcek
+    return {"median": median, "mad": mad or 1e-6}
+
+
+def z_score_confidence(scores: np.ndarray, baseline: dict) -> np.ndarray:
+    """Skorlari TRAIN tabanina gore z-score'a, sonra standart normal CDF ile
+    (0,1) araliginda bir "guven" degerine cevirir -- skor taban dagilimdan ne
+    kadar uzaktaysa guven o kadar 1'e yaklasir (orn. 0.95 = tek-tarafli z~1.645).
+
+    NOT: bu istatistiksel bir p-degeri DEGIL -- rekonstruksiyon skorlari normal
+    dagilmiyor (sag-carpik, sifirda sinirli); CDF sadece yorumlanabilir, tek
+    yonlu bir "ne kadar uc-deger" olcegi olarak kullanilir.
+    """
+    z = (np.asarray(scores) - baseline["median"]) / baseline["mad"]
+    return norm.cdf(z)

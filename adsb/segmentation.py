@@ -34,7 +34,9 @@ def assign_flight_ids(
     if df.empty:
         return pd.Series([], dtype=object, index=df.index)
 
-    order = df.sort_values([id_col, time_col]).index
+    # Equal-timestamp ADS-B rows are legitimate.  ``mergesort`` makes their
+    # source order an explicit, reproducible part of the causal contract.
+    order = df.sort_values([id_col, time_col], kind="mergesort").index
     ordered = df.loc[order]
 
     gap = ordered.groupby(id_col, sort=False)[time_col].diff()
@@ -56,7 +58,7 @@ def segment_flights(
     """`assign_flight_ids` sonucunu ekleyip id+zaman sirasina gore dondurur."""
     out = df.copy()
     out[flight_id_col] = assign_flight_ids(df, id_col=id_col, time_col=time_col, gap_s=gap_s)
-    return out.sort_values([id_col, time_col]).reset_index(drop=True)
+    return out.sort_values([id_col, time_col], kind="mergesort").reset_index(drop=True)
 
 
 def new_leg_agreement(
@@ -77,7 +79,7 @@ def new_leg_agreement(
     if df.empty:
         return float("nan")
 
-    ordered = df.sort_values([id_col, time_col])
+    ordered = df.sort_values([id_col, time_col], kind="mergesort")
     is_first_of_id = ordered[id_col] != ordered[id_col].shift(1)
     is_first_of_flight = ordered[flight_id_col] != ordered[flight_id_col].shift(1)
     boundary = is_first_of_flight & ~is_first_of_id

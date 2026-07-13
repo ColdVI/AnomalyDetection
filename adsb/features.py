@@ -20,8 +20,13 @@ G_MPS2 = 9.80665
 PRIMARY_FEATURES = [
     "alt", "ground_speed_ms", "track_deg", "vertical_rate_ms",
     "vertical_rate_residual", "speed_residual", "heading_residual",
+    "altitude_source_residual",
 ]
 SECONDARY_FEATURES = ["roll_deg", "turn_bank_residual"]
+VECTOR_RESIDUAL_FEATURES = [
+    "east_velocity_residual",
+    "north_velocity_residual",
+]
 
 
 def _group_diff(df: pd.DataFrame, col: str, group_col: str) -> pd.Series:
@@ -65,6 +70,59 @@ def speed_residual(df: pd.DataFrame, *, flight_id_col="flight_id", lat_col="lat"
     return df[speed_col] - dist_m / dt.replace(0, np.nan)
 
 
+def velocity_component_residuals(
+    df: pd.DataFrame,
+    *,
+    flight_id_col: str = "flight_id",
+    lat_col: str = "lat",
+    lon_col: str = "lon",
+    speed_col: str = "ground_speed_ms",
+    track_col: str = "track_deg",
+    time_col: str = "timestamp_utc",
+) -> pd.DataFrame:
+    """Bildirilen ve konumdan turetilen yatay hiz vektorlerinin farki.
+
+    Dogu/kuzey isaret konvansiyonu pozitiftir ve residual
+    ``v_reported - v_position`` olarak tanimlanir. Konum hizi yalniz mevcut
+    satir ile ayni ucusun bir onceki satirindan hesaplanir; gelecekteki satir,
+    merkezleme veya tum-ucus istatistigi kullanilmaz. Ilk satir ile ``dt<=0``
+    gecisleri olculemez ve NaN doner. Uzun gap karari feature'in degil, causal
+    state makinesinin reset sozlesmesidir.
+    """
+    g = df.groupby(flight_id_col, sort=False)
+    lat_prev = g[lat_col].shift(1)
+    lon_prev = g[lon_col].shift(1)
+    dt = _group_diff(df, time_col, flight_id_col)
+    causal_dt = dt.where(dt > 0.0)
+
+    distance_m = np.asarray(
+        _haversine_m(lat_prev, lon_prev, df[lat_col], df[lon_col]),
+        dtype=float,
+    )
+    bearing_deg = np.asarray(
+        _bearing_deg(lat_prev, lon_prev, df[lat_col], df[lon_col]),
+        dtype=float,
+    )
+    position_speed = distance_m / causal_dt.to_numpy(dtype=float)
+
+    track_rad = np.radians(df[track_col].to_numpy(dtype=float))
+    bearing_rad = np.radians(bearing_deg)
+    reported_speed = df[speed_col].to_numpy(dtype=float)
+
+    reported_east = reported_speed * np.sin(track_rad)
+    reported_north = reported_speed * np.cos(track_rad)
+    position_east = position_speed * np.sin(bearing_rad)
+    position_north = position_speed * np.cos(bearing_rad)
+
+    return pd.DataFrame(
+        {
+            "east_velocity_residual": reported_east - position_east,
+            "north_velocity_residual": reported_north - position_north,
+        },
+        index=df.index,
+    )
+
+
 def heading_residual(df: pd.DataFrame, *, flight_id_col="flight_id", lat_col="lat",
                       lon_col="lon", track_col="track_deg") -> pd.Series:
     g = df.groupby(flight_id_col, sort=False)
@@ -83,12 +141,37 @@ def turn_bank_residual(df: pd.DataFrame, *, flight_id_col="flight_id", track_col
     return observed_rate - predicted_rate
 
 
+def altitude_source_residual(df: pd.DataFrame, *, flight_id_col="flight_id",
+                              alt_col="alt", alt_geom_col="alt_geom_m",
+                              time_col="timestamp_utc") -> pd.Series:
+    """Barometrik/jeometrik irtifa kaynak-tutarliligi (literatur: "self-consistency
+    check" -- adsb/README.md/ADR-023 arastirmasinda ADS-B sahtekarlik tespiti icin
+    onceliklendirilen bir sinyal olarak bulundu).
+
+    Ikisinin FARKI sabit degil (jeoit sapmasi + basinc-irtifa ile jeometrik irtifa
+    arasindaki dogal fark, ucus boyunca yavas degisir) -- bu yuzden diger
+    residual'lar gibi FARK degil, farkin ZAMAN-TUREVI hesaplanir: normal ucusta bu
+    ~0 olmali (iki kaynak birlikte hareket eder). Ani sicrama, iki kaynaktan
+    yalniz birinin bozuldugunu (sahte/hatali) gosterir.
+    """
+    gap = df[alt_geom_col] - df[alt_col]
+    dgap = _group_diff(df.assign(_gap=gap), "_gap", flight_id_col)
+    dt = _group_diff(df, time_col, flight_id_col)
+    return dgap / dt.replace(0, np.nan)
+
+
 def build_feature_table(df: pd.DataFrame, *, flight_id_col: str = "flight_id") -> pd.DataFrame:
-    """PRIMARY_FEATURES + SECONDARY_FEATURES kolonlarini ekler (yeni kopya doner)."""
+    """Primary/secondary ve CUSUM vektor residual'larini ekleyen yeni kopya."""
     out = df.copy()
     out["vertical_rate_residual"] = vertical_rate_residual(df, flight_id_col=flight_id_col)
     out["speed_residual"] = speed_residual(df, flight_id_col=flight_id_col)
     out["heading_residual"] = heading_residual(df, flight_id_col=flight_id_col)
+    vector_residuals = velocity_component_residuals(df, flight_id_col=flight_id_col)
+    out[VECTOR_RESIDUAL_FEATURES] = vector_residuals[VECTOR_RESIDUAL_FEATURES]
+    if "alt_geom_m" in df.columns:
+        out["altitude_source_residual"] = altitude_source_residual(df, flight_id_col=flight_id_col)
+    else:
+        out["altitude_source_residual"] = np.nan
     if "roll_deg" in df.columns:
         out["turn_bank_residual"] = turn_bank_residual(df, flight_id_col=flight_id_col)
     else:

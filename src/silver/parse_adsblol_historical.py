@@ -1,9 +1,11 @@
 """parse_adsblol_historical.py -- adsb.lol historical Silver parser.
 
 Moved from src/bronze2silverParsers/parse_adsb_traces_from_tar_v2.py per ADR-003
-(docs/PIPELINE_PLAN.md, METEHAN REHBERİ). parse_trace_bytes() is UNCHANGED --
-only the IO layer changed: input is a MinIO Bronze tar object (or a local tar
-path for development); output goes to MinIO Silver via write_silver().
+(docs/PIPELINE_PLAN.md, METEHAN REHBERİ).  The original unit conversions are
+preserved.  Silver v2 additionally records sparse ``ac_dict`` update metadata
+so a forward-filled value cannot be mistaken for a fresh ADS-B declaration.
+The input is a MinIO Bronze tar object (or a local tar path for development);
+output goes to MinIO Silver via write_silver().
 
 See docs/PIPELINE_PLAN.md for the full Silver column spec.
 
@@ -40,6 +42,7 @@ from src.common.provenance import add_provenance
 logger = logging.getLogger(__name__)
 
 SOURCE_TYPE = "adsblol_historical"
+SILVER_SCHEMA_VERSION = "silver_v2"
 
 # 2026-07-13 (kullanici istegi -- "dur deyince dursam ertesi gun kaldigi yerden
 # devam edemez miyiz"): tar-bazli checkpoint dosyasi. Onceden run() HER
@@ -91,11 +94,50 @@ TRACE_COLS = [
 ]
 
 
+# ``ac_dict`` is sparse: a missing key means "no new report for this field",
+# whereas a present key whose value is null is an explicit clear/update.  Keep
+# the provider key separate from the stable Silver output name.  The first
+# seven fields already existed in Silver v1; the last three are useful context
+# for S2 quality interpretation and are additive in v2.
+S2_AC_FIELDS: tuple[tuple[str, str], ...] = (
+    ("squawk", "squawk"),
+    ("emergency", "emergency"),
+    ("nic", "nic"),
+    ("rc", "rc"),
+    ("nac_p", "nac_p"),
+    ("sil", "sil"),
+    ("adsb_version", "version"),
+    ("sil_type", "sil_type"),
+    ("sda", "sda"),
+    ("nac_v", "nac_v"),
+)
+
+
+def _as_float_or_none(value: object) -> float | None:
+    """Return a finite numeric value or ``None`` without raising."""
+
+    try:
+        result = float(value)
+    except (TypeError, ValueError):
+        return None
+    return result if pd.notna(result) and result not in (float("inf"), float("-inf")) else None
+
+
+def _timestamp(file_ts: object, offset: object) -> float | None:
+    base = _as_float_or_none(file_ts)
+    relative = _as_float_or_none(offset)
+    if base is None or relative is None:
+        return None
+    return base + relative
+
+
 def parse_trace_bytes(raw: bytes) -> pd.DataFrame:
     """Parse one gzip-compressed (or plain) per-aircraft trace JSON into Silver rows.
 
-    UNCHANGED from src/bronze2silverParsers/parse_adsb_traces_from_tar_v2.py.
     Unit conversions (feet→m, knots→m/s, fpm→m/s) happen here -- Silver's job.
+    The update metadata added in Silver v2 is trace-local: state naturally
+    resets at the beginning of every raw trace.  Gaps and ``flags_new_leg`` do
+    not fabricate updates; downstream freshness is determined from update age.
     """
     try:
         data = json.loads(gzip.decompress(raw))
@@ -119,12 +161,40 @@ def parse_trace_bytes(raw: bytes) -> pd.DataFrame:
 
     rows = []
     last_ac: dict = {}
+    last_s2_update_timestamp: dict[str, float | None] = {}
+    last_s2_update_offset: dict[str, float | None] = {}
     for row in trace:
         row = list(row) + [None] * (14 - len(row))
         rec = dict(zip(TRACE_COLS, row[:14]))
 
-        if rec["ac_dict"]:
-            last_ac.update(rec["ac_dict"])
+        ac_update = rec["ac_dict"] if isinstance(rec["ac_dict"], dict) else {}
+        current_timestamp = _timestamp(file_ts, rec["t_offset"])
+        current_offset = _as_float_or_none(rec["t_offset"])
+
+        if ac_update:
+            last_ac.update(ac_update)
+
+        s2_metadata: dict[str, object] = {}
+        for output_name, provider_name in S2_AC_FIELDS:
+            updated = provider_name in ac_update
+            if updated:
+                # Key presence is the update signal, including explicit null
+                # values which clear a previously forwarded declaration.
+                last_s2_update_timestamp[output_name] = current_timestamp
+                last_s2_update_offset[output_name] = current_offset
+
+            updated_at = last_s2_update_timestamp.get(output_name)
+            updated_offset = last_s2_update_offset.get(output_name)
+            if updated:
+                age_s: float | None = 0.0
+            elif current_offset is not None and updated_offset is not None:
+                age_s = current_offset - updated_offset
+            else:
+                age_s = None
+
+            s2_metadata[f"{output_name}_updated"] = bool(updated)
+            s2_metadata[f"{output_name}_update_timestamp_utc"] = updated_at
+            s2_metadata[f"{output_name}_update_age_s"] = age_s
 
         alt_raw = rec["alt_raw"]
         on_ground = alt_raw == "ground"
@@ -134,10 +204,10 @@ def parse_trace_bytes(raw: bytes) -> pd.DataFrame:
             if rec["alt_geom"] not in (None, "ground") else None
         )
 
-        rows.append({
+        output_row = {
             "source_type": SOURCE_TYPE,
             "source_id": icao,
-            "timestamp_utc": (file_ts + rec["t_offset"]) if file_ts is not None else None,
+            "timestamp_utc": current_timestamp,
             "lat": rec["lat"],
             "lon": rec["lon"],
             "alt": alt_m,
@@ -166,7 +236,12 @@ def parse_trace_bytes(raw: bytes) -> pd.DataFrame:
             "nac_p": last_ac.get("nac_p"),
             "sil": last_ac.get("sil"),
             "adsb_version": last_ac.get("version"),
-        })
+            "sil_type": last_ac.get("sil_type"),
+            "sda": last_ac.get("sda"),
+            "nac_v": last_ac.get("nac_v"),
+        }
+        output_row.update(s2_metadata)
+        rows.append(output_row)
 
     return pd.DataFrame(rows)
 
@@ -197,7 +272,10 @@ def _parse_tar_fileobj(
             return
         batch = pd.concat(batch_dfs, ignore_index=True)
         batch = add_provenance(
-            batch, source_type=SOURCE_TYPE, source_file=tar_name, schema_version="silver_v1"
+            batch,
+            source_type=SOURCE_TYPE,
+            source_file=tar_name,
+            schema_version=SILVER_SCHEMA_VERSION,
         )
         uri = write_silver(batch, SOURCE_TYPE, client=client)
         uris.append(uri)
