@@ -33,20 +33,25 @@ def find_by_id(node, target_id: str):
 
 
 @contextmanager
-def simulate_trigger(prop_id: str, value=1):
+def simulate_trigger(prop_id: str | None, value=1):
     """dash.callback_context.triggered'i BIR callback disinda cagirinca
     dash.exceptions.MissingCallbackContextException firlatiyor -- Dash bunu
     normalde HTTP istek dispatch'i sirasinda bir contextvar'a yazip
     dolduruyor (bkz. dash/_callback_context.py). Bu, "ctx.callback_context"
     kullanan callback fonksiyonlarini (orn. update_map_style_setting,
     toggle_replay_open) DOGRUDAN cagirarak test edebilmek icin AYNI
-    contextvar'i taklit eder -- gercek bir Dash sunucusu/istegi olmadan."""
+    contextvar'i taklit eder -- gercek bir Dash sunucusu/istegi olmadan.
+
+    prop_id=None -- "hic tetikleyici yok" durumunu (orn. Dash'in ilk
+    yuklemede yaptigi gibi) simule eder -- ctx.triggered BOS (falsy) doner,
+    MissingCallbackContextException FIRLAMAZ (context yine de "var",
+    sadece icinde tetikleyici yok -- context'in HIC KURULMAMASINDAN
+    (gercek Dash'te asla olmayan bir durum) farkli)."""
     from dash._callback_context import context_value
     from dash._utils import AttributeDict
 
-    token = context_value.set(AttributeDict(
-        triggered_inputs=[{"prop_id": prop_id, "value": value}],
-    ))
+    triggered_inputs = [] if prop_id is None else [{"prop_id": prop_id, "value": value}]
+    token = context_value.set(AttributeDict(triggered_inputs=triggered_inputs))
     try:
         yield
     finally:
@@ -99,8 +104,8 @@ class FakeRedis:
     def get(self, key: str):
         return self._data.get(key)
 
-    def set(self, key: str, value: str) -> None:
-        self._data[key] = value
+    def set(self, key: str, value: str, ex: int | None = None) -> None:
+        self._data[key] = value  # TTL (ex) testler icin onemsiz, gormezden geliniyor
 
     def setex(self, key: str, ttl: int, value: str) -> None:
         self._data[key] = value  # TTL testler icin onemsiz, gormezden geliniyor
@@ -127,6 +132,42 @@ class FakeRedis:
     # -- toplu silme --
     def pipeline(self) -> FakePipeline:
         return FakePipeline(self)
+
+
+class FakeResponse:
+    """requests.get(...)'in dondurdugu Response nesnesinin yerini tutar --
+    app.py cogunlukla sadece .json() cagiriyor, ama _reverse_geocode gibi
+    bazi yerler ONCE .status_code'u kontrol ediyor (bkz. o fonksiyon) --
+    varsayilan 200, gerekirse override edilebilir."""
+
+    def __init__(self, payload, status_code: int = 200) -> None:
+        self._payload = payload
+        self.status_code = status_code
+
+    def json(self):
+        return self._payload
+
+
+class FakeRequestsRouter:
+    """dashapp.requests.get'in yerini tutar -- URL'deki bir alt dizeye
+    (orn. "flights", "alerts", "replay_frame") gore FARKLI sahte yanit
+    dondurur. side_effect olarak da bir fonksiyon verilebilir -- YAVAS/
+    CAKISAN istekleri (sequence-guard/yaris durumu testleri) simule etmek
+    icin cagrilir, gercek requests.get GIBI (url, ...) ile cagrilir."""
+
+    def __init__(self, routes: dict[str, object], on_call=None) -> None:
+        self._routes = routes  # {url_substring: payload}
+        self._on_call = on_call  # opsiyonel: her cagrida calisir (yan etki icin)
+        self.calls: list[str] = []
+
+    def __call__(self, url, *args, **kwargs):
+        self.calls.append(url)
+        if self._on_call is not None:
+            self._on_call(url)
+        for substring, payload in self._routes.items():
+            if substring in url:
+                return FakeResponse(payload)
+        return FakeResponse([])
 
 
 class FakeMinio:

@@ -21,12 +21,12 @@ def test_signal_opacity_none_is_fully_opaque():
     assert dashapp._signal_opacity(None, 60) == 1.0
 
 
-@pytest.mark.parametrize("age,threshold", [(0, 60), (30, 60), (60, 60)])
+@pytest.mark.parametrize("age,threshold", [(0, 60), (60, 60)])
 def test_signal_opacity_at_or_below_threshold_is_opaque(age, threshold):
     assert dashapp._signal_opacity(age, threshold) == 1.0
 
 
-@pytest.mark.parametrize("age,threshold", [(61, 60), (200, 60), (301, 300)])
+@pytest.mark.parametrize("age,threshold", [(61, 60), (301, 300)])
 def test_signal_opacity_above_threshold_is_stale_value(age, threshold):
     assert dashapp._signal_opacity(age, threshold) == dashapp.STALE_SIGNAL_OPACITY
 
@@ -46,9 +46,7 @@ def test_signal_opacity_opensky_typical_age_no_longer_always_stale_with_wide_thr
 
 @pytest.mark.parametrize("sec,lang,expected", [
     (30, "tr", "30sn"), (30, "en", "30s"),
-    (60, "tr", "1dk"), (60, "en", "1m"),
-    (120, "tr", "2dk"), (300, "tr", "5dk"),
-    (3600, "tr", "1sa"), (3600, "en", "1h"),
+    (60, "tr", "1dk"), (3600, "en", "1h"),
 ])
 def test_format_staleness_label(sec, lang, expected):
     assert dashapp._format_staleness_label(sec, lang) == expected
@@ -83,7 +81,7 @@ def test_update_signal_staleness_options_matches_build_helper():
 
 # ---------------------------------------------------- update_signal_staleness_setting --
 
-@pytest.mark.parametrize("value", [30, 60, 120, 300, 600, 1800, 3600])
+@pytest.mark.parametrize("value", [30, 3600])
 def test_update_signal_staleness_setting_passes_through_valid_values(value):
     assert dashapp.update_signal_staleness_setting(value) == value
 

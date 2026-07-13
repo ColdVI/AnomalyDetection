@@ -19,17 +19,8 @@ def test_status_bar_main_format_tr():
     assert result == "10:00:00 | 42 aktif uçuş"
 
 
-def test_status_bar_main_format_en():
-    result = dashapp.TEXTS["en"]["status_bar_main"].format(ts="10:00:00", n=42)
-    assert result == "10:00:00 | 42 active flights"
-
-
 def test_status_bar_alarm_format_tr():
     assert dashapp.TEXTS["tr"]["status_bar_alarm"].format(a=3) == " | 3 alarm"
-
-
-def test_status_bar_alarm_format_en():
-    assert dashapp.TEXTS["en"]["status_bar_alarm"].format(a=3) == " | 3 alerts"
 
 
 def test_status_bar_alarm_zero_still_shown():

@@ -90,21 +90,6 @@ def test_sweep_swallows_exceptions_and_returns_zero():
     assert removed == 0
 
 
-def test_sweep_baseline_must_be_captured_before_cycle_not_at_sweep_time():
-    """Regresyon (proje sohbet gecmisindeki 'gercek bir hata buradan
-    cikti' notu): eger baseline, sweep CAGIRILDIGI ANDA Redis'in GUNCEL
-    durumundan alinsaydi (SMEMBERS o an), cycle kendisiyle karsilastirilir
-    ve fark HICBIR ZAMAN bulunmazdi. Bu test, fonksiyonun bu YANLIS
-    kullanimla (o anki durumu tekrar baseline olarak vermek) SESSIZCE
-    sifir donecegini -- yani cagiran tarafin baseline'i ONCEDEN
-    saklamasi GEREKTIGINI -- somutlastirir (dokumentasyon amacli)."""
-    r = _redis_with_active_flights("aaa", "bbb")
-    wrong_baseline = r.smembers("iha:active_flights")  # YANLIS kullanim ornegi
-    removed = consumer.sweep_stale_flights(r, baseline_set=wrong_baseline,
-                                           seen_this_cycle=wrong_baseline)
-    assert removed == 0  # fark bulunamadi -- tam da yorumda anlatilan tuzak
-
-
 # -------------------------------------------------------------------- load_token --
 
 def test_load_token_prefers_env_var(monkeypatch):

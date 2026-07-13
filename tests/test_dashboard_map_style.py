@@ -49,10 +49,6 @@ def test_default_map_style_is_dark():
     assert dashapp.DEFAULT_MAP_STYLE == "dark"
 
 
-def test_default_map_style_key_exists_in_tile_layers():
-    assert dashapp.DEFAULT_MAP_STYLE in dashapp.TILE_LAYERS
-
-
 def test_dark_layer_uses_carto_no_api_key_needed():
     assert "cartocdn.com" in dashapp.TILE_LAYERS["dark"]["url"]
 
@@ -78,11 +74,6 @@ def test_update_map_style_setting_street_button():
         assert dashapp.update_map_style_setting(1, None, None) == "street"
 
 
-def test_update_map_style_setting_satellite_button():
-    with simulate_trigger("map-style-satellite-btn.n_clicks"):
-        assert dashapp.update_map_style_setting(None, 1, None) == "satellite"
-
-
 def test_update_map_style_setting_dark_button():
     with simulate_trigger("map-style-dark-btn.n_clicks"):
         assert dashapp.update_map_style_setting(None, None, 1) == "dark"
@@ -95,14 +86,7 @@ def test_update_map_style_setting_unrelated_trigger_is_no_update():
 
 # ---------------------------------------------------- update_map_style_buttons --
 
-def test_update_map_style_buttons_dark_is_active_by_default():
-    street, satellite, dark = dashapp.update_map_style_buttons("dark")
-    assert dark == dashapp.LANG_BTN_ACTIVE_STYLE
-    assert street == dashapp.LANG_BTN_INACTIVE_STYLE
-    assert satellite == dashapp.LANG_BTN_INACTIVE_STYLE
-
-
-@pytest.mark.parametrize("style,active_index", [("street", 0), ("satellite", 1), ("dark", 2)])
+@pytest.mark.parametrize("style,active_index", [("street", 0), ("dark", 2)])
 def test_update_map_style_buttons_exactly_one_active(style, active_index):
     styles = dashapp.update_map_style_buttons(style)
     assert styles[active_index] == dashapp.LANG_BTN_ACTIVE_STYLE

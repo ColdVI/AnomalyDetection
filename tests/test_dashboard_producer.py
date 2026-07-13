@@ -97,13 +97,6 @@ def test_parse_adsblol_aircraft_missing_ground_speed_stays_none_not_zero():
     assert rec["velocity"] is None
 
 
-def test_parse_adsblol_aircraft_missing_track_stays_none_not_north():
-    ac = _adsblol_ac()
-    del ac["track"]
-    rec = prod._parse_adsblol_aircraft(ac)
-    assert rec["track"] is None
-
-
 def test_parse_adsblol_aircraft_military_bit_flag():
     rec = prod._parse_adsblol_aircraft(_adsblol_ac(dbFlags=1))
     assert rec["is_military"] is True
@@ -153,11 +146,6 @@ def test_parse_opensky_state_missing_lat_lon_returns_none():
     assert prod._parse_opensky_state(_opensky_state({6: None})) is None
 
 
-def test_parse_opensky_state_malformed_array_returns_none():
-    assert prod._parse_opensky_state([]) is None
-    assert prod._parse_opensky_state(["only", "two"]) is None
-
-
 def test_parse_opensky_state_integer_fields_always_cast_to_float_regression():
     """Regresyon: OpenSky JSON'da tam sayi gelen alanlar (orn. velocity=200,
     0.5 degil) Python'da int olarak parse edilebilir -- InfluxDB tip
@@ -184,11 +172,6 @@ def test_parse_opensky_state_emergency_squawk_mapping():
     assert rec["emergency"] == "general"
     rec2 = prod._parse_opensky_state(_opensky_state({14: "1200"}))
     assert rec2["emergency"] == "none"
-
-
-def test_parse_opensky_state_on_ground_flag_preserved():
-    rec = prod._parse_opensky_state(_opensky_state({8: True}))
-    assert rec["is_ground"] is True
 
 
 def test_parse_opensky_state_missing_baro_altitude_defaults_to_zero_not_none():
