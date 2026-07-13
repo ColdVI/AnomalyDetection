@@ -24,6 +24,7 @@ import logging
 import os
 import tarfile
 from pathlib import Path
+from typing import Callable
 
 import pandas as pd
 
@@ -39,6 +40,50 @@ from src.common.provenance import add_provenance
 logger = logging.getLogger(__name__)
 
 SOURCE_TYPE = "adsblol_historical"
+
+# 2026-07-13 (kullanici istegi -- "dur deyince dursam ertesi gun kaldigi yerden
+# devam edemez miyiz"): tar-bazli checkpoint dosyasi. Onceden run() HER
+# cagrida TUM Silver'i silip TUM tar'lari sifirdan isliyordu (bkz. eski
+# docstring notu) -- 11 tar icin bu kabul edilebilirdi ama 30 tar'a cikinca
+# (~17 saat) kullanicinin PC'yi o kadar acik tutamamasi gercek bir sorun oldu.
+# Artik HER Silver parcasi yazildikca checkpoint'e ekleniyor (part-duzeyinde
+# degil ama flush-duzeyinde durabilite) -- bir tar tamamlaninca "completed"a
+# tasiniyor. Islem KESILIRSE (Ctrl+C / kill / PC kapanmasi): tamamlanmis
+# tar'lar checkpoint'te kalir, YARIM kalan tek tar'in parcalari bir sonraki
+# calistirmada silinip o tar sifirdan islenir -- 30 tar'in TAMAMI degil,
+# sadece kesinti anindaki tek tar kaybedilir.
+CHECKPOINT_PATH = Path("data/state/silver_historical_checkpoint.json")
+
+
+def _load_checkpoint(path: Path) -> dict:
+    if not path.exists():
+        return {"completed_tars": [], "in_progress": {}}
+    try:
+        state = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        logger.warning("Checkpoint dosyasi okunamadi (%s), sifirdan basliyor", path)
+        return {"completed_tars": [], "in_progress": {}}
+    state.setdefault("completed_tars", [])
+    state.setdefault("in_progress", {})
+    return state
+
+
+def _save_checkpoint(path: Path, state: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+
+
+def _delete_uris(client: ObjectStoreClient, uris: list[str]) -> None:
+    """Delete specific `s3://bucket/key` objects -- used to clean up an
+    interrupted tar's partial Silver parts before reprocessing it."""
+    for uri in uris:
+        # s3://bucket/key -> (bucket, key)
+        _, _, rest = uri.partition("s3://")
+        bucket, _, key = rest.partition("/")
+        try:
+            client.remove_object(bucket, key)
+        except Exception:
+            logger.warning("Yarim kalan parca silinemedi: %s", uri, exc_info=True)
 
 TRACE_COLS = [
     "t_offset", "lat", "lon", "alt_raw", "gs", "track", "flags", "vrate",
@@ -132,8 +177,14 @@ def _parse_tar_fileobj(
     *,
     batch_size: int,
     client: ObjectStoreClient | None,
+    on_part_written: Callable[[str], None] | None = None,
 ) -> list[str]:
-    """Stream-parse one tar (from any file-like object), writing Silver per batch."""
+    """Stream-parse one tar (from any file-like object), writing Silver per batch.
+
+    `on_part_written(uri)`, if given, is called right after each part is durably
+    written to Silver -- `run()` uses this to persist the checkpoint incrementally,
+    so a kill mid-tar only loses that tar's (not-yet-flushed) partial batch.
+    """
     uris: list[str] = []
     part_num = 0
     total_rows = 0
@@ -155,6 +206,8 @@ def _parse_tar_fileobj(
         part_num += 1
         batch_dfs.clear()
         gc.collect()
+        if on_part_written is not None:
+            on_part_written(uri)
 
     with tarfile.open(fileobj=fileobj, mode="r:*") as tar:
         members = [
@@ -208,6 +261,8 @@ def run(
     batch_size: int = 300,
     client: ObjectStoreClient | None = None,
     bronze_bucket: str | None = None,
+    fresh: bool = False,
+    checkpoint_path: Path = CHECKPOINT_PATH,
 ) -> list[str]:
     """Download all tars from MinIO Bronze and parse each to Silver.
 
@@ -215,18 +270,37 @@ def run(
     For 3GB+ tars this requires sufficient RAM. Use parse_local_tar() directly
     during development to avoid the download overhead.
 
-    There is no per-tar resume checkpoint -- every call reprocesses all tars
-    found under `bronze_prefix` from scratch. So a prior run's Silver output
-    (whether complete or killed partway through, e.g. by a shutdown) is cleared
-    first (same fix as `src/gold/unify.py:clear_gold_before_unify`); otherwise
-    a rerun's fresh parts would sit alongside the old ones and double-count.
+    Tar-level resume checkpoint (`checkpoint_path`, default
+    `data/state/silver_historical_checkpoint.json`): already-completed tars are
+    skipped on rerun, so stopping the process (Ctrl+C, `Stop-Process`, a PC
+    shutdown) and restarting the next day resumes from the next unfinished tar
+    instead of reprocessing everything from scratch. Only the ONE tar that was
+    in-flight when interrupted is redone (its partial Silver parts, tracked in
+    the checkpoint, are deleted first so they don't sit alongside the retry's
+    fresh parts). Pass `fresh=True` (or `--fresh` on the CLI) to ignore the
+    checkpoint and reprocess every tar from scratch, e.g. after a parsing-logic
+    change that invalidates all existing Silver output.
     """
     client = client or get_minio_client()
     bronze_bucket = bronze_bucket or os.getenv("MINIO_BRONZE_BUCKET", "bronze")
     silver_bucket = os.getenv("MINIO_SILVER_BUCKET", "silver")
-    cleared = delete_layer_objects(client, silver_bucket, SOURCE_TYPE)
-    if cleared:
-        logger.info("Cleared %d stale Silver part(s) from a prior run before reprocessing", cleared)
+
+    if fresh:
+        cleared = delete_layer_objects(client, silver_bucket, SOURCE_TYPE)
+        if cleared:
+            logger.info("--fresh: cleared %d stale Silver part(s), ignoring checkpoint", cleared)
+        state = {"completed_tars": [], "in_progress": {}}
+        _save_checkpoint(checkpoint_path, state)
+    else:
+        state = _load_checkpoint(checkpoint_path)
+        for tar_name, partial_uris in list(state["in_progress"].items()):
+            logger.info(
+                "Onceki calistirma '%s' islenirken kesilmis -- %d yarim parca siliniyor, tar sifirdan islenecek",
+                tar_name, len(partial_uris),
+            )
+            _delete_uris(client, partial_uris)
+            del state["in_progress"][tar_name]
+        _save_checkpoint(checkpoint_path, state)
 
     tar_objects = [
         obj.object_name
@@ -239,16 +313,33 @@ def run(
         return []
 
     logger.info("Found %d tar(s): %s", len(tar_objects), tar_objects)
+    completed = set(state["completed_tars"])
     all_uris: list[str] = []
 
     for tar_object in tar_objects:
         tar_name = tar_object.split("/")[-1]
+        if tar_name in completed:
+            logger.info("'%s' zaten tamamlanmis (checkpoint), atlaniyor", tar_name)
+            continue
+
         logger.info("Downloading %s from MinIO bronze/%s ...", tar_name, bronze_prefix)
+        state["in_progress"][tar_name] = []
+        _save_checkpoint(checkpoint_path, state)
+
+        def _on_part_written(uri: str, _tar_name: str = tar_name) -> None:
+            state["in_progress"][_tar_name].append(uri)
+            _save_checkpoint(checkpoint_path, state)
+
         data = download_raw_bytes(client, tar_object, bucket=bronze_bucket)
         uris = _parse_tar_fileobj(
-            io.BytesIO(data), tar_name, batch_size=batch_size, client=client
+            io.BytesIO(data), tar_name, batch_size=batch_size, client=client,
+            on_part_written=_on_part_written,
         )
         all_uris.extend(uris)
+
+        del state["in_progress"][tar_name]
+        state["completed_tars"].append(tar_name)
+        _save_checkpoint(checkpoint_path, state)
 
     return all_uris
 
@@ -262,9 +353,13 @@ if __name__ == "__main__":
     parser.add_argument("--local-tar", help="Parse a local .tar file directly (skips MinIO download)")
     parser.add_argument("--bronze-prefix", default="adsblol_historical/", help="MinIO Bronze prefix")
     parser.add_argument("--batch-size", type=int, default=300, help="Aircraft per Silver Parquet part")
+    parser.add_argument(
+        "--fresh", action="store_true",
+        help="Ignore the tar-level checkpoint and reprocess every tar from scratch",
+    )
     args = parser.parse_args()
 
     if args.local_tar:
         parse_local_tar(args.local_tar, batch_size=args.batch_size)
     else:
-        run(args.bronze_prefix, batch_size=args.batch_size)
+        run(args.bronze_prefix, batch_size=args.batch_size, fresh=args.fresh)
