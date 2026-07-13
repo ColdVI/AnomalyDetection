@@ -35,6 +35,9 @@ raporlaması gerekir. `unknown / insufficient_data`, anomaly ile aynı sınıf d
    çalışıyor.
 6. ✅ Sentetik bozulmalar: `adsb/synthetic.py` (`PHYSICS_BREAK_RECIPES`, 5 senaryo),
    test-only, gerçek veriye asla yazılmıyor (`save_synthetic_batch` path guard'ı).
+   Kalıcı korpus artık diskte: `data/objectstore/synthetic/adsb/` (8910 val-uçuşu ×
+   5 senaryo + clean, 765MB, `scripts/adsb_generate_synthetic_dataset.py` — bkz.
+   ADR-023). Şu an 60/638 Silver parça; tam-hacim sonraki ölçek büyütme adımı.
 
 ## İlk onay kapısı
 

@@ -882,3 +882,308 @@ Karar: hiçbiri production/headline recall adayı DEĞİL — bu, ADSB'nin ilk k
 galeri (Faz 0 madde 3) yazılmadı, eğitim-kararlılığı diagnostic'e eklenmedi, tam-hacim (3 gün)
 eğitim yapılmadı (yalnız 10/638 Silver parça, 3000 uçak kullanıldı). Kör-holdout henüz
 tanımlanmadı.
+
+## ADR-023: Kalıcı sentetik test/validation korpusu + parser envanteri + shuffle bug düzeltmesi
+
+- Durum: Kabul edildi
+- Tarih: 2026-07-13
+
+**Parser envanteri (kullanıcı sorusu üzerine):** Tarihsel adsb.lol tar arşivlerini parse eden
+TEK implementasyon var — `src/silver/parse_adsblol_historical.py::parse_trace_bytes()` (ADR-003
+ile `src/bronze2silverParsers/parse_adsb_traces_from_tar_v2.py`'den taşınmış, mevcut proje
+altyapısı, bu oturumda yeniden yazılmadı). Arşivlenmiş Codex denemesi bile
+(`archive/2026-07-10_rejected_adsb_attempts/src/adsb_behavioral/reader.py`) kendi parser'ını
+yazmak yerine AYNI `parse_trace_bytes()`'i import ediyor — iki bağımsız denemede de parse mantığı
+hiç ayrışmamış. Farklı veri kaynağı için ayrı bir parser var (`parse_adsblol_realtime.py`, canlı
+adsb.lol API'si) ama birim dönüşümleri (feet→m ×0.3048, knots→m/s ×0.5144) ikisinde de birebir
+aynı — tutarsızlık yok. `individual/metehan_geo/data.py` parse etmiyor, zaten üretilmiş Gold
+katmanını okuyor.
+
+**Kalıcı sentetik korpus:** `adsb/synthetic.py::save_synthetic_batch()` daha önce yazılmış ama
+hiç çağrılmıyordu (`run_synthetic_check()` bozulmayı yalnız bellekte, geçici olarak, 20 val
+uçuşuyla üretip atıyordu). Yeni `scripts/adsb_generate_synthetic_dataset.py`, 60 Silver parçadan
+(22.520.807 satır, 18.000 uçak) segment_flights + aynı 80/20 train/val bölmesiyle (SEED=0) 8910
+val-uçuşu seçip 5 PHYSICS_BREAK_RECIPES'i uyguladı. Çıktı: `data/objectstore/synthetic/adsb/`
+altında 6 parquet dosyası (clean + 5 recipe, her biri 4.467.115 satır/8910 uçuş, toplam 765MB) +
+`manifest.json`. Gerçek Silver'a hiç dokunulmadı (`save_synthetic_batch`'in path-guard'ı
+zorluyor). İlk tasarım uçuş-başına-recipe-başına AYRI dosya yazıyordu (~59.000 küçük dosya, 60
+parçada) — Windows'ta çok yavaş olduğu için recipe-başına TEK konsolide dosyaya çevrildi.
+
+**Bug bulundu ve düzeltildi:** `np.random.Generator.shuffle()`, pandas'ın `.unique()`'ından gelen
+`ArrowStringArray`'i (pyarrow-destekli string dtype) "Sequence değil" diye şikayet ediyordu.
+Küçük ölçekte (3 parça, 2440 uçuş) zararsız çıktı (0.09s, tekrar yok) ama asıl risk teyit
+edilmedi büyük ölçekte — güvenli olması için hem `scripts/adsb_generate_synthetic_dataset.py`
+hem de `scripts/adsb_train_baseline_models.py::prepare_windows()` (gerçek model eğitiminin
+train/val bölmesi) `np.array(..., dtype=object)` ile düz numpy array'e çevrilecek şekilde
+düzeltildi.
+
+**Açık madde:** `seg[seg["flight_id"] == fid]` her uçuş için TÜM segment tablosunda (22.5M satır)
+tam tarama yapıyor — 8910 uçuş × tam-tablo-taraması ~25 dakika sürdü. Sonraki ölçek büyütmede
+(tam 638 parça) `seg.groupby("flight_id")` ile tek seferlik gruplama kullanılmalı, yoksa süre
+doğrusal değil süper-doğrusal büyür.
+
+## ADR-024: İlk tam eğitim turu (60 parça) + z-score güven skoru + literatür taraması
+
+- Durum: Kabul edildi
+- Tarih: 2026-07-13
+
+**Yeni feature (literatür bulgusu):** Web taraması, ADS-B sahtekarlık tespitinde "self-consistency
+check" (barometrik vs jeometrik irtifa, NIC/NACp/SIL bütünlük alanları) sinyalinin öncelikli
+literatür bulgusu olduğunu gösterdi (PIR-PSO-XGBoost, F1=0.9528; NIC/NACp/SIL tutarlılık kontrolleri
+sahte mesaj tespitinde merkezi). Silver'da hem `alt` (barometrik, %89.4 kapsam) hem `alt_geom_m`
+(jeometrik, %89.2) zaten var — `adsb/features.py::altitude_source_residual()` eklendi: iki kaynak
+arasındaki FARKIN zaman-türevi (fark sabit değil ama normalde ~sabit, ani sıçrama kaynaklardan
+birinin bozulduğunu gösterir). `PRIMARY_FEATURES`'a eklendi (artık 8 kanal). `nic`/`nac_p`/`sil`
+alanları da Silver'da mevcut — S2 kural-kanalı (henüz yazılmadı) için veri hazır.
+
+**z-score güven skoru:** `adsb/diagnostics.py::fit_score_baseline()` (train-skorunun medyan/MAD'i,
+SEAD dersi gereği ortalama/std değil) + `z_score_confidence()` (standart normal CDF, istatistiksel
+p-değeri İDDİASI TAŞIMAZ, yorumlanabilir tek-yönlü "ne kadar uç" ölçeği).
+
+**Eğitim turu (`scripts/adsb_train_baseline_models.py`, N_PARTS=60 — sentetik korpusla AYNI split,
+sızıntı çalışma-zamanında doğrulandı: train 39.555 / sentetik-korpus 8.910 uçuş, kesişim sıfır):**
+Dense-AE, LSTM-AE, LSTM-forecaster eğitildi (USAD bu turda HARİÇ, ADR-022/023'teki sayısal
+kararsızlık hâlâ çözülmedi). Yol boyunca gerçek bir bug bulundu: LSTM skorlaması 2.85M pencereyi
+TEK forward'ta işlemeye çalışıp ~20.8GB istedi ve çöktü — `_score_batched()` ile düzeltildi
+(20.000'lik gruplar), `BATCH_SIZE` eğitimde de 64→512 (36dk tahmini Dense-AE süresini ~2.4dk'ya
+indirdi, CPU-only ortamda batch-başı sabit-maliyet baskınlığı yüzünden).
+
+**Sonuçlar — dürüstçe, üçü de aynı sorunu gösteriyor:**
+
+| Model | magnitude_domination | pooled AUC (5 senaryo havuzu) |
+|---|---|---|
+| Dense-AE | FLAGGED (ρ=0.86/0.90) | 0.572 |
+| LSTM-AE | FLAGGED (ρ=0.84/0.89) | 0.568 |
+| LSTM-forecaster | FLAGGED (ρ=0.94/0.92, EN KÖTÜ) | 0.552 |
+
+Senaryo bazında (3 modelde de aynı örüntü): `ground_speed_biased` orta (AUC 0.65-0.74) — diğer
+dördü rastgele-yakını veya ALTINDA (`track_frozen`/`position_ramp_stealthy` ~0.51-0.55,
+`altitude_dropout` **0.48-0.50, iki modelde rastgeleden KÖTÜ**). LSTM-forecaster'ın loss eğrisi
+15 epoch boyunca neredeyse DÜZ (~1.6'dan ~1.55'e) — pratikte öğrenmiyor, en yüksek ρ ve en düşük
+AUC ile tutarlı.
+
+**Kök neden teşhis edildi (bu oturumun daha önceki bir önerisinin doğrudan deneysel kanıtı):**
+`masked_mse`, 8 kanalı EŞİT ağırlıkla ortalıyor. `alt`/`ground_speed_ms`/`track_deg` gibi ham
+kanallar büyük, yapılı, kolay-öğrenilir varyansa sahip (iniş/kalkış eğrisi tahmin edilebilir) —
+residual kanalları ise normal uçuşta ~gürültü (öğrenilecek yapı yok, "doğru cevap" zaten sıfıra
+yakın rastgelelik). Eşit-ağırlıklı ortak loss altında optimizasyon doğal olarak kolay/büyük
+kanallara odaklanıp residual kanalları pratikte görmezden geliyor — bu hem magnitude-domination'ı
+(skor ham-karmaşıklığı yansıtıyor, fizik-ihlalini değil) HEM düşük AUC'yi (çoğu senaryo ham
+kanalların büyüklüğünü değiştirmiyor) tek bir mekanizmayla açıklıyor. Tek istisna
+(`ground_speed_biased`, literal +4σ ekliyor) ham-kanal büyüklüğünü DE değiştirdiği için "yakalanmış"
+görünüyor — ama muhtemelen doğru fizik-ihlali anlayışından değil, büyüklük artışından.
+
+**altitude_dropout'un rastgeleden kötü AUC'si (0.48-0.50) muhtemelen bir ölçüm artefaktı**: dropout
+NaN üretiyor, maskeleniyor, bu da `masked_mse`'nin payda'sını (aktif eleman sayısı) küçültüyor —
+gerçek ters-sinyal değil, muhtemelen skorun payda-küçülmesinden kaynaklanan bir yapı; doğrulanmadı,
+açık madde.
+
+**Grafikler:** `artifacts/adsb/plots/` (loss_curves, roc_curves, auc_heatmap, confusion_matrices,
+score_distributions) — `scripts/adsb_make_training_plots.py`, salt-okunur, rapordan üretiyor.
+
+**Açık maddeler:** (1) Ağırlıklı-loss deneyi (residual kanallarına 3-5x ağırlık) henüz koşulmadı —
+kök-neden teşhisinin doğrudan testi. (2) USAD hâlâ hariç. (3) `altitude_dropout` ters-sinyali
+doğrulanmadı. (4) Kategori-koşullu normallik (literatür: CNN uçak-tipine-göre trafik-şekli
+tutarsızlığı tespiti) heterojen-normal sorununa yeni bir yaklaşım olarak NOT edildi, denenmedi.
+(5) S2 kural-kanalı (squawk/nic/nac_p/sil) hâlâ yazılmadı, veri hazır.
+
+Kaynaklar: [PIR-PSO-XGBoost GPS spoofing](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12656533/),
+[ADS-B ML anomali tespiti](https://www.sciencedirect.com/science/article/abs/pii/S2542660524003573),
+[NIC/NACp/SIL bütünlük alanları](https://navi.ion.org/content/72/3/navi.716).
+
+## ADR-025: Kural-bazlı penalty skorlayıcı — NN'leri geçti + AUC-tavanı bulgusu
+
+- Durum: Kabul edildi
+- Tarih: 2026-07-13
+
+**Motivasyon (kullanıcı talebi + ADR-024 kök-neden teşhisi):** "Kural bazlı matematiksel formüllü
+bir destek — hatta destekten öte ana odak; penalty/reward mantığımız yok mu?" Residual'lar zaten
+aritmetik özdeşlik olduğu için öğrenmeye gerek yok: `adsb/rules.py::ResidualRuleScorer` — kanal
+başına robust z (train-normal medyan/MAD), `pen_c = min(max(0, z_c − 3), 10)`, satır penalty'si
+= ağırlıklı toplam (uniform w=1, ÖN-KAYITLI, sonuç görülüp ayarlanmadı), pencere skoru = pencere-içi
+ortalama (NN'lerle aynı birim). ML-12 dersiyle aynı ruh (tek domain-seçilmiş sinyal 16-feature
+modeli geçmişti).
+
+**İki tur (ikisi de raporlu, `artifacts/adsb/models/rule_scorer_report*.json`):**
+- Tur 1 (MAD-floor): `altitude_source_residual` MAD=0 çıktı (irtifa 25ft-kuantize → fark-türevi
+  çoğunlukla TAM 0), floor=1e-6 kanalı "kıl tetik" yaptı — normal pencerelerin %93.8'i sıfır-üstü
+  penalty aldı, pooled AUC 0.582.
+- Tur 2 (genel kural: **train MAD'i tam 0 çıkan kanal kalibre-edilemez sayılır, skordan hariç**
+  — arşivlenen denemenin zero-MAD dersinin doğru genellemesi; floor çökmeyi önler ama kıl-tetiği
+  önlemez): normal sıfır-penalty oranı %6.2→%31.3, **pooled AUC 0.600 — üç NN'i de geçti**
+  (0.552-0.572).
+
+| Senaryo | Kural (tur 2) | En iyi NN | Fark |
+|---|---|---|---|
+| ground_speed_biased | 0.727 | 0.743 (LSTM-AE) | ≈ |
+| track_frozen | **0.679** | 0.523 | +0.16 KURAL |
+| vertical_rate_frozen | 0.579 | 0.600 (Dense-AE) | ≈ |
+| position_ramp_stealthy | 0.519 | 0.519 | ≈ (ikisi de kör — CUSUM işi) |
+| altitude_dropout | 0.494 | 0.498 | ≈ (kural için KAPSAM DIŞI beyanlı: NaN→katkı 0; ayrı S2 veri-kalite kanalının işi) |
+
+**KRİTİK DEĞERLENDİRME BULGUSU (zaman-çizgisi grafikleri açığa çıkardı,
+`artifacts/adsb/plots/injection_timelines/`):** bozuk dosyaların onset-ÖNCESİ pencereleri (uçuşun
+ilk yarısı, onset_frac=0.5) birebir temiz olduğu halde AUC hesabında "anomali" (y=1) sayılıyor —
+MÜKEMMEL bir dedektörün bile ulaşabileceği AUC ~0.75 ile sınırlı (pencerelerin ~yarısı yapısal
+olarak ayırt-edilemez). RFLY-1'in "whole-flight proxy → interval truth" düzeltmesinin birebir
+tekrarı: dosya-kimliği proxy etiketi yerine `label` kolonundan pencere-etiketi türetilmeli
+(yalnız onset-sonrası satır içeren pencereler y=1). Bu düzeltmeyle ground_speed_biased 0.727 ve
+track_frozen 0.679 fiilen tavana yakın — sonraki turda etiketleme düzeltilip yeniden ölçülecek
+(ÖN-KAYIT: düzeltme yalnız etiket yönünde, skorlara/parametrelere dokunulmayacak).
+
+Zaman-çizgisi gözlemleri: `ground_speed_biased`/`track_frozen` onset'te sıçrayıp KALICI ~10
+penalty bandına oturuyor (temiz ~0'da) — tespit tam olması gerektiği gibi görünüyor;
+`vertical_rate_frozen` yalnız onset anında kısa patlama (donmuş değer, irtifa değişmedikçe
+tutarlı kalıyor); `position_ramp_stealthy` onset spike'ı var ama sonrası eşik altı (2 m/s <
+3×MAD≈5.8 m/s — birikimli/CUSUM olmadan yapısal olarak görünmez); `altitude_dropout` düz
+(beyan edilen kapsam dışılık doğrulandı).
+
+**Açık maddeler:** (1) pencere-etiket düzeltmesi + yeniden ölçüm; (2) stealthy ramp için
+uçuş-içi CUSUM birikimi (S3 madde 9); (3) tam-hacim (638 parça + yeni indirilen v2025.06.15
+tar'ı); (4) NN'ler için ağırlıklı-loss deneyi hâlâ koşulmadı (kural skorlayıcı ana-odak olunca
+önceliği düştü ama kök-neden testinin kanıt değeri duruyor).
+
+## ADR-026: Değişmez ADS-B run manifesti ve provenance sözleşmesi
+
+- Durum: Kabul edildi
+- Tarih: 2026-07-13
+
+**Karar:** Her yeni ADS-B koşusu yeni ve mevcutsa hata veren bir `run_dir` ile başlar;
+`adsb/run_manifest.py` girdilerin byte/SHA-256/Parquet footer+schema hash'ini, açık uçuş
+splitlerini ve hashlerini, config/Git dirty-state'ini ve sentetik path/uçuş-ID sızıntı
+korumasını kaydeder. CLI girdi keşfi yapmaz ve holdout/Downloads varsayılanı taşımaz.
+
+**Kanıt:** `tests/test_adsb_run_manifest.py` ile fail-if-exists, deterministik split, hash/footer,
+sentetik guard ve CLI dahil **9 test**; `tests/test_adsb_evaluation.py` ile birim ayrımına ait
+**5 test**, toplam **14/14 geçti**. Manifest provenance'i footer ölçümü
+**256.155.009**, eski belgeli toplam **256.150.550** ve açıklanmamış fark
+**+4.459** satırı birlikte, `unresolved_do_not_silently_correct` olarak taşır.
+
+**Açık madde:** Somut skor koşuları kendi donmuş config/splitleri belli olduğunda ayrı
+manifestlerle yaratılacak; holdout havuzu bu adımda erişilmedi veya freeze edilmedi.
+
+## ADR-027: Sentetik interval truth v2 ve ayrı, değişmez korpus
+
+- Durum: Kabul edildi
+- Tarih: 2026-07-13
+
+**Karar:** `adsb/truth.py` satır düzeyinde `injection_active`, `observable_changed`,
+`evaluable_truth` ile event aralığını ayrı tutar. Rule/AE desteği tüm pencere, forecaster desteği
+yalnız açık hedef satırlarıdır; birincil etiket `q_w>0`, ikincil steady-state yalnız
+`q_w∈{0,1}`'dir. Dropout yalnız eski RNG'nin gerçek bloğunu, ramp onset satırı ise `dt=0`
+nedeniyle aktif fakat değişmemiş gözlemi kaydeder. V1 dosyaları değiştirilmedi.
+
+**Kanıt:** Tam korpus `data/objectstore/synthetic/adsb_v2_20260713_01/manifest.json` altında
+**8.910 uçuş × (clean + 5 senaryo)**, dosya başına **4.467.115**, toplam **26.802.690 satır** ve
+**646.160.578 byte** olarak fail-if-exists yazıldı; her çıktı SHA-256/footer taşır. Dropout'ta
+**666.739 aktif** satırın **570.666**'sı gözlenebilir değişimdir; onset→uçuş-sonu proxy'si
+kullanılmadı. Tüm ADS-B regresyonu skor koşusundan önce **161/161 geçti**. İlk yavaş smoke
+namespace'i manifestsiz olduğu için `data/objectstore/synthetic/adsb_v2/INCOMPLETE_DO_NOT_USE.md`
+ile açıkça geçersiz işaretlendi, üstüne yazılmadı.
+
+**Açık madde:** Donmuş kuralın corrected-truth skorlaması Adım 3'tür; sentetik v2 hiçbir
+fit/train/calibration rolüne alınmayacaktır.
+
+## ADR-028: Donmuş kuralın corrected truth-v2 üzerinde yeniden skorlanması
+
+- Durum: Kabul edildi
+- Tarih: 2026-07-13
+
+**Karar:** ADR-025'teki kural, kalibrasyon veya eşik değiştirilmeden truth-v2 üzerinde yeniden
+skorlandı. Negatif havuz her reçete için aynı değiştirilmemiş temiz referanstır; bozuk dosyanın
+q_w=0 pencereleri AUC negatiflerine katılmadı ve yalnız zaman çizgisi sanity kontrolünde tutuldu.
+NN checkpoint'i bulunmadığından eski NN JSON'u yalnız
+historical_label_bugged_no_checkpoint_rescore olarak kaydedildi; corrected iddiası taşımıyor.
+
+**Kanıt:** Değişmez koşu
+artifacts/adsb/runs/20260713_step3_corrected_rule_v1/ altındadır. Pooled birincil pencere
+AUROC/AUPRC **0.764883/0.883313** (705.787 temiz negatif + 1.511.700 q_w>0 pozitif);
+reçete AUROC'ları dropout **0.566965**, ground-speed **0.974023**, ramp **0.558927**,
+track **0.889552**, vertical-rate **0.696337**'dir. Aynı donmuş eşikte değiştirilmemiş temiz
+referansta **40.308 episode / 8.382599 scoreable uçuş-saat = 4.808533 episode/saat** ve
+alarm gören uçuş oranı **0.892356** oldu. Örneğin ground-speed event recall'ı **0.963659**
+(medyan gecikme **19.31 s**), track **0.951804** (**56.75 s**); ramp event recall'ı
+**0.801347** olsa da aktif-aralık micro coverage yalnız **0.183902**'dir. Sentetik ölçüler bu
+doğal yükten ayrı yorumlanmadı. Event tablosu **44.550** satırdır.
+
+summary.json SHA-256
+4b81c37af0f1e3c0a4ef6a1f135bb726b6fd01be64d3ee260f707b06378348f0,
+event tablosu SHA-256
+c8dda720da9e8e0333dfcb910c07cb5e60c4a41fee9bf7f12205b7d4725b4051 ve manifest
+SHA-256 fc188839a114052dde7ed7d870876780c73f327d261d9fb73245b0a358840fb8 olarak
+doğrulandı; corrected-truth/evaluation regresyonu **18/18** geçti. Dış komut zarfı,
+çıktı yolu basıldıktan sonra 1.287 saniyelik sınırda 124 döndürdü; Python süreci durmuştu,
+üç çıktı parse/hash/footer ve testlerle eksiksiz doğrulandı.
+
+**Açık madde:** Bu tarihsel 0.95 skor eşiği operasyonel olarak onaylanmış bir eşik değildir.
+Doğal yük ve günler-arası kararlılık Adım 5'te, CUSUM ile birlikte ön-kayıtlı normal
+kalibrasyon/development/rehearsal akışında ölçülecektir.
+
+## ADR-029: İki eksenli hız residual'ı ve causal Page CUSUM çekirdeği
+
+- Durum: Kabul edildi
+- Tarih: 2026-07-13
+
+**Karar:** adsb/features.py raporlanan doğu/kuzey hız bileşeni ile ardışık konumdan türetilen
+bileşen arasındaki işaretli residual'ları üretir. adsb/cusum.py her eksen için pozitif/negatif
+Page state'i taşır; 2 m/s vektör hedefini yön-bağımsız 2/sqrt(2) eksen alt sınırına ve
+train-normal medyan/MAD kalibrasyonuna çevirir. Uçuş/ground/gap/zaman resetleri, dt=0 skip,
+eksiklikte süreli carry-reset ve prefix nedenselliği sözleşmedir. h çekirdek tarafından
+seçilmez; dışarıdan donmuş doğal-burden kalibrasyonu zorunludur.
+
+**Kanıt:** tests/test_adsb_cusum.py ve tests/test_adsb_features.py güncel halde **30/30**
+geçti. MAD=0 kanal floor'lanmadan hariç tutulur. İki eksenden biri hariç kalırsa serileştirme
+aktif state sayısını doğru verir ve axis_coverage_status=degraded_axis_coverage yazar;
+Adım 5/7 bunu geçiş değil gate engeli sayacaktır. CUSUM kanalları NN PRIMARY_FEATURES listesine
+eklenmedi; yeni bir NN eğitimi yapılmadı.
+
+**Açık madde:** Sayısal h henüz seçilmedi/dondurulmadı. Yalnız 2026-02-28 normal kalibrasyon
+bölümündeki ön-kayıtlı adaylar ve doğal episode/saat bütçesiyle Adım 5'te seçilecek; sentetik
+recall bu seçime girmeyecektir.
+
+## ADR-030: Tam-hacim streaming baseline kanıtı; ana konfigürasyon freeze'i reddedildi
+
+- Durum: Kanıt olarak kabul edildi; konfigürasyon freeze'i reddedildi
+- Tarih: 2026-07-13
+
+**Karar:** 638 açık Silver parçası üzerinde 2026-02-28 fit/calibration, 2026-03-01 development
+ve 2026-03-16 donmuş rehearsal akışı tamamlandı. V1 artefaktı değişmez tarihçe olarak korunur,
+ancak seçilen CUSUM h=1 doğal alarm doygunluğu nedeniyle ana rule+CUSUM konfigürasyonu olarak
+dondurulmaz. 12 episode/saat sınırı ölçülmüş operasyonel gereksinim değil, bu turda
+ön-kayıtlanmış engineering-advisory varsayımıdır; bunu sağlamak tek başına geçiş sayılmaz.
+
+**Kanıt:** artifacts/adsb/runs/20260713_step5_full_streaming_v1 koşusu **10.588 saniyede**
+exit 0 ile tamamlandı. Toplam **256.155.009 satır / 638 parça**; roller fit **149.462**,
+calibration **37.208**, validation **8.910**, development **181.828**, rehearsal **165.053**
+uçuş segmentidir. Sentetik eğitim satırı **0**; 8.910 sentetik-kaynak ID'nin tamamı fit ve
+calibration dışında validation rolündedir. Fit'te **67.360.196 satır** ve **59.682.640**
+vektör-uygun geçiş görüldü. Doğu/kuzey MAD'leri **1.736830/1.542729** ile iki eksen aktif;
+altitude_source_residual MAD=0 olduğu için floor'suz dışlandı.
+
+Rule diagnostic episode/saat calibration/development/rehearsal için
+**1.171104/1.061339/1.158345**, alarm gören scoreable-flight oranı
+**0.523444/0.506338/0.523398** oldu. CUSUM h=1 episode/saat
+**6.071336/5.738076/5.326149** görünse de alarm gören scoreable-flight oranı
+**0.991196/0.991636/0.991540**, evaluable-row alarm oranı yaklaşık
+**0.78282/0.77709/0.80189** oldu. Cadence tabakalarında hızlı ve yavaş gruplar arasında
+yaklaşık 2.1--2.5 kat burden farkı vardır; 60 saniyelik episode merge doygunluğu gizleyebilir.
+
+V1 raw moving-block p95'i **5.745749/saat**, tam-uçuş observed değer **6.071336/saat** idi;
+upper niceliğinin nokta tahmininden düşük olması correctness invariant'ını ihlal etti. Eski
+dosyalar değiştirilmeden artifacts/adsb/runs/20260713_step5_cusum_upper_audit_v1 altında
+conservative upper=max(observed, raw p95) denetimi yapıldı: 18 adayın 9'u yukarı düzeldi,
+fakat 18/18 yine 12/saat varsayımını geçti ve seçim **h=1 -> h=1** değişmedi.
+
+V1 final report SHA-256
+e906a348e03d866dd9f9cfabe470a1e9a8735b04e12986bcd0b0d3e92f299a6a,
+natural report SHA-256
+37a8bf99ac0221b51bc5c9864f3c870b081394f3c1d32124b505728ee3eba766,
+checksum index SHA-256
+8706a8f79df559571077d7301e224556fc9ed7a731d337f196481817692112f2'dir.
+İndeks, kendisi hariç **9/9** artefaktın byte/hash'ini doğruladı; runner sonu code/config
+değişmezliği true ve rehearsal geri-beslemesi false'tur.
+
+**Açık madde:** Truth-v2 üzerinde donmuş CUSUM event recall/gecikme/aktif coverage henüz bu
+ADR anında ölçülmedi. S2 doğal burden ve corrected CUSUM değerlendirmesi tamamlanacak; Adım 7
+incelemesinde mevcut doygunluk nedeniyle freeze önerilmeyecek. Yeni h/bütçe seçimi bu sonuçlara
+bakılarak bu run içinde yapılamaz; kullanıcı onaylı yeni ön-kayıt ve yeni namespace gerektirir.
