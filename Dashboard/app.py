@@ -1607,6 +1607,19 @@ app_dash.layout = html.Div(id="app-root", style={
     "fontFamily": "sans-serif", "color": "#c8d0e0",
 }, children=[
 
+    # ONEMLI (15sn'nin kaynagi): bu deger OLCUME/hesaba dayanmiyor, bastan
+    # beri sabit pragmatik bir varsayilan -- "kullanici icin yeterince
+    # duyarli hissettirsin ama sunucuyu/Redis'i gereksiz yormasin" dengesi.
+    # GERCEK veri uretim hizina (bkz. uav_producer.py SOURCES: adsblol=60sn,
+    # opensky=300sn) KASITLI olarak BAGLI DEGIL -- coğu tick'te (orn.
+    # adsblol'de 4 sorgudan 3'unde) Redis'te henuz YENI veri yok, bir onceki
+    # cycle'in ayni sonucu geri donuyor. Bu ZARARSIZ (ucuz bir HTTP+Redis
+    # round-trip'i) ama "tick" TEK amacli bir "ucus verisini yenile" sinyali
+    # degil -- asagidaki 7 farkli callback (update_map, update_stats_chart,
+    # manage_data_source, update_flight_path, update_live_panel,
+    # update_history_day_options, update_history) hepsi AYNI ritimle
+    # tetikleniyor, genel amacli bir "periyodik olarak her seyi tazele"
+    # kalp atisi olarak kullaniliyor.
     dcc.Interval(id="tick", interval=15000, n_intervals=0),
     # ONEMLI: durum cubugundaki saat ESKIDEN "tick"in (15sn) bir parcasiydi --
     # yani sadece 15 saniyede bir, yeni ucus verisi geldiginde ilerliyordu,
