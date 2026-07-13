@@ -85,8 +85,13 @@ duvar-saatiydi.
 
 ## Git yayın checkpoint'i
 
-Çalışma ağacı main dalında ve origin/main'in 10 commit gerisindedir. GitHub CLI bu makinede
-kurulu değildir. Ayrıca izlenen artifacts/adsb/models/baseline_training_report.json dosyası
-yaklaşık 528 MB'dır ve normal GitHub blob sınırını aşar. Publish öncesinde branch/senkronizasyon
-ve büyük-artefakt stratejisi bilinçli biçimde çözülmelidir; bu dosya sessizce silinmemeli veya
-geri alınmamalıdır.
+Kaynak/test/dokümantasyon kapsamı agent/adsb-rule-cusum-checkpoint dalında
+26b0225 adsb rule cusum evidence checkpoint commit'i olarak push edildi:
+
+origin/agent/adsb-rule-cusum-checkpoint
+
+528 MB'lık generated baseline raporu ve generated parse logu Git indexinden çıkarıldı;
+.gitignore ile gelecekte yeniden stage edilmeleri engellendi, yerel dosyalar silinmedi.
+Generated ADS-B run/model/plot çıktıları da ignore kapsamındadır. Kullanıcı yalnız commit+push
+istediği için draft PR açılmadı. Branch, origin/main'in önceki durumundan türetilmiştir;
+main'deki 10 yeni commit ile rebase/PR senkronizasyonu sonraki yayın adımıdır.
