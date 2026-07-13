@@ -149,7 +149,7 @@ TEXTS = {
         "field_squawk": "Squawk",
         "field_last_update": "Son Güncelleme",
         "emergency_squawk": "ACİL DURUM SQUAWK: {squawk}",
-        "status_bar_main": "{ts} | {n} aktif uçuş",
+        "status_bar_main": "{n} aktif uçuş",
         "status_bar_alarm": " | {a} alarm",
         "history_alt_label": "İrtifa (m)",
         "history_speed_label": "Hız (m/s)",
@@ -226,7 +226,7 @@ TEXTS = {
         "field_squawk": "Squawk",
         "field_last_update": "Last Update",
         "emergency_squawk": "EMERGENCY SQUAWK: {squawk}",
-        "status_bar_main": "{ts} | {n} active flights",
+        "status_bar_main": "{n} active flights",
         "status_bar_alarm": " | {a} alerts",
         "history_alt_label": "Altitude (m)",
         "history_speed_label": "Speed (m/s)",
@@ -257,7 +257,7 @@ TEXTS = {
     },
 }
 
-# Harita katmani secenekleri -- ayarlardan degistirilebilir. "street"
+# Harita katmani secenekleri -- ayarlardan degistirilebilir. "dark"
 # varsayilan (mevcut OpenStreetMap katmani, davranis degismiyor).
 #
 # GECMIS: Once Esri World Imagery denendi (server.arcgisonline.com) --
@@ -1608,6 +1608,13 @@ app_dash.layout = html.Div(id="app-root", style={
 }, children=[
 
     dcc.Interval(id="tick", interval=15000, n_intervals=0),
+    # ONEMLI: durum cubugundaki saat ESKIDEN "tick"in (15sn) bir parcasiydi --
+    # yani sadece 15 saniyede bir, yeni ucus verisi geldiginde ilerliyordu,
+    # normal bir saat gibi saniye saniye AKMIYORDU (kullanici geri bildirimi).
+    # Ayri, hizli (1sn) bir Interval + saf clientside_callback (asagida,
+    # sayfa sonunda) ile cozuldu -- sunucuya HICBIR istek gitmiyor, saat
+    # tamamen tarayicida Date() ile hesaplanip yaziliyor.
+    dcc.Interval(id="clock-tick", interval=1000, n_intervals=0),
     dcc.Store(id="aircraft-select", data=None),  # secili ucak (gorunmez state)
     # Python'un doldurdugu HAM nokta verisi (lat/lon/track) -- gercek
     # poligon geometrisi clientside_callback'te (JS, sayfa sonunda)
@@ -1807,11 +1814,13 @@ app_dash.layout = html.Div(id="app-root", style={
     dcc.Store(id="altitude-filter-range", data=[-1_000_000, 1_000_000]),
 
     # ------------------------------------------- Durum cubugu (overlay) --
-    # ONEMLI: UC AYRI parcadan olusuyor, DOM SIRASI = GORSEL SIRA (kullanici
+    # ONEMLI: DORT AYRI parcadan olusuyor, DOM SIRASI = GORSEL SIRA (kullanici
     # istegi -- "gösterilen'le aktif uçuş yan yana olsun, alarmı en sağa
-    # al"): "status-main" (ts + TOPLAM ucak) ve "status-alarm" (alarm sayisi,
-    # EN SAGDA) update_map'te (Python, sunucu) hesaplaniyor; aradaki
-    # "status-shown" (filtreler sonrasi KALAN ucak sayisi) ise
+    # al"): "status-clock" (saat, bkz. asagidaki clientside_callback --
+    # "clock-tick" Interval'i ile saniye saniye ilerliyor, sunucuya HIC
+    # istek atmiyor) ve "status-main" (TOPLAM ucak) ve "status-alarm"
+    # (alarm sayisi, EN SAGDA) update_map'te (Python, sunucu) hesaplaniyor;
+    # aradaki "status-shown" (filtreler sonrasi KALAN ucak sayisi) ise
     # clientside_callback'te (JS, sayfa sonu) hesaplaniyor -- firma filtresi
     # TAMAMEN tarayicida uygulaniyor (bkz. AIRLINE_PREFIXES yorumu), sunucu
     # o filtreden HABERSIZ, o yuzden "kalan" sayiyi SADECE JS taraf dogru
@@ -1825,6 +1834,7 @@ app_dash.layout = html.Div(id="app-root", style={
         "fontSize": "13px", "color": "#c8d0e0", "zIndex": 500,
         "pointerEvents": "none",  # altindaki haritayi engellemesin
     }, children=[
+        html.Span(id="status-clock"),
         html.Span(id="status-main"),
         html.Span(id="status-shown", style={"color": "#00b4d8", "marginLeft": "8px"}),
         html.Span(id="status-alarm"),
@@ -2538,8 +2548,10 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_
 
     raw_data = {"type": "FeatureCollection", "features": features}
 
-    ts = datetime.now(tz).strftime("%H:%M:%S")
-    status_main = t["status_bar_main"].format(ts=ts, n=total_flight_count)
+    # ONEMLI: saat artik burada hesaplanmiyor -- "status-clock" span'i
+    # ayri, hizli bir clientside_callback ile saniye saniye ilerliyor
+    # (bkz. layout'taki "clock-tick" Interval yorumu).
+    status_main = t["status_bar_main"].format(n=total_flight_count)
     status_alarm = t["status_bar_alarm"].format(a=len(alerts))
 
     # ONEMLI: yukaridaki _altitude_map_seq aciklamasina bkz -- eger bu cagri
@@ -2550,6 +2562,31 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_
         return dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
     return raw_data, status_main, emergency_rows, status_alarm
+
+
+# ONEMLI: bu callback CLIENTSIDE (JS, tarayicida calisir) -- durum
+# cubugundaki saati "clock-tick" Interval'iyle (1sn, bkz. layout) her
+# saniye gunceller. Python tarafinda BENZER bir Interval EKLEMEDIK --
+# saniyede bir sunucuya HTTP istegi atip _resolve_tz + strftime calistirmak
+# (ve Dash'in kendi callback donen-degeri islemesini tetiklemek) tamamen
+# gereksiz yuk olurdu, saat sadece yerel saatin GORSEL akisi, veriyle
+# ilgisi yok. tzOffset, Python'daki _resolve_tz ile AYNI semantige sahip
+# (UTC ofseti, saat cinsinden) -- iki taraf da ayni "timezone-setting"
+# Store'unu okuyor, o yuzden JS burada KENDI hesabini yapiyor.
+app_dash.clientside_callback(
+    """
+    function(n_intervals, tzOffsetHours) {
+        const offset = (tzOffsetHours === null || tzOffsetHours === undefined)
+            ? 3 : Number(tzOffsetHours);
+        const shifted = new Date(Date.now() + offset * 3600 * 1000);
+        const pad = (x) => String(x).padStart(2, '0');
+        return pad(shifted.getUTCHours()) + ':' + pad(shifted.getUTCMinutes())
+             + ':' + pad(shifted.getUTCSeconds()) + ' | ';
+    }
+    """,
+    Output("status-clock", "children"),
+    [Input("clock-tick", "n_intervals"), Input("timezone-setting", "data")],
+)
 
 
 @app_dash.callback(

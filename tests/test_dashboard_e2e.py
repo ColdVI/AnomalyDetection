@@ -26,7 +26,7 @@ pytestmark = pytest.mark.e2e
 def test_page_loads_with_dark_map_and_ground_filter_on_by_default(page):
     """Kullanici karariyla varsayilanlar: harita 'Karanlık' (CARTO Dark
     Matter), 'Yerde' filtresi ACIK (bkz. proje sohbet gecmisi)."""
-    assert "ADS-B" in page.title()
+    assert page.title() == "Dashboard"
 
     ground_btn_bg = page.eval_on_selector(
         "#filter-ground-btn", "el => getComputedStyle(el).backgroundColor")
