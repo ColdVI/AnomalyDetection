@@ -25,15 +25,17 @@ Varsayim (bellek verimliligi icin, GERCEK VERIYLE DOGRULANDI): Ilk beklentim
 "bir chunk = bir tarih" idi ama gercek veri boyle degil -- trace_full dosyalari
 ~birkac gunluk rolling history tasiyor, tek bir chunk 2-4 farkli tarihe ait
 satir icerebiliyor (bkz. smoke test, chunk 0: hem 2025-10-14 hem 2025-10-15).
-Chunk-ici dedup (drop_duplicates) bunu zaten dogru ele aliyor. Chunk'lar
-ARASI (yani FARKLI tar'lar arasi) cakisma riski ise: bizim 11 tar'imiz
-YAKLASIK AYLIK araliklarla secildi (08.15, 09.15, 10.15, 11.15, 12.01, ...) --
-ardisik tar'lar arasinda ~1 aylik bosluk oldugu icin trace_full'un birkac
-gunluk rolling penceresi iki farkli tar'da CAKISMIYOR. Bu, "atomic chunk"
-degil "ardisik tar'lar arasi tarih araligi cakismiyor" varsayimi -- eger
-ileride daha sik araliklarla (ör. haftalik/gunluk) tar eklenirse bu
-Counter-toplama yaklasimi YENIDEN DEGERLENDIRILMELI (gercek global set'e
-gecmek gerekebilir).
+Chunk-ici dedup (drop_duplicates) bunu zaten dogru ele aliyor.
+
+2026-07-13 GUNCELLEME: yukaridaki "ardisik tar'lar arasi tarih araligi
+cakismiyor" varsayimi artik GECERSIZ -- kullanici 19 yeni tar ekledi, bazilari
+(orn. v2025.08.21 + v2025.08.26 = 5 gun, v2025.10.25 + v2025.10.28 = 3 gun)
+birbirine COK yakin, rolling-window trace'leri CAKISABILIR. Bu yuzden
+flight_count/civil/military artik Counter TOPLAMA (chunk'lar arasi cift
+sayim riski tasiyordu) DEGIL, hex basina GERCEK GLOBAL SET
+{(source_id, date)} ile hesaplaniyor -- ayni ucus iki farkli tar/chunk'ta
+gorulse bile set'e sadece bir kez girer. day_count zaten (hex_days) bastan
+beri gercek set kullaniyordu, o kisim etkilenmedi.
 """
 
 from __future__ import annotations
@@ -56,15 +58,11 @@ RESOLUTIONS = (3, 4, 5)
 
 def run() -> None:
     point_counts = {r: Counter() for r in RESOLUTIONS}
-    flight_counts = {r: Counter() for r in RESOLUTIONS}
-    # 2026-07-10 (kullanici istegi): adsb datasinda ucaklar zaten dbFlags
-    # uzerinden asgari-sivil/askeri flaglenmis (is_military, bkz. Gold semasi
-    # guncellemesi) -- flight_count'u BOZMADAN (mevcut DBSCAN/KNN-mask pipeline'i
-    # AYNEN toplam uzerinden calismaya devam eder), hex basina sivil/askeri
-    # ayrimini da AYRICA topluyoruz. Frontend'de "Sivil"/"Askeri"/"Tumu"
-    # secimi bu iki ek kolon arasinda gecis yapar, DBSCAN yeniden calismaz.
-    flight_counts_civil = {r: Counter() for r in RESOLUTIONS}
-    flight_counts_military = {r: Counter() for r in RESOLUTIONS}
+    # 2026-07-13: flight_count/civil/military artik Counter DEGIL -- hex basina
+    # gercek global {(source_id, date)} set'i (bkz. modul basi notu, tar'lar
+    # arasi cakisma cift-sayimi onlemek icin). Sivil/askeri ayrimi finalize
+    # asamasinda military_lookup'a bakilarak set'ten turetiliyor.
+    flight_hex_sets: dict[int, dict[str, set]] = {r: {} for r in RESOLUTIONS}
     hex_days: dict[int, dict[str, set]] = {r: {} for r in RESOLUTIONS}
     # source_id (icao24) -> is_military -- TEK SEFERLIK global lookup, ayni
     # taramada bedava toplanir. metehan_geo_country projesi kendi ham CSV
@@ -98,13 +96,11 @@ def run() -> None:
             point_counts[r].update(chunk["h3_cell"].value_counts().to_dict())
 
             flight_dedup = chunk.drop_duplicates(subset=["h3_cell", "source_id", "_date"])
-            flight_counts[r].update(flight_dedup["h3_cell"].value_counts().to_dict())
-            flight_counts_civil[r].update(
-                flight_dedup.loc[~flight_dedup["is_military"], "h3_cell"].value_counts().to_dict()
-            )
-            flight_counts_military[r].update(
-                flight_dedup.loc[flight_dedup["is_military"], "h3_cell"].value_counts().to_dict()
-            )
+            sets_r = flight_hex_sets[r]
+            for h3_cell, source_id, date in zip(
+                flight_dedup["h3_cell"], flight_dedup["source_id"], flight_dedup["_date"]
+            ):
+                sets_r.setdefault(h3_cell, set()).add((source_id, date))
 
             day_dedup = chunk.drop_duplicates(subset=["h3_cell", "_date"])
             days_r = hex_days[r]
@@ -114,7 +110,7 @@ def run() -> None:
         if (i + 1) % 200 == 0:
             logger.info(
                 "  %d chunk, %d satir, res5 hex(point/flight)=%d/%d",
-                i + 1, total_rows, len(point_counts[5]), len(flight_counts[5]),
+                i + 1, total_rows, len(point_counts[5]), len(flight_hex_sets[5]),
             )
 
     logger.info("Tamamlandi: %d satir taniındi", total_rows)
@@ -133,13 +129,21 @@ def run() -> None:
     logger.info("Yazildi: %s (%d ucak)", OUT_DIR / "aircraft_military_lookup.parquet", len(lookup_df))
 
     for r in RESOLUTIONS:
-        all_hexes = set(point_counts[r]) | set(flight_counts[r]) | set(hex_days[r])
+        sets_r = flight_hex_sets[r]
+        all_hexes = set(point_counts[r]) | set(sets_r) | set(hex_days[r])
+        flight_count, flight_count_civil, flight_count_military = {}, {}, {}
+        for h in all_hexes:
+            entries = sets_r.get(h, ())
+            mil = sum(1 for source_id, _ in entries if military_lookup.get(source_id, False))
+            flight_count[h] = len(entries)
+            flight_count_military[h] = mil
+            flight_count_civil[h] = len(entries) - mil
         density_df = pd.DataFrame({
             "h3_cell": list(all_hexes),
             "point_count": [point_counts[r].get(h, 0) for h in all_hexes],
-            "flight_count": [flight_counts[r].get(h, 0) for h in all_hexes],
-            "flight_count_civil": [flight_counts_civil[r].get(h, 0) for h in all_hexes],
-            "flight_count_military": [flight_counts_military[r].get(h, 0) for h in all_hexes],
+            "flight_count": [flight_count[h] for h in all_hexes],
+            "flight_count_civil": [flight_count_civil[h] for h in all_hexes],
+            "flight_count_military": [flight_count_military[h] for h in all_hexes],
             "day_count": [len(hex_days[r].get(h, ())) for h in all_hexes],
         })
         density_df.to_parquet(OUT_DIR / f"density_flights_res{r}.parquet", index=False)
