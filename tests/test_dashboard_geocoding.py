@@ -11,6 +11,14 @@ from __future__ import annotations
 import pandas as pd
 
 from Dashboard import app as dashapp
+# ONEMLI: "from Dashboard import api" (noktali) app.py'nin KENDI "from api
+# import ..." satirinin kullandigi CIPLAK modulden (bkz. app.py'deki
+# sys.path shim yorumu) FARKLI bir modul nesnesi uretir -- Python ayni
+# dosyayi "api" ve "Dashboard.api" olarak IKI KEZ, birbirinden bagimsiz
+# calistirir. get_flight_segments'in GERCEKTEN cagirdigi _reverse_geocode'u
+# patch'lemek icin CIPLAK "import api" sarttir (app.py'nin shim'i sayesinde
+# "from Dashboard import app" import'undan SONRA calisir).
+import api as dashapi
 from dashboard_fakes import FakeRedis, FakeRequestsRouter
 
 
@@ -97,7 +105,11 @@ def _points_df(times, lat=41.0, lon=29.0):
 
 def test_get_flight_segments_empty_history_returns_empty_list(monkeypatch):
     monkeypatch.setattr(dashapp._query_api, "query_data_frame", lambda flux: pd.DataFrame())
-    monkeypatch.setattr(dashapp, "_reverse_geocode", lambda lat, lon: None)
+    # ONEMLI: get_flight_segments artik Dashboard/api.py'de tanimli (modul
+    # bolme, adim 4) -- _reverse_geocode'u orada cagiriyor, o yuzden patch
+    # hedefi dashapp DEGIL dashapi olmali (isim-yeniden-baglama, sadece
+    # TANIMLANDIGI modulun namespace'inden gorulur).
+    monkeypatch.setattr(dashapi, "_reverse_geocode", lambda lat, lon: None)
     assert dashapp.get_flight_segments("abc123") == []
 
 
@@ -116,7 +128,7 @@ def test_get_flight_segments_splits_on_large_time_gaps():
     def fake_geocode(lat, lon):
         return None
 
-    import Dashboard.app as _mod
+    import Dashboard.api as _mod
     _orig_query = _mod._query_api.query_data_frame
     _mod._query_api.query_data_frame = lambda flux: _points_df(times)
     _orig_geocode = _mod._reverse_geocode
@@ -143,7 +155,7 @@ def test_get_flight_segments_ignores_noise_segments_under_three_points(monkeypat
          f"2026-07-01T{10 + hour_gap:02d}:02:00Z"]  # 3 nokta -- gercek ucus
     )
     monkeypatch.setattr(dashapp._query_api, "query_data_frame", lambda flux: _points_df(times))
-    monkeypatch.setattr(dashapp, "_reverse_geocode", lambda lat, lon: None)
+    monkeypatch.setattr(dashapi, "_reverse_geocode", lambda lat, lon: None)
 
     segments = dashapp.get_flight_segments("abc123")
     assert len(segments) == 1
@@ -174,7 +186,7 @@ def test_get_flight_segments_geocoding_is_dispatched_in_parallel(monkeypatch):
         calls.append((lat, lon))
         return f"place-{lat}-{lon}"
 
-    monkeypatch.setattr(dashapp, "_reverse_geocode", fake_geocode)
+    monkeypatch.setattr(dashapi, "_reverse_geocode", fake_geocode)
     segments = dashapp.get_flight_segments("abc123")
 
     assert len(calls) == 2  # start + end, ayni nokta oldugu icin ikisi de (41.0, 29.0)
@@ -199,7 +211,7 @@ def test_get_flight_segments_beyond_geocode_limit_gets_null_places(monkeypatch):
             f"2026-07-{1 + day_offset:02d}T{base_hour:02d}:02:00Z",
         ])
     monkeypatch.setattr(dashapp._query_api, "query_data_frame", lambda flux: _points_df(times))
-    monkeypatch.setattr(dashapp, "_reverse_geocode", lambda lat, lon: "somewhere")
+    monkeypatch.setattr(dashapi, "_reverse_geocode", lambda lat, lon: "somewhere")
 
     segments = dashapp.get_flight_segments("abc123")
     assert len(segments) == n_segments
