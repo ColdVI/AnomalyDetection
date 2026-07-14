@@ -109,5 +109,37 @@
     "status": "smoke_only",
     "key_finding": "5 profilden 4'ü (speed/heading tabanlı) makul alpha değerlerinde saatte çok düşük doğal yanlış-alarm oranı gösterdi. vertical_rate_spike bariz şekilde daha alpha-hassas: aynı hedefe ulaşmak için çok daha sıkı bir eşik gerekiyor (diğerleri alpha=0.0136'da hala <0.1 iken bu profil zaten 4.89 alarm/saate çıktı).",
     "notes": "Rapor: artifacts/adsb/runs/20260714_contextual_physics_v1_development_burden_v1/development_burden_curves.json. AÇIK MADDELER: east_velocity_residual/north_velocity_residual profilleri hiç eklenmedi (bu turda ölçülmedi); apply_detector_profile fonksiyonu satır-bazlı Python döngüsü kullandığı için büyük ölçekte (milyonlarca satır) çok yavaş — bu yüzden ölçek 15→6→1 parçaya, alpha ızgarası 12→8→4 noktaya küçültüldü; sonuçlar bu yüzden karar-grade değil, yalnızca mekanizmanın uçtan uca çalıştığının kanıtı."
+  },
+  {
+    "id": "ADR-041",
+    "date": "2026-07-14",
+    "track": "ADS-B contextual_physics_v1 — performans düzeltmesi + 20x ölçek + east/north CUSUM",
+    "method": "apply_detector_profile_fast (vektörize, dondurulmuş fonksiyonla bit-bit eşdeğer) + adsb.cusum.VectorPageCUSUM (mevcut kural-skorlayıcı hattından yeniden kullanıldı)",
+    "dataset": "ADS-B gerçek uçuş verisi — fit/calibration 2026-02-28, development 2026-03-01, LSTM tarafı 20/216 development parçası, CUSUM tarafı 20 fit + 60 calibration + 20 development parça",
+    "columns_or_channels": [
+      "vertical_rate_residual",
+      "speed_residual",
+      "heading_residual",
+      "east_velocity_residual",
+      "north_velocity_residual"
+    ],
+    "metrics_table": [
+      {"score_or_module": "vertical_rate_spike", "decision_policy": "instant", "budget_tier": "alpha=1e-5", "recall": null, "fa_per_hour": 0.00352},
+      {"score_or_module": "vertical_rate_spike", "decision_policy": "instant", "budget_tier": "alpha=1.91e-4", "recall": null, "fa_per_hour": 0.09267},
+      {"score_or_module": "vertical_rate_freeze", "decision_policy": "persistence (30s)", "budget_tier": "alpha=1.91e-4", "recall": null, "fa_per_hour": 0.00081},
+      {"score_or_module": "speed_spike", "decision_policy": "instant", "budget_tier": "alpha=1e-5", "recall": null, "fa_per_hour": 0.00429},
+      {"score_or_module": "speed_bias", "decision_policy": "persistence (30s)", "budget_tier": "alpha=5.11e-4", "recall": null, "fa_per_hour": 0.00349},
+      {"score_or_module": "heading_inconsistency", "decision_policy": "persistence (30s)", "budget_tier": "alpha=7.15e-5", "recall": null, "fa_per_hour": 0.00153},
+      {"score_or_module": "east_north_cusum_joint (Pareto V=2.0)", "decision_policy": "joint 2-axis Page-CUSUM", "budget_tier": "threshold_h=155.88 (calibration'dan türetildi)", "recall": null, "fa_per_hour": 0.00474},
+      {"score_or_module": "east_north_cusum_joint (Pareto V=5.0)", "decision_policy": "joint 2-axis Page-CUSUM", "budget_tier": "threshold_h=93.49 (calibration'dan türetildi)", "recall": null, "fa_per_hour": 0.02039},
+      {"score_or_module": "east_north_cusum_joint (Pareto V=0.1, GÜVENİLMEZ)", "decision_policy": "joint 2-axis Page-CUSUM", "budget_tier": "threshold_h=312.54 (calibration'da tek episode'a dayanıyor)", "recall": null, "fa_per_hour": 0.00122}
+    ],
+    "thresholds_or_targets": "ADR-037 Pareto ızgarası; LSTM alfa ızgarası 4→12 nokta genişletildi; CUSUM threshold_h calibration-rolü skor dağılımından türetilen 16 adaydan seçildi",
+    "gate_results": {
+      "Eşdeğerlik testi (apply_detector_profile_fast vs frozen)": "PASS (8/8 test, bit-bit aynı sonuç)"
+    },
+    "status": "development_accepted_operational_rejected",
+    "key_finding": "İki açık madde kapandı: (1) karar-katmanı ~150x hızlandı (145k satırda 17.0s→0.11s), 20x daha büyük ölçekte tekrar koşuldu; vertical_rate_spike'ın diğer kanallardan çok daha alfa-hassas olduğu bulgusu çok daha sağlam istatistikle doğrulandı. (2) east/north kanalları ilk kez ölçüldü (hazır ortak-eksen CUSUM dedektörü yeniden kullanıldı) — diğer kanallardan belirgin şekilde daha sessiz, ama en sıkı bütçe noktası tek-episode istatistiğine dayandığı için güvenilmez ilan edildi. Yeni metodoloji notu: çok gevşek alfa'da episode/saat metriği tek başına yanıltıcı olabiliyor (episode-birleştirme etkisi), alerted_flight_fraction ile birlikte okunmalı.",
+    "notes": "Raporlar: artifacts/adsb/runs/20260714_contextual_physics_v1_development_burden_v2/development_burden_curves.json, artifacts/adsb/runs/20260714_contextual_physics_v1_cusum_burden_v1/cusum_burden_report.json. Yeni kod: adsb/contextual_decision_fast.py, tests/test_adsb_contextual_decision_fast.py, scripts/adsb_contextual_physics_v1_cusum_burden.py. Hâlâ tam-hacim değil (20/216, 60/237) — sıradaki: ölçeği tekrar büyütmek, CUSUM h-ızgarasını sıkı uçta inceltmek, sonra donmuş rehearsal (rol #4)."
   }
 ]

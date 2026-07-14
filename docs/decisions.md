@@ -1540,3 +1540,71 @@ ve truth-v2 karşılaştırması (rol #6) hâlâ başlamadı.
 vektörleştirilmiş/hızlı bir yol (mevcut fonksiyon değiştirilmeden, ayrı bir performans katmanı);
 (b) east/north kanallarının accumulation profillerini eklemek; (c) ölçeği kademeli büyütmek
 (1→10→50 parça); (d) yalnız bundan sonra donmuş rehearsal'a geçmek.
+
+## ADR-041: contextual_physics_v1 — performans darboğazı çözüldü, ölçek 20x büyütüldü,
+east/north kanalları ortak Page-CUSUM ile ilk kez ölçüldü
+
+- Durum: Tamamlandı (hâlâ tam-hacim değil, ama ADR-040'ın iki açık maddesi kapandı)
+- Tarih: 2026-07-14
+
+**Karar A — performans darboğazı:** ADR-040'ın çözülmemiş bıraktığı `apply_detector_profile`
+satır-başına `.loc` atamalı Python döngüsü, dondurulmuş fonksiyon DEĞİŞTİRİLMEDEN, yanına ayrı
+bir performans katmanı olarak ele alındı: `adsb/contextual_decision_fast.py::
+apply_detector_profile_fast`. Aynı tam recurrence'ı (instant/persistence/accumulation, gap-reset
+dahil) tekrar eder ama pandas `.loc` yazma yerine düz numpy dizileri kullanır ve DataFrame'e
+sonunda TEK seferde yazar; `instant` modu için döngü tamamen gereksiz (satırlar arası durum
+taşımıyor), tam vektörize edildi. `tests/test_adsb_contextual_decision_fast.py` (8 test:
+3 mod × 2 senaryo + tek-satır uç durumu + karışık-kanal reddi) eski/yeni fonksiyonun BİT-BİT
+aynı `alarm`/`temporal_evidence`/`reset_reason` çıktısını verdiğini kanıtlıyor. Ölçüm: 300
+uçuş / 144.856 satırlık sentetik veride eski fonksiyon 17.05s, yenisi 0.11s (~150x).
+
+**Karar B — east/north kanalları:** ADR-040'ta hiç ölçülmemiş `east_velocity_residual`/
+`north_velocity_residual`, ADR-037/ADR-029'un öngördüğü ORTAK 2-eksenli Page-CUSUM ile
+ölçüldü — `adsb/cusum.py::VectorPageCUSUM`, mevcut kural-skorlayıcı hattından SIFIRDAN
+YAZILMADAN yeniden kullanıldı (`scripts/adsb_contextual_physics_v1_cusum_burden.py`, yeni).
+`threshold_h`'nin p-değeri gibi doğal bir aralığı olmadığından (config bunu açıkça "derived
+per budget_grid point from natural calibration" olarak bırakmıştı), sıra: (1) fit-rolünde
+(20 parça, 4.698.464 satır/10.671 uçuş) median/MAD kalibrasyonu — hiçbir kanal dışlanmadı;
+(2) calibration-rolünde (60 parça, 3.568.945 satır/3.158.246 değerlendirilebilir) TEK bir
+`score_rows()` geçişiyle (h'den bağımsız) skor dağılımından 16 adet h adayı türetildi ve her
+Pareto bütçe noktasına en yakın h donduruldu; (3) o donmuş h'ler development-rolünde (20 parça,
+7.763.478 satır/6.787.342 değerlendirilebilir, 15.467 uçuş, 13.928 uçuş-saat), DEĞİŞTİRİLMEDEN
+uygulandı.
+
+**Kanıt B:** Bu ortak dedektör diğer üç kanaldan (hız/yön/dikey-hız) belirgin şekilde daha
+sessiz: Pareto=2.0 hedefinde (h=155.88) development'ta 0.00474 episode/saat, Pareto=5.0'da
+(h=93.49) 0.02039 episode/saat. Kalibrasyon→development genelleme kalitesi bütçe noktasına göre
+DEĞİŞTİ: gevşek uçta (V=2.0, V=5.0) iki gün arası oran ~1.15–1.26x (iyi genelleme); en sıkı uçta
+(V=0.1, h=312.54) kalibrasyon tahmini SADECE TEK bir gözlenen episode'a dayanıyordu (0.000157/saat)
+ve development'ta ~7.8x daha yüksek çıktı (0.00122/saat) — mutlak sayılar hâlâ küçük ama bu,
+en sıkı bütçe noktasının şu ölçekte GÜVENİLİR olmadığının açık kanıtı.
+
+**Kanıt A (büyütülmüş ölçek, 3 kanal):** Aynı 3 kanal (hız/yön/dikey-hız), development parçası
+1→20'ye, alfa ızgarası 4→12 noktaya çıkarıldı (7.252.704 skorlanabilir pencere, ~14.800–16.300
+uçuş-saat/kanal — ADR-040'ın 704 uçuşuna göre ~20x). ADR-040'ın "vertical_rate_spike diğerlerinden
+çok daha alfa-hassas" bulgusu ÇOK daha sağlam istatistikle doğrulandı: alfa=1.91e-4'te
+`vertical_rate_spike` 0.0927/saat iken aynı alfa'da `heading_inconsistency` 0.0040/saat,
+`speed_bias` 0.0010/saat — ~10-90x fark. Pareto=1.0 hedefine en yakın noktalar: vertical_rate_spike
+alfa=1e-5→0.0035/saat (izgaranın en sıkı ucu bile hedefin üstünde kalıyor), vertical_rate_freeze
+alfa=1.91e-4→0.0008/saat, speed_spike alfa=1e-5→0.0043/saat, speed_bias alfa=5.11e-4→0.0035/saat,
+heading_inconsistency alfa=7.15e-5→0.0015/saat.
+
+**Yeni, beklenmedik gözlem:** Çok gevşek alfa'larda (0.187→0.5) episode/saat sayısı bazı
+profillerde DÜŞÜYOR (ör. vertical_rate_spike 14.92→7.46/saat) — bu alarmın azaldığı anlamına
+gelmiyor; `alerted_flight_fraction` aynı aralıkta hâlâ artıyor (%98→%99). Neredeyse her satırın
+alarm verdiği rejimde, 60 saniyelik episode-birleştirme kuralı çok sayıda ardışık satırı TEK
+uzun episode'a indiriyor — episode/saat metriği tek başına gevşek alfa ucunda yanıltıcı,
+`alerted_flight_fraction` ile birlikte okunmalı. Kayıt altına alınan bir metodoloji notu, bir
+model/decision değişikliği değil.
+
+**Bilinen, dürüstçe beyan edilen kalan boşluklar:** (1) hâlâ tam-hacim değil — LSTM tarafı
+20/216 development parçası, CUSUM tarafı aynı 20/216 + 60/237 calibration; (2) CUSUM'un h
+adayları yalnız 16 noktalık bir quantile ızgarası — en sıkı Pareto noktasında (V=0.1) tek-episode
+istatistiğine dayandığı için bu nokta GÜVENİLMEZ ilan edildi, kullanılmamalı; (3) donmuş rehearsal
+(rol #4) ve truth-v2 karşılaştırması (rol #6) hâlâ başlamadı; (4) `apply_detector_profile_fast`
+sadece decision-katmanını hızlandırıyor — LSTM forward-pass ve pencereleme adımları ayrı, onlar
+zaten `_score_batched`/parça-parça yükleme ile bellek-güvenli ama hız-optimize değil.
+
+**Açık madde:** Sıradaki adım: (a) ölçeği tekrar büyütmek (20→50→tam 216/237 parça); (b) CUSUM
+h-adayları ızgarasını sıkı uçta daha ince hale getirmek (daha fazla calibration parçası, en sıkı
+Pareto noktası için); (c) yalnız bundan sonra donmuş rehearsal'a (rol #4) geçmek.

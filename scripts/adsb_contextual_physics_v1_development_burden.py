@@ -9,10 +9,11 @@ Bu bir arama/optimizasyon DEGIL -- sabit bir izgarada olcum. ADR-037'nin Pareto
 bütçe noktalari icin gereken alfa, bu egriden INTERPOLASYONLA okunur, sonuca gore
 YENIDEN aranmaz.
 
-Bilinen basitlestirme (durustce beyan): east/north velocity residual, ADR-037/ADR-029'un
-tasarladigi ORTAK 2-eksenli Page-CUSUM yerine, mevcut adsb/contextual_decision.py'nin
-TEK-kanalli accumulation modu ile AYRI AYRI olculuyor -- ortak-eksen CUSUM'u buraya
-kablolamak ayri bir is, burada YAPILMADI.
+east/north velocity residual bu script'te YOK -- ADR-037/ADR-029'un tasarladigi ORTAK
+2-eksenli Page-CUSUM'u kullanirlar (adsb/cusum.py::VectorPageCUSUM, mevcut kural-skorlayici
+hattindan), tek-kanalli instant/persistence/accumulation profil semasina uymazlar. Onlarin
+dogal-yuk olcumu ayri bir script'te: scripts/adsb_contextual_physics_v1_cusum_burden.py
+(ADR-041).
 
 Kullanim:
     python scripts/adsb_contextual_physics_v1_development_burden.py
@@ -36,7 +37,8 @@ from adsb.conditional_calibration import (  # noqa: E402
     NATURAL_CALIBRATION_ROLE,
 )
 from adsb.context import CausalContextConfig  # noqa: E402
-from adsb.contextual_decision import ChannelAlertBudget, DetectorProfile, apply_detector_profile  # noqa: E402
+from adsb.contextual_decision import ChannelAlertBudget, DetectorProfile  # noqa: E402
+from adsb.contextual_decision_fast import apply_detector_profile_fast  # noqa: E402
 from adsb.contextual_scaling import StrictNaturalRobustScaler, StrictScalingConfig  # noqa: E402
 from adsb.contextual_windowing import build_contextual_forecast_windows  # noqa: E402
 from adsb.evaluation import EpisodeContract, natural_alert_burden  # noqa: E402
@@ -56,19 +58,22 @@ CALIBRATION_DAY = "2026-02-28"
 DEVELOPMENT_DAY = "2026-03-01"
 SEGMENT_GAP_S = 1800.0
 N_PARTS_CALIBRATION = 60   # ayni ADR-039'daki kesif olcegi
-N_PARTS_DEVELOPMENT = 1    # kesif olcegi -- 216/216 degil. apply_detector_profile'in
-                            # satir-basina .loc atamali Python dongusu, sweep (8 alfa x 5
-                            # profil) icin cok yavas cikti (2.1M satirda 15dk+ surdu, tek
-                            # kanal bile bitmedi) -- bu bilinen bir performans sinirlamasi,
-                            # burada COZULMEDI, yalniz olcek kuculterek etrafindan gecildi.
+N_PARTS_DEVELOPMENT = 20   # ADR-040'ta 1'e kadar kucultulmustu (apply_detector_profile'in
+                            # satir-basina .loc atamali Python dongusu 2.1M satirda 15dk+
+                            # surup bitmiyordu). adsb/contextual_decision_fast.py bu turdan
+                            # itibaren kullaniliyor (dogrulanmis bit-bit esdegerlik,
+                            # tests/test_adsb_contextual_decision_fast.py; ~150x hiz kazanci,
+                            # 145k satirda 17.0s -> 0.11s) -- 216/216 degil hala, ama artik
+                            # performans nedeniyle degil, tek-oturum zaman butcesi nedeniyle.
 MIN_GROUP_SIZE = 1000
 HISTORY_ROWS = 12
 PERSISTENCE_WINDOW_S = 30.0  # ADR-037
 
-# Sonuca bakilmadan secilmis, log-spaced alfa izgarasi.
-ALPHA_GRID = tuple(np.geomspace(1e-5, 0.5, 4).tolist())
+# Sonuca bakilmadan secilmis, log-spaced alfa izgarasi (4 -> 12 nokta, ADR-041: hizli
+# fonksiyon artik daha genis bir izgarayi pratik kiliyor).
+ALPHA_GRID = tuple(np.geomspace(1e-5, 0.5, 12).tolist())
 
-OUT_DIR = Path("artifacts/adsb/runs/20260714_contextual_physics_v1_development_burden_v1")
+OUT_DIR = Path("artifacts/adsb/runs/20260714_contextual_physics_v1_development_burden_v2")
 
 
 def _context_config() -> CausalContextConfig:
@@ -238,8 +243,9 @@ def main() -> None:
         "n_calibration_parts_used": len(cal_paths), "n_development_parts_used": len(dev_paths),
         "alpha_grid": list(ALPHA_GRID),
         "pareto_grid_episodes_per_100h": pareto_grid,
-        "known_simplification": "east/north velocity residual accumulation measured PER-CHANNEL, "
-                                 "not via the joint 2-axis Page-CUSUM specified in ADR-037/ADR-029.",
+        "known_simplification": "east/north velocity residual not covered here -- see "
+                                 "scripts/adsb_contextual_physics_v1_cusum_burden.py (ADR-041), "
+                                 "which uses the joint 2-axis Page-CUSUM per ADR-037/ADR-029.",
         "channels": {},
     }
 
@@ -260,7 +266,7 @@ def main() -> None:
         for profile in profiles:
             curve = []
             for alpha in ALPHA_GRID:
-                decided = apply_detector_profile(
+                decided = apply_detector_profile_fast(
                     channel_scored, profile=profile,
                     budget=ChannelAlertBudget(total_alpha=alpha, channel_alpha={channel: alpha}),
                 )
