@@ -12,8 +12,10 @@ import argparse
 from concurrent.futures import ProcessPoolExecutor
 import json
 import math
+import os
 import re
 import sys
+import time
 from collections import Counter
 from pathlib import Path
 from typing import Any, Mapping
@@ -463,6 +465,17 @@ def _process_silver_part(task: tuple[int, dict[str, Any], tuple[str, ...]]) -> d
     """Read, validate and summarize one Silver part without shared state."""
 
     part_number, item, read_columns = task
+    profile = os.environ.get("ADSB_S2_PROFILE_PART") == str(part_number)
+    started = time.perf_counter()
+
+    def mark(stage: str) -> None:
+        if profile:
+            print(
+                f"S2 profile part={part_number} stage={stage} "
+                f"elapsed_s={time.perf_counter() - started:.3f}",
+                flush=True,
+            )
+
     path = Path(item["path"])
     expected = item["record"]
     stat_before = path.stat()
@@ -472,6 +485,7 @@ def _process_silver_part(task: tuple[int, dict[str, Any], tuple[str, ...]]) -> d
     ):
         raise ValueError(f"Silver input changed before Step-6 read: {path}")
     frame = pd.read_parquet(path, columns=list(read_columns))
+    mark("read_parquet")
     if len(frame) != expected["footer_rows"]:
         raise ValueError(f"Silver read/footer row mismatch: {path}")
     source_files = frame["_source_file"].dropna().astype(str).unique()
@@ -485,12 +499,14 @@ def _process_silver_part(task: tuple[int, dict[str, Any], tuple[str, ...]]) -> d
     source_ids = tuple(sorted(frame["source_id"].astype(str).unique()))
     segmented = segment_flights(frame, gap_s=SEGMENT_GAP_S)
     segmented["flight_id"] = day + ":" + segmented["flight_id"].astype(str)
+    mark("segment_flights")
     summary = summarize_s2_part(
         segmented,
         scoreable_max_gap_s=SCOREABLE_MAX_GAP_S,
         message_gap_threshold_s=MESSAGE_GAP_THRESHOLD_S,
         freshness_max_age_s=FRESHNESS_MAX_AGE_S,
     )
+    mark("summarize_s2_part")
     stat_after = path.stat()
     if (
         stat_after.st_size != stat_before.st_size
