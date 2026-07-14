@@ -26,6 +26,19 @@ Bilimsel config veya threshold henüz donmadı. Kullanıcı toplam operasyonel a
 bütçesini ve channel paylarını sayısal olarak tanımlamadan gerçek normal fit/calibration veya
 truth-v2 evaluation başlatılmaz. Holdout havuzu hâlâ açılmadı.
 
+### Contextual normal-only eğitim sonucu
+
+Kullanıcının eğitim onayıyla `20260714_contextual_physics_v1_train_v1` koşusu tamamlandı.
+2.929 fit uçuş / 1.267.625 satır seçildi; beş epoch'un her biri 1.180.160 pencere gördü ve loss
+0,795375'ten 0,708696'ya düştü. Ayrık 770 calibration diagnostic uçuşunda 332.510 pencere için
+trained-vs-untrained/magnitude rho 0,649633/0,654240; magnitude flag false oldu. Checkpoint
+strict yeniden yüklendi, tüm 9.546 parametre sonlu ve checksum indexi 5/5 PASS'tir. ADR-035 tam
+kanıt/hash zincirini kaydeder.
+
+Modelin durumu `trained_not_thresholded` olarak kalır. Sentetik fit/calibration sıfır; truth-v2,
+development, rehearsal ve üçlü holdout havuzu açılmadı. Sıradaki zorunlu kullanıcı kararı sayısal
+operasyonel alarm bütçesi ve channel paylarıdır.
+
 ## 2026-07-14 devam sonucu
 
 - Deterministik 4-worker ve vektörize S2 runner gerçek 365.847 satırlık parçada yaklaşık
