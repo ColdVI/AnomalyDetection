@@ -1278,3 +1278,34 @@ Adım 9 holdout freeze/unseal işine geçilmedi; üç raw tar açılmadı veya h
 karşılaştırması için ya gerçek frozen features.py byte snapshot'ı dış kaynaktan geri
 getirilmeli ya da mevcut code version açıkça yeni bir aday olarak baştan natural calibration
 ve truth-v2 akışından geçirilmelidir; mevcut Step-5 adayı adına post-hoc ikame yapılamaz.
+
+## ADR-033: Contextual-physics v1 ayrı aday altyapısı; sayısal alarm bütçesi bekleniyor
+
+- Durum: Yapısal sözleşme ve test altyapısı kabul edildi; bilimsel config/threshold donmadı
+- Tarih: 2026-07-14
+
+**Karar:** Kullanıcının anomaly türü özelinde threshold ve heterojen normal-uçuş dağılımı
+araştırmasını uygulama onayıyla `contextual_physics_v1` ayrı aday namespace'i açıldı. Eski
+Step-5/Step-7 artefaktı değiştirilmedi. Uçuş fazı yalnız geçmiş vertical-rate satırlarından
+nedensel çıkarılır; track sin/cos, gerçek delta-t ve cadence açık girdidir. NN ham telemetriyi
+reconstruct etmek yerine residual kanal başına next-step location/scale üretir. Strict scaler
+MAD=0 kanalı floorsuz dışlar. Natural-only hierarchical conformal calibration
+`channel+phase+cadence -> channel+phase -> channel` fallback uygular. Spike, persistence ve
+saniye-normalize accumulation profilleri ile channel alpha payları ayrı tutulur; sessiz fusion
+yasaktır.
+
+**Kanıt:** Yeni uygulama `adsb/context.py`, `adsb/contextual_scaling.py`,
+`adsb/contextual_windowing.py`, `adsb/conditional_calibration.py`,
+`adsb/contextual_decision.py` ve `adsb/models/contextual_residual_forecaster.py` içindedir.
+Sentetik fit/calibration, yanlış veri rolü, implicit alpha, toplam bütçeyi aşan channel payı,
+MAD=0 floor, karışık-channel fusion, geleceğe bakan phase ve uçuşlar-arası pencere geçişi
+fail-closed test edilir. Yeni hedefli test paketi **21/21 geçti**. Geniş ADS-B/parser regresyonu
+**242 geçti / 1 deselect** ile tamamlandı; deselect yalnız ADR-032'de kayıtlı kayıp frozen
+`features.py` hash testidir. Bu sayılar yalnız yazılım/smoke kanıtıdır; gerçek-veri detection
+metriği değildir.
+
+**Açık madde:** Toplam operasyonel alert-alpha/burden bütçesi ve sayısal config kullanıcı
+tarafından henüz dondurulmadı. Bu nedenle gerçek normal fit/calibration, truth-v2 evaluation,
+aday terfisi ve holdout erişimi yapılmadı. Açık sayılar
+`docs/adsb_contextual_candidate_v1_prereg_2026-07-14.md` içinde listelenmiştir; sonuç görülerek
+aynı namespace'te doldurulamaz.

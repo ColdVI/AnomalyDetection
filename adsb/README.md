@@ -54,3 +54,13 @@ doğrulaması. Galeri (madde 3) ve tam-hacim eğitim hâlâ bekliyor.
 Önceki ADS-B kodu ve sonuçları
 `archive/2026-07-10_rejected_adsb_attempts/` altındadır. Yeni çalışma onların devamı
 değildir.
+
+## 2026-07-14 yeni aday yönü
+
+Step-7 ana freeze gate'inin FAIL olmasından sonra kullanıcı, anomaly-channel ve normal-bağlam
+özelinde ayrı threshold araştırmasının uygulanmasını açıkça onayladı. Yeni çalışma
+`contextual_physics_v1` adıyla ayrı adaydır; sözleşmesi
+`docs/adsb_contextual_candidate_v1_prereg_2026-07-14.md` içindedir. Nedensel bağlam,
+conditional conformal calibration, ayrı temporal decision profilleri ve residual forecaster
+altyapısı yazılmıştır. Operasyonel alarm bütçesi henüz sayısal olarak kullanıcı tarafından
+dondurulmadığı için gerçek threshold calibration/evaluation koşusu başlatılmaz.
