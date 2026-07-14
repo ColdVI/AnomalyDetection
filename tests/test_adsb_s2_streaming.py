@@ -231,6 +231,55 @@ def _silver_frame(source_day: str) -> pd.DataFrame:
     )
 
 
+def _worker_item(path: Path, day: str) -> dict:
+    stat = path.stat()
+    return {
+        "path": path,
+        "day_from_role": day,
+        "record": {
+            "bytes": stat.st_size,
+            "mtime_ns": stat.st_mtime_ns,
+            "footer_rows": 1,
+        },
+    }
+
+
+def test_parallel_part_processing_matches_single_worker_in_input_order(tmp_path: Path):
+    paths = []
+    for index, day in enumerate((reporter.FIT_DAY, reporter.DEVELOPMENT_DAY)):
+        path = tmp_path / f"part-{index}.parquet"
+        frame = _silver_frame(day)
+        frame["source_id"] = f"source-{index}"
+        frame.to_parquet(path, index=False)
+        paths.append(_worker_item(path, day))
+
+    kwargs = {
+        "silver_inputs": paths,
+        "read_columns": tuple(reporter.S2_COLUMNS),
+    }
+    single = list(reporter._iter_silver_part_results(**kwargs, n_jobs=1))
+    parallel = list(reporter._iter_silver_part_results(**kwargs, n_jobs=2))
+
+    assert parallel == single
+    assert [item["part_number"] for item in parallel] == [0, 1]
+    assert [item["day"] for item in parallel] == [
+        reporter.FIT_DAY,
+        reporter.DEVELOPMENT_DAY,
+    ]
+
+
+@pytest.mark.parametrize("n_jobs", [0, reporter.MAX_N_JOBS + 1, True, 1.5])
+def test_parallel_worker_count_is_bounded_and_typed(n_jobs):
+    with pytest.raises((TypeError, ValueError)):
+        list(
+            reporter._iter_silver_part_results(
+                [],
+                read_columns=tuple(reporter.S2_COLUMNS),
+                n_jobs=n_jobs,
+            )
+        )
+
+
 def test_transitive_silver_verification_accepts_legacy_and_rejects_partial_schema(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):

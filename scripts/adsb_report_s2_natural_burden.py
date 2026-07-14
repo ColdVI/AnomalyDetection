@@ -9,6 +9,7 @@ metadata and are therefore reported as ``freshness_unknown`` by design.
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ProcessPoolExecutor
 import json
 import math
 import re
@@ -60,6 +61,8 @@ SEGMENT_GAP_S = 1800.0
 SCOREABLE_MAX_GAP_S = 60.0
 MESSAGE_GAP_THRESHOLD_S = 60.0
 FRESHNESS_MAX_AGE_S = 60.0
+DEFAULT_N_JOBS = 4
+MAX_N_JOBS = 8
 SILVER_RELATIVE_DIR = Path("data/objectstore/silver/adsblol_historical")
 SOURCE_DAY_RE = re.compile(r"v(?P<year>\d{4})\.(?P<month>\d{2})\.(?P<day>\d{2})")
 STEP5_COMPLETION_FILES = (
@@ -456,7 +459,92 @@ def write_json_exclusive(path: Path, payload: Mapping[str, Any]) -> None:
         handle.write("\n")
 
 
-def run(*, repo_root: Path, baseline_manifest: Path, run_dir: Path) -> dict:
+def _process_silver_part(task: tuple[int, dict[str, Any], tuple[str, ...]]) -> dict[str, Any]:
+    """Read, validate and summarize one Silver part without shared state."""
+
+    part_number, item, read_columns = task
+    path = Path(item["path"])
+    expected = item["record"]
+    stat_before = path.stat()
+    if (
+        stat_before.st_size != expected["bytes"]
+        or stat_before.st_mtime_ns != expected["mtime_ns"]
+    ):
+        raise ValueError(f"Silver input changed before Step-6 read: {path}")
+    frame = pd.read_parquet(path, columns=list(read_columns))
+    if len(frame) != expected["footer_rows"]:
+        raise ValueError(f"Silver read/footer row mismatch: {path}")
+    source_files = frame["_source_file"].dropna().astype(str).unique()
+    if len(source_files) != 1 or frame["_source_file"].isna().any():
+        raise ValueError(f"Invalid part provenance: {path}")
+    day = source_day(source_files[0])
+    if day != item["day_from_role"]:
+        raise ValueError(f"Step-5 role/source-day mismatch: {path}")
+    if frame["source_id"].isna().any():
+        raise ValueError(f"source_id cannot be null: {path}")
+    source_ids = tuple(sorted(frame["source_id"].astype(str).unique()))
+    segmented = segment_flights(frame, gap_s=SEGMENT_GAP_S)
+    segmented["flight_id"] = day + ":" + segmented["flight_id"].astype(str)
+    summary = summarize_s2_part(
+        segmented,
+        scoreable_max_gap_s=SCOREABLE_MAX_GAP_S,
+        message_gap_threshold_s=MESSAGE_GAP_THRESHOLD_S,
+        freshness_max_age_s=FRESHNESS_MAX_AGE_S,
+    )
+    stat_after = path.stat()
+    if (
+        stat_after.st_size != stat_before.st_size
+        or stat_after.st_mtime_ns != stat_before.st_mtime_ns
+        or stat_after.st_size != expected["bytes"]
+        or stat_after.st_mtime_ns != expected["mtime_ns"]
+    ):
+        raise ValueError(f"Silver input changed during Step-6 read: {path}")
+    return {
+        "part_number": part_number,
+        "path_name": path.name,
+        "day": day,
+        "source_ids": source_ids,
+        "summary": summary,
+    }
+
+
+def _validate_n_jobs(n_jobs: int) -> int:
+    if isinstance(n_jobs, bool) or not isinstance(n_jobs, int):
+        raise TypeError("n_jobs must be an integer")
+    if not 1 <= n_jobs <= MAX_N_JOBS:
+        raise ValueError(f"n_jobs must be between 1 and {MAX_N_JOBS}")
+    return n_jobs
+
+
+def _iter_silver_part_results(
+    silver_inputs: list[dict[str, Any]],
+    *,
+    read_columns: tuple[str, ...],
+    n_jobs: int,
+):
+    """Yield part summaries in exact input order for one or many workers."""
+
+    _validate_n_jobs(n_jobs)
+    tasks = [
+        (part_number, item, read_columns)
+        for part_number, item in enumerate(silver_inputs)
+    ]
+    if n_jobs == 1:
+        for task in tasks:
+            yield _process_silver_part(task)
+        return
+    with ProcessPoolExecutor(max_workers=n_jobs) as executor:
+        yield from executor.map(_process_silver_part, tasks, chunksize=1)
+
+
+def run(
+    *,
+    repo_root: Path,
+    baseline_manifest: Path,
+    run_dir: Path,
+    n_jobs: int = DEFAULT_N_JOBS,
+) -> dict:
+    _validate_n_jobs(n_jobs)
     root = repo_root.resolve(strict=True)
     destination = run_dir.resolve(strict=False)
     if destination.exists():
@@ -507,8 +595,16 @@ def run(*, repo_root: Path, baseline_manifest: Path, run_dir: Path) -> dict:
             "all update metadata absent => freshness_unknown; partial schema fails closed"
         ),
         "memory_contract": (
-            "one Parquet part plus O(unique source_id) ownership and O(part count) summaries"
+            "at most n_jobs Parquet parts plus O(unique source_id) ownership and "
+            "O(part count) summaries"
         ),
+        "execution": {
+            "engine": "deterministic_process_pool",
+            "n_jobs": n_jobs,
+            "worker_unit": "one_silver_part",
+            "result_order": "immutable_step5_input_order",
+            "scientific_result_must_match_single_worker": True,
+        },
         "holdout_access": "forbidden",
     }
     config_sha256 = sha256_json(config)
@@ -528,48 +624,25 @@ def run(*, repo_root: Path, baseline_manifest: Path, run_dir: Path) -> dict:
     summaries_by_day: dict[str, list[dict]] = {day: [] for day in OPEN_DAYS}
     owners: dict[tuple[str, str], str] = {}
     observed_part_counts: Counter[str] = Counter()
-    for part_number, item in enumerate(silver_inputs):
-        path = item["path"]
-        expected = item["record"]
-        stat_before = path.stat()
-        frame = pd.read_parquet(path, columns=read_columns)
-        if len(frame) != expected["footer_rows"]:
-            raise ValueError(f"Silver read/footer row mismatch: {path}")
-        source_files = frame["_source_file"].dropna().astype(str).unique()
-        if len(source_files) != 1 or frame["_source_file"].isna().any():
-            raise ValueError(f"Invalid part provenance: {path}")
-        day = source_day(source_files[0])
-        if day != item["day_from_role"]:
-            raise ValueError(f"Step-5 role/source-day mismatch: {path}")
-        if frame["source_id"].isna().any():
-            raise ValueError(f"source_id cannot be null: {path}")
-        for source_id in frame["source_id"].astype(str).unique():
+    results = _iter_silver_part_results(
+        silver_inputs,
+        read_columns=tuple(read_columns),
+        n_jobs=n_jobs,
+    )
+    for completed, result in enumerate(results, start=1):
+        part_number = result["part_number"]
+        if part_number != completed - 1:
+            raise ValueError("Parallel Step-6 result order differs from immutable input order")
+        day = result["day"]
+        for source_id in result["source_ids"]:
             key = (day, source_id)
             if key in owners:
                 raise ValueError(f"(day, source_id) spans parts: {key}")
-            owners[key] = path.name
-        segmented = segment_flights(frame, gap_s=SEGMENT_GAP_S)
-        segmented["flight_id"] = day + ":" + segmented["flight_id"].astype(str)
-        summaries_by_day[day].append(
-            summarize_s2_part(
-                segmented,
-                scoreable_max_gap_s=SCOREABLE_MAX_GAP_S,
-                message_gap_threshold_s=MESSAGE_GAP_THRESHOLD_S,
-                freshness_max_age_s=FRESHNESS_MAX_AGE_S,
-            )
-        )
+            owners[key] = result["path_name"]
+        summaries_by_day[day].append(result["summary"])
         observed_part_counts[day] += 1
-        stat_after = path.stat()
-        if (
-            stat_after.st_size != stat_before.st_size
-            or stat_after.st_mtime_ns != stat_before.st_mtime_ns
-            or stat_after.st_size != expected["bytes"]
-            or stat_after.st_mtime_ns != expected["mtime_ns"]
-        ):
-            raise ValueError(f"Silver input changed during Step-6 read: {path}")
-        del frame, segmented
-        if (part_number + 1) % 50 == 0:
-            print(f"S2 progress: {part_number + 1}/{len(silver_inputs)}", flush=True)
+        if completed % 25 == 0 or completed == len(silver_inputs):
+            print(f"S2 progress: {completed}/{len(silver_inputs)}", flush=True)
 
     if dict(observed_part_counts) != EXPECTED_PARTS_BY_DAY:
         raise ValueError(f"S2 part totals changed: {dict(observed_part_counts)}")
@@ -655,6 +728,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--run-dir", type=Path, required=True)
     parser.add_argument("--baseline-manifest", type=Path, required=True)
     parser.add_argument("--repo-root", type=Path, default=Path(__file__).parent.parent)
+    parser.add_argument("--n-jobs", type=int, default=DEFAULT_N_JOBS)
     return parser.parse_args()
 
 
@@ -664,6 +738,7 @@ def main() -> int:
         repo_root=args.repo_root,
         baseline_manifest=args.baseline_manifest,
         run_dir=args.run_dir,
+        n_jobs=args.n_jobs,
     )
     print(args.run_dir / "s2_natural_burden_report.json")
     return 0
