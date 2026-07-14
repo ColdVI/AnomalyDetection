@@ -1187,3 +1187,94 @@ değişmezliği true ve rehearsal geri-beslemesi false'tur.
 ADR anında ölçülmedi. S2 doğal burden ve corrected CUSUM değerlendirmesi tamamlanacak; Adım 7
 incelemesinde mevcut doygunluk nedeniyle freeze önerilmeyecek. Yeni h/bütçe seçimi bu sonuçlara
 bakılarak bu run içinde yapılamaz; kullanıcı onaylı yeni ön-kayıt ve yeni namespace gerektirir.
+
+## ADR-031: Tam-hacim S2 doğal reason burden; residual penalty'den ayrı
+
+- Durum: Kanıt olarak kabul edildi; Adım 7 gate kararı bekleniyor
+- Tarih: 2026-07-14
+
+**Karar:** S2 declared-status, position-quality, altitude-availability ve message-gap kanalları
+residual penalty/CUSUM'dan ayrı tutuldu; saldırı ground-truth'u veya false-positive oranı diye
+adlandırılmadı. Legacy Silver'da update-age alanları bulunmadığı için tüm 256.155.009 satır
+freshness_unknown kaldı; eşleşen squawk/emergency değerleri fresh varsayılıp corroborated
+yapılmadı. State reason'ları yalnız gerçek rising edge'de, MESSAGE_GAP ise her post-gap satırında
+point event olarak sayıldı.
+
+**Kanıt:** artifacts/adsb/runs/20260714_step6_s2_natural_v4 koşusu 4 deterministik worker ile
+638/638 parçayı ve 256.155.009 satırı 272,2 saniyede exit 0 ile tamamladı. Gün bazında
+satır/uçuş/scoreable-saat değerleri 2026-02-28 için
+88.762.032 / 195.580 / 172.927,359925; 2026-03-01 için
+85.991.023 / 181.828 / 168.752,015006; 2026-03-16 için
+81.401.954 / 165.053 / 155.891,525003'tür. Pooled toplam 542.461 uçuş segmenti ve
+497.570,899933 scoreable uçuş-saattir.
+
+Pooled doğal reason burden: MESSAGE_GAP **2,890511 episode/saat**; NIC
+reported-unknown/unavailable **0,528053/saat**; NACp missing **0,195202/saat**; SIL missing
+**0,195202/saat**; all-altitude-unavailable **0,005083/saat**; declared-status
+not-corroborated **0,000330/saat**. MESSAGE_GAP günler arasında
+2,899321 / 2,811996 / 2,965729 episode/saat; NIC unknown
+0,608492 / 0,499870 / 0,469333 episode/saat oldu. Bu değerler nominal operasyonel
+reason burden'dır, anomali etiketi değildir.
+
+run_manifest.json SHA-256
+ac60638bbc708064f25f535141a35e0f724674722620648c253724ecc604b15b,
+s2_natural_burden_report.json SHA-256
+4ddb42293c4f0d6d89b7dec19631b9ff8a3a9a87c888b5878d105474bb6edb53 ve
+artifact_checksums.json SHA-256
+12ea24922a4ee96e16869bde8c461578b39a689915c5c23652175afb0b1f9214'tür. Checksum indexindeki
+2/2 dosyanın byte/SHA değerleri yeniden doğrulandı; holdout_accessed=false'tur. İlgili
+segmentation/S2/parser regresyonu **54/54 geçti**. Önceki v1/v2/v3 namespace'leri incomplete
+marker ile geçersizdir ve yeniden kullanılmayacaktır.
+
+**Açık madde:** Adım 7 corrected CUSUM truth-v2 değerlendirmesi henüz tamamlanmadı. Geniş
+regresyonda 221/222 test geçti; tek hata Step-5 manifestindeki donmuş adsb/features.py byte
+hash'inin güncel checkout ile eşleşmemesidir. Bu fail-closed engel çözülmeden hash kontrolü
+gevşetilmeyecek, corrected CUSUM iddiası kurulmayacak ve ana konfigürasyon dondurulmayacaktır.
+
+## ADR-032: Adım 7 gate FAIL; ana konfigürasyon dondurulmadı
+
+- Durum: Gate tamamlandı — FAIL / kullanıcı sert durma noktası
+- Tarih: 2026-07-14
+
+**Karar:** Rule+CUSUM/S2 ana konfigürasyonu dondurulmadı. Adım 7'nin zorunlu kanıtlarından
+provenance ve S2 tamdır; fakat CUSUM doğal alarm doygunluğu operasyonel gate'i geçmez, üç NN
+magnitude şartını geçmez ve corrected CUSUM truth-v2 ölçümü frozen scoring-source snapshot'ı
+geri getirilemediği için fail-closed blokludur. Bu üç koşuldan herhangi biri freeze'i engellemeye
+yeterlidir. Sonuçlara bakılarak yeni h/eşik seçilmedi.
+
+**Gate kanıtı:**
+
+- Truth-v2 kuralı corrected etiketlerle tamamlandı: pooled AUROC/AUPRC
+  0,764883/0,883313. Ground-speed event recall 0,963659 (medyan 19,31 s), track recall
+  0,951804 (56,75 s); stealthy ramp event recall 0,801347 görünse de aktif-aralık micro
+  coverage yalnız 0,183902'dir. Aynı blok temiz doğal burden 4,808533 episode/saat ile
+  eşlenmiştir.
+- Tam-hacim CUSUM h=1 calibration/development/rehearsal burden
+  6,071336/5,738076/5,326149 episode/saat görünürken scoreable-flight alarm oranı
+  0,991196/0,991636/0,991540 ve evaluable-row alarm oranı yaklaşık
+  0,78282/0,77709/0,80189'dur. Episode merge doygunluğu gizlemektedir. Cadence tabakaları
+  arasında yaklaşık 2,1–2,5 kat fark vardır.
+- S2 v4 provenance ve doğal burden ADR-031'de PASS'tir. MESSAGE_GAP gün burden'ı
+  2,899321/2,811996/2,965729 episode/saat; NIC unknown
+  0,608492/0,499870/0,469333 episode/saat oldu. Bu S2 reason'ları saldırı etiketi değildir.
+- Dense-AE, LSTM-AE ve LSTM-forecaster magnitude-domination kontrolünde sırasıyla yaklaşık
+  rho 0,86/0,90; 0,84/0,89; 0,94/0,92 ile FLAGGED'dir. Pooled tarihsel label-bugged AUC'ler
+  0,572/0,568/0,552'dir; corrected checkpoint rescore yoktur.
+- Step-5 artefakt/hash zinciri ve Step-6 v4 checksum zinciri PASS'tir. Step-7 evaluator,
+  frozen scoring dependency byte kontrolünde doğru biçimde durur. adsb/cusum.py canonical-LF
+  SHA-256 değeri manifestteki 44b87b2a983ce5775ca3d609a79570a83ce0a3df0d28840cc365e558927ffe61
+  ile eşleşir; fark yalnız checkout EOL'üdür. adsb/features.py ise canonical-LF
+  cacb7febcab35c57849fe0d1cd3853e7346fc10b81d13ca7057618780b4e1470 olup frozen
+  37eae2b84927b3d07b7a2b281dcd073f18e874338cb740ab522a7dfb83ed2fc4 ile eşleşmez.
+  3–15 KB aralığındaki 735 yerel Git blob adayında frozen SHA-256 bulunamadı. Hash kontrolü
+  gevşetilmedi ve current-code sonucu corrected frozen-CUSUM diye sunulmadı.
+
+**Sonuç:** Genel Adım 7 gate **FAIL**. Ana config freeze yoktur. Adım 8'in “yalnız Adım 7
+stabilse” önkoşulu sağlanmadığı için Dense-AE 4x treatment ve USAD smoke testi başlatılmadı.
+Adım 9 holdout freeze/unseal işine geçilmedi; üç raw tar açılmadı veya hashlenmedi.
+
+**Açık madde / sonraki kullanıcı kararı:** Yeni CUSUM adayı ancak kullanıcı-onaylı yeni
+ön-kayıt, operasyonel burden bütçesi ve yeni namespace ile seçilebilir. Corrected CUSUM
+karşılaştırması için ya gerçek frozen features.py byte snapshot'ı dış kaynaktan geri
+getirilmeli ya da mevcut code version açıkça yeni bir aday olarak baştan natural calibration
+ve truth-v2 akışından geçirilmelidir; mevcut Step-5 adayı adına post-hoc ikame yapılamaz.

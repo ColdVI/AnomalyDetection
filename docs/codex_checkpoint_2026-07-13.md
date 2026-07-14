@@ -2,13 +2,26 @@
 
 ## Durum
 
-Çalışma kullanıcı isteğiyle güvenli biçimde duraklatıldı. Kaldığı yerden devam edilebilir.
-Adım 1–5 tamamlandı ve karar kayıtları docs/decisions.md içinde ADR-026–ADR-030 olarak
-bulunuyor. Adım 6 kodu ve testleri hazır; tam-hacim ölçümü tamamlanmadı. Adım 7 gate
-incelemesi bu nedenle henüz kapanmadı.
+2026-07-14 devam turunda Adım 6 ve Adım 7 tamamlandı. Karar kayıtları docs/decisions.md
+içinde ADR-026–ADR-032 olarak bulunuyor. Adım 6 tam-hacim S2 v4 koşusu PASS, Adım 7 genel
+gate kararı FAIL'dir. Çalışma kullanıcı sert durma noktasındadır.
 
 Ana konfigürasyon dondurulmadı. Adım 8 Dense-AE/USAD başlatılmadı. Adım 9 holdout freeze
 başlatılmadı; Downloads/raw/archive ve üç kör holdout tarının içeriği açılmadı.
+
+## 2026-07-14 devam sonucu
+
+- Deterministik 4-worker ve vektörize S2 runner gerçek 365.847 satırlık parçada yaklaşık
+  1,5 saniye ölçüldü; hedefli segmentation/S2/parser testleri 54/54 geçti.
+- artifacts/adsb/runs/20260714_step6_s2_natural_v4 koşusu 638/638 parça ve
+  256.155.009 satırı 272,2 saniyede exit 0 ile tamamladı. Checksum indexi 2/2 doğrulandı.
+- ADR-031 S2 doğal reason burden'ı kaydeder; residual/CUSUM ile birleştirme ve saldırı
+  ground-truth iddiası yoktur.
+- ADR-032 Adım 7 gate kararını FAIL olarak kapatır. CUSUM h=1 doğal alarm doygunluğu,
+  üç NN'in magnitude-domination flag'i ve kayıp frozen features.py byte snapshot'ı ana
+  konfigürasyon freeze'ini engeller.
+- Corrected CUSUM evaluator hash kontrolünü gevşetmedi. Mevcut features.py yeni bir aday
+  olarak baştan ön-kayıtlanmadan Step-5 frozen adayının yerine geçirilemez.
 
 ## Tamamlanan kanıtlar
 
@@ -52,24 +65,12 @@ duvar-saatiydi.
 
 ## Devam sırası
 
-1. S2 runner'a yalnız yürütme düzeyinde deterministik process paralelliği ekle. Bilimsel
-   config, reason-code, eventizer, split, threshold veya denominator değişmemeli. Önerilen
-   güvenlik sözleşmesi: sabit input sırası, worker başına tek Parquet parçası, parent'ta
-   deterministik merge ve source ownership kontrolü, bir ve çok worker sonuç-eşitliği testi,
-   bounded worker sayısı ve başlangıç/bitiş code hash guard'ı.
-2. Yeni ve mevcut olmayan bir namespace kullan; v1'i silme veya üzerine yazma. Önerilen ad:
-   artifacts/adsb/runs/20260713_step6_s2_natural_v2
-3. Önce S2/parser regresyonlarını çalıştır; sonra Step 5 manifestindeki aynı 638 açık Silver
-   girdisi üzerinde tam-hacim Step 6 koşusunu tamamla. Sonuçtan sonra ADR-031 yaz.
-4. Hazır donmuş CUSUM truth-v2 değerlendirmesini şu yeni namespace ile çalıştır:
-   .venv/Scripts/python.exe scripts/adsb_evaluate_cusum_truth_v2.py --run-dir
-   artifacts/adsb/runs/20260713_step7_cusum_truth_v2_v1
-5. Artefakt hash/footer/checksum ve doğal-burden eşlemesini doğrula.
-6. Adım 7 gate incelemesini tamamla ve ADR-032 yaz. Mevcut doğal doygunluk nedeniyle başlangıç
-   önerisi FAIL / ana konfigürasyonu dondurma yönündedir; eksik corrected CUSUM ve S2 kanıtı
-   görülmeden nihai metin yazılmamalı.
-7. Adım 7 sonunda sert durma noktasında kullanıcıya dön. Onay olmadan konfigürasyonu dondurma,
-   Adım 8'e veya Adım 9'a geçme.
+1. Kullanıcı Adım 7 FAIL kararını ve yeni çalışma yönünü onaylamalıdır.
+2. Eski frozen features.py byte snapshot'ı bulunabiliyorsa corrected CUSUM değerlendirmesi
+   aynı Step-5 adayı için tamamlanabilir.
+3. Snapshot bulunamıyorsa mevcut code version yalnız yeni bir aday olarak; yeni ön-kayıtlı
+   operasyonel burden bütçesi, natural calibration ve yeni namespace ile baştan çalıştırılabilir.
+4. Kullanıcı onayı olmadan ana konfigürasyonu dondurma, Adım 8'e veya Adım 9'a geçme.
 
 ## Değişmez kısıt hatırlatması
 
