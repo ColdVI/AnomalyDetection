@@ -5,7 +5,12 @@ from __future__ import annotations
 
 import numpy as np
 
-from adsb.diagnostics import magnitude_domination_check, magnitude_only_score
+from adsb.diagnostics import (
+    fit_score_baseline,
+    magnitude_domination_check,
+    magnitude_only_score,
+    z_score_confidence,
+)
 
 
 def test_magnitude_only_score_matches_manual_computation():
@@ -75,3 +80,35 @@ def test_threshold_is_configurable():
     strict = magnitude_domination_check(trained_scores, untrained_scores, X, M, rho_threshold=0.05)
     assert lenient["magnitude_domination_flagged"] is False
     assert strict["magnitude_domination_flagged"] is True
+
+
+def test_fit_score_baseline_matches_manual_median_mad():
+    train_scores = np.array([1.0, 2.0, 3.0, 4.0, 100.0])  # 100.0 aykiri-deger
+    baseline = fit_score_baseline(train_scores)
+    assert baseline["median"] == 3.0
+    # MAD = median(|x - 3|) = median([2,1,0,1,97]) = 1.0, *1.4826
+    assert abs(baseline["mad"] - 1.4826) < 1e-4
+
+
+def test_z_score_confidence_is_half_at_the_median():
+    baseline = {"median": 10.0, "mad": 2.0}
+    conf = z_score_confidence(np.array([10.0]), baseline)
+    assert abs(conf[0] - 0.5) < 1e-9
+
+
+def test_z_score_confidence_higher_for_scores_further_above_median():
+    baseline = fit_score_baseline(np.random.default_rng(0).normal(loc=5.0, scale=1.0, size=500))
+    near = z_score_confidence(np.array([baseline["median"] + baseline["mad"]]), baseline)
+    far = z_score_confidence(np.array([baseline["median"] + 5 * baseline["mad"]]), baseline)
+    assert far[0] > near[0]
+    assert 0.0 <= near[0] <= 1.0 and 0.0 <= far[0] <= 1.0
+
+
+def test_z_score_confidence_robust_to_outlier_in_baseline_fit():
+    """SEAD dersi: aykiri-deger baseline'i bozmamali (ortalama/std kullansaydik bozardi)."""
+    clean_train = np.random.default_rng(1).normal(loc=5.0, scale=1.0, size=200)
+    with_outlier = np.concatenate([clean_train, [10_000.0]])
+    b_clean = fit_score_baseline(clean_train)
+    b_outlier = fit_score_baseline(with_outlier)
+    assert abs(b_clean["median"] - b_outlier["median"]) < 0.5
+    assert abs(b_clean["mad"] - b_outlier["mad"]) < 0.5

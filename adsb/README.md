@@ -35,6 +35,9 @@ raporlaması gerekir. `unknown / insufficient_data`, anomaly ile aynı sınıf d
    çalışıyor.
 6. ✅ Sentetik bozulmalar: `adsb/synthetic.py` (`PHYSICS_BREAK_RECIPES`, 5 senaryo),
    test-only, gerçek veriye asla yazılmıyor (`save_synthetic_batch` path guard'ı).
+   Kalıcı korpus artık diskte: `data/objectstore/synthetic/adsb/` (8910 val-uçuşu ×
+   5 senaryo + clean, 765MB, `scripts/adsb_generate_synthetic_dataset.py` — bkz.
+   ADR-023). Şu an 60/638 Silver parça; tam-hacim sonraki ölçek büyütme adımı.
 
 ## İlk onay kapısı
 
@@ -51,3 +54,13 @@ doğrulaması. Galeri (madde 3) ve tam-hacim eğitim hâlâ bekliyor.
 Önceki ADS-B kodu ve sonuçları
 `archive/2026-07-10_rejected_adsb_attempts/` altındadır. Yeni çalışma onların devamı
 değildir.
+
+## 2026-07-14 yeni aday yönü
+
+Step-7 ana freeze gate'inin FAIL olmasından sonra kullanıcı, anomaly-channel ve normal-bağlam
+özelinde ayrı threshold araştırmasının uygulanmasını açıkça onayladı. Yeni çalışma
+`contextual_physics_v1` adıyla ayrı adaydır; sözleşmesi
+`docs/adsb_contextual_candidate_v1_prereg_2026-07-14.md` içindedir. Nedensel bağlam,
+conditional conformal calibration, ayrı temporal decision profilleri ve residual forecaster
+altyapısı yazılmıştır. Operasyonel alarm bütçesi henüz sayısal olarak kullanıcı tarafından
+dondurulmadığı için gerçek threshold calibration/evaluation koşusu başlatılmaz.

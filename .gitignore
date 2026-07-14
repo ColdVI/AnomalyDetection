@@ -27,6 +27,8 @@ __pycache__/
 .pytest_cache/
 .pytest_claude_review/
 .tmp_pytest*/
+.pytest_tmp_*/
+.pytest_contextual_*/
 .tmp_pdf_reader/
 .ipynb_checkpoints/
 .idea/
@@ -35,3 +37,13 @@ influx_token.txt
 start_all.bat
 start_all_docker.bat
 artifacts/rflymad/
+
+# ADS-B generated training/evaluation outputs.  Reproducible evidence is
+# summarized in docs/decisions.md and docs/codex_checkpoint_2026-07-13.md;
+# raw run directories and model reports are not source files.
+/artifacts/adsb/models/baseline_training_report.json
+/artifacts/adsb/models/rule_scorer_report*.json
+/artifacts/adsb/plots/
+/artifacts/adsb/runs/
+/adsb_parse_*.log
+/adsb_train_*.log

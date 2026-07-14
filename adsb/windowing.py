@@ -16,6 +16,8 @@ import numpy as np
 import pandas as pd
 import torch
 
+from adsb.truth import WINDOW_TRUTH_META_COLUMNS, summarize_window_truth
+
 logger = logging.getLogger(__name__)
 
 
@@ -28,13 +30,16 @@ def build_windows(
     max_gap_s: float,
     flight_id_col: str = "flight_id",
     time_col: str = "timestamp_utc",
+    truth_architecture: str | None = None,
+    forecast_target_rows: int | None = None,
 ):
     """Ucus-ici kayan pencereler uretir.
 
     Returns:
         X    : float32 (n, window, f) -- NaN'lar 0
         M    : float32 (n, window, f) -- 1=deger var, 0=eksik
-        meta : DataFrame (n,) flight_id, t_start, t_end
+        meta : DataFrame (n,) flight_id, t_start, t_end. ``truth_architecture``
+               verilirse truth v2'den q_w/y_any/steady/history alanlari da eklenir.
     """
     xs, ms, metas = [], [], []
     for flight_id, g in df.groupby(flight_id_col, sort=False):
@@ -51,14 +56,26 @@ def build_windows(
                 continue
             xs.append(np.nan_to_num(vals[start:end], nan=0.0))
             ms.append(mask[start:end].astype(np.float32))
-            metas.append({"flight_id": flight_id, "t_start": t[start], "t_end": t[end - 1]})
+            meta = {"flight_id": flight_id, "t_start": t[start], "t_end": t[end - 1]}
+            if truth_architecture is not None:
+                meta.update(
+                    summarize_window_truth(
+                        g.iloc[start:end],
+                        architecture=truth_architecture,
+                        forecast_target_rows=forecast_target_rows,
+                    )
+                )
+            metas.append(meta)
 
     if not xs:
         f = len(feature_cols)
         return (
             np.zeros((0, window, f), np.float32),
             np.zeros((0, window, f), np.float32),
-            pd.DataFrame(columns=["flight_id", "t_start", "t_end"]),
+            pd.DataFrame(
+                columns=["flight_id", "t_start", "t_end"]
+                + (list(WINDOW_TRUTH_META_COLUMNS) if truth_architecture is not None else [])
+            ),
         )
 
     X = np.stack(xs)

@@ -41,6 +41,10 @@ def test_inject_freeze_marks_label_and_freezes_value():
     assert (bozuk["label"].iloc[5:] == "inj_freeze").all()
     assert bozuk["label"].iloc[:5].isna().all()
     assert (bozuk["ground_speed_ms"].iloc[5:] == bozuk["ground_speed_ms"].iloc[4]).all()
+    assert bozuk["injection_active"].tolist() == [False] * 5 + [True] * 5
+    # Bu fixture'da hiz zaten sabit: komut aktif, fakat paired gozlem degismiyor.
+    assert not bozuk["observable_changed"].any()
+    assert bozuk["evaluable_truth"].all()
 
 
 def test_inject_bias_shifts_after_onset_only():
@@ -56,11 +60,35 @@ def test_inject_noise_changes_values_after_onset():
     assert not (bozuk["ground_speed_ms"].iloc[5:] == df["ground_speed_ms"].iloc[5:]).all()
 
 
-def test_inject_dropout_introduces_nans_in_target_cols_only():
+def test_inject_dropout_marks_only_exact_random_block():
     df = _flight()
-    bozuk = inject_dropout(df, ["alt"], onset_frac=0.5, block_frac=1.0, rng=np.random.default_rng(0))
-    assert bozuk["alt"].iloc[5:].isna().any()
+    bozuk = inject_dropout(df, ["alt"], onset_frac=0.5, block_frac=0.4, rng=np.random.default_rng(0))
+    active_positions = np.flatnonzero(bozuk["injection_active"].to_numpy())
+
+    assert len(active_positions) == 2
+    assert active_positions[0] >= 5
+    assert np.diff(active_positions).tolist() == [1]
+    assert bozuk.loc[active_positions, "alt"].isna().all()
+    assert bozuk["alt"].isna().sum() == 2
+    assert bozuk["label"].notna().to_numpy().tolist() == bozuk["injection_active"].tolist()
     assert bozuk["ground_speed_ms"].notna().all()
+
+
+def test_inject_dropout_existing_nan_is_active_but_not_observable():
+    df = _flight()
+    first = inject_dropout(
+        df, ["alt"], onset_frac=0.5, block_frac=0.4, rng=np.random.default_rng(0)
+    )
+    active_positions = np.flatnonzero(first["injection_active"].to_numpy())
+    df.loc[active_positions[0], "alt"] = np.nan
+
+    bozuk = inject_dropout(
+        df, ["alt"], onset_frac=0.5, block_frac=0.4, rng=np.random.default_rng(0)
+    )
+
+    assert bozuk["injection_active"].iloc[active_positions[0]]
+    assert not bozuk["observable_changed"].iloc[active_positions[0]]
+    assert bozuk["observable_changed"].iloc[active_positions[1]]
 
 
 def test_inject_position_ramp_moves_north_after_onset_only():
@@ -71,6 +99,11 @@ def test_inject_position_ramp_moves_north_after_onset_only():
     drift_deg = bozuk["lat"].iloc[9] - df["lat"].iloc[9]
     expected_drift_m = 10.0 * (df["timestamp_utc"].iloc[9] - df["timestamp_utc"].iloc[5])
     assert abs(drift_deg - expected_drift_m / _M_PER_DEG_LAT) < 1e-6
+    assert bozuk["injection_active"].iloc[5]
+    assert not bozuk["observable_changed"].iloc[5]  # dt=0: komut var, gozlenir fark yok
+    assert bozuk["observable_changed"].iloc[6:].all()
+    assert bozuk["attack_onset"].iloc[0] == df["timestamp_utc"].iloc[5]
+    assert bozuk["observable_onset"].iloc[0] == df["timestamp_utc"].iloc[6]
 
 
 def test_inject_position_ramp_leaves_speed_and_track_untouched():
@@ -85,7 +118,11 @@ def test_physics_break_recipes_all_callable():
     for name, (fn, kwargs) in PHYSICS_BREAK_RECIPES.items():
         bozuk = fn(df, onset_frac=0.5, **kwargs)
         assert len(bozuk) == len(df), name
-        assert bozuk["label"].iloc[5:].notna().all(), name
+        assert bozuk["injection_active"].any(), name
+        assert (
+            bozuk["label"].notna().to_numpy() == bozuk["injection_active"].to_numpy()
+        ).all(), name
+        assert bozuk["event_type"].eq(name).all(), name
 
 
 def test_save_synthetic_batch_rejects_non_synthetic_path():
@@ -106,14 +143,35 @@ def test_save_synthetic_batch_writes_and_roundtrips(tmp_path):
     assert path.exists()
 
     reloaded = pd.read_parquet(path)
-    numeric_cols = [c for c in df.columns if c != "label"]
+    numeric_cols = [
+        c for c in df.columns
+        if c != "label" and pd.api.types.is_numeric_dtype(df[c].dtype)
+    ]
     pd.testing.assert_frame_equal(
         reloaded[numeric_cols], df[numeric_cols].reset_index(drop=True), check_dtype=False
     )
-    # label: null-konumlari ve dolu degerler eslesmeli (None vs NaN gosterimi
-    # parquet round-trip'inde farkli olabilir, bu onemli degil)
-    assert (reloaded["label"].isna() == df["label"].isna().reset_index(drop=True)).all()
-    assert (
-        reloaded["label"].dropna().reset_index(drop=True).astype(str)
-        == df["label"].dropna().reset_index(drop=True).astype(str)
-    ).all()
+    # Nullable object kolonlarda None/NaN/pd.NA gosterimi Parquet round-trip'inde
+    # degisebilir; null konumu ile dolu deger ayni kalmalidir.
+    for col in set(df.columns) - set(numeric_cols):
+        assert (reloaded[col].isna() == df[col].isna().reset_index(drop=True)).all()
+        assert (
+            reloaded[col].dropna().reset_index(drop=True).astype(str)
+            == df[col].dropna().reset_index(drop=True).astype(str)
+        ).all()
+
+
+def test_save_synthetic_batch_is_fail_if_exists(tmp_path):
+    out_dir = tmp_path / "synthetic" / "adsb"
+    df = _flight()
+    save_synthetic_batch(df, out_dir=out_dir, name="same")
+
+    with pytest.raises(FileExistsError):
+        save_synthetic_batch(df, out_dir=out_dir, name="same")
+
+
+def test_save_synthetic_batch_requires_exact_path_component_and_safe_name(tmp_path):
+    df = _flight()
+    with pytest.raises(ValueError):
+        save_synthetic_batch(df, out_dir=tmp_path / "synthetic_like", name="x")
+    with pytest.raises(ValueError):
+        save_synthetic_batch(df, out_dir=tmp_path / "synthetic", name="../escape")
