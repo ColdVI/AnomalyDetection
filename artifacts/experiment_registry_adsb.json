@@ -1,0 +1,113 @@
+[
+  {
+    "id": "ADR-037",
+    "date": "2026-07-14",
+    "track": "ADS-B contextual_physics_v1 — alarm bütcesi ön-kaydı",
+    "method": "Evidence-weighted kanal bütcesi türetimi (AUROC-skill tabanlı) + Pareto ızgarası",
+    "dataset": "ADS-B gerçek uçuş verisi (Step-5 split_contract)",
+    "columns_or_channels": [
+      "speed_residual",
+      "heading_residual",
+      "vertical_rate_residual",
+      "east_velocity_residual",
+      "north_velocity_residual",
+      "S2 veri-kalitesi katmanı"
+    ],
+    "metrics_table": [],
+    "thresholds_or_targets": "Pareto ızgarası: [0.1, 0.5, 1.0, 2.0, 5.0] alarm/100 skorlanabilir uçuş-saati — sonuç görülmeden dondu",
+    "gate_results": {},
+    "status": "analysis_only",
+    "key_finding": "Alarm bütcesi kanal payları rastgele değil, ADR-028'in düzeltilmiş truth-v2 AUROC değerlerinden (skill = AUROC-0.5) türetildi: S2 %15.0, speed_residual %27.7, heading_residual %22.8, vertical_rate/east_vel/north_vel her biri %11.5 — toplam tam 1.0. Tüm sayılar herhangi bir kalibrasyon/gelişim sonucu görülmeden önceden dondu.",
+    "notes": "Config: configs/adsb_contextual_physics_v1_alarm_budget.json. Prereg: docs/adsb_contextual_physics_v1_alarm_budget_prereg_2026-07-14.md"
+  },
+  {
+    "id": "ADR-038",
+    "date": "2026-07-14",
+    "track": "ADS-B Isolation Forest keşfi (paralel aday)",
+    "method": "Isolation Forest (n_estimators=200, contamination=auto, predict() hiç kullanılmadı)",
+    "dataset": "ADS-B gerçek uçuş verisi, fit-günü alt-örneklemi (40/237 parça)",
+    "columns_or_channels": [
+      "speed_residual",
+      "heading_residual",
+      "vertical_rate_residual",
+      "east_velocity_residual",
+      "north_velocity_residual"
+    ],
+    "metrics_table": [
+      {
+        "score_or_module": "isolation_forest_contextual_v1",
+        "decision_policy": "eğitilmiş-skor vs ham-genlik (magnitude_only_score)",
+        "budget_tier": "Spearman rho",
+        "recall": null,
+        "fa_per_hour": null,
+        "rho": 0.9959578170731443
+      },
+      {
+        "score_or_module": "isolation_forest_contextual_v1",
+        "decision_policy": "eğitilmiş-skor vs kanal-bazi karıştırılmış (yapısız) IF",
+        "budget_tier": "Spearman rho",
+        "recall": null,
+        "fa_per_hour": null,
+        "rho": 0.9958413132166626
+      }
+    ],
+    "thresholds_or_targets": "Referans fail sınırı: rho >= 0.8 (contextual_physics_v1 LSTM ile aynı eşik, yalnız karşılaştırma için)",
+    "gate_results": {
+      "Magnitude self-check": "FAIL (rho ≈ 0.996, neredeyse saf genlik dedektörü)"
+    },
+    "status": "rejected",
+    "key_finding": "Isolation Forest bu 5 kanallık özellik setinde neredeyse tamamen bir genlik/büyüklük dedektörü çıktı — eğitilmiş skor, hem ham genlikle hem de kanalları karıştırılmış (eğitimsiz-eşdeğer) versiyonla ~0.996 sıralama korelasyonu gösterdi. Bu, mevcut haliyle takip edilmeyen dürüst bir negatif sonuç.",
+    "notes": "Rapor: artifacts/adsb/models/isolation_forest_magnitude_check.json. Prereg: docs/adsb_isolation_forest_contextual_v1_prereg_2026-07-14.md. contextual_physics_v1 (LSTM) ile aynı kontrolde rho≈0.65 çıkmıştı (PASS) — doğrudan kıyas için bkz. ADR-036."
+  },
+  {
+    "id": "ADR-039",
+    "date": "2026-07-14",
+    "track": "ADS-B contextual_physics_v1 — ilk gerçek natural-calibration turu",
+    "method": "contextual_physics_v1 LSTM ileri-tahmin (next-step forecaster) + HierarchicalConformalCalibrator",
+    "dataset": "ADS-B gerçek uçuş verisi, calibration rolü (2026-02-28, fit günüyle aynı gün ama ayrık uçuş alt-kümesi), 60/237 parça alt-örneklemi",
+    "columns_or_channels": [
+      "speed_residual",
+      "heading_residual",
+      "vertical_rate_residual",
+      "east_velocity_residual",
+      "north_velocity_residual"
+    ],
+    "metrics_table": [],
+    "thresholds_or_targets": "min_group_size = 1000 satir (hedeflenen en küçük p ~0.001'in 10 katı)",
+    "gate_results": {
+      "Kapsam sağlığı": "SAĞLIKLI (tüm kanallarda yeterli phase×cadence desteği veya kanal-seviyesi fallback mevcut)"
+    },
+    "status": "smoke_only",
+    "key_finding": "İlk kez gerçek veriyle bir conformal (p-değeri tabanlı) güven kalibrasyonu kuruldu: 8.182 uçuş, 3.321.776 pencere, 16.001.483 satırlık kalibrasyon tablosu. Bu bir alarm/yük ölçümü DEĞİL, yalnızca 'sinyal sayılarının neye göre nadir sayılacağı' katmanının kurulması.",
+    "notes": "Rapor: artifacts/adsb/runs/20260714_contextual_physics_v1_calibration_v1/calibration_coverage_report.json. Keşif ölçeği (60/237 parça) — tam-hacim, hash-zincirli üretim kalibrasyonu değil."
+  },
+  {
+    "id": "ADR-040",
+    "date": "2026-07-14",
+    "track": "ADS-B contextual_physics_v1 — ilk gerçek doğal-yük (development) ölçümü",
+    "method": "contextual_physics_v1 LSTM skorları + conformal p-değeri + zamansal karar profilleri (instant/persistence)",
+    "dataset": "ADS-B gerçek uçuş verisi, development rolü (2026-03-01), 1/216 parça (704 uçuş)",
+    "columns_or_channels": [
+      "vertical_rate_residual",
+      "speed_residual",
+      "heading_residual"
+    ],
+    "metrics_table": [
+      {"score_or_module": "vertical_rate_spike", "decision_policy": "instant", "budget_tier": "alpha=1e-5", "recall": null, "fa_per_hour": 0.00434},
+      {"score_or_module": "vertical_rate_spike", "decision_policy": "instant", "budget_tier": "alpha=0.5", "recall": null, "fa_per_hour": 7.65767},
+      {"score_or_module": "vertical_rate_freeze", "decision_policy": "persistence (30s)", "budget_tier": "alpha=0.013572", "recall": null, "fa_per_hour": 0.05648},
+      {"score_or_module": "vertical_rate_freeze", "decision_policy": "persistence (30s)", "budget_tier": "alpha=0.5", "recall": null, "fa_per_hour": 9.93122},
+      {"score_or_module": "speed_spike", "decision_policy": "instant", "budget_tier": "alpha=1e-5", "recall": null, "fa_per_hour": 0.00265},
+      {"score_or_module": "speed_spike", "decision_policy": "instant", "budget_tier": "alpha=0.5", "recall": null, "fa_per_hour": 8.30442},
+      {"score_or_module": "speed_bias", "decision_policy": "persistence (30s)", "budget_tier": "alpha=0.000368", "recall": null, "fa_per_hour": 0.0053},
+      {"score_or_module": "speed_bias", "decision_policy": "persistence (30s)", "budget_tier": "alpha=0.5", "recall": null, "fa_per_hour": 11.27341},
+      {"score_or_module": "heading_inconsistency", "decision_policy": "persistence (30s)", "budget_tier": "alpha=0.000368", "recall": null, "fa_per_hour": 0.00678},
+      {"score_or_module": "heading_inconsistency", "decision_policy": "persistence (30s)", "budget_tier": "alpha=0.5", "recall": null, "fa_per_hour": 11.41417}
+    ],
+    "thresholds_or_targets": "ADR-037 Pareto ızgarası hedefleri (ör. 100 skorlanabilir uçuş-saatinde 1.0 alarm)",
+    "gate_results": {},
+    "status": "smoke_only",
+    "key_finding": "5 profilden 4'ü (speed/heading tabanlı) makul alpha değerlerinde saatte çok düşük doğal yanlış-alarm oranı gösterdi. vertical_rate_spike bariz şekilde daha alpha-hassas: aynı hedefe ulaşmak için çok daha sıkı bir eşik gerekiyor (diğerleri alpha=0.0136'da hala <0.1 iken bu profil zaten 4.89 alarm/saate çıktı).",
+    "notes": "Rapor: artifacts/adsb/runs/20260714_contextual_physics_v1_development_burden_v1/development_burden_curves.json. AÇIK MADDELER: east_velocity_residual/north_velocity_residual profilleri hiç eklenmedi (bu turda ölçülmedi); apply_detector_profile fonksiyonu satır-bazlı Python döngüsü kullandığı için büyük ölçekte (milyonlarca satır) çok yavaş — bu yüzden ölçek 15→6→1 parçaya, alpha ızgarası 12→8→4 noktaya küçültüldü; sonuçlar bu yüzden karar-grade değil, yalnızca mekanizmanın uçtan uca çalıştığının kanıtı."
+  }
+]

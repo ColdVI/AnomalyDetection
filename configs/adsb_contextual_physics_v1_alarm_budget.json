@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "contextual_physics_v1",
+  "contract_date": "2026-07-14",
+  "prereg_doc": "docs/adsb_contextual_physics_v1_alarm_budget_prereg_2026-07-14.md",
+  "frozen_before_results": true,
+  "budget_grid_episodes_per_100_scoreable_flight_hours": [0.1, 0.5, 1.0, 2.0, 5.0],
+  "evidence_source": {
+    "run": "artifacts/adsb/runs/20260713_step3_corrected_rule_v1/",
+    "adr": "ADR-028",
+    "recipe_auroc": {
+      "ground_speed": 0.974023,
+      "track": 0.889552,
+      "vertical_rate": 0.696337,
+      "ramp_scalar_superseded": 0.558927
+    }
+  },
+  "budget_shares_of_total": {
+    "s2_reason_codes": 0.150,
+    "speed_residual": 0.277,
+    "heading_residual": 0.228,
+    "vertical_rate_residual": 0.115,
+    "east_velocity_residual": 0.115,
+    "north_velocity_residual": 0.115
+  },
+  "channel_skill_derivation": {
+    "speed_residual": 0.474023,
+    "heading_residual": 0.389552,
+    "vertical_rate_residual": 0.196337,
+    "east_velocity_residual": 0.196337,
+    "north_velocity_residual": 0.196337,
+    "note": "east/north placeholder = vertical_rate_residual proven floor, NOT the superseded scalar ramp AUROC"
+  },
+  "temporal_profiles": {
+    "speed_residual": {
+      "spike": {"mode": "instant", "budget_fraction_of_channel": 0.5},
+      "bias": {"mode": "persistence", "window_s": 30.0, "budget_fraction_of_channel": 0.5}
+    },
+    "vertical_rate_residual": {
+      "spike": {"mode": "instant", "budget_fraction_of_channel": 0.5},
+      "freeze": {"mode": "persistence", "window_s": 30.0, "budget_fraction_of_channel": 0.5}
+    },
+    "heading_residual": {
+      "mode": "persistence", "window_s": 30.0, "budget_fraction_of_channel": 1.0
+    },
+    "east_north_velocity_residual": {
+      "mode": "accumulation",
+      "detector": "adsb.cusum causal two-sided Page CUSUM (ADR-029)",
+      "target_vector_shift_mps": 2.0,
+      "h_selection": "derived per budget_grid point from natural calibration, NOT set in this file"
+    }
+  },
+  "revision_policy": "Mode ASSIGNMENT per channel may be revised only via a new pre-registered version informed by the anomaly-development role; budget shares and window_s values may not be changed post-hoc within this namespace."
+}
