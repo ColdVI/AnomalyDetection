@@ -1371,3 +1371,23 @@ bütçesini ve channel paylarını sonuçtan bağımsız olarak tanımlamalıdı
 calibration conformal tail, development/rehearsal burden ve en son truth-v2 event recall/delay/
 active-coverage ölçümü yapılabilir. Eğitim loss'u veya magnitude PASS tek başına detection
 başarısı değildir.
+
+## ADR-036: Contextual eğitim sonucu matematiksel olarak yorumlandı; detection sonucu ayrıştırıldı
+
+- Durum: Raporlandı; calibration/evaluation bütçe kararı bekliyor
+- Tarih: 2026-07-14
+
+**Karar:** `docs/adsb_overall_model_report_2026-07-14.md`, aktif contextual modelin uçuş-içi
+time-series sözleşmesini, residual denklemlerini, Gaussian NLL eğitimini, kanal-bazlı
+standardized-surprise skorunu ve sonraki conformal/temporal karar katmanını tek raporda kaydeder.
+Mevcut `rho < 0,8` magnitude PASS bir detection başarısı veya Step-7 kararının geri alınması
+olarak sunulmaz.
+
+**Kanıt:** Beş epoch loss'u, 332.510 doğal diagnostic pencere, kanal p95'leri, iki Spearman rho,
+9.546 parametreli strict checkpoint ve sentetik fit/calibration=0 değerleri ADR-035'in hashli
+artefaktından alınmıştır. Eski NN, corrected rule ve doygun CUSUM kıyasları mevcut ADR-024/025/
+028/030/032 kayıtlarından taşınmış; yeni contextual aday için AUROC/AUPRC/recall uydurulmamıştır.
+
+**Açık madde:** Kullanıcı toplam doğal alarm episode bütçesini ve channel paylarını sayısal olarak
+dondurmadan conformal calibration, temporal threshold, development/rehearsal veya truth-v2
+değerlendirmesi çalıştırılmaz. Üçlü holdout havuzu açılmaz.
