@@ -72,28 +72,27 @@ def _reason_episode_summary(
         raise ValueError("flight_id cannot be null in an S2 part")
     if not np.isfinite(time.to_numpy(dtype=float)).all():
         raise ValueError("timestamp_utc must be finite in an S2 part")
-    positions = np.arange(len(flight))
+    flight_values = flight.to_numpy(dtype=str)
+    flight_change = np.r_[True, flight_values[1:] != flight_values[:-1]]
     for reason, raw_mask in reasons:
         mask = np.asarray(raw_mask, dtype=bool)
         if len(mask) != len(flight):
             raise ValueError(f"reason mask length mismatch: {reason}")
-        selected = np.flatnonzero(mask)
-        if not len(selected):
+        rows = int(np.count_nonzero(mask))
+        if not rows:
             result[reason] = {"rows": 0, "episodes": 0, "flights": 0}
             continue
-        f = flight.iloc[selected].reset_index(drop=True)
-        p = positions[selected]
         if reason in point_event_reasons:
-            new_episode = np.ones(len(selected), dtype=bool)
+            episodes = rows
         else:
-            new_episode = (
-                np.r_[True, f.iloc[1:].to_numpy() != f.iloc[:-1].to_numpy()]
-                | np.r_[True, np.diff(p) != 1]
+            previous_active = np.r_[False, mask[:-1]]
+            episodes = int(
+                np.count_nonzero(mask & (flight_change | ~previous_active))
             )
         result[reason] = {
-            "rows": int(len(selected)),
-            "episodes": int(np.count_nonzero(new_episode)),
-            "flights": int(f.nunique()),
+            "rows": rows,
+            "episodes": episodes,
+            "flights": int(len(pd.unique(flight_values[mask]))),
         }
     return result
 
@@ -177,10 +176,26 @@ def summarize_s2_part(
 
     squawk = _normal_squawk(ordered["squawk"])
     emergency = _normal_emergency(ordered["emergency"])
-    freshness_states = {
-        field: _freshness_states(ordered, field, max_age_s=freshness_max_age_s)
-        for field in FRESHNESS_FIELDS
-    }
+    freshness_columns_present = set(FRESHNESS_COLUMNS).intersection(ordered.columns)
+    legacy_freshness = not freshness_columns_present
+    if legacy_freshness:
+        freshness_states: dict[str, pd.Series] = {}
+        freshness_counts = {
+            field: {"freshness_unknown": int(len(ordered))}
+            for field in FRESHNESS_FIELDS
+        }
+    else:
+        freshness_states = {
+            field: _freshness_states(ordered, field, max_age_s=freshness_max_age_s)
+            for field in FRESHNESS_FIELDS
+        }
+        freshness_counts = {
+            field: {
+                str(key): int(value)
+                for key, value in freshness_states[field].value_counts().items()
+            }
+            for field in FRESHNESS_FIELDS
+        }
     reasons: dict[str, np.ndarray] = {}
 
     def add_reason(name: str, mask: pd.Series | np.ndarray) -> None:
@@ -201,9 +216,15 @@ def summarize_s2_part(
         )
     declared_active = squawk.isin(CRITICAL_SQUAWK_TYPES) | emergency.notna()
     squawk_type = squawk.map(CRITICAL_SQUAWK_TYPES)
-    both_fresh = freshness_states["squawk"].eq("fresh") & freshness_states[
-        "emergency"
-    ].eq("fresh")
+    if legacy_freshness:
+        both_fresh = pd.Series(
+            np.zeros(len(ordered), dtype=bool),
+            index=ordered.index,
+        )
+    else:
+        both_fresh = freshness_states["squawk"].eq("fresh") & freshness_states[
+            "emergency"
+        ].eq("fresh")
     both_critical = squawk_type.notna() & emergency.isin(
         frozenset(CRITICAL_SQUAWK_TYPES.values())
     )
@@ -278,12 +299,15 @@ def summarize_s2_part(
         | (squawk.eq("7600") & emergency.eq("nordo"))
         | (squawk.eq("7700") & emergency.eq("general"))
     ).fillna(False)
-    legacy_matching_not_corroborated = (
-        matching
-        & not_corroborated
-        & freshness_states["squawk"].eq("freshness_unknown")
-        & freshness_states["emergency"].eq("freshness_unknown")
-    )
+    if legacy_freshness:
+        legacy_matching_not_corroborated = matching & not_corroborated
+    else:
+        legacy_matching_not_corroborated = (
+            matching
+            & not_corroborated
+            & freshness_states["squawk"].eq("freshness_unknown")
+            & freshness_states["emergency"].eq("freshness_unknown")
+        )
     return {
         "contract": {
             "scoreable_max_gap_s": float(scoreable_max_gap_s),
@@ -299,10 +323,7 @@ def summarize_s2_part(
             "sum positive within-flight intervals <= scoreable_max_gap_s; "
             "interval state is assigned to its ending row"
         ),
-        "freshness": {
-            field: dict(Counter(freshness_states[field].astype(str)))
-            for field in FRESHNESS_FIELDS
-        },
+        "freshness": freshness_counts,
         "declared_status": {
             "active_rows": int(declared_active.sum()),
             "matching_value_rows": int(matching.sum()),

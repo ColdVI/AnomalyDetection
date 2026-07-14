@@ -43,7 +43,10 @@ def assign_flight_ids(
     is_new_flight = gap.isna() | (gap > gap_s)
     seq = is_new_flight.groupby(ordered[id_col]).cumsum().astype(int) - 1
 
-    flight_id = ordered[id_col].astype(str) + "_" + seq.map(lambda s: f"{s:03d}")
+    # Avoid a Python callback per row: full ADS-B days contain hundreds of
+    # millions of rows, while the formatting contract is simple zero padding.
+    seq_text = seq.astype("string").str.zfill(3)
+    flight_id = ordered[id_col].astype("string") + "_" + seq_text
     return flight_id.reindex(df.index)
 
 
