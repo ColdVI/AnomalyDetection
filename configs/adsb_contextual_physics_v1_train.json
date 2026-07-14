@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "contextual_physics_v1",
+  "contract_date": "2026-07-14",
+  "source_step5_manifest": "artifacts/adsb/runs/20260713_step5_full_streaming_v1/run_manifest.json",
+  "source_step5_manifest_sha256": "e2fccd40b2b3059eb4d9585980d8296f31462210fe88284295ed33291b236f5f",
+  "data": {
+    "fit_role": "fit",
+    "fit_flight_sample_probability": 0.02,
+    "fit_flight_sample_seed": 20260714,
+    "calibration_diagnostic_sample_probability": 0.02,
+    "calibration_diagnostic_sample_seed": 20260715,
+    "synthetic_training_rows_required": 0,
+    "synthetic_calibration_rows_required": 0
+  },
+  "channels": [
+    "vertical_rate_residual",
+    "speed_residual",
+    "heading_residual",
+    "altitude_source_residual",
+    "east_velocity_residual",
+    "north_velocity_residual"
+  ],
+  "context": {
+    "phase_history_rows": 3,
+    "level_rate_threshold_mps": 1.0,
+    "cadence_edges_s": [2.0, 5.0, 15.0],
+    "max_gap_s": 60.0
+  },
+  "scaling": {
+    "clip": 5.0,
+    "mad_zero_policy": "exclude_without_floor"
+  },
+  "window": {
+    "history_rows": 12,
+    "target_horizon_rows": 1
+  },
+  "model": {
+    "hidden_size": 32,
+    "num_layers": 1,
+    "min_scale": 0.1,
+    "max_scale": 5.0
+  },
+  "training": {
+    "epochs": 5,
+    "batch_size": 512,
+    "learning_rate": 0.001,
+    "seed": 0,
+    "gradient_clip_norm": 1.0,
+    "channel_weights_after_robust_scaling": "uniform_explicit_1.0"
+  },
+  "selection_prohibitions": {
+    "threshold_selection": true,
+    "truth_v2_feedback": true,
+    "development_feedback": true,
+    "rehearsal_feedback": true,
+    "holdout_access": true,
+    "hyperparameter_sweep": true
+  }
+}

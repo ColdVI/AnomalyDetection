@@ -86,6 +86,27 @@ operasyonel bütçeyi tanımlamadan gerçek calibration veya evaluation koşusu 
 7. Üçlü kör holdout havuzu bu adayın geliştirme verisi değildir ve ayrı unseal kararı olmadan
    açılmaz.
 
+## Normal-only eğitim freeze'i — 2026-07-14
+
+Kullanıcı gerçek eğitimin başlatılmasını açıkça onayladı. Alarm/threshold bütçesi hâlâ açık
+olduğu için bu freeze yalnız normal-only model fit ve doğal calibration diagnostic kapsamındadır.
+Tek çalıştırılabilir config `configs/adsb_contextual_physics_v1_train.json` dosyasıdır; sweep yoktur.
+
+- Kaynak split: hash'i config'te bağlı Step-5 açık-Silver manifestindeki yalnız `fit` uçuşları.
+- Eğitim örneği: fit uçuşlarının SHA-256 ile deterministik yüzde 2'si; seed 20260714.
+- Optimizer dışı diagnostic: calibration uçuşlarının ayrı deterministik yüzde 2'si; seed 20260715.
+- Kanallar: vertical-rate, speed, heading, altitude-source, east-velocity ve north-velocity
+  residual; MAD=0 kanal fit sonrasında floorsuz dışlanır.
+- Bağlam: 3 geçmiş satırlı lagged phase, 1.0 m/s level sınırı, 2/5/15 s cadence sınırları,
+  60 s max gap.
+- Pencere/model: 12 geçmiş satır, bir sonraki satır hedefi, hidden 32, tek LSTM katmanı,
+  scale aralığı 0.1–5.0.
+- Scaling/training: robust clip 5, active scaled kanallara açık 1.0 ağırlık, 5 epoch,
+  batch 512, Adam learning-rate 0.001, seed 0, gradient clip 1.0.
+
+Bu sayılar model sonucu görülmeden kaydedildi. Eğitim truth-v2, development, rehearsal ve holdout
+okumaz; alarm alpha, persistence veya accumulation threshold'u seçmez.
+
 ## İlk gate
 
 Aday ancak provenance/checksum tam, sentetik eğitim sıfır, magnitude-domination false, conditional

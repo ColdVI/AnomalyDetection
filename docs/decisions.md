@@ -1309,3 +1309,27 @@ tarafından henüz dondurulmadı. Bu nedenle gerçek normal fit/calibration, tru
 aday terfisi ve holdout erişimi yapılmadı. Açık sayılar
 `docs/adsb_contextual_candidate_v1_prereg_2026-07-14.md` içinde listelenmiştir; sonuç görülerek
 aynı namespace'te doldurulamaz.
+
+## ADR-034: Contextual-physics v1 normal-only eğitim config'i sonuç öncesi donduruldu
+
+- Durum: Eğitim için onaylandı; alarm/threshold seçimi kapsam dışı
+- Tarih: 2026-07-14
+
+**Karar:** Kullanıcının “bir eğitim yapalım” onayıyla tek `contextual_physics_v1` eğitim
+config'i `configs/adsb_contextual_physics_v1_train.json` içinde sonuç görülmeden donduruldu.
+Step-5 manifestindeki yalnız fit rolünden deterministik yüzde 2 uçuş (seed 20260714) model/scaler
+için; ayrık calibration rolünden yüzde 2 uçuş (seed 20260715) yalnız doğal magnitude diagnostic
+için seçilir. Config 12-history/1-horizon, lagged 3-row phase, 2/5/15 s cadence, 60 s max gap,
+robust clip 5, hidden 32/tek LSTM, bounded scale 0.1–5.0, beş epoch, batch 512, learning-rate
+0.001, seed 0 ve scaled active kanallara explicit 1.0 loss ağırlığı kullanır. Sweep yoktur.
+
+**Kanıt:** `scripts/adsb_train_contextual_physics_v1.py` 237 fit-day Parquet girdisinin
+Step-5 byte/SHA kayıtlarını doğrular; seçili source'ları part içinde filtreleyip feature/pencereyi
+bellek sınırlı üretir. Sentetik/truth-v2/development/rehearsal/holdout okumaz. Run manifestini
+optimizer'dan önce, scaler ve derived model config'ini ilk optimizer adımından önce yazar; tracked
+Git temizliği ile başlangıç/son code hash eşitliğini zorunlu tutar. Runner unit/integration smoke
+testleri **3/3**, önceki contextual hedefli paket **21/21** geçti.
+
+**Açık madde:** Bu ADR bir detection sonucu değildir. Model eğitimi henüz çalıştırılmadı;
+sayısal alarm bütçesi, conformal alpha ve anomaly-profile temporal eşikleri hâlâ kullanıcı kararı
+bekler ve bu eğitim koşusunda seçilemez.
