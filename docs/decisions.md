@@ -1333,3 +1333,41 @@ testleri **3/3**, önceki contextual hedefli paket **21/21** geçti.
 **Açık madde:** Bu ADR bir detection sonucu değildir. Model eğitimi henüz çalıştırılmadı;
 sayısal alarm bütçesi, conformal alpha ve anomaly-profile temporal eşikleri hâlâ kullanıcı kararı
 bekler ve bu eğitim koşusunda seçilemez.
+
+## ADR-035: Contextual-physics v1 normal-only eğitim tamamlandı; magnitude gate PASS
+
+- Durum: Model eğitildi; threshold/anomaly fayda değerlendirmesi henüz yapılmadı
+- Tarih: 2026-07-14
+
+**Karar:** Dondurulmuş `0a0ed73` commit'i ve
+`configs/adsb_contextual_physics_v1_train.json` ile
+`artifacts/adsb/runs/20260714_contextual_physics_v1_train_v1` değişmez koşusu tamamlandı.
+Model `trained_not_thresholded` durumundadır; bu sonuç ana anomaly detector terfisi veya Step-7
+FAIL kararının geri alınması değildir.
+
+**Kanıt:** Step-5 fit rolündeki 149.462 uçuştan deterministik 2.929 uçuş ve 1.267.625 satır
+scaler/model fit için seçildi. Beş epoch'un her birinde 1.180.160 pencere ve 2.417 batch görüldü;
+weighted Gaussian NLL sırasıyla **0,795375 / 0,738245 / 0,723818 / 0,714755 / 0,708696** oldu.
+Toplam süre **1.702,158 s** idi. `vertical_rate_residual`, `speed_residual`, `heading_residual`,
+`east_velocity_residual` ve `north_velocity_residual` aktif; `altitude_source_residual` MAD=0
+nedeniyle floorsuz dışlandı.
+
+Ayrı 770 natural-calibration diagnostic uçuşunda 332.510 pencere skorlandı; optimizer veya
+threshold seçimine geri beslenmedi. Trained-vs-untrained Spearman rho **0,649633**,
+trained-vs-target-magnitude rho **0,654240** ve `magnitude_domination_flagged_at_0_8=false` oldu.
+Bu yalnız magnitude gate PASS'tir; synthetic AUC/recall ölçülmedi. Checkpoint 9.546 sonlu
+parametreyle `strict=True` yeniden yüklendi.
+
+Model checkpoint SHA-256
+`3a04b2ceb64b2f11df8f8c108a2721a5dbdff96b49080028c56902e2ce3d354d`, training report
+SHA-256 `16f87e44a056e070fef90d26217c0481cf0ea6f91ab6470321a1a78f25e1a5f4`, run manifest
+SHA-256 `833c6705953a21c09d7450efa059d981ecaf6b84e65c8541bfa7c2fbea70b555` ve checksum index
+SHA-256 `de7a2b04837089671f60c80c38098c3260f11a2180ef82949c35e4ee67b2a44b`'dir. İndeksteki
+5/5 dosyanın byte/SHA değeri yeniden doğrulandı. Sentetik eğitim satırı 0; threshold sweep,
+truth-v2, development, rehearsal ve holdout erişimi yok; kod/Git koşu boyunca değişmedi.
+
+**Açık madde:** Sonraki bilimsel adım için kullanıcı toplam operasyonel alert-alpha/burden
+bütçesini ve channel paylarını sonuçtan bağımsız olarak tanımlamalıdır. Bundan sonra ayrı natural
+calibration conformal tail, development/rehearsal burden ve en son truth-v2 event recall/delay/
+active-coverage ölçümü yapılabilir. Eğitim loss'u veya magnitude PASS tek başına detection
+başarısı değildir.
