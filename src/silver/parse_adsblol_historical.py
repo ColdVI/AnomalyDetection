@@ -72,8 +72,14 @@ def _load_checkpoint(path: Path) -> dict:
 
 
 def _save_checkpoint(path: Path, state: dict) -> None:
+    """Yaz-sonra-degistir (temp dosya + os.replace): checkpoint HER parca
+    yazildikca guncellendigi icin sik cagriliyor -- islem tam bu yazma
+    sirasinda kesilirse (kill/guc kesintisi) yarim JSON kalip bir sonraki
+    calistirmada okunamaz hale gelmesin diye atomik yapildi."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    tmp.replace(path)  # ayni dosya sisteminde atomik (POSIX rename / Windows ReplaceFile)
 
 
 def _delete_uris(client: ObjectStoreClient, uris: list[str]) -> None:
