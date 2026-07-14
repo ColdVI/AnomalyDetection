@@ -90,6 +90,61 @@ def test_parse_jsonl_bytes():
     assert (df["source_type"] == "adsblol_realtime").all()
 
 
+@pytest.mark.parametrize("db_flags,expected", [
+    (1, True),      # bit 1 set -- askeri
+    (3, True),      # bit 1 + baska bir bit -- yine askeri
+    (0, False),     # hicbir bit yok
+    (2, False),     # SADECE farkli bir bit -- askeri degil
+    (None, False),  # alan hic gelmemis
+    ("garbage", False),  # sayiya cevrilemeyen deger -- crash yerine guvenli varsayilan
+])
+def test_parse_ac_record_is_military_bit_flag(db_flags, expected):
+    rec = dict(SAMPLE_AC)
+    if db_flags is None:
+        rec.pop("dbFlags", None)
+    else:
+        rec["dbFlags"] = db_flags
+    assert _parse_ac_record(rec, batch_ts=None)["is_military"] == expected
+
+
+def test_parse_jsonl_bytes_skips_malformed_lines_without_crashing():
+    lines = [json.dumps(SAMPLE_AC), "{not valid json", json.dumps(GROUND_AC)]
+    raw = "\n".join(lines).encode("utf-8")
+
+    df = parse_jsonl_bytes(raw, "states-20260701T120000Z.jsonl")
+
+    assert len(df) == 2
+    assert set(df["source_id"]) == {"4b1234", "4bffff"}
+
+
+def test_parse_jsonl_bytes_all_malformed_returns_empty_dataframe():
+    raw = b"{not json\nalso not json"
+    df = parse_jsonl_bytes(raw, "states-20260701T120000Z.jsonl")
+    assert df.empty
+
+
+def test_run_returns_empty_list_when_no_jsonl_objects(fake_minio_client: FakeMinioClient):
+    fake_minio_client.make_bucket("bronze")
+    assert run(client=fake_minio_client, bronze_bucket="bronze") == []
+
+
+def test_run_deletes_processed_bronze_files_after_writing_silver(fake_minio_client: FakeMinioClient):
+    """2026-07-09 karari (bkz. modul docstring'i): Silver'a basariyla yazilan
+    Bronze JSONL'leri SILINMELI -- aksi halde run() tekrar cagirildiginda
+    ayni dosyalar ikinci kez islenip Silver'da kopya satir uretir."""
+    lines = json.dumps(SAMPLE_AC).encode("utf-8") + b"\n"
+    fake_minio_client.make_bucket("bronze")
+    object_name = "adsblol_realtime/_landing/states-20260701T120000Z.jsonl"
+    fake_minio_client.put_object(
+        "bronze", object_name, io.BytesIO(lines), length=len(lines),
+        content_type="application/x-ndjson",
+    )
+
+    run(client=fake_minio_client, bronze_bucket="bronze")
+
+    assert object_name not in fake_minio_client.buckets["bronze"]
+
+
 def test_run_writes_silver(fake_minio_client: FakeMinioClient):
     # Seed Bronze with a JSONL file
     lines = json.dumps(SAMPLE_AC).encode("utf-8") + b"\n" + json.dumps(GROUND_AC).encode("utf-8") + b"\n"

@@ -2,9 +2,13 @@ import io
 
 import pandas as pd
 import pytest
+from minio import Minio
 
+from src.common.local_store import LocalObjectStoreClient
 from src.common.minio_io import (
     download_raw_bytes,
+    ensure_bucket,
+    get_minio_client,
     list_layer_objects,
     read_layer,
     read_parquet_object,
@@ -112,3 +116,60 @@ def test_read_layer_returns_empty_dataframe_when_nothing_written(fake_minio_clie
 
     assert isinstance(result, pd.DataFrame)
     assert result.empty
+
+
+# --------------------------------------------------- non-DataFrame rejection --
+
+@pytest.mark.parametrize("writer", [write_bronze, write_silver, write_gold])
+def test_write_layer_rejects_non_dataframe(fake_minio_client, writer):
+    """write_bronze/write_silver/write_gold hepsi _write_layer() uzerinden
+    ayni TypeError kontrolune sahip -- uc yazma fonksiyonunun da bunu
+    dogru miras aldigini dogrular (tek bir yerde test edip ustunden
+    gecmek yerine)."""
+    with pytest.raises(TypeError):
+        writer({"not": "a dataframe"}, "alfa", client=fake_minio_client)
+
+
+# ------------------------------------------------------------- ensure_bucket --
+
+def test_ensure_bucket_creates_when_missing(fake_minio_client):
+    assert not fake_minio_client.bucket_exists("bronze")
+    ensure_bucket(fake_minio_client, "bronze")
+    assert fake_minio_client.bucket_exists("bronze")
+
+
+def test_ensure_bucket_is_a_no_op_when_present(fake_minio_client):
+    fake_minio_client.make_bucket("bronze")
+    fake_minio_client.put_object("bronze", "alfa/x", io.BytesIO(b"x"), length=1)
+    ensure_bucket(fake_minio_client, "bronze")
+    # var olan icerik silinmedi/bozulmadi
+    assert fake_minio_client.buckets["bronze"]["alfa/x"] == b"x"
+
+
+# --------------------------------------------------------- get_minio_client --
+
+def test_get_minio_client_defaults_to_real_minio(monkeypatch):
+    monkeypatch.delenv("STORAGE_BACKEND", raising=False)
+    client = get_minio_client()
+    assert isinstance(client, Minio)
+
+
+def test_get_minio_client_local_backend_returns_local_store(monkeypatch, tmp_path):
+    """.env.example: STORAGE_BACKEND=local, Docker/MinIO kurulmadan pipeline'i
+    calistirmayi saglayan yol -- get_minio_client()'in bunu DOGRU
+    yonlendirdigini dogrular (yanlislikla hep gercek Minio() donseydi,
+    'local' modu sessizce hicbir sey yapmaz, ilk gercek MinIO cagrisinda
+    baglanti hatasi verirdi)."""
+    monkeypatch.setenv("STORAGE_BACKEND", "local")
+    monkeypatch.setenv("LOCAL_STORAGE_DIR", str(tmp_path))
+
+    client = get_minio_client()
+
+    assert isinstance(client, LocalObjectStoreClient)
+    assert client.base_dir == tmp_path
+
+
+def test_get_minio_client_local_backend_is_case_insensitive(monkeypatch, tmp_path):
+    monkeypatch.setenv("STORAGE_BACKEND", "LOCAL")
+    monkeypatch.setenv("LOCAL_STORAGE_DIR", str(tmp_path))
+    assert isinstance(get_minio_client(), LocalObjectStoreClient)

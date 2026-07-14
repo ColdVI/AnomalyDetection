@@ -1,9 +1,10 @@
 import io
 
 import pandas as pd
+import pytest
 
 from src.common.minio_io import list_layer_objects, write_silver
-from src.gold.unify import GOLD_COLUMNS, GOLD_NAME, stream_unify, unify
+from src.gold.unify import GOLD_COLUMNS, GOLD_NAME, clear_gold_before_unify, stream_unify, unify
 
 
 def _alfa_silver_df() -> pd.DataFrame:
@@ -44,6 +45,7 @@ def _adsblol_hist_silver_df() -> pd.DataFrame:
         "vertical_rate_ms": [2.5],
         "source_type": ["adsblol_hist"],
         "source_id": ["abc123"],
+        "is_military": [True],
     })
 
 
@@ -105,6 +107,52 @@ def test_unify_returns_empty_frame_with_gold_columns_when_nothing_available(fake
 
     assert gold.empty
     assert list(gold.columns) == GOLD_COLUMNS
+
+
+def test_unify_maps_is_military_for_adsblol_sources(fake_minio_client):
+    """2026-07-10 karari: is_military artik Gold semasinda -- SADECE adsb.lol
+    kaynakli tabloda (dbFlags biti var) doldurulur, digerlerinde her zaman
+    null olmali (COLUMN_MAPS'te None -- bkz. modul yorumu 'adsb.lol disi
+    kaynak -- dbFlags yok')."""
+    write_silver(_adsblol_hist_silver_df(), "adsblol_hist", client=fake_minio_client)
+
+    gold = unify(fake_minio_client, source_types=("adsblol_hist",))
+
+    assert bool(gold.iloc[0]["is_military"]) is True
+
+
+def test_unify_is_military_is_null_for_non_adsblol_sources(fake_minio_client):
+    write_silver(_alfa_silver_df(), "alfa", client=fake_minio_client)
+    write_silver(_uav_attack_silver_df(), "uav_attack", client=fake_minio_client)
+
+    gold = unify(fake_minio_client, source_types=("alfa", "uav_attack"))
+
+    assert gold["is_military"].isna().all()
+
+
+def test_unify_raises_for_unregistered_source_type(fake_minio_client):
+    with pytest.raises(ValueError):
+        unify(fake_minio_client, source_types=("not_a_real_source",))
+
+
+def test_stream_unify_raises_for_unregistered_source_type(fake_minio_client):
+    with pytest.raises(ValueError):
+        stream_unify(fake_minio_client, source_types=("not_a_real_source",))
+
+
+def test_clear_gold_before_unify_removes_prior_unified_parts(fake_minio_client):
+    write_silver(_alfa_silver_df(), "alfa", client=fake_minio_client)
+    stream_unify(fake_minio_client, source_types=("alfa",))
+    assert len(list_layer_objects(fake_minio_client, "gold", GOLD_NAME)) == 1
+
+    removed = clear_gold_before_unify(fake_minio_client)
+
+    assert removed == 1
+    assert list_layer_objects(fake_minio_client, "gold", GOLD_NAME) == []
+
+
+def test_clear_gold_before_unify_returns_zero_when_nothing_to_clear(fake_minio_client):
+    assert clear_gold_before_unify(fake_minio_client) == 0
 
 
 def test_stream_unify_rerun_does_not_double_count_rows(fake_minio_client):
