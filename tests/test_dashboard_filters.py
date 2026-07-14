@@ -12,6 +12,7 @@ test ediliyor."""
 from __future__ import annotations
 
 from Dashboard import app as dashapp
+from dashboard_fakes import find_by_id
 
 
 def test_toggle_show_ground_flips_current_value():
@@ -40,9 +41,12 @@ def test_filter_button_active_styles_are_visually_distinct():
 def test_ground_filter_defaults_to_visible():
     """Kullanici karariyla varsayilan ACIK (bkz. show-ground Store yorumu,
     proje sohbet gecmisi) -- bu varsayilanin sessizce eski (kapali)
-    davranisa donmedigini garanti eden regresyon testi."""
-    import re
-    src = open(dashapp.__file__, encoding="utf-8").read()
-    match = re.search(r'dcc\.Store\(id="show-ground", data=(\w+)\)', src)
-    assert match is not None, "show-ground Store tanimi bulunamadi"
-    assert match.group(1) == "True"
+    davranisa donmedigini garanti eden regresyon testi.
+
+    ONEMLI: kaynak metnini regex'le taramak yerine GERCEKTEN olusan layout
+    nesnesini (find_by_id) okuyoruz -- layout agaci artik Dashboard/layout.py
+    icinde (bkz. modul-bolme, adim 2), bu yontem HANGI dosyada tanimli
+    oldugundan bagimsiz calisir."""
+    store = find_by_id(dashapp.app_dash.layout, "show-ground")
+    assert store is not None, "show-ground Store tanimi bulunamadi"
+    assert store.data is True
