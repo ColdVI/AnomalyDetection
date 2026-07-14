@@ -47,28 +47,32 @@ from styles import (
     TILE_LAYERS, DEFAULT_MAP_STYLE, LEFT_PANEL_BASE, FLIGHT_SEGMENT_BTN_STYLE,
     FLIGHT_SEGMENT_BTN_ACTIVE_STYLE, HISTORY_PANEL_BASE, SETTINGS_PANEL_BASE,
     STATS_PANEL_BASE, EMERGENCY_PANEL_BASE, EMERGENCY_ROW_STYLE, REPLAY_PANEL_BASE,
-    REPLAY_COLOR, HISTORY_CALC_BTN_STYLE, HISTORY_DOWNLOAD_BTN_STYLE,
-    LANG_BTN_BASE_STYLE, LANG_BTN_ACTIVE_STYLE, LANG_BTN_INACTIVE_STYLE,
-    DEFAULT_AIRCRAFT_COLOR, MILITARY_COLOR, ALERT_COLOR, ALTITUDE_COLOR_STOPS,
-    GROUND_COLOR, FILTER_BTN_BASE_STYLE, FILTER_BTN_CIVIL_ACTIVE_STYLE,
-    FILTER_BTN_MILITARY_ACTIVE_STYLE, FILTER_BTN_GROUND_ACTIVE_STYLE,
-    FILTER_BTN_INACTIVE_STYLE,
+    LANG_BTN_ACTIVE_STYLE, LANG_BTN_INACTIVE_STYLE, ALERT_COLOR, ALTITUDE_COLOR_STOPS,
+    FILTER_BTN_CIVIL_ACTIVE_STYLE, FILTER_BTN_MILITARY_ACTIVE_STYLE,
+    FILTER_BTN_GROUND_ACTIVE_STYLE, FILTER_BTN_INACTIVE_STYLE,
 )
 from layout import build_layout
 from server import app_api, app_dash, _query_api
+# ONEMLI: asagidaki 9 isim app.py'nin KENDI kodunda hic cagrilmiyor --
+# SADECE testlerin dogrudan cagirdigi/patch'ledigi (health, get_data_source,
+# set_data_source, get_history, get_flight_segments, _get_flights,
+# _reverse_geocode) veya Dash callback'lerinin HTTP round-trip'ten kacinmak
+# icin dogrudan cagirdigi (get_replay, _query_history_df) fonksiyonlar
+# icin "geri import" ediliyor -- geri kalan endpoint'ler (get_flights,
+# get_alerts, get_route, get_aircraft_info, get_history_csv,
+# get_replay_frame, traffic_stats, _fetch_adsblol_route,
+# _query_replay_frame_cached) burada GEREKMEZ: api.py zaten TEK BASINA
+# import edildiginde TUM endpoint'lerini app_api'ye kaydediyor, app.py'nin
+# bunlari AYRICA import etmesi gerekmiyor.
 from api import (
-    get_flights, get_alerts, get_route, get_aircraft_info, health,
-    get_data_source, set_data_source, get_history, get_history_csv,
-    get_replay, get_replay_frame, get_flight_segments, traffic_stats,
-    _get_flights, _fetch_adsblol_route, _query_history_df,
-    _query_replay_frame_cached, _reverse_geocode,
+    health, get_data_source, set_data_source, get_history, get_replay,
+    get_flight_segments, _get_flights, _query_history_df, _reverse_geocode,
 )
 from constants import (
     SIGNAL_STALENESS_OPTIONS, DEFAULT_SIGNAL_STALENESS_SEC, STALE_SIGNAL_OPACITY,
-    DATA_SOURCE_DEFS, DATA_SOURCES, DEFAULT_DATA_SOURCE, REDIS_DATA_SOURCE_KEY,
-    REDIS_PRODUCER_STATUS_KEY, REPLAY_MAX_RANGE_HOURS, GEOCODE_CACHE_TTL,
+    DEFAULT_DATA_SOURCE, REDIS_DATA_SOURCE_KEY, REDIS_PRODUCER_STATUS_KEY,
     GEOCODE_MAX_LOOKUPS_PER_REQUEST, DEFAULT_TIMEZONE, FLIGHT_GAP_THRESHOLD_MIN,
-    HISTORY_HOUR_OPTIONS, AIRLINE_PREFIXES,
+    AIRLINE_PREFIXES,
 )
 
 
