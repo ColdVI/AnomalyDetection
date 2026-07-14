@@ -11,10 +11,15 @@ import pandas as pd
 import pytest
 
 from src.common.fakes import FakeMinioClient
+from src.common.minio_io import list_layer_objects, write_silver
 from src.silver.parse_adsblol_historical import (
     SILVER_SCHEMA_VERSION,
+    _delete_uris,
+    _load_checkpoint,
     _parse_tar_fileobj,
+    _save_checkpoint,
     parse_trace_bytes,
+    run,
 )
 
 
@@ -58,6 +63,18 @@ def test_parse_trace_bytes_unit_conversions():
     assert df.loc[0, "ground_speed_ms"] == pytest.approx(450 * 0.5144, abs=0.01)
     # vertical_rate_ms: -500 fpm → m/s
     assert df.loc[2, "vertical_rate_ms"] == pytest.approx(-500 * 0.00508, abs=0.001)
+
+
+@pytest.mark.parametrize("db_flags,expected", [
+    (1, True), (3, True), (0, False), (2, False), (None, False), ("garbage", False),
+])
+def test_parse_trace_bytes_is_military_bit_flag(db_flags, expected):
+    record = dict(SAMPLE_AIRCRAFT)
+    if db_flags is not None:
+        record["dbFlags"] = db_flags
+    raw = gzip.compress(json.dumps(record).encode())
+    df = parse_trace_bytes(raw)
+    assert (df["is_military"] == expected).all()
 
 
 def test_parse_trace_bytes_source_fields():
@@ -208,3 +225,183 @@ def test_parse_tar_handles_non_gzip_json(fake_minio_client: FakeMinioClient):
         io.BytesIO(buf.getvalue()), "plain.tar", batch_size=100, client=fake_minio_client
     )
     assert len(uris) == 1
+
+
+def test_parse_tar_fileobj_calls_on_part_written_after_each_flush():
+    """run() bu callback'i checkpoint'e HER Silver parcasi yazildikca
+    ekliyor (bkz. modul docstring'i, 2026-07-13 karari) -- batch_size'i
+    KUCUK tutup 3 uye ile 2 flush'a zorlayarak callback'in dogru sayida
+    ve dogru URI'lerle cagirildigini dogruluyoruz."""
+    tar_bytes = _make_tar_bytes([SAMPLE_AIRCRAFT, SAMPLE_AIRCRAFT, SAMPLE_AIRCRAFT])
+    written = []
+
+    _parse_tar_fileobj(
+        io.BytesIO(tar_bytes), "test.tar", batch_size=1, client=FakeMinioClient(),
+        on_part_written=written.append,
+    )
+
+    assert len(written) == 3
+    assert all(uri.startswith("s3://silver/") for uri in written)
+
+
+def test_parse_tar_fileobj_skips_broken_member_but_keeps_going():
+    """Bozuk/parse edilemeyen TEK bir trace uyesi (orn. bozuk gzip) tum
+    tar'i BATIRMAMALI -- digerleri normal islenmeye devam etmeli, sadece
+    hata sayaci artmali (bkz. fonksiyon govdesi, 'errors' sayaci)."""
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w") as tf:
+        broken = b"\x1f\x8b" + b"not-actually-gzip-data"  # gzip magic bytes ama gecersiz icerik
+        info = tarfile.TarInfo(name="traces/ab/broken.json")
+        info.size = len(broken)
+        tf.addfile(info, io.BytesIO(broken))
+
+        good_payload = gzip.compress(json.dumps(SAMPLE_AIRCRAFT).encode())
+        info2 = tarfile.TarInfo(name="traces/ab/good.json")
+        info2.size = len(good_payload)
+        tf.addfile(info2, io.BytesIO(good_payload))
+
+    uris = _parse_tar_fileobj(
+        io.BytesIO(buf.getvalue()), "mixed.tar", batch_size=100, client=FakeMinioClient()
+    )
+
+    assert len(uris) == 1  # "good" uyesinden gelen tek Silver parcasi
+
+
+# ======================================================================
+# Checkpoint/resume sistemi (2026-07-13, kullanici istegi -- "dur deyince
+# dursam ertesi gun kaldigi yerden devam edemez miyiz"). Bu bolum eklenene
+# kadar HICBIR testi yoktu -- oysa bu, PC'nin gun boyu acik kalamamasi
+# gercek sorununu cozen, projenin en yeni ve en kritik parcalarindan biri.
+# ======================================================================
+
+def _put_tar(client: FakeMinioClient, bucket: str, name: str, aircraft: list[dict]) -> None:
+    client.make_bucket(bucket)
+    payload = _make_tar_bytes(aircraft)
+    client.put_object(bucket, name, io.BytesIO(payload), length=len(payload))
+
+
+def test_load_checkpoint_missing_file_returns_empty_state(tmp_path):
+    state = _load_checkpoint(tmp_path / "does_not_exist.json")
+    assert state == {"completed_tars": [], "in_progress": {}}
+
+
+def test_save_and_load_checkpoint_round_trips(tmp_path):
+    path = tmp_path / "state" / "checkpoint.json"
+    state = {"completed_tars": ["a.tar"], "in_progress": {"b.tar": ["s3://silver/x"]}}
+
+    _save_checkpoint(path, state)
+
+    assert _load_checkpoint(path) == state
+
+
+def test_load_checkpoint_corrupt_json_falls_back_to_empty_state(tmp_path):
+    path = tmp_path / "checkpoint.json"
+    path.write_text("{not valid json", encoding="utf-8")
+
+    assert _load_checkpoint(path) == {"completed_tars": [], "in_progress": {}}
+
+
+def test_load_checkpoint_fills_missing_keys_with_defaults(tmp_path):
+    """Eski/elle duzenlenmis bir checkpoint dosyasinda anahtarlardan biri
+    eksik olsa bile crash etmemeli -- setdefault ile tamamlanir."""
+    path = tmp_path / "checkpoint.json"
+    path.write_text('{"completed_tars": ["a.tar"]}', encoding="utf-8")
+
+    state = _load_checkpoint(path)
+
+    assert state == {"completed_tars": ["a.tar"], "in_progress": {}}
+
+
+def test_delete_uris_removes_each_object(fake_minio_client: FakeMinioClient):
+    write_silver(pd.DataFrame({"x": [1]}), "adsblol_historical", client=fake_minio_client)
+    uris = list_layer_objects(fake_minio_client, "silver", "adsblol_historical")
+    full_uris = [f"s3://silver/{name}" for name in uris]
+
+    _delete_uris(fake_minio_client, full_uris)
+
+    assert list_layer_objects(fake_minio_client, "silver", "adsblol_historical") == []
+
+
+def test_delete_uris_continues_after_one_failure(fake_minio_client: FakeMinioClient):
+    """Bir URI'nin silinmesi basarisiz olsa (orn. zaten yok), digerleri
+    YINE DE silinmeye devam etmeli -- bkz. fonksiyon docstring'i."""
+    write_silver(pd.DataFrame({"x": [1]}), "adsblol_historical", client=fake_minio_client)
+    real_uri = f"s3://silver/{list_layer_objects(fake_minio_client, 'silver', 'adsblol_historical')[0]}"
+
+    _delete_uris(fake_minio_client, ["s3://silver/does-not-exist.parquet", real_uri])
+
+    assert list_layer_objects(fake_minio_client, "silver", "adsblol_historical") == []
+
+
+def test_run_returns_empty_list_when_no_tar_objects(fake_minio_client: FakeMinioClient, tmp_path):
+    fake_minio_client.make_bucket("bronze")
+    assert run(client=fake_minio_client, bronze_bucket="bronze",
+               checkpoint_path=tmp_path / "cp.json") == []
+
+
+def test_run_marks_tar_completed_and_skips_it_on_rerun(fake_minio_client: FakeMinioClient, tmp_path):
+    _put_tar(fake_minio_client, "bronze", "adsblol_historical/one.tar", [SAMPLE_AIRCRAFT])
+    checkpoint_path = tmp_path / "cp.json"
+
+    first_uris = run(client=fake_minio_client, bronze_bucket="bronze", checkpoint_path=checkpoint_path)
+    assert len(first_uris) == 1
+    assert _load_checkpoint(checkpoint_path)["completed_tars"] == ["one.tar"]
+
+    # Ayni Bronze tar hala orada (run() sadece Silver'i yazar, Bronze
+    # tar'lari silmez -- gecmis veri tekrar tekrar islenebilir kaynak
+    # olarak kalir) -- ama checkpoint'te "tamamlandi" oldugu icin tekrar
+    # calisinca YENI bir Silver parcasi eklenmemeli.
+    second_uris = run(client=fake_minio_client, bronze_bucket="bronze", checkpoint_path=checkpoint_path)
+    assert second_uris == []
+    assert len(list_layer_objects(fake_minio_client, "silver", "adsblol_historical")) == 1
+
+
+def test_run_fresh_flag_reprocesses_and_clears_prior_silver(fake_minio_client: FakeMinioClient, tmp_path):
+    _put_tar(fake_minio_client, "bronze", "adsblol_historical/one.tar", [SAMPLE_AIRCRAFT])
+    checkpoint_path = tmp_path / "cp.json"
+    run(client=fake_minio_client, bronze_bucket="bronze", checkpoint_path=checkpoint_path)
+    assert len(list_layer_objects(fake_minio_client, "silver", "adsblol_historical")) == 1
+
+    run(client=fake_minio_client, bronze_bucket="bronze", checkpoint_path=checkpoint_path, fresh=True)
+
+    # --fresh: checkpoint sifirlanir, tar YENIDEN islenir -- eski Silver
+    # parcasi once temizlendigi icin toplam hala 1 (2 degil, kopya yok).
+    assert len(list_layer_objects(fake_minio_client, "silver", "adsblol_historical")) == 1
+    assert _load_checkpoint(checkpoint_path)["completed_tars"] == ["one.tar"]
+
+
+def test_run_resumes_after_interrupted_tar_by_discarding_partial_parts(
+    fake_minio_client: FakeMinioClient, tmp_path
+):
+    """Kesinti senaryosu: bir onceki calistirma bir tar'i islerken (kill/
+    Ctrl+C/PC kapanmasi ile) YARIM kaldi -- checkpoint'te o tar hala
+    'in_progress' ve KISMEN yazilmis bir Silver parcasi var. run() tekrar
+    cagrildiginda: (1) o yarim parcayi silmeli, (2) tar'i SIFIRDAN
+    islemeli -- 30 tar'in TAMAMINI degil, SADECE kesinti anindaki tek
+    tar'i kaybetmeli (bkz. modul docstring'i, 2026-07-13 karari)."""
+    _put_tar(fake_minio_client, "bronze", "adsblol_historical/interrupted.tar", [SAMPLE_AIRCRAFT])
+    checkpoint_path = tmp_path / "cp.json"
+
+    # Kesinti oncesi durumu simule et: tar'in KISMEN yazilmis (yanlis/eski
+    # icerikli, "yarim kalmis" oldugunu ayirt etmek icin farkli boyutlu)
+    # bir Silver parcasi var, checkpoint onu "in_progress" olarak biliyor.
+    partial_uri = write_silver(
+        pd.DataFrame({"stale": [1, 2, 3]}), "adsblol_historical", client=fake_minio_client
+    )
+    _save_checkpoint(checkpoint_path, {
+        "completed_tars": [],
+        "in_progress": {"interrupted.tar": [partial_uri]},
+    })
+
+    uris = run(client=fake_minio_client, bronze_bucket="bronze", checkpoint_path=checkpoint_path)
+
+    assert len(uris) == 1
+    # Yarim kalan eski parca gitti, yerine tar'in SIFIRDAN islenmis
+    # (gercek SAMPLE_AIRCRAFT verisini iceren) TEK bir parcasi var.
+    remaining = list_layer_objects(fake_minio_client, "silver", "adsblol_historical")
+    assert len(remaining) == 1
+    stored = fake_minio_client.buckets["silver"][remaining[0]]
+    df = pd.read_parquet(io.BytesIO(stored))
+    assert "stale" not in df.columns
+    assert _load_checkpoint(checkpoint_path)["completed_tars"] == ["interrupted.tar"]
+    assert _load_checkpoint(checkpoint_path)["in_progress"] == {}
