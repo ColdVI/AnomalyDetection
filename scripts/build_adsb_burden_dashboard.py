@@ -164,6 +164,8 @@ TEMPLATE = """<title>contextual_physics_v1 -- Dogal Alarm Yuku Paneli</title>
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.45; }
 .page { max-width: 1040px; margin: 0 auto; padding: 28px 20px 80px; }
+a { color: var(--accent); }
+a:hover { text-decoration: none; }
 header.top { margin-bottom: 20px; }
 header.top h1 { font-size: 1.55rem; margin: 0 0 4px; letter-spacing: -0.01em; text-wrap: balance; }
 header.top p { margin: 0; color: var(--ink-dim); font-size: 0.92rem; max-width: 68ch; }
@@ -216,7 +218,8 @@ footer.prov code { font-family: var(--mono); background: var(--accent-soft); col
   <header class="top">
     <h1>contextual_physics_v1 -- Dogal Alarm Yuku</h1>
     <p>Bes fiziksel-sapma sinyalinin, TAMAMEN NORMAL (etiketsiz, olay enjekte edilmemis) ucus
-    verisinde esik/hassasiyet degistikce urettigi dogal yanlis-alarm oranini gosterir.</p>
+    verisinde esik/hassasiyet degistikce urettigi dogal yanlis-alarm oranini gosterir.
+    Tum deney kayitlari icin: <a href="experiment_dashboard.html">deney kayit paneli</a>.</p>
   </header>
 
   <div class="status-grid" id="status-grid"></div>

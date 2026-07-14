@@ -84,6 +84,8 @@ body {
 header.top { display: flex; flex-direction: column; gap: 4px; margin-bottom: 22px; }
 header.top h1 { font-size: 1.55rem; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
 header.top p { margin: 0; color: var(--ink-dim); font-size: 0.92rem; }
+a { color: var(--accent); }
+a:hover { text-decoration: none; }
 
 .stats { display: flex; gap: 10px; flex-wrap: wrap; margin: 18px 0 22px; }
 .stat {
@@ -162,7 +164,8 @@ table.metrics td.num { font-family: var(--mono); font-variant-numeric: tabular-n
 <div class="page">
   <header class="top">
     <h1>Deney Kayit Paneli</h1>
-    <p>ADR gunlugunden ve ADS-B contextual_physics_v1 hattindan cikarilan tum deney/model sonuclari — filtrelenebilir tek liste.</p>
+    <p>ADR gunlugunden ve ADS-B contextual_physics_v1 hattindan cikarilan tum deney/model sonuclari — filtrelenebilir tek liste.
+    Egrileri gorsellestiren panel icin: <a href="adsb_contextual_physics_v1_burden_dashboard.html">dogal alarm yuku paneli</a>.</p>
   </header>
 
   <div class="stats" id="stats"></div>
@@ -240,6 +243,15 @@ function fmtNum(n) {
   return typeof n === "number" ? n.toString() : n;
 }
 
+const FILE_REF_RE = /\b((?:docs|artifacts|scripts|configs)\/[\w./-]+\.(?:html|json|md))\b/g;
+function autolinkFileRefs(text) {
+  if (!text) return text;
+  return text.replace(FILE_REF_RE, (match, path) => {
+    const href = path.startsWith("docs/") ? path.slice("docs/".length) : "../" + path;
+    return `<a href="${href}">${match}</a>`;
+  });
+}
+
 function renderMetricsTable(rows) {
   if (!rows || rows.length === 0) return "";
   const hasRho = rows.some(r => r.rho !== undefined && r.rho !== null);
@@ -294,7 +306,7 @@ function renderCard(e, idx) {
         ${e.thresholds_or_targets ? `<h4>Esik / hedef</h4><div class="notes">${e.thresholds_or_targets}</div>` : ""}
         ${gatesHtml}
         ${metricsHtml}
-        ${e.notes ? `<h4>Notlar</h4><div class="notes">${e.notes}</div>` : ""}
+        ${e.notes ? `<h4>Notlar</h4><div class="notes">${autolinkFileRefs(e.notes)}</div>` : ""}
       </div>
     </div>`;
 }
