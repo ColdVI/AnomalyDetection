@@ -2,7 +2,7 @@ services:
   # ONEMLI: Zookeeper KALDIRILDI -- Kafka artik KRaft modunda (kendi
   # kendini yonetiyor, ayri bir koordinasyon servisi gerekmiyor). Zookeeper
   # sadece lokal/native kurulumun bir kalintisiydi (bkz. Dashboard/
-  # FULL_PROJECT_HANDOFF.md Bolum 6.3), Docker'da tek-broker icin gereksiz
+  # Dashboard/docs/FULL_PROJECT_HANDOFF.md Bolum 6.3), Docker'da tek-broker icin gereksiz
   # bir servis + ekstra ~512MB RAM demekti. KRaft, Kafka'nin kendisinin
   # onerdigi/varsayilan yolu (Zookeeper 4.0'da tamamen kaldiriliyor).
   kafka:
@@ -120,8 +120,8 @@ services:
 
   # --------------------------------------------------------------------
   # Dashboard servisleri (Dashboard/) -- adsb.lol -> Kafka -> Redis/InfluxDB
-  # -> Dash. Detay/gecmis: Dashboard/FULL_PROJECT_HANDOFF.md ve
-  # Dashboard/HANDOFF_UPDATE_2026-07-07.md. Dorduncu servis (dashboard-app)
+  # -> Dash. Detay/gecmis: Dashboard/docs/FULL_PROJECT_HANDOFF.md ve
+  # Dashboard/docs/HANDOFF_UPDATE_2026-07-07.md. Dorduncu servis (dashboard-app)
   # icindeki FastAPI'ye "localhost:8000" ile erisir -- FastAPI+Dash AYNI
   # process'te (app.py) calistigi icin bu kasitli, degistirilmemeli.
   # --------------------------------------------------------------------

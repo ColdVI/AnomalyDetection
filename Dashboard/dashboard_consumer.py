@@ -276,7 +276,7 @@ def main():
                 stats["flights"] += 1
 
             elif topic == ALERTS_TOPIC:
-                # sema: KAFKA_SCHEMA.md'deki uav.alerts bolumune bakiniz
+                # sema: docs/KAFKA_SCHEMA.md'deki uav.alerts bolumune bakiniz
                 rdb.lpush("iha:recent_alerts", json.dumps(data))
                 rdb.ltrim("iha:recent_alerts", 0, 19)
                 stats["alerts"] += 1

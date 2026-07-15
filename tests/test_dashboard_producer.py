@@ -70,7 +70,7 @@ def test_parse_adsblol_aircraft_altitude_converted_feet_to_meters():
 def test_parse_adsblol_aircraft_ground_string_altitude_regression():
     """Regresyon: adsb.lol yerdeki bir ucak icin alt_baro yerine DUZ METIN
     'ground' donduruyor -- eskiden bu durumda kayit TAMAMEN ATILIYORDU
-    (bkz. HANDOFF_UPDATE_2026-07-07.md, 'adsb.lol toplam sayisi bizden
+    (bkz. Dashboard/docs/HANDOFF_UPDATE_2026-07-07.md, 'adsb.lol toplam sayisi bizden
     yuksek cikiyor' kok nedeni). Artik is_ground=True ile isaretlenip
     irtifa 0 kabul edilmeli, kayit ASLA None DONMEMELI."""
     rec = prod._parse_adsblol_aircraft(_adsblol_ac(alt_baro="ground"))

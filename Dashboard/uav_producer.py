@@ -206,7 +206,7 @@ def _parse_adsblol_aircraft(ac: dict):
     # ONEMLI (askeri/sivil filtresiyle AYNI desende, ayri bir eksen):
     # adsb.lol, yerdeki (park/taksi) bir ucak icin "alt_baro" yerine
     # DUZ METIN "ground" donduruyor -- eskiden bu durumda kaydi TAMAMEN
-    # ATIYORDUK (bkz. Dashboard/HANDOFF_UPDATE_2026-07-07.md Bolum 5,
+    # ATIYORDUK (bkz. Dashboard/docs/HANDOFF_UPDATE_2026-07-07.md Bolum 5,
     # "adsb.lol'un 'total aircraft' sayisi bizden yuksek cikabilir" notu
     # -- kok neden buydu). Artik ATMIYORUZ -- is_ground=True ile isaretleyip
     # irtifayi 0 kabul ediyoruz, haritada gosterip gostermemek tamamen
