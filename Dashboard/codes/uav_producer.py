@@ -70,12 +70,20 @@ Kullanim (ortam degiskeni -- Docker'da boyle kullanilacak):
 import argparse
 import json
 import os
+import sys
 import time
 from datetime import datetime, timezone
 
 import redis
 import requests
 from confluent_kafka import Producer
+
+# ONEMLI: logging_setup ciplak import edilebilsin diye -- bu dosya hem
+# Docker'da "python codes/uav_producer.py" ile __main__ olarak, hem de
+# testlerde "from Dashboard.codes import uav_producer" ile calisiyor (bkz.
+# app.py'deki ayni sekildeki sys.path shim yorumu, ayni sebep).
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from logging_setup import enable_file_logging
 
 BOOTSTRAP = os.environ.get("KAFKA_BOOTSTRAP", "localhost:9092")
 TOPIC = "uav.flights"
@@ -629,4 +637,5 @@ def main():
 
 
 if __name__ == "__main__":
+    enable_file_logging("uav_producer")
     main()

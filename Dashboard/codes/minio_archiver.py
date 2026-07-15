@@ -23,12 +23,20 @@ Kullanim:
 """
 import time
 import os
+import sys
 import io
 from datetime import datetime, timezone
 
 from confluent_kafka import Consumer
 from minio import Minio
 from dotenv import load_dotenv
+
+# ONEMLI: logging_setup ciplak import edilebilsin diye -- bu dosya hem
+# Docker'da "python codes/minio_archiver.py" ile __main__ olarak, hem de
+# testlerde "from Dashboard.codes import minio_archiver" ile calisiyor
+# (bkz. app.py'deki ayni sekildeki sys.path shim yorumu, ayni sebep).
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from logging_setup import enable_file_logging
 
 load_dotenv()
 
@@ -113,4 +121,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    enable_file_logging("minio_archiver")
     main()

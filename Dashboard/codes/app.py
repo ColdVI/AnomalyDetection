@@ -45,6 +45,7 @@ from dash import dcc, html, Output, Input, State, ALL
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # --------------------------------------------------------------- kardes moduller --
+from logging_setup import enable_file_logging
 from texts import CATEGORY_LABELS, EMERGENCY_LABELS, DEFAULT_LANGUAGE, TEXTS
 from styles import (
     TILE_LAYERS, DEFAULT_MAP_STYLE, LEFT_PANEL_BASE, FLIGHT_SEGMENT_BTN_STYLE,
@@ -2265,6 +2266,7 @@ app_dash.clientside_callback(
 
 
 if __name__ == "__main__":
+    enable_file_logging("dashboard_app")
     threading.Thread(target=_run_api, daemon=True).start()
     time.sleep(2)
     print("FastAPI hazir (port 8000)")

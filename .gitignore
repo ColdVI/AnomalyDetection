@@ -2,6 +2,10 @@
 .venv/
 venv/
 /data/
+# Dashboard servislerinin (docker-compose.yml'deki ./logs:/app/logs
+# bind-mount'u ile) yazdigi calisma zamani log dosyalari -- veri, kod degil.
+/logs/*.log
+/logs/*.log.1
 *.parquet
 # individual/metehan_geo/viz/data/*.geojson (density/heatmap/MLAT layers) --
 # pipeline ciktisi, kaynak kod degil. Lokalde uretmek icin:
