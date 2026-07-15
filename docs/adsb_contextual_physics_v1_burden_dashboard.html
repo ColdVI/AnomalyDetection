@@ -1,0 +1,384 @@
+<title>contextual_physics_v1 -- Dogal Alarm Yuku Paneli</title>
+<style>
+:root {
+  --bg: #f5f3ee;
+  --bg-elevated: #ffffff;
+  --ink: #1b1f24;
+  --ink-dim: #565f68;
+  --border: #ddd8cc;
+  --accent: #1f7d76;
+  --accent-soft: #e2efee;
+  --good: #3f8f5c;
+  --good-soft: #e4f3e8;
+  --warn: #a3781f;
+  --warn-soft: #f3ecd9;
+  --grid-line: #e4e0d3;
+  --mono: "Cascadia Mono", "Consolas", ui-monospace, "SFMono-Regular", monospace;
+  --sans: "Segoe UI", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --c1: #c9634f;
+  --c2: #c99a3f;
+  --c3: #1f7d76;
+  --c4: #5b6bc9;
+  --c5: #6b8f4e;
+  --cal: #8891a0;
+  --dev: #9a4f7d;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #10141a; --bg-elevated: #171c24; --ink: #e8e6de; --ink-dim: #96a0ab;
+    --border: #2a3138; --accent: #5ec7bd; --accent-soft: #1a2c2c;
+    --good: #6cc78e; --good-soft: #16281d; --warn: #d9b95e; --warn-soft: #2b2413;
+    --grid-line: #232a32;
+    --c1: #e0897a; --c2: #d9b95e; --c3: #5ec7bd; --c4: #8b97e0; --c5: #93bd78;
+    --cal: #7c8798; --dev: #c98cb0;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10141a; --bg-elevated: #171c24; --ink: #e8e6de; --ink-dim: #96a0ab;
+  --border: #2a3138; --accent: #5ec7bd; --accent-soft: #1a2c2c;
+  --good: #6cc78e; --good-soft: #16281d; --warn: #d9b95e; --warn-soft: #2b2413;
+  --grid-line: #232a32;
+  --c1: #e0897a; --c2: #d9b95e; --c3: #5ec7bd; --c4: #8b97e0; --c5: #93bd78;
+  --cal: #7c8798; --dev: #c98cb0;
+}
+:root[data-theme="light"] {
+  --bg: #f5f3ee; --bg-elevated: #ffffff; --ink: #1b1f24; --ink-dim: #565f68;
+  --border: #ddd8cc; --accent: #1f7d76; --accent-soft: #e2efee;
+  --good: #3f8f5c; --good-soft: #e4f3e8; --warn: #a3781f; --warn-soft: #f3ecd9;
+  --grid-line: #e4e0d3;
+  --c1: #c9634f; --c2: #c99a3f; --c3: #1f7d76; --c4: #5b6bc9; --c5: #6b8f4e;
+  --cal: #8891a0; --dev: #9a4f7d;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.45; }
+.page { max-width: 1040px; margin: 0 auto; padding: 28px 20px 80px; }
+a { color: var(--accent); }
+a:hover { text-decoration: none; }
+header.top { margin-bottom: 20px; }
+header.top h1 { font-size: 1.55rem; margin: 0 0 4px; letter-spacing: -0.01em; text-wrap: balance; }
+header.top p { margin: 0; color: var(--ink-dim); font-size: 0.92rem; max-width: 68ch; }
+
+.status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0 28px; }
+@media (max-width: 720px) { .status-grid { grid-template-columns: 1fr; } }
+.status-card {
+  background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px;
+  padding: 16px 18px; border-left: 4px solid var(--good);
+}
+.status-card.warn { border-left-color: var(--warn); }
+.status-card h3 { margin: 0 0 8px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-dim); }
+.status-card ul { margin: 0; padding-left: 18px; font-size: 0.9rem; }
+.status-card li { margin-bottom: 6px; }
+.status-card li:last-child { margin-bottom: 0; }
+
+section.chart-section {
+  background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px;
+  padding: 18px 20px 14px; margin-bottom: 20px;
+}
+section.chart-section h2 { font-size: 1.02rem; margin: 0 0 2px; }
+section.chart-section .sub { color: var(--ink-dim); font-size: 0.84rem; margin: 0 0 12px; max-width: 72ch; }
+.chart-wrap { overflow-x: auto; }
+svg.chart { display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px 18px; margin-top: 8px; font-size: 0.8rem; }
+.legend-item { display: flex; align-items: center; gap: 6px; color: var(--ink-dim); }
+.legend-swatch { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.axis-label { font-size: 0.68rem; fill: var(--ink-dim); font-family: var(--sans); }
+.grid-line { stroke: var(--grid-line); stroke-width: 1; }
+.series-line { fill: none; stroke-width: 2; }
+.series-dot { stroke: var(--bg-elevated); stroke-width: 1.2; }
+.ref-line { stroke-dasharray: 4 3; stroke-width: 1.3; opacity: 0.75; }
+
+.callout {
+  margin-top: 10px; font-size: 0.82rem; color: var(--ink-dim);
+  border-top: 1px dashed var(--border); padding-top: 10px;
+}
+.callout b { color: var(--ink); }
+
+table.freq { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 6px; }
+table.freq th, table.freq td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--border); }
+table.freq th { color: var(--ink-dim); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; }
+table.freq td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+.swatch-cell { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+
+footer.prov { margin-top: 24px; font-size: 0.78rem; color: var(--ink-dim); border-top: 1px solid var(--border); padding-top: 14px; }
+footer.prov code { font-family: var(--mono); background: var(--accent-soft); color: var(--accent); padding: 1px 5px; border-radius: 4px; }
+</style>
+<div class="page">
+  <header class="top">
+    <h1>contextual_physics_v1 -- Dogal Alarm Yuku</h1>
+    <p>Bes fiziksel-sapma sinyalinin, TAMAMEN NORMAL (etiketsiz, olay enjekte edilmemis) ucus
+    verisinde esik/hassasiyet degistikce urettigi dogal yanlis-alarm oranini gosterir.
+    Tum deney kayitlari icin: <a href="experiment_dashboard.html">deney kayit paneli</a>.</p>
+  </header>
+
+  <div class="status-grid" id="status-grid"></div>
+
+  <section class="chart-section" id="lstm-section">
+    <h2>Hiz / yon / dikey-hiz -- hassasiyet egrileri</h2>
+    <p class="sub">Yatay eksen: esik gevsekligi (alfa, log olcek -- kucuk = siki/az alarm). Dikey
+    eksen: normal ucusta saatte kac alarm dogdugu (log olcek). Kesikli cizgiler her kanalin
+    Pareto=1.0 (100 saatte 1 alarm) hedefini gosterir.</p>
+    <div class="chart-wrap" id="lstm-chart"></div>
+    <div class="legend" id="lstm-legend"></div>
+  </section>
+
+  <section class="chart-section" id="sensitivity-section">
+    <h2>Ayni esikte, sinyaller arasi fark</h2>
+    <p class="sub" id="sensitivity-sub"></p>
+    <div class="chart-wrap" id="sensitivity-chart"></div>
+  </section>
+
+  <section class="chart-section" id="cusum-section">
+    <h2>Yatay konum sapmasi (dogu/kuzey, ortak CUSUM) -- kalibrasyon vs gelisim</h2>
+    <p class="sub">Iki farkli gunun ayni esik degerlerinde ne kadar farkli davrandigini gosterir --
+    farkin buyuklugu, esigin ne kadar guvenilir oldugunun bir olcusudur.</p>
+    <div class="chart-wrap" id="cusum-chart"></div>
+    <div class="legend" id="cusum-legend"></div>
+    <div class="callout" id="cusum-callout"></div>
+  </section>
+
+  <footer class="prov" id="provenance"></footer>
+</div>
+
+<script>
+const DATA = {"provenance": {"lstm_calibration_day": "2026-02-28", "lstm_development_day": "2026-03-01", "lstm_n_calibration_parts": 60, "lstm_n_development_parts": 20, "cusum_n_fit_parts": 20, "cusum_n_calibration_parts": 60, "cusum_n_development_parts": 20}, "pareto_grid": [0.1, 0.5, 1.0, 2.0, 5.0], "channel_shares": {"s2_reason_codes": 0.15, "speed_residual": 0.277, "heading_residual": 0.228, "vertical_rate_residual": 0.115, "east_velocity_residual": 0.115, "north_velocity_residual": 0.115}, "lstm_series": [{"channel": "vertical_rate_residual", "profile": "vertical_rate_spike", "points": [{"alpha": 1e-05, "rate": 0.0035150001355848367, "flight_fraction": 0.0033907500339075, "n_episodes": 52}, {"alpha": 2.6741089115476283e-05, "rate": 0.011896923535825601, "flight_fraction": 0.010172250101722501, "n_episodes": 176}, {"alpha": 7.150858470818456e-05, "rate": 0.037786251457536994, "flight_fraction": 0.03153397531533975, "n_episodes": 559}, {"alpha": 0.0001912217436203148, "rate": 0.0926743304978233, "flight_fraction": 0.07466431574664316, "n_episodes": 1371}, {"alpha": 0.0005113477686967608, "rate": 0.24760472108937034, "flight_fraction": 0.17692933676929337, "n_episodes": 3663}, {"alpha": 0.0013673996251720034, "rate": 0.6249264664131119, "flight_fraction": 0.37216872372168724, "n_episodes": 9245}, {"alpha": 0.003656575523319345, "rate": 1.6289321782177577, "flight_fraction": 0.6475654414756544, "n_episodes": 24098}, {"alpha": 0.009778081192655204, "rate": 3.967759191510745, "flight_fraction": 0.8375830733758307, "n_episodes": 58698}, {"alpha": 0.026147654055115568, "rate": 8.753702260735315, "flight_fraction": 0.9237759392377594, "n_episodes": 129500}, {"alpha": 0.0699216747248491, "rate": 14.358572765394698, "flight_fraction": 0.9612098196120982, "n_episodes": 212417}, {"alpha": 0.18697817349205353, "rate": 14.91563269072844, "flight_fraction": 0.9799945747999458, "n_episodes": 220658}, {"alpha": 0.5, "rate": 7.4616017301256194, "flight_fraction": 0.9934897599348976, "n_episodes": 110385}], "target_per_hour_at_pareto_1x": 0.00115, "channel_budget_share": 0.115}, {"channel": "vertical_rate_residual", "profile": "vertical_rate_freeze", "points": [{"alpha": 1e-05, "rate": 0.0, "flight_fraction": 0.0, "n_episodes": 0}, {"alpha": 2.6741089115476283e-05, "rate": 0.00013519231290710912, "flight_fraction": 0.0001356300013563, "n_episodes": 2}, {"alpha": 7.150858470818456e-05, "rate": 0.00027038462581421824, "flight_fraction": 0.0002712600027126, "n_episodes": 4}, {"alpha": 0.0001912217436203148, "rate": 0.0008111538774426547, "flight_fraction": 0.0008137800081378001, "n_episodes": 12}, {"alpha": 0.0005113477686967608, "rate": 0.0022306731629673, "flight_fraction": 0.0022378950223789504, "n_episodes": 33}, {"alpha": 0.0013673996251720034, "rate": 0.005002115577563037, "flight_fraction": 0.0050183100501831005, "n_episodes": 74}, {"alpha": 0.003656575523319345, "rate": 0.011829327379372047, "flight_fraction": 0.011460735114607351, "n_episodes": 175}, {"alpha": 0.009778081192655204, "rate": 0.030959039655727986, "flight_fraction": 0.028957005289570053, "n_episodes": 458}, {"alpha": 0.026147654055115568, "rate": 0.1268779856633219, "flight_fraction": 0.10470636104706361, "n_episodes": 1877}, {"alpha": 0.0699216747248491, "rate": 0.5266416549296435, "flight_fraction": 0.288891902888919, "n_episodes": 7791}, {"alpha": 0.18697817349205353, "rate": 2.9434070366135794, "flight_fraction": 0.6104028211040282, "n_episodes": 43544}, {"alpha": 0.5, "rate": 10.043301733556229, "flight_fraction": 0.9026854740268547, "n_episodes": 148578}], "target_per_hour_at_pareto_1x": 0.00115, "channel_budget_share": 0.115}, {"channel": "speed_residual", "profile": "speed_spike", "points": [{"alpha": 1e-05, "rate": 0.004291375631197612, "flight_fraction": 0.004575462448526048, "n_episodes": 70}, {"alpha": 2.6741089115476283e-05, "rate": 0.010851049810313962, "flight_fraction": 0.010327472383815936, "n_episodes": 177}, {"alpha": 7.150858470818456e-05, "rate": 0.02292820694382724, "flight_fraction": 0.022158311000719, "n_episodes": 374}, {"alpha": 0.0001912217436203148, "rate": 0.0733212179273192, "flight_fraction": 0.06954702921759592, "n_episodes": 1196}, {"alpha": 0.0005113477686967608, "rate": 0.18894313850501485, "flight_fraction": 0.16589319563370156, "n_episodes": 3082}, {"alpha": 0.0013673996251720034, "rate": 0.481553651186532, "flight_fraction": 0.3483887835806262, "n_episodes": 7855}, {"alpha": 0.003656575523319345, "rate": 1.2627066267968172, "flight_fraction": 0.6143538793385188, "n_episodes": 20597}, {"alpha": 0.009778081192655204, "rate": 3.356407491891972, "flight_fraction": 0.8193345970324858, "n_episodes": 54749}, {"alpha": 0.026147654055115568, "rate": 7.8496003884881915, "flight_fraction": 0.9201254983985881, "n_episodes": 128041}, {"alpha": 0.0699216747248491, "rate": 13.898539562125865, "flight_fraction": 0.9716974965684032, "n_episodes": 226710}, {"alpha": 0.18697817349205353, "rate": 16.055078427534983, "flight_fraction": 0.9901954376103014, "n_episodes": 261887}, {"alpha": 0.5, "rate": 7.8910428160123285, "flight_fraction": 0.9965357212889732, "n_episodes": 128717}], "target_per_hour_at_pareto_1x": 0.0027700000000000003, "channel_budget_share": 0.277}, {"channel": "speed_residual", "profile": "speed_bias", "points": [{"alpha": 1e-05, "rate": 6.130536615996588e-05, "flight_fraction": 6.536374926465782e-05, "n_episodes": 1}, {"alpha": 2.6741089115476283e-05, "rate": 0.00012261073231993177, "flight_fraction": 0.00013072749852931565, "n_episodes": 2}, {"alpha": 7.150858470818456e-05, "rate": 0.00018391609847989764, "flight_fraction": 0.00019609124779397345, "n_episodes": 3}, {"alpha": 0.0001912217436203148, "rate": 0.00104219122471942, "flight_fraction": 0.0009804562389698673, "n_episodes": 17}, {"alpha": 0.0005113477686967608, "rate": 0.003494405871118055, "flight_fraction": 0.0033989149617622066, "n_episodes": 57}, {"alpha": 0.0013673996251720034, "rate": 0.009257110290154849, "flight_fraction": 0.008824106150728806, "n_episodes": 151}, {"alpha": 0.003656575523319345, "rate": 0.018698136678789595, "flight_fraction": 0.0179750310477809, "n_episodes": 305}, {"alpha": 0.009778081192655204, "rate": 0.04787949097093335, "flight_fraction": 0.04536244198967253, "n_episodes": 781}, {"alpha": 0.026147654055115568, "rate": 0.1568804320033527, "flight_fraction": 0.12961631479181646, "n_episodes": 2559}, {"alpha": 0.0699216747248491, "rate": 0.6593392130504331, "flight_fraction": 0.3655140858879665, "n_episodes": 10755}, {"alpha": 0.18697817349205353, "rate": 3.149317965003607, "flight_fraction": 0.6582783188443689, "n_episodes": 51371}, {"alpha": 0.5, "rate": 11.370367567055032, "flight_fraction": 0.904307471076541, "n_episodes": 185471}], "target_per_hour_at_pareto_1x": 0.0027700000000000003, "channel_budget_share": 0.277}, {"channel": "heading_residual", "profile": "heading_inconsistency", "points": [{"alpha": 1e-05, "rate": 0.0003193813414781825, "flight_fraction": 0.0003424188467333242, "n_episodes": 5}, {"alpha": 2.6741089115476283e-05, "rate": 0.0008303914878432744, "flight_fraction": 0.000890289001506643, "n_episodes": 13}, {"alpha": 7.150858470818456e-05, "rate": 0.001533030439095276, "flight_fraction": 0.0015751266949732914, "n_episodes": 24}, {"alpha": 0.0001912217436203148, "rate": 0.0040242049026251, "flight_fraction": 0.004109026160799891, "n_episodes": 63}, {"alpha": 0.0005113477686967608, "rate": 0.007345770853998197, "flight_fraction": 0.007533214628133132, "n_episodes": 115}, {"alpha": 0.0013673996251720034, "rate": 0.010667336805371295, "flight_fraction": 0.010957403095466374, "n_episodes": 167}, {"alpha": 0.003656575523319345, "rate": 0.016480077220274218, "flight_fraction": 0.017052458567319545, "n_episodes": 258}, {"alpha": 0.009778081192655204, "rate": 0.04222221334341573, "flight_fraction": 0.041912066840158885, "n_episodes": 661}, {"alpha": 0.026147654055115568, "rate": 0.1720187905201491, "flight_fraction": 0.13854266538830298, "n_episodes": 2693}, {"alpha": 0.0699216747248491, "rate": 0.691652233105152, "flight_fraction": 0.3651554581564169, "n_episodes": 10828}, {"alpha": 0.18697817349205353, "rate": 2.8018686325197995, "flight_fraction": 0.6697027804410355, "n_episodes": 43864}, {"alpha": 0.5, "rate": 11.369017612598862, "flight_fraction": 0.9130940966990824, "n_episodes": 177985}], "target_per_hour_at_pareto_1x": 0.00228, "channel_budget_share": 0.228}], "cusum": {"channels": ["east_velocity_residual", "north_velocity_residual"], "combined_budget_share": 0.23, "calibration_points": [{"h": 2.943435664869372, "rate": 5.8682061560484415, "flight_fraction": 0.9448147160757131, "n_episodes": 37420}, {"h": 9.475656150204312, "rate": 2.2673042384860604, "flight_fraction": 0.6851506264996001, "n_episodes": 14458}, {"h": 18.948921866425692, "rate": 0.7144721338042945, "flight_fraction": 0.332178085843775, "n_episodes": 4556}, {"h": 32.8923482568475, "rate": 0.24401199302007953, "flight_fraction": 0.1378299120234604, "n_episodes": 1556}, {"h": 49.460817238109364, "rate": 0.1096172128027221, "flight_fraction": 0.06451612903225806, "n_episodes": 699}, {"h": 73.24265238605663, "rate": 0.03842091149737756, "flight_fraction": 0.024793388429752067, "n_episodes": 245}, {"h": 93.48978041979905, "rate": 0.0177206653028721, "flight_fraction": 0.011063716342308717, "n_episodes": 113}, {"h": 155.87761180849367, "rate": 0.0037636811262737203, "flight_fraction": 0.0018661690215942416, "n_episodes": 24}, {"h": 194.7926264729594, "rate": 0.0012545603754245734, "flight_fraction": 0.0010663822980538523, "n_episodes": 8}, {"h": 312.5350744792844, "rate": 0.00015682004692807168, "flight_fraction": 0.00013329778725673153, "n_episodes": 1}, {"h": 333.5956975397014, "rate": 0.00015682004692807168, "flight_fraction": 0.00013329778725673153, "n_episodes": 1}, {"h": 381.21992459857705, "rate": 0.00015682004692807168, "flight_fraction": 0.00013329778725673153, "n_episodes": 1}, {"h": 385.79480908907175, "rate": 0.00015682004692807168, "flight_fraction": 0.00013329778725673153, "n_episodes": 1}, {"h": 387.306368114158, "rate": 0.00015682004692807168, "flight_fraction": 0.00013329778725673153, "n_episodes": 1}, {"h": 387.6265570197301, "rate": 0.00015682004692807168, "flight_fraction": 0.00013329778725673153, "n_episodes": 1}, {"h": 387.87534558745017, "rate": 0.00015682004692807168, "flight_fraction": 0.00013329778725673153, "n_episodes": 1}], "development_points": [{"h": 2.943435664869372, "rate": 5.5353746980849765, "flight_fraction": 0.9547423546906316, "n_episodes": 77096}, {"h": 9.475656150204312, "rate": 2.0585338794333605, "flight_fraction": 0.7025926165384366, "n_episodes": 28671}, {"h": 18.948921866425692, "rate": 0.6714592738467715, "flight_fraction": 0.34550979504752055, "n_episodes": 9352}, {"h": 32.8923482568475, "rate": 0.24655593951986884, "flight_fraction": 0.14986745975302257, "n_episodes": 3434}, {"h": 49.460817238109364, "rate": 0.10647712822014138, "flight_fraction": 0.0706019266826146, "n_episodes": 1483}, {"h": 73.24265238605663, "rate": 0.04149951457265119, "flight_fraction": 0.028641624102928816, "n_episodes": 578}, {"h": 93.48978041979905, "rate": 0.020390764945731728, "flight_fraction": 0.014870369173078166, "n_episodes": 284}, {"h": 155.87761180849367, "rate": 0.004738698895839064, "flight_fraction": 0.00368526540376285, "n_episodes": 66}, {"h": 194.7926264729594, "rate": 0.002800140256632174, "flight_fraction": 0.0020689209284282667, "n_episodes": 39}, {"h": 312.5350744792844, "rate": 0.0012205739580191527, "flight_fraction": 0.0010991142432275167, "n_episodes": 17}, {"h": 333.5956975397014, "rate": 0.001148775489900379, "flight_fraction": 0.00096980668520075, "n_episodes": 16}, {"h": 381.21992459857705, "rate": 0.0010051785536628317, "flight_fraction": 0.0007111915691472167, "n_episodes": 14}, {"h": 385.79480908907175, "rate": 0.001148775489900379, "flight_fraction": 0.0007111915691472167, "n_episodes": 16}, {"h": 387.306368114158, "rate": 0.001148775489900379, "flight_fraction": 0.0007111915691472167, "n_episodes": 16}, {"h": 387.6265570197301, "rate": 0.001148775489900379, "flight_fraction": 0.0007111915691472167, "n_episodes": 16}, {"h": 387.87534558745017, "rate": 0.001148775489900379, "flight_fraction": 0.0007111915691472167, "n_episodes": 16}], "pareto_markers": [{"v": 0.1, "h": 312.5350744792844, "target_per_hour": 0.00023000000000000003, "n_episodes_at_h_calibration": 1}, {"v": 0.5, "h": 194.7926264729594, "target_per_hour": 0.00115, "n_episodes_at_h_calibration": 8}, {"v": 1.0, "h": 194.7926264729594, "target_per_hour": 0.0023, "n_episodes_at_h_calibration": 8}, {"v": 2.0, "h": 155.87761180849367, "target_per_hour": 0.0046, "n_episodes_at_h_calibration": 24}, {"v": 5.0, "h": 93.48978041979905, "target_per_hour": 0.011500000000000002, "n_episodes_at_h_calibration": 113}]}};
+
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const node = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) node.setAttribute(k, v);
+  if (parent) parent.appendChild(node);
+  return node;
+}
+
+function logPos(value, domainMin, domainMax, rangeMin, rangeMax) {
+  const v = Math.max(value, domainMin);
+  const t = (Math.log10(v) - Math.log10(domainMin)) / (Math.log10(domainMax) - Math.log10(domainMin));
+  return rangeMin + t * (rangeMax - rangeMin);
+}
+
+function niceLogTicks(min, max) {
+  const startExp = Math.floor(Math.log10(min));
+  const endExp = Math.ceil(Math.log10(max));
+  const ticks = [];
+  for (let e = startExp; e <= endExp; e++) ticks.push(Math.pow(10, e));
+  return ticks;
+}
+
+function fmtCompact(v) {
+  if (v === 0) return "0";
+  if (v >= 1) return v.toFixed(v >= 10 ? 0 : 1);
+  return v.toExponential(0).replace("e-0", "e-").replace("e+0", "e");
+}
+
+function drawLogLogChart(container, {
+  series, xDomain, yDomain, width = 960, height = 320,
+  xLabel, yLabel, refLines = [],
+}) {
+  const margin = { top: 14, right: 24, bottom: 40, left: 54 };
+  const plotW = width - margin.left - margin.right;
+  const plotH = height - margin.top - margin.bottom;
+  const svg = el("svg", { class: "chart", width, height, viewBox: `0 0 ${width} ${height}` }, container);
+  const plot = el("g", { transform: `translate(${margin.left},${margin.top})` }, svg);
+
+  const xTicks = niceLogTicks(xDomain[0], xDomain[1]);
+  const yTicks = niceLogTicks(yDomain[0], yDomain[1]);
+
+  for (const t of yTicks) {
+    const y = plotH - logPos(t, yDomain[0], yDomain[1], 0, plotH);
+    el("line", { class: "grid-line", x1: 0, x2: plotW, y1: y, y2: y }, plot);
+    const label = el("text", { class: "axis-label", x: -8, y: y + 3, "text-anchor": "end" }, plot);
+    label.textContent = fmtCompact(t);
+  }
+  for (const t of xTicks) {
+    const x = logPos(t, xDomain[0], xDomain[1], 0, plotW);
+    el("line", { class: "grid-line", x1: x, x2: x, y1: 0, y2: plotH }, plot);
+    const label = el("text", { class: "axis-label", x, y: plotH + 16, "text-anchor": "middle" }, plot);
+    label.textContent = fmtCompact(t);
+  }
+
+  for (const ref of refLines) {
+    const y = plotH - logPos(ref.value, yDomain[0], yDomain[1], 0, plotH);
+    const line = el("line", {
+      class: "ref-line", x1: 0, x2: plotW, y1: y, y2: y, stroke: ref.color,
+    }, plot);
+    if (ref.label) el("title", {}, line).textContent = ref.label;
+  }
+
+  for (const s of series) {
+    const pts = s.points.map(p => [
+      logPos(p.x, xDomain[0], xDomain[1], 0, plotW),
+      plotH - logPos(Math.max(p.y, yDomain[0]), yDomain[0], yDomain[1], 0, plotH),
+    ]);
+    const d = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(" ");
+    el("path", { class: "series-line", d, stroke: s.color, "stroke-dasharray": s.dashed ? "5 3" : "" }, plot);
+    pts.forEach((p, i) => {
+      const dot = el("circle", {
+        class: "series-dot", cx: p[0], cy: p[1], r: 3, fill: s.color,
+      }, plot);
+      const title = el("title", {}, dot);
+      title.textContent = s.points[i].tooltip || "";
+    });
+  }
+
+  el("text", {
+    class: "axis-label", x: plotW / 2, y: plotH + 34, "text-anchor": "middle",
+  }, plot).textContent = xLabel;
+  const yl = el("text", {
+    class: "axis-label", x: -plotH / 2, y: -40, "text-anchor": "middle",
+    transform: `rotate(-90)`,
+  }, plot);
+  yl.textContent = yLabel;
+}
+
+function renderStatus() {
+  const grid = document.getElementById("status-grid");
+  grid.innerHTML = `
+    <div class="status-card">
+      <h3>Dogrulanan (saglamlasan temel)</h3>
+      <ul>
+        <li>Model ham sinyal buyuklugune degil gercek zamansal oruntuye tepki veriyor (bagimsiz
+        kontrolden gecti) -- Isolation Forest ayni kontrolu gecemedi.</li>
+        <li>Normal ucusta yanlis-alarm davranisi artik gercek veriyle olculuyor; 5 sinyalin 4'unde
+        hedeflenen en siki butcelerde bile oran dusuk.</li>
+        <li>Karar katmani ~150x hizlandi, esdegerligi kanitlandi -- artik daha genis olcekte
+        olculebiliyor.</li>
+      </ul>
+    </div>
+    <div class="status-card warn">
+      <h3>Henuz olculmedi (tespit basarisi)</h3>
+      <ul>
+        <li>Gercek anomalileri YAKALAMA orani (recall) bu turlarda HIC test edilmedi -- burada
+        gosterilen her sey "normalde ne kadar sik yanlis alarm veriyor" sorusuna cevap.</li>
+        <li>Eski kural-bazli sisteme karsi esit-butceli kiyas henuz yapilmadi.</li>
+        <li>Yani "anomali tespiti iyilesiyor mu" sorusuna simdi kesin cevap YOK -- temel
+        saglamlasiyor, tespit basarisi ayri ve daha sonraki bir olcum.</li>
+      </ul>
+    </div>
+  `;
+}
+
+function renderLstm() {
+  const colors = { c1: "var(--c1)", c2: "var(--c2)", c3: "var(--c3)", c4: "var(--c4)", c5: "var(--c5)" };
+  const palette = [colors.c1, colors.c2, colors.c3, colors.c4, colors.c5];
+  const series = DATA.lstm_series.map((s, i) => ({
+    color: palette[i % palette.length],
+    label: `${s.channel} / ${s.profile}`,
+    target: s.target_per_hour_at_pareto_1x,
+    points: s.points.map(p => ({
+      x: p.alpha, y: p.rate,
+      tooltip: `alfa=${p.alpha.toExponential(2)} -> ${p.rate.toFixed(5)} alarm/saat (${p.n_episodes} episode, ucus-orani ${(p.flight_fraction * 100).toFixed(1)}%)`,
+    })),
+  }));
+  const allRates = series.flatMap(s => s.points.map(p => Math.max(p.y, 1e-5)));
+  const allAlphas = DATA.lstm_series[0].points.map(p => p.alpha);
+  const yMin = Math.pow(10, Math.floor(Math.log10(Math.min(...allRates))));
+  const yMax = Math.pow(10, Math.ceil(Math.log10(Math.max(...allRates))));
+
+  drawLogLogChart(document.getElementById("lstm-chart"), {
+    series, xDomain: [Math.min(...allAlphas), Math.max(...allAlphas)], yDomain: [yMin, yMax],
+    xLabel: "alfa (esik gevsekligi)", yLabel: "alarm / saat",
+    refLines: series.map(s => ({ value: s.target, color: s.color, label: `${s.label} hedefi: ${s.target.toFixed(5)}/saat` })),
+  });
+
+  document.getElementById("lstm-legend").innerHTML = series.map(s => `
+    <div class="legend-item">
+      <span class="legend-swatch" style="background:${s.color}"></span>
+      ${s.label} <span style="opacity:0.7">(hedef ${s.target.toFixed(5)}/saat)</span>
+    </div>`).join("");
+}
+
+function renderSensitivity() {
+  // Ortak bir alfa noktasinda (izgaranin ortasina yakin) 5 profili karsilastir.
+  const fixedAlphaIndex = 3; // ~1.91e-4
+  const alpha = DATA.lstm_series[0].points[fixedAlphaIndex].alpha;
+  document.getElementById("sensitivity-sub").textContent =
+    `Sabit alfa=${alpha.toExponential(2)} secildi; ayni esikte sinyaller arasi oran ne kadar farkli.`;
+
+  const palette = ["var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)"];
+  const rows = DATA.lstm_series.map((s, i) => ({
+    label: `${s.channel} / ${s.profile}`,
+    rate: s.points[fixedAlphaIndex].rate,
+    color: palette[i % palette.length],
+  })).sort((a, b) => b.rate - a.rate);
+
+  const width = 960, height = 46 * rows.length + 20;
+  const margin = { top: 10, right: 90, bottom: 10, left: 230 };
+  const plotW = width - margin.left - margin.right;
+  const container = document.getElementById("sensitivity-chart");
+  const svg = el("svg", { class: "chart", width, height, viewBox: `0 0 ${width} ${height}` }, container);
+  const maxRate = Math.max(...rows.map(r => r.rate), 1e-6);
+  rows.forEach((r, i) => {
+    const y = margin.top + i * 46;
+    const barW = Math.max(2, (r.rate / maxRate) * plotW);
+    el("text", { x: 8, y: y + 24, class: "axis-label", "font-size": "12" }, svg).textContent = r.label;
+    el("rect", {
+      x: margin.left, y: y + 8, width: barW, height: 20, rx: 4, fill: r.color,
+    }, svg);
+    el("text", {
+      x: margin.left + barW + 8, y: y + 23, class: "axis-label", "font-size": "12",
+    }, svg).textContent = `${r.rate.toFixed(5)}/saat`;
+  });
+}
+
+function renderCusum() {
+  const cal = DATA.cusum.calibration_points;
+  const dev = DATA.cusum.development_points;
+  const mkPoints = (arr) => arr.map(p => ({
+    x: p.h, y: p.rate,
+    tooltip: `h=${p.h.toFixed(2)} -> ${p.rate.toFixed(6)} alarm/saat (${p.n_episodes} episode, ucus-orani ${(p.flight_fraction * 100).toFixed(2)}%)`,
+  }));
+  const series = [
+    { color: "var(--cal)", label: "Kalibrasyon gunu", dashed: true, points: mkPoints(cal) },
+    { color: "var(--dev)", label: "Gelisim gunu (baska gun)", dashed: false, points: mkPoints(dev) },
+  ];
+  const allH = cal.map(p => p.h);
+  const allRates = [...cal, ...dev].map(p => Math.max(p.rate, 1e-4));
+  const yMin = Math.pow(10, Math.floor(Math.log10(Math.min(...allRates))));
+  const yMax = Math.pow(10, Math.ceil(Math.log10(Math.max(...allRates))));
+
+  drawLogLogChart(document.getElementById("cusum-chart"), {
+    series, xDomain: [Math.min(...allH), Math.max(...allH)], yDomain: [yMin, yMax],
+    xLabel: "threshold_h (esik -- buyuk = siki/az alarm)", yLabel: "alarm / saat",
+  });
+  document.getElementById("cusum-legend").innerHTML = series.map(s => `
+    <div class="legend-item">
+      <span class="legend-swatch" style="background:${s.color}"></span>${s.label}
+    </div>`).join("");
+
+  const markers = DATA.cusum.pareto_markers.sort((a, b) => a.v - b.v);
+  const rowsHtml = markers.map(m => {
+    const unreliable = m.n_episodes_at_h_calibration <= 1;
+    return `<tr>
+      <td>Pareto V=${m.v}</td>
+      <td class="num">${m.h.toFixed(2)}</td>
+      <td class="num">${m.target_per_hour.toFixed(5)}</td>
+      <td class="num">${m.n_episodes_at_h_calibration}</td>
+      <td>${unreliable ? "<b>GUVENILMEZ</b> (tek episode'a dayaniyor)" : "kabul edilebilir destek"}</td>
+    </tr>`;
+  }).join("");
+  document.getElementById("cusum-callout").innerHTML = `
+    <b>Pareto hedeflerinden turetilen esikler (yalniz kalibrasyon gununden, gelisim gunune hic
+    bakilmadan sabitlendi):</b>
+    <table class="freq">
+      <thead><tr><th>Hedef</th><th>h</th><th>Hedef/saat</th><th>Kalibrasyonda episode sayisi</th><th>Guvenilirlik</th></tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>`;
+}
+
+function renderProvenance() {
+  const p = DATA.provenance;
+  document.getElementById("provenance").innerHTML = `
+    LSTM: kalibrasyon <code>${p.lstm_calibration_day}</code> (${p.lstm_n_calibration_parts} parca),
+    gelisim <code>${p.lstm_development_day}</code> (${p.lstm_n_development_parts} parca) &middot;
+    CUSUM: fit ${p.cusum_n_fit_parts} parca, kalibrasyon ${p.cusum_n_calibration_parts} parca,
+    gelisim ${p.cusum_n_development_parts} parca &middot; ADR-041, tam-hacim degil (216/237
+    parcanin bir alt-kumesi).
+  `;
+}
+
+renderStatus();
+renderLstm();
+renderSensitivity();
+renderCusum();
+renderProvenance();
+</script>

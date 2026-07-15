@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<title>ADS-B Silver/Gold Veri Dışa Aktarma</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: #0b0f14; color: #e6e9ee; font: 14px/1.5 -apple-system, "Segoe UI", sans-serif;
+    padding: 24px 0;
+  }
+  .card {
+    width: min(600px, 92vw); background: #12171f; border: 1px solid #232b36; border-radius: 14px;
+    padding: 28px 30px; box-shadow: 0 20px 50px -20px rgba(0,0,0,0.6);
+  }
+  h1 { font-size: 17px; margin: 0 0 4px; font-weight: 600; }
+  .sub { color: #8a94a3; font-size: 12.5px; margin: 0 0 22px; }
+  fieldset { border: 1px solid #232b36; border-radius: 10px; padding: 14px 16px; margin: 0 0 16px; }
+  fieldset:disabled { opacity: 0.4; }
+  legend { padding: 0 6px; color: #9fb0c3; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; }
+  .layer-row { display: flex; gap: 10px; }
+  .layer-btn {
+    flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #2a3341; background: #0b0f14;
+    color: #e6e9ee; cursor: pointer; font-size: 13px; font-weight: 600; text-align: center;
+  }
+  .layer-btn.active { background: #2fae7a; color: #06231a; border-color: #2fae7a; }
+  select { width: 100%; background: #0b0f14; border: 1px solid #2a3341; color: #e6e9ee;
+    border-radius: 7px; padding: 8px 9px; font-size: 13px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; max-height: 220px; overflow-y: auto; }
+  label.chk { display: flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; }
+  .dates { display: flex; gap: 12px; margin-top: 12px; }
+  .field { flex: 1; }
+  .field label { display: block; font-size: 11px; color: #9fb0c3; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  input[type="date"] { width: 100%; background: #0b0f14; border: 1px solid #2a3341; color: #e6e9ee;
+    border-radius: 7px; padding: 8px 9px; font-size: 13px; }
+  .fmt-row { display: flex; gap: 16px; margin-top: 10px; }
+  .fmt-row label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+  #estimate { font-size: 12.5px; color: #9fb0c3; min-height: 18px; margin: 4px 0 16px; }
+  #estimate.warn { color: #ff8a65; }
+  #dsHint { font-size: 11.5px; color: #6d7789; margin-top: 6px; }
+  button#downloadBtn {
+    width: 100%; padding: 11px; border: none; border-radius: 9px; background: #2fae7a;
+    color: #06231a; font-weight: 700; font-size: 14px; cursor: pointer;
+  }
+  button#downloadBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+  button#downloadBtn:hover:not(:disabled) { background: #3ec38c; }
+  #msg { font-size: 12.5px; margin-top: 10px; color: #ff8a65; min-height: 16px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>ADS-B Silver/Gold Veri Dışa Aktarma</h1>
+  <p class="sub">Grup projesinin Silver veya Gold katmanından, seçilen dataset/kolon/tarih aralığındaki veriyi Parquet/CSV olarak indirir.</p>
+
+  <fieldset>
+    <legend>1. Katman</legend>
+    <div class="layer-row">
+      <button type="button" class="layer-btn active" data-layer="silver">Silver</button>
+      <button type="button" class="layer-btn" data-layer="gold">Gold</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>2. Dataset</legend>
+    <select id="datasetSelect"></select>
+    <div id="dsHint"></div>
+  </fieldset>
+
+  <fieldset id="colsFieldset" disabled>
+    <legend>3. Kolonlar</legend>
+    <div class="cols" id="colsBox"></div>
+  </fieldset>
+
+  <fieldset id="dateFieldset" disabled>
+    <legend>4. Tarih Aralığı ve Format</legend>
+    <div class="dates">
+      <div class="field"><label>Başlangıç</label><input type="date" id="startDate" /></div>
+      <div class="field"><label>Bitiş</label><input type="date" id="endDate" /></div>
+    </div>
+    <div class="fmt-row">
+      <label><input type="radio" name="fmt" value="parquet" checked /> Parquet</label>
+      <label><input type="radio" name="fmt" value="csv" /> CSV</label>
+    </div>
+  </fieldset>
+
+  <div id="estimate">&nbsp;</div>
+  <button id="downloadBtn" disabled>İndir</button>
+  <div id="msg"></div>
+</div>
+
+<script>
+const API = "";
+let currentLayer = "silver";
+let currentDataset = null;
+let META = null;
+let estimateTimer = null;
+
+async function selectLayer(layer) {
+  currentLayer = layer;
+  document.querySelectorAll(".layer-btn").forEach(b => b.classList.toggle("active", b.dataset.layer === layer));
+  await loadDatasets();
+}
+
+async function loadDatasets() {
+  const res = await fetch(`${API}/api/datasets?layer=${currentLayer}`);
+  const data = await res.json();
+  const sel = document.getElementById("datasetSelect");
+  sel.innerHTML = data.datasets.map(d =>
+    `<option value="${d.name}">${d.name} (${d.row_count.toLocaleString("tr-TR")} satır)</option>`
+  ).join("");
+  if (data.datasets.length === 0) {
+    document.getElementById("dsHint").textContent = "Bu katmanda henüz indekslenmiş veri yok.";
+    resetDownstream();
+    return;
+  }
+  await selectDataset(sel.value);
+}
+
+async function selectDataset(dataset) {
+  currentDataset = dataset;
+  const res = await fetch(`${API}/api/meta?layer=${currentLayer}&dataset=${dataset}`);
+  if (!res.ok) { document.getElementById("msg").textContent = "Meta bilgisi alınamadı."; return; }
+  META = await res.json();
+
+  document.getElementById("dsHint").textContent =
+    `${META.columns.length} kolon · veri aralığı: ${META.min_date} — ${META.max_date}`;
+
+  const colsBox = document.getElementById("colsBox");
+  colsBox.innerHTML = META.columns.map(c => `
+    <label class="chk"><input type="checkbox" value="${c}" checked /> ${c}</label>
+  `).join("");
+  document.getElementById("colsFieldset").disabled = false;
+
+  const startInput = document.getElementById("startDate");
+  const endInput = document.getElementById("endDate");
+  startInput.min = endInput.min = META.min_date;
+  startInput.max = endInput.max = META.max_date;
+  startInput.value = META.min_date;
+  endInput.value = META.max_date;
+  document.getElementById("dateFieldset").disabled = false;
+
+  document.getElementById("downloadBtn").disabled = false;
+  refreshEstimate();
+}
+
+function resetDownstream() {
+  document.getElementById("colsFieldset").disabled = true;
+  document.getElementById("dateFieldset").disabled = true;
+  document.getElementById("downloadBtn").disabled = true;
+  document.getElementById("colsBox").innerHTML = "";
+  document.getElementById("estimate").textContent = "";
+}
+
+function selectedColumns() {
+  return [...document.querySelectorAll("#colsBox input:checked")].map(el => el.value);
+}
+
+async function refreshEstimate() {
+  if (!currentDataset) return;
+  const start = document.getElementById("startDate").value;
+  const end = document.getElementById("endDate").value;
+  const box = document.getElementById("estimate");
+  const btn = document.getElementById("downloadBtn");
+  if (!start || !end) return;
+
+  const res = await fetch(`${API}/api/estimate?layer=${currentLayer}&dataset=${currentDataset}&start=${start}&end=${end}`);
+  if (!res.ok) { box.textContent = "Tahmin alınamadı."; return; }
+  const data = await res.json();
+  box.textContent = `Tahmini ~${data.estimated_rows.toLocaleString("tr-TR")} satır (${data.parts_to_scan} parça taranacak)`;
+  box.className = data.exceeds_limit ? "warn" : "";
+  btn.disabled = data.exceeds_limit || selectedColumns().length === 0;
+  if (data.exceeds_limit) {
+    box.textContent += ` — limiti (${META.max_export_rows.toLocaleString("tr-TR")}) aşıyor, tarih aralığını daraltın.`;
+  }
+}
+
+document.querySelectorAll(".layer-btn").forEach(btn => {
+  btn.addEventListener("click", () => selectLayer(btn.dataset.layer));
+});
+document.getElementById("datasetSelect").addEventListener("change", (e) => selectDataset(e.target.value));
+document.addEventListener("change", (e) => {
+  if (e.target.matches("#colsBox input, #startDate, #endDate")) {
+    clearTimeout(estimateTimer);
+    estimateTimer = setTimeout(refreshEstimate, 200);
+  }
+});
+
+document.getElementById("downloadBtn").addEventListener("click", () => {
+  const cols = selectedColumns();
+  const msg = document.getElementById("msg");
+  if (cols.length === 0) { msg.textContent = "En az bir kolon seçmelisiniz."; return; }
+  msg.textContent = "";
+
+  const start = document.getElementById("startDate").value;
+  const end = document.getElementById("endDate").value;
+  const fmt = document.querySelector('input[name="fmt"]:checked').value;
+  const url = `${API}/api/export?layer=${currentLayer}&dataset=${currentDataset}&start=${start}&end=${end}` +
+    `&columns=${encodeURIComponent(cols.join(","))}&fmt=${fmt}`;
+  window.location.href = url;
+});
+
+selectLayer("silver");
+</script>
+</body>
+</html>

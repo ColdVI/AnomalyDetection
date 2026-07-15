@@ -1,0 +1,18 @@
+{
+  "n_fit_parts_of_237": 40,
+  "n_fit_rows": 12003593,
+  "n_fit_flights": 26241,
+  "n_diagnostic_rows_scored": 2573412,
+  "n_diagnostic_flights": 6561,
+  "active_channels": [
+    "speed_residual",
+    "vertical_rate_residual",
+    "heading_residual",
+    "east_velocity_residual",
+    "north_velocity_residual"
+  ],
+  "excluded_channels": [],
+  "rho_trained_vs_magnitude": 0.9959578170731443,
+  "rho_trained_vs_shuffled_channel_fit": 0.9958413132166626,
+  "note": "FLAG/PASS iddiasi yok -- yalniz olcum. contextual_physics_v1 fail sinirinin (rho>=0.8) yalniz referans icin."
+}

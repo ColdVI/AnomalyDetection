@@ -1391,3 +1391,220 @@ artefaktından alınmıştır. Eski NN, corrected rule ve doygun CUSUM kıyaslar
 **Açık madde:** Kullanıcı toplam doğal alarm episode bütçesini ve channel paylarını sayısal olarak
 dondurmadan conformal calibration, temporal threshold, development/rehearsal veya truth-v2
 değerlendirmesi çalıştırılmaz. Üçlü holdout havuzu açılmaz.
+
+## ADR-037: Alarm bütçesi Pareto ızgarası + kanal payı + temporal profil ön-kaydı
+
+- Durum: Kabul edildi — sonuç görülmeden dondurulmuş
+- Tarih: 2026-07-14
+
+**Karar:** ADR-036'nın açık maddesi kapatıldı. Kullanıcı üç kararı AskUserQuestion ile onayladı:
+(1) toplam bütçe tek sayı yerine 5 noktalık Pareto ızgarası
+(`[0.1, 0.5, 1.0, 2.0, 5.0]` episode/100 scoreable uçuş-saat); (2) kanal/S2 payı kanıta ağırlıklı;
+(3) instant/persistence/accumulation temporal eşikleri Claude tarafından önerilip onaylandı.
+Tam türetim ve gerekçe `docs/adsb_contextual_physics_v1_alarm_budget_prereg_2026-07-14.md` ve
+makine-okunur `configs/adsb_contextual_physics_v1_alarm_budget.json`'dadır.
+
+**Kanıt:** Kanal payları ADR-028'in corrected truth-v2 pooled reçete AUROC'larından
+(ground-speed 0.974023, track 0.889552, vertical-rate 0.696337) `skill=AUROC-0.5` normalize
+edilerek türetildi. `east_velocity_residual`/`north_velocity_residual` için eski skaler `ramp`
+AUROC'u (0.558927) BİLEREK kullanılmadı — ADR-029 bu temsili tam olarak bu zayıflığı gidermek için
+terk etmişti; onun yerine kanıtlanmış en zayıf kanalın (vertical_rate, skill 0.196337) payı taban
+alındı. S2 veri-kalitesi katmanı AUROC taşımadığı için (deterministik bayrak, öğrenilmiş residual
+değil) ayrı, sabit %15 pay aldı; kalan %85 beş fizik kanalına orantılı bölündü. Nihai paylar
+toplamı `budget_shares_of_total` alanında test edilebilir şekilde tam 1.0'dır. Persistence penceresi
+30s olarak, track kanalının zaten gözlenen ~57s doğal gecikmesini kötüleştirmeyecek şekilde
+seçildi. CUSUM `h` eşiği bu belgeyle SEÇİLMEDİ — ADR-029 sözleşmesi gereği her Pareto noktasında
+doğal kalibrasyondan ayrı türetilecek.
+
+**Açık madde:** Gerçek conformal calibration/development/rehearsal koşusu henüz başlatılmadı; bu
+ADR yalnız bütçe/pay/profil yapısını dondurur. Kullanıcı ayrıca Isolation Forest'ın yeni
+residual/bağlam çerçevesinde paralel, ayrı ön-kayıtlı bir keşif olarak şimdi başlatılmasını
+onayladı (bkz. ADR-038).
+
+## ADR-038: Isolation Forest — paralel keşif, ayrı namespace
+
+- Durum: Kabul edildi — kod yazıldı, gerçek veriyle ilk magnitude self-check bekliyor
+- Tarih: 2026-07-14
+
+**Karar:** `isolation_forest_contextual_v1` adıyla `contextual_physics_v1`'i bloklamayan, onu
+ikame etmeyen paralel bir keşif açıldı. Gerekçe: IF çok-değişkenli izolasyona bakar,
+`contextual_physics_v1` zamansal-sürprize — kör noktaları farklı olabilir, füzyon AYRI bir
+ön-kayıt gerektirir, bu karar şimdi verilmedi. Tam sözleşme
+`docs/adsb_isolation_forest_contextual_v1_prereg_2026-07-14.md`'dedir.
+
+**Kanıt:** `adsb/models/isolation_forest_residual.py` yazıldı — `contextual_physics_v1` ile
+BİREBİR aynı 5 residual kanalını ve aynı `StrictNaturalRobustScaler`'ı (medyan/MAD, clip=5.0,
+MAD=0 floor'suz dışlama) paylaşır; `fit()` yalnız `natural_clean_fit` rolünü kabul eder ve
+`contains_synthetic=True` bayrağında ValueError fırlatır (çalışma-zamanı zorlaması, konvansiyon
+değil). Skorlama yalnız `score_samples()` üzerinden sürekli değer döner; `predict()`'in ikili
+çıktısı hiçbir yerde kullanılmaz. 6 test yazıldı (synthetic-reddi, MAD=0 dışlama, aykırı-değer
+sıralaması, NaN satırın düşürülmeden NaN skorlanması, determinizm) — 6/6 geçti.
+
+**Bilinen sınırlama (dürüstçe beyan):** LSTM tarafının availability mask'i burada yok — aktif 5
+kanaldan biri NaN olan satır TAMAMEN atılır (complete-case). Eksik veri deseni zaten ayrı S2
+katmanında yakalandığı için örtüşme yok, ama IF'in kapsamı LSTM'den yapısal olarak daha dar.
+
+**İlk magnitude self-check sonucu (aynı gün, gerçek veriyle):** `scripts/adsb_isolation_forest_
+magnitude_check.py`, Step-5 manifestinin fit-rolünden 40/237 parçalık bir alt-örneklemle
+(12.003.593 fit satırı/26.241 uçuş, ayrı 2.573.412 skorlanabilir diagnostic satırı/6.561 uçuş)
+koşuldu — tam-hacim/hash-zincirli üretim koşusu DEĞİL, bilinçli bir keşif alt-örneklemi.
+
+**Sonuç, dürüstçe:** `rho_trained_vs_magnitude = 0.995958`, `rho_trained_vs_shuffled_channel_fit
+= 0.995841`. İkisi de contextual_physics_v1'in kendi rho'sundan (0.65) ve eski üç NN'in
+FLAGGED sınırından (0.84–0.94) ÇOK daha yüksek. Kanal-bazında karıştırılmış (yapısı bozulmuş)
+veriyle fit edilen IF, gerçek veriyle fit edilenle NEREDEYSE AYNI sıralamayı üretiyor — bu, mevcut
+5 kanallı ham IF'in gerçek çok-değişkenli yapı öğrenmediğini, fiilen ölçekli-residual'ların
+öklid/Mahalanobis-benzeri büyüklüğünü ölçtüğünü gösteriyor. Beklenen bir matematiksel sonuç:
+bağlamdan (phase/cadence) bağımsız, düz bir IF, farklı uçuş rejimlerinin (tırmanış/cruise/iniş)
+doğal olarak farklı residual büyüklük aralıklarını "izolasyon" sanıyor olabilir.
+
+**Yorum:** Bu, IF'i şu haliyle DEĞERLİ bir tamamlayıcı sinyal olarak DESTEKLEMİYOR — mevcut ham
+hâliyle basit bir büyüklük kuralından anlamlı şekilde ayrışmıyor. Füzyona veya kıyasa
+sokulmayacak. Tek makul sonraki adım (denenmedi, ayrı ön-kayıt gerektirir): contextual model
+gibi phase/cadence-koşullu, AYRI IF fit'leri — düz/havuzlanmış IF'in bu sonucu tekrar
+üretmeyeceği garanti değil, bu yüzden iddialı bir beklenti kurulmuyor.
+
+## ADR-039: contextual_physics_v1 — ilk gerçek natural-calibration turu
+
+- Durum: Tamamlandı (keşif alt-örneklemi) — alarm/burden ölçümü henüz yok
+- Tarih: 2026-07-14
+
+**Karar:** Veri rolü sırasının 2. adımı (`docs/adsb_contextual_candidate_v1_prereg_2026-07-14.md`)
+ilk kez gerçek veriyle çalıştırıldı. `scripts/adsb_contextual_physics_v1_calibrate.py`,
+eğitilmiş checkpoint'i (`artifacts/adsb/runs/20260714_contextual_physics_v1_train_v1/`) yükler,
+Step-5 split_contract'inin `calibration` rolündeki (37.208 uçuş, fit ile aynı günden —
+2026-02-28 — ama fit'ten tamamen ayrık) satırları skorlar ve
+`adsb/conditional_calibration.py::HierarchicalConformalCalibrator`'i fit eder.
+
+**Kanıt:** 237 fit-günü parçasının 60'lık alt-örneklemi (tam-hacim değil, bilinçli keşif ölçeği)
+tarandı: 8.182 calibration-rolü uçuş bulundu (split_contract'teki 37.208'in ~%22'si — 60/237≈%25
+ile tutarlı), 3.321.776 skorlanabilir pencere, 16.001.483 satırlık uzun-format (channel, phase,
+cadence, score) kalibrasyon tablosu. `min_group_size=1000` (ADR-037/Q2'deki türetim: hedeflenen
+en küçük p'nin ~10 katı) ile hiyerarşik gruplama sağlıklı çıktı: `speed_residual`/
+`heading_residual`/`east_velocity_residual`/`north_velocity_residual` için 20 phase×cadence
+kombinasyonundan 19'u DOĞRUDAN destekli (fallback'e nadiren düşülecek); `vertical_rate_residual`
+biraz daha zayıf (16 kombinasyondan 12'si doğrudan destekli) ama channel-seviyesi fallback her
+zaman mevcut.
+
+**Yol boyunca bulunan bug:** (1) `split_contract`'teki flight_id'ler zaten `"2026-02-28:"`
+önekini taşıyor — kodum bunu bir kez daha ekleyip sıfır eşleşme üretti, düzeltildi. (2) Aynı
+oturumun daha önce iki kez düzelttiği desen tekrarladı: `contextual_channel_scores`, 3.3M
+pencereyi TEK forward'ta işlemeye çalışıp ~29.8GB istedi ve çöktü — `_score_batched()` (20.000'lik
+gruplar) ile düzeltildi.
+
+**Açık madde:** Bu yalnız kalibrasyon-sağlığı raporudur — hiçbir alarm üretilmedi, hiçbir p-değeri
+eşiklenmedi. Sıradaki adım: ADR-037'nin Pareto ızgarası + kanal bütçe paylarını kullanarak
+natural-development verisinde (rol #3) gerçek alfa-arama/doğal-yük ölçümü. Tam-hacim (237/237)
+koşusu ve hash-zincirli manifest de henüz yapılmadı — bu keşif turu, üretim kalibrasyonu değil.
+
+## ADR-040: contextual_physics_v1 — ilk gerçek doğal-yük (development) ölçümü
+
+- Durum: Tamamlandı (çok küçük ölçekli ilk bakış) — operasyonel karar için YETERSİZ, sıradaki
+  büyütmenin temelini kanıtlıyor
+- Tarih: 2026-07-14
+
+**Karar:** Veri rolü sırasının 3. adımı (natural development) ilk kez gerçek veriyle, uçtan uca
+çalıştırıldı: `scripts/adsb_contextual_physics_v1_development_burden.py` — ADR-039'daki
+kalibrasyon çıktısını yeniden üretip (2026-02-28), donmuş modeli 2026-03-01 (development günü,
+hiç fit/calibration görmemiş) verisinde skorlar, `adsb/contextual_decision.py`'nin
+instant/persistence karar profilleriyle önceden-belirlenmiş bir alfa ızgarasında doğal alarm
+yükünü (episode/scoreable uçuş-saat) ölçer. Sonuç bir ARAMA değil, sabit ızgarada bir ÖLÇÜMdür.
+
+**Yol boyunca iki gerçek performans sorunu bulundu:** (1) development gününün parça-başına
+yoğunluğu fit/calibration gününden çok daha fazla çıktı — 15 parçada bile pencereleme tek
+seferde 4.56GB'lık tek array istedi, bellek patladı; parça-parça (chunk) işleyip skorları
+biriktirmeye çevrildi. (2) `apply_detector_profile`'in satır-başına `.loc` atamalı Python
+döngüsü, 8-alfa × 5-profil taramasında 2.1M satırda 15+ dakikada tek kanalı bile bitiremedi —
+bu ÇÖZÜLMEDİ, yalnız ölçek (1 parça, 4-nokta alfa ızgarası) küçültülerek etrafından geçildi.
+Büyük ölçekli bir sonraki turda bu döngü gerçek bir darboğaz olacak, ayrı bir performans işi
+gerekecek.
+
+**Kanıt (704 uçuş, TEK development parçası — istatistiksel olarak KÜÇÜK, yalnız mekanizma
+kanıtı):** 5 profilin 4'ünde (freeze, bias, inconsistency, ve spike'ların küçük-alfa ucunda)
+en gevşek test edilen alfa'da bile doğal yük ÇOK düşük çıktı (ör. `speed_bias` alfa=3.68e-4'te
+0.0053 episode/saat, `heading_inconsistency` aynı alfa'da 0.0068 episode/saat) — Pareto
+ızgarasının EN SIKI noktası (0.1 episode/100 saat = 0.001/saat) bile bu aralıkta rahatça
+karşılanabilir görünüyor. `vertical_rate_spike` farklı davrandı: alfa=0.0136'da bile 4.89
+episode/saat'e sıçradı — bu kanalın doğal conformal p-değeri dağılımı diğerlerinden çok daha
+"yayvan," aynı hedefe çok daha küçük bir alfa gerektiriyor. En gevşek alfa (0.5) her profilde
+beklendiği gibi doygunluğa yakın (7.6–11.4 episode/saat).
+
+**Bilinen, dürüstçe beyan edilen kapsam daralması:** (1) yalnız 3/5 kanal ölçüldü —
+`east_velocity_residual`/`north_velocity_residual` (stealthy ramp accumulation) bu turda HİÇ
+çalıştırılmadı, kod yalnız 3 kanal için profil tanımlıyor; ADR-037'nin öngördüğü ortak 2-eksenli
+CUSUM entegrasyonu da yapılmadı. (2) tek development parçası (216'nın 1'i), 704 uçuş — hiçbir
+operasyonel "bu alfa'yı kullanalım" kararı bu sayıdan verilemez. (3) donmuş rehearsal (rol #4)
+ve truth-v2 karşılaştırması (rol #6) hâlâ başlamadı.
+
+**Açık madde:** Sıradaki adım öncelik sırasıyla: (a) `apply_detector_profile` sweep'i için
+vektörleştirilmiş/hızlı bir yol (mevcut fonksiyon değiştirilmeden, ayrı bir performans katmanı);
+(b) east/north kanallarının accumulation profillerini eklemek; (c) ölçeği kademeli büyütmek
+(1→10→50 parça); (d) yalnız bundan sonra donmuş rehearsal'a geçmek.
+
+## ADR-041: contextual_physics_v1 — performans darboğazı çözüldü, ölçek 20x büyütüldü,
+east/north kanalları ortak Page-CUSUM ile ilk kez ölçüldü
+
+- Durum: Tamamlandı (hâlâ tam-hacim değil, ama ADR-040'ın iki açık maddesi kapandı)
+- Tarih: 2026-07-14
+
+**Karar A — performans darboğazı:** ADR-040'ın çözülmemiş bıraktığı `apply_detector_profile`
+satır-başına `.loc` atamalı Python döngüsü, dondurulmuş fonksiyon DEĞİŞTİRİLMEDEN, yanına ayrı
+bir performans katmanı olarak ele alındı: `adsb/contextual_decision_fast.py::
+apply_detector_profile_fast`. Aynı tam recurrence'ı (instant/persistence/accumulation, gap-reset
+dahil) tekrar eder ama pandas `.loc` yazma yerine düz numpy dizileri kullanır ve DataFrame'e
+sonunda TEK seferde yazar; `instant` modu için döngü tamamen gereksiz (satırlar arası durum
+taşımıyor), tam vektörize edildi. `tests/test_adsb_contextual_decision_fast.py` (8 test:
+3 mod × 2 senaryo + tek-satır uç durumu + karışık-kanal reddi) eski/yeni fonksiyonun BİT-BİT
+aynı `alarm`/`temporal_evidence`/`reset_reason` çıktısını verdiğini kanıtlıyor. Ölçüm: 300
+uçuş / 144.856 satırlık sentetik veride eski fonksiyon 17.05s, yenisi 0.11s (~150x).
+
+**Karar B — east/north kanalları:** ADR-040'ta hiç ölçülmemiş `east_velocity_residual`/
+`north_velocity_residual`, ADR-037/ADR-029'un öngördüğü ORTAK 2-eksenli Page-CUSUM ile
+ölçüldü — `adsb/cusum.py::VectorPageCUSUM`, mevcut kural-skorlayıcı hattından SIFIRDAN
+YAZILMADAN yeniden kullanıldı (`scripts/adsb_contextual_physics_v1_cusum_burden.py`, yeni).
+`threshold_h`'nin p-değeri gibi doğal bir aralığı olmadığından (config bunu açıkça "derived
+per budget_grid point from natural calibration" olarak bırakmıştı), sıra: (1) fit-rolünde
+(20 parça, 4.698.464 satır/10.671 uçuş) median/MAD kalibrasyonu — hiçbir kanal dışlanmadı;
+(2) calibration-rolünde (60 parça, 3.568.945 satır/3.158.246 değerlendirilebilir) TEK bir
+`score_rows()` geçişiyle (h'den bağımsız) skor dağılımından 16 adet h adayı türetildi ve her
+Pareto bütçe noktasına en yakın h donduruldu; (3) o donmuş h'ler development-rolünde (20 parça,
+7.763.478 satır/6.787.342 değerlendirilebilir, 15.467 uçuş, 13.928 uçuş-saat), DEĞİŞTİRİLMEDEN
+uygulandı.
+
+**Kanıt B:** Bu ortak dedektör diğer üç kanaldan (hız/yön/dikey-hız) belirgin şekilde daha
+sessiz: Pareto=2.0 hedefinde (h=155.88) development'ta 0.00474 episode/saat, Pareto=5.0'da
+(h=93.49) 0.02039 episode/saat. Kalibrasyon→development genelleme kalitesi bütçe noktasına göre
+DEĞİŞTİ: gevşek uçta (V=2.0, V=5.0) iki gün arası oran ~1.15–1.26x (iyi genelleme); en sıkı uçta
+(V=0.1, h=312.54) kalibrasyon tahmini SADECE TEK bir gözlenen episode'a dayanıyordu (0.000157/saat)
+ve development'ta ~7.8x daha yüksek çıktı (0.00122/saat) — mutlak sayılar hâlâ küçük ama bu,
+en sıkı bütçe noktasının şu ölçekte GÜVENİLİR olmadığının açık kanıtı.
+
+**Kanıt A (büyütülmüş ölçek, 3 kanal):** Aynı 3 kanal (hız/yön/dikey-hız), development parçası
+1→20'ye, alfa ızgarası 4→12 noktaya çıkarıldı (7.252.704 skorlanabilir pencere, ~14.800–16.300
+uçuş-saat/kanal — ADR-040'ın 704 uçuşuna göre ~20x). ADR-040'ın "vertical_rate_spike diğerlerinden
+çok daha alfa-hassas" bulgusu ÇOK daha sağlam istatistikle doğrulandı: alfa=1.91e-4'te
+`vertical_rate_spike` 0.0927/saat iken aynı alfa'da `heading_inconsistency` 0.0040/saat,
+`speed_bias` 0.0010/saat — ~10-90x fark. Pareto=1.0 hedefine en yakın noktalar: vertical_rate_spike
+alfa=1e-5→0.0035/saat (izgaranın en sıkı ucu bile hedefin üstünde kalıyor), vertical_rate_freeze
+alfa=1.91e-4→0.0008/saat, speed_spike alfa=1e-5→0.0043/saat, speed_bias alfa=5.11e-4→0.0035/saat,
+heading_inconsistency alfa=7.15e-5→0.0015/saat.
+
+**Yeni, beklenmedik gözlem:** Çok gevşek alfa'larda (0.187→0.5) episode/saat sayısı bazı
+profillerde DÜŞÜYOR (ör. vertical_rate_spike 14.92→7.46/saat) — bu alarmın azaldığı anlamına
+gelmiyor; `alerted_flight_fraction` aynı aralıkta hâlâ artıyor (%98→%99). Neredeyse her satırın
+alarm verdiği rejimde, 60 saniyelik episode-birleştirme kuralı çok sayıda ardışık satırı TEK
+uzun episode'a indiriyor — episode/saat metriği tek başına gevşek alfa ucunda yanıltıcı,
+`alerted_flight_fraction` ile birlikte okunmalı. Kayıt altına alınan bir metodoloji notu, bir
+model/decision değişikliği değil.
+
+**Bilinen, dürüstçe beyan edilen kalan boşluklar:** (1) hâlâ tam-hacim değil — LSTM tarafı
+20/216 development parçası, CUSUM tarafı aynı 20/216 + 60/237 calibration; (2) CUSUM'un h
+adayları yalnız 16 noktalık bir quantile ızgarası — en sıkı Pareto noktasında (V=0.1) tek-episode
+istatistiğine dayandığı için bu nokta GÜVENİLMEZ ilan edildi, kullanılmamalı; (3) donmuş rehearsal
+(rol #4) ve truth-v2 karşılaştırması (rol #6) hâlâ başlamadı; (4) `apply_detector_profile_fast`
+sadece decision-katmanını hızlandırıyor — LSTM forward-pass ve pencereleme adımları ayrı, onlar
+zaten `_score_batched`/parça-parça yükleme ile bellek-güvenli ama hız-optimize değil.
+
+**Açık madde:** Sıradaki adım: (a) ölçeği tekrar büyütmek (20→50→tam 216/237 parça); (b) CUSUM
+h-adayları ızgarasını sıkı uçta daha ince hale getirmek (daha fazla calibration parçası, en sıkı
+Pareto noktası için); (c) yalnız bundan sonra donmuş rehearsal'a (rol #4) geçmek.
