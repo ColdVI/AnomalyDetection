@@ -25,7 +25,13 @@ _MAX_BYTES = 20 * 1024 * 1024  # 20MB -- asilirsa servis yeniden baslarken
 
 
 class _Tee:
-    """Yazilan her seyi birden fazla akisa (orn. gercek stdout + log dosyasi) aynı anda gonderir."""
+    """Yazilan her seyi birden fazla akisa (orn. gercek stdout + log dosyasi) aynı anda gonderir.
+
+    ONEMLI: isatty()/encoding burada BILEREK var -- uvicorn (dashboard-app'in
+    FastAPI thread'i) baslarken sys.stdout.isatty()'i kontrol ediyor, bu
+    metod eksikse AttributeError ile _run_api thread'i sessizce cokuyordu
+    (Dash tarafi ayri thread oldugu icin ayakta kaliyor, ama API HIC
+    baslamiyordu -- production'da fark edilmesi zor bir hataydi)."""
 
     def __init__(self, *streams):
         self._streams = streams
@@ -38,6 +44,13 @@ class _Tee:
     def flush(self):
         for s in self._streams:
             s.flush()
+
+    def isatty(self):
+        return False
+
+    @property
+    def encoding(self):
+        return getattr(self._streams[0], "encoding", "utf-8")
 
 
 def enable_file_logging(service_name: str, logs_dir: str | Path | None = None) -> None:

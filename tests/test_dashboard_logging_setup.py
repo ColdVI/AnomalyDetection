@@ -29,6 +29,25 @@ def test_enable_file_logging_creates_logs_dir_and_file(tmp_path, monkeypatch):
     assert (tmp_path / "logs" / "svc.log").exists()
 
 
+def test_enable_file_logging_stdout_has_isatty_regression(tmp_path, monkeypatch):
+    """Regresyon: uvicorn (dashboard-app'in FastAPI thread'i) baslarken
+    sys.stdout.isatty()'i kontrol ediyor -- bu metod eksikse AttributeError
+    ile _run_api thread'i sessizce cokuyor, Dash ayakta kaliyor ama API HIC
+    baslamiyordu (production'da fark edilmesi zor bir hataydi)."""
+    monkeypatch.chdir(tmp_path)
+    enable_file_logging("svc", logs_dir="logs")
+
+    assert sys.stdout.isatty() is False
+    assert sys.stderr.isatty() is False
+
+
+def test_enable_file_logging_stdout_has_encoding_attribute(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    enable_file_logging("svc", logs_dir="logs")
+
+    assert sys.stdout.encoding
+
+
 def test_enable_file_logging_default_ignores_cwd_uses_dashboard_logs(tmp_path, monkeypatch):
     """Regresyon: logs_dir varsayilani onceden CALISMA DIZININE gore bagliydi
     (relative "logs") -- script nereden calistirilirsa calistirilsin farkli/
