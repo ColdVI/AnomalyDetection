@@ -102,8 +102,20 @@ app_dash.index_string = '''
             .leaflet-tooltip-left:before  { border-left-color: var(--dash-border) !important; }
             .leaflet-tooltip-right:before { border-right-color: var(--dash-border) !important; }
 
-            /* Sol-ust +/- yakinlastirma butonlari -- Leaflet'in varsayilani
-               beyaz kutu/siyah yazi, koyu temaya uydurmak icin gecersiz
+            /* Sol-ust koseyi (+/- yakinlastirma butonlari) tasiyan Leaflet
+               konteyner'i -- ONEMLI: z-index Leaflet'in kendi CSS'inde
+               .leaflet-control-zoom'da DEGIL, bu sarmalayici .leaflet-top
+               .leaflet-left'te (varsayilan 1000) tanimli. Sol panel
+               (LEFT_PANEL_BASE, zIndex 800, sol kenarin TAMAMINI top:0'dan
+               bottom:0'a kapliyor) acilinca +/- butonlari 1000 > 800
+               oldugu icin panelin UZERINDE yuzuyormus gibi gorunuyordu.
+               Filtre butonlariyla (zIndex 700) AYNI muameleyi goruyor:
+               panel acikken kontroller onun ALTINDA kalip gizlensin,
+               "biniyor" gorunumu bitsin. */
+            .leaflet-top.leaflet-left {
+                z-index: 700 !important;
+            }
+            /* Beyaz kutu/siyah yazi -- koyu temaya uydurmak icin gecersiz
                kiliyoruz (digerleriyle AYNI renk paleti). */
             .leaflet-control-zoom {
                 border: 1px solid var(--dash-border) !important;
