@@ -1,16 +1,23 @@
 """Dashboard servislerinin (uav_producer, dashboard_consumer, minio_archiver,
 app) print() ciktisini, mevcut terminal/`docker logs` akisini BOZMADAN, ayni
-zamanda logs/ altindaki kendi dosyasina da yazan kucuk yardimci.
+zamanda Dashboard/logs/ altindaki kendi dosyasina da yazan kucuk yardimci.
 
-Servisler artik Docker-only calisiyor (native Windows kurulumu kaldirildi),
-bu yuzden yol her zaman calisma dizinine (docker-compose.yml'de WORKDIR
-/app) gore cozuluyor -- "./logs:/app/logs" bind-mount'u sayesinde bu,
-host'taki repo kokundeki logs/ klasorune karsilik gelir."""
+ONEMLI: varsayilan konum CALISMA DIZININE (cwd) GORE DEGIL, bu dosyanin
+KENDI konumuna gore hesaplaniyor (dirname(dirname(__file__))/logs -- yani
+Dashboard/codes/'in bir ustu, Dashboard/logs/). Once cwd'ye gore bagli
+"logs" (relative) kullanilmisti; script'in NEREDEN calistirildigina gore
+(Docker WORKDIR /app, yoksa baska bir dizin) farkli/beklenmeyen bir yerde
+logs/ olusuyordu. Bu artik cagrildigi yerden BAGIMSIZ, hep Dashboard/logs/'e
+(container icinde /app/logs/) yazar -- docker-compose.yml'deki
+"./Dashboard/logs:/app/logs" bind-mount'u bunu host'taki Dashboard/logs/'e
+esler."""
 
 from __future__ import annotations
 
 import sys
 from pathlib import Path
+
+_DEFAULT_LOGS_DIR = Path(__file__).resolve().parent.parent / "logs"
 
 _MAX_BYTES = 20 * 1024 * 1024  # 20MB -- asilirsa servis yeniden baslarken
                                  # eski dosya .log.1'e tasinir (gercek zamanli
@@ -33,11 +40,12 @@ class _Tee:
             s.flush()
 
 
-def enable_file_logging(service_name: str, logs_dir: str = "logs") -> None:
+def enable_file_logging(service_name: str, logs_dir: str | Path | None = None) -> None:
     """stdout ve stderr'i, mevcut davranisi (terminal/`docker logs`) koruyarak
-    logs_dir/<service_name>.log dosyasina da yazar. Her servis kendi
+    logs_dir/<service_name>.log dosyasina da yazar. logs_dir verilmezse
+    Dashboard/logs/ kullanilir (bkz. modul docstring'i). Her servis kendi
     __main__ blogunun EN BASINDA, ilk print()'ten once cagirmali."""
-    directory = Path(logs_dir)
+    directory = Path(logs_dir) if logs_dir is not None else _DEFAULT_LOGS_DIR
     directory.mkdir(parents=True, exist_ok=True)
     log_path = directory / f"{service_name}.log"
 

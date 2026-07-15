@@ -10,6 +10,7 @@ import sys
 
 import pytest
 
+import Dashboard.codes.logging_setup as logging_setup
 from Dashboard.codes.logging_setup import enable_file_logging
 
 
@@ -26,6 +27,24 @@ def test_enable_file_logging_creates_logs_dir_and_file(tmp_path, monkeypatch):
 
     assert (tmp_path / "logs").is_dir()
     assert (tmp_path / "logs" / "svc.log").exists()
+
+
+def test_enable_file_logging_default_ignores_cwd_uses_dashboard_logs(tmp_path, monkeypatch):
+    """Regresyon: logs_dir varsayilani onceden CALISMA DIZININE gore bagliydi
+    (relative "logs") -- script nereden calistirilirsa calistirilsin farkli/
+    beklenmeyen bir yerde logs/ olusuyordu. Varsayilan artik cwd'den
+    BAGIMSIZ, Dashboard/logs/'e sabit -- burada gercek Dashboard/logs/'e
+    yazmamak icin _DEFAULT_LOGS_DIR bir tmp_path'e monkeypatch'leniyor."""
+    fake_default = tmp_path / "Dashboard" / "logs"
+    monkeypatch.setattr(logging_setup, "_DEFAULT_LOGS_DIR", fake_default)
+    (tmp_path / "somewhere" / "else").mkdir(parents=True)
+    monkeypatch.chdir(tmp_path / "somewhere" / "else")
+
+    enable_file_logging("svc")  # logs_dir verilmiyor -- varsayilan kullanilmali
+
+    assert fake_default.is_dir()
+    assert (fake_default / "svc.log").exists()
+    assert not (tmp_path / "somewhere" / "else" / "logs").exists()
 
 
 def test_enable_file_logging_writes_print_output_to_file(tmp_path, monkeypatch):

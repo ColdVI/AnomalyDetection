@@ -144,7 +144,7 @@ services:
       OPENSKY_CLIENT_ID: ${OPENSKY_CLIENT_ID:-}
       OPENSKY_CLIENT_SECRET: ${OPENSKY_CLIENT_SECRET:-}
     volumes:
-      - ./logs:/app/logs
+      - ./Dashboard/logs:/app/logs
     depends_on:
       - kafka
       - redis
@@ -165,7 +165,7 @@ services:
       INFLUX_BUCKET: uav-history
       INFLUX_TOKEN: iha-influx-token-docker
     volumes:
-      - ./logs:/app/logs
+      - ./Dashboard/logs:/app/logs
     depends_on:
       - kafka
       - redis
@@ -189,7 +189,7 @@ services:
       - "8000:8000"
       - "8050:8050"
     volumes:
-      - ./logs:/app/logs
+      - ./Dashboard/logs:/app/logs
     depends_on:
       - redis
       - influxdb
@@ -208,7 +208,7 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
     volumes:
-      - ./logs:/app/logs
+      - ./Dashboard/logs:/app/logs
     depends_on:
       - kafka
       - minio
