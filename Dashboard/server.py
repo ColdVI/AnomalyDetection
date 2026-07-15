@@ -34,7 +34,7 @@ if not INFLUX_TOKEN:
 
 # ------------------------------------------------------------------ FastAPI --
 
-app_api = FastAPI(title="ADS-B Local API")
+app_api = FastAPI(title="UAV API")
 app_api.add_middleware(CORSMiddleware, allow_origins=["*"],
                         allow_methods=["*"], allow_headers=["*"])
 

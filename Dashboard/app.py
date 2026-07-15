@@ -22,7 +22,10 @@ from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 import plotly.graph_objects as go
-import redis
+import redis  # ONEMLI: app.py'nin kendi kodu artik bunu cagirmiyor -- SADECE
+# testlerin monkeypatch.setattr(dashapp.redis, "Redis", ...) ile PAYLASILAN
+# redis MODULUNUN attribute'unu degistirebilmesi icin burada import edilmis
+# olmasi gerekiyor (bkz. test_dashboard_api_endpoints.py, test_dashboard_geocoding.py).
 import requests
 import uvicorn
 import dash
@@ -53,6 +56,10 @@ from styles import (
 )
 from layout import build_layout
 from server import app_api, app_dash, _query_api
+# ONEMLI: _query_api de app.py'nin kendi kodunda cagrilmiyor -- testler
+# monkeypatch.setattr(dashapp._query_api, "query_data_frame", ...) ile bu
+# NESNENIN attribute'unu degistiriyor (server.py'de tanimlansa da app.py'nin
+# import ettigi AYNI nesne oldugu icin patch gorunur kaliyor).
 # ONEMLI: asagidaki 9 isim app.py'nin KENDI kodunda hic cagrilmiyor --
 # SADECE testlerin dogrudan cagirdigi/patch'ledigi (health, get_data_source,
 # set_data_source, get_history, get_flight_segments, _get_flights,
@@ -74,6 +81,11 @@ from constants import (
     GEOCODE_MAX_LOOKUPS_PER_REQUEST, DEFAULT_TIMEZONE, FLIGHT_GAP_THRESHOLD_MIN,
     AIRLINE_PREFIXES,
 )
+# ONEMLI: REDIS_DATA_SOURCE_KEY, REDIS_PRODUCER_STATUS_KEY, AIRLINE_PREFIXES
+# ve GEOCODE_MAX_LOOKUPS_PER_REQUEST app.py'nin kendi kodunda sadece
+# YORUM/JS string'i icinde geciyor -- gercek kullanimlari testlerde
+# dashapp.<isim> uzerinden (bkz. test_dashboard_api_endpoints.py,
+# test_dashboard_airline_filter.py, test_dashboard_geocoding.py). Silinmemeli.
 
 
 def _resolve_tz(offset_str):
@@ -470,7 +482,7 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_
         is_military = bool(f.get("is_military"))
         # ONEMLI: adsb.lol/tar1090 gibi -- varsayilan renk artik IRTIFAYA
         # gore (bkz. _altitude_to_color), askeri/sivil ayrimi RENKTE
-        # ARTIK YOK (kullanici karariyla -- "adsb.lol'daki gibi olsun").
+        # ARTIK YOK (kullanici karariyla).
         # Acil durum (ALERT_COLOR) TEK istisna, guvenlik-kritik oldugu
         # icin irtifa renginin USTUNE geciyor.
         if icao in alert_icaos:

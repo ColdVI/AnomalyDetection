@@ -127,7 +127,8 @@ services:
   # --------------------------------------------------------------------
   uav-producer:
     build:
-      context: ./Dashboard
+      context: .
+      dockerfile: Dashboard/Dockerfile
     image: iha-dashboard:local
     profiles: ["streaming"]
     restart: unless-stopped
@@ -149,7 +150,8 @@ services:
 
   dashboard-consumer:
     build:
-      context: ./Dashboard
+      context: .
+      dockerfile: Dashboard/Dockerfile
     image: iha-dashboard:local
     profiles: ["streaming"]
     restart: unless-stopped
@@ -168,7 +170,8 @@ services:
 
   dashboard-app:
     build:
-      context: ./Dashboard
+      context: .
+      dockerfile: Dashboard/Dockerfile
     image: iha-dashboard:local
     profiles: ["streaming"]
     restart: unless-stopped
@@ -188,7 +191,8 @@ services:
 
   minio-archiver:
     build:
-      context: ./Dashboard
+      context: .
+      dockerfile: Dashboard/Dockerfile
     image: iha-dashboard:local
     profiles: ["streaming"]
     restart: unless-stopped
