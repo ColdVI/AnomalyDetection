@@ -1,4 +1,4 @@
-"""In-memory fakes for Dashboard/ tests -- Redis ve MinIO (Dashboard/minio_archiver.py
+"""In-memory fakes for Dashboard/ tests -- Redis ve MinIO (Dashboard/codes/minio_archiver.py
 tarafinda kullanilan CIPLAK minio.Minio yuzeyi, src/common/fakes.py'deki
 FakeMinioClient'tan FARKLI bir arayuz, o yuzden burada AYRI/kucuk bir fake var).
 
@@ -171,7 +171,7 @@ class FakeRequestsRouter:
 
 
 class FakeMinio:
-    """minio.Minio'nun Dashboard/minio_archiver.py'nin kullandigi ciplak
+    """minio.Minio'nun Dashboard/codes/minio_archiver.py'nin kullandigi ciplak
     yuzeyi -- put_object/delete_bucket_lifecycle/bucket_exists/make_bucket."""
 
     def __init__(self) -> None:

@@ -45,7 +45,13 @@ _query_api = _influx.query_api()
 
 # --------------------------------------------------------------------- Dash --
 
-app_dash = Dash(__name__, title="Dashboard")
+# ONEMLI: assets/ artik server.py'nin YANINDA degil, bir ust dizinde
+# (Dashboard/assets/, kod Dashboard/codes/'e tasindiktan sonra -- statik
+# varliklar ayri tutulsun diye). assets_folder verilmezse Dash bunu
+# server.py'nin KENDI dizininde arar (Dashboard/codes/assets/) ve dash_extensions'in
+# assign() ile ürettigi dashExtensions_default.js'i YANLIS yere yazar/bulamaz.
+_ASSETS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets")
+app_dash = Dash(__name__, title="Dashboard", assets_folder=_ASSETS_DIR)
 
 
 # Tarayicinin varsayilan <body> kenar bosluguyla (genelde 8px) koyu tema

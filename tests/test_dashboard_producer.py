@@ -13,7 +13,7 @@ import time
 
 import pytest
 
-from Dashboard import uav_producer as prod
+from Dashboard.codes import uav_producer as prod
 
 
 # ------------------------------------------------------------- _normalize_common --

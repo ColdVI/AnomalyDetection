@@ -1,7 +1,7 @@
 services:
   # ONEMLI: Zookeeper KALDIRILDI -- Kafka artik KRaft modunda (kendi
   # kendini yonetiyor, ayri bir koordinasyon servisi gerekmiyor). Zookeeper
-  # sadece lokal/native kurulumun bir kalintisiydi (bkz. Dashboard/
+  # sadece lokal/native kurulumun bir kalintisiydi (bkz.
   # Dashboard/docs/FULL_PROJECT_HANDOFF.md Bolum 6.3), Docker'da tek-broker icin gereksiz
   # bir servis + ekstra ~512MB RAM demekti. KRaft, Kafka'nin kendisinin
   # onerdigi/varsayilan yolu (Zookeeper 4.0'da tamamen kaldiriliyor).
@@ -146,7 +146,7 @@ services:
     depends_on:
       - kafka
       - redis
-    command: ["python", "uav_producer.py"]
+    command: ["python", "codes/uav_producer.py"]
 
   dashboard-consumer:
     build:
@@ -166,7 +166,7 @@ services:
       - kafka
       - redis
       - influxdb
-    command: ["python", "dashboard_consumer.py"]
+    command: ["python", "codes/dashboard_consumer.py"]
 
   dashboard-app:
     build:
@@ -187,7 +187,7 @@ services:
     depends_on:
       - redis
       - influxdb
-    command: ["python", "app.py"]
+    command: ["python", "codes/app.py"]
 
   minio-archiver:
     build:
@@ -204,7 +204,7 @@ services:
     depends_on:
       - kafka
       - minio
-    command: ["python", "minio_archiver.py"]
+    command: ["python", "codes/minio_archiver.py"]
 
 volumes:
   influxdb_data:

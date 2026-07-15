@@ -15,7 +15,7 @@ from datetime import timezone, timedelta
 
 import pytest
 
-from Dashboard import app as dashapp
+from Dashboard.codes import app as dashapp
 
 
 # --------------------------------------------------------------- _resolve_tz --

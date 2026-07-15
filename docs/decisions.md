@@ -183,7 +183,7 @@ Mimari diyagram tek bir consumer'ın aynı anda Redis + InfluxDB + MinIO'ya yazd
 gösteriyordu (3 sink, 1 consumer). Uygulamada **iki ayrı consumer** tercih edildi:
 
 - `src/ingestion/adsblol_consumer.py` — `group.id = dashboard-consumer`; Redis + InfluxDB
-- `Dashboard/minio_archiver.py` — `group.id = minio-archiver`; MinIO Bronze
+- `Dashboard/codes/minio_archiver.py` — `group.id = minio-archiver`; MinIO Bronze
 
 **Neden?** Separation of Concerns: arşivleyici çöktüğünde dashboard etkilenmiyor;
 arşivleyici bağımsız ölçeklenebilir; her consumer kendi offset'ini yönetiyor.

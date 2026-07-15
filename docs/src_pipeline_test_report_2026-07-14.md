@@ -52,7 +52,7 @@ netleşiyor:
    kendi test dosyasında ve arşivlenmiş eski bir Makefile'da
    (`archive/2026-07-10_legacy_non_adsb_ml/project_support/Makefile_OLD`)
    geçiyor — aktif hiçbir production kodu tarafından çağrılmıyor.
-2. `Dashboard/minio_archiver.py`'nin docstring'i, 2026-07-09 tarihli bir
+2. `Dashboard/codes/minio_archiver.py`'nin docstring'i, 2026-07-09 tarihli bir
    ürün kararıyla bu "7 günlük otomatik silme" özelliğinin **kaldırıldığını**
    zaten açıkça belgeliyor ("*2026-07-09 KARARI: MinIO'da 7 GÜNLÜK OTOMATIK
    SİLME KURALI YOK/KALDIRILDI*").

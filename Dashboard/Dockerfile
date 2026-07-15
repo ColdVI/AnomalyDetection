@@ -9,4 +9,4 @@ COPY Dashboard/ .
 
 ENV PYTHONUNBUFFERED=1
 
-CMD ["python", "app.py"]
+CMD ["python", "codes/app.py"]

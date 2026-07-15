@@ -97,7 +97,7 @@ def _parse_ac_record(record: dict, batch_ts: float | None) -> dict:
     alt_m = None if (on_ground or alt_baro_raw is None) else _feet_to_m(alt_baro_raw)
     alt_geom_raw = record.get("alt_geom")
     alt_geom_m = None if alt_geom_raw is None else _feet_to_m(alt_geom_raw)
-    # 2026-07-10 (kullanici istegi): dbFlags bit 1 = askeri (Dashboard/uav_producer.py
+    # 2026-07-10 (kullanici istegi): dbFlags bit 1 = askeri (Dashboard/codes/uav_producer.py
     # ve parse_adsblol_historical.py ile AYNI mantik). Bu raw kayit adsb.lol'un ham
     # `ac` girdisi oldugu icin dbFlags per-ucak burada mevcut (dosya-seviyesi degil).
     try:
@@ -246,7 +246,7 @@ if __name__ == "__main__":
         "--bronze-prefix", default=_LANDING_PREFIX, help="MinIO Bronze prefix for JSONL files"
     )
     # ONEMLI: MinIO'da artik bir silme/lifecycle kurali YOK (2026-07-09 karari,
-    # bkz. Dashboard/minio_archiver.py modul docstring'i) -- Bronze'daki realtime
+    # bkz. Dashboard/codes/minio_archiver.py modul docstring'i) -- Bronze'daki realtime
     # landing verisi silinmiyor, sadece bu script calisip Silver'a "islemedigi"
     # surece BIRIKIYOR (zararsiz, sadece disk kullanir). --loop bu script'i
     # minio_archiver.py'nin kendi dongusuyle AYNI desende (sonsuz dongu + sabit

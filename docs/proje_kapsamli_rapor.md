@@ -304,7 +304,7 @@ diğerinin yerine geçmiyor, iki ayrı, birbirinden bağımsız üretim yolu var
 ### 1.5 Kafka ETL / Gerçek Zamanlı Akış
 
 ```python
-# Dashboard/uav_producer.py -- gercek kod (ozetlenmis)
+# Dashboard/codes/uav_producer.py -- gercek kod (ozetlenmis)
 TOPIC = "uav.flights"
 DEFAULT_WORLD_RADIUS_NM = 12000   # tek sorguda TUM dunyayi kapsayacak yaricap
 
@@ -320,7 +320,7 @@ while True:
 ```
 
 ```python
-# Dashboard/dashboard_consumer.py -- gercek kod (ozetlenmis)
+# Dashboard/codes/dashboard_consumer.py -- gercek kod (ozetlenmis)
 FLIGHTS_TOPIC = "uav.flights"
 ALERTS_TOPIC = "uav.alerts"
 
@@ -334,7 +334,7 @@ consumer.subscribe([FLIGHTS_TOPIC, ALERTS_TOPIC])
 ```
 
 ```python
-# Dashboard/minio_archiver.py -- gercek kod (ozetlenmis)
+# Dashboard/codes/minio_archiver.py -- gercek kod (ozetlenmis)
 TOPIC = "uav.flights"
 GROUP_ID = "minio-archiver"                 # <-- FARKLI, BAGIMSIZ grup
 BATCH_SIZE = 500

@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import re
 
-from Dashboard import app as dashapp
+from Dashboard.codes import app as dashapp
 
 # Gecerli bir CSS secici (class/id/element/pseudo/attribute/kombinator)
 # icinde bulunabilecek karakterler -- Turkce harfler, apostrof, nokta

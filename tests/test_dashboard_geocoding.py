@@ -10,14 +10,14 @@ from __future__ import annotations
 
 import pandas as pd
 
-from Dashboard import app as dashapp
-# ONEMLI: "from Dashboard import api" (noktali) app.py'nin KENDI "from api
+from Dashboard.codes import app as dashapp
+# ONEMLI: "from Dashboard.codes import api" (noktali) app.py'nin KENDI "from api
 # import ..." satirinin kullandigi CIPLAK modulden (bkz. app.py'deki
 # sys.path shim yorumu) FARKLI bir modul nesnesi uretir -- Python ayni
 # dosyayi "api" ve "Dashboard.api" olarak IKI KEZ, birbirinden bagimsiz
 # calistirir. get_flight_segments'in GERCEKTEN cagirdigi _reverse_geocode'u
 # patch'lemek icin CIPLAK "import api" sarttir (app.py'nin shim'i sayesinde
-# "from Dashboard import app" import'undan SONRA calisir).
+# "from Dashboard.codes import app" import'undan SONRA calisir).
 import api as dashapi
 from dashboard_fakes import FakeRedis, FakeRequestsRouter
 
@@ -128,7 +128,7 @@ def test_get_flight_segments_splits_on_large_time_gaps():
     def fake_geocode(lat, lon):
         return None
 
-    import Dashboard.api as _mod
+    import Dashboard.codes.api as _mod
     _orig_query = _mod._query_api.query_data_frame
     _mod._query_api.query_data_frame = lambda flux: _points_df(times)
     _orig_geocode = _mod._reverse_geocode

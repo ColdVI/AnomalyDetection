@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pytest
 
-from Dashboard import dashboard_consumer as consumer
+from Dashboard.codes import dashboard_consumer as consumer
 from dashboard_fakes import FakeRedis
 
 

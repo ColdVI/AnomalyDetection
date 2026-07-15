@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import pytest
 
-from Dashboard import app as dashapp
+from Dashboard.codes import app as dashapp
 from dashboard_fakes import simulate_trigger
 
 

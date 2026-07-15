@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import json
 
-from Dashboard import app as dashapp
+from Dashboard.codes import app as dashapp
 from dashboard_fakes import FakeRedis
 
 
