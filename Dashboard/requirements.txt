@@ -1,0 +1,22 @@
+# Dashboard/'un KENDI, HAFIF bagimliligi -- kok requirements.txt (src/ pipeline
+# + ML modelleri icin torch/scikit-learn/scipy/pyarrow/joblib gibi devasa
+# paketler tasir) ile BILEREK ayri tutuluyor. 2026-07-15'teki birlestirme
+# Dashboard'un Docker imajini gereksiz yere torch dahil indirmeye zorlayip
+# build'i saatlerce yavaslatti (2026-07-16'da fark edildi) -- bu yuzden
+# Dashboard/codes/*.py'nin GERCEKTEN import ettigi paketlerle sinirlandirildi.
+#
+# Versiyonlar kok requirements.txt ile AYNI (ayni makinede dogrulanmis) --
+# sadece Dashboard'un ihtiyaci OLMAYAN paketler burada YOK.
+confluent-kafka==2.15.0
+redis==8.0.1
+influxdb-client==1.50.0
+minio==7.2.20
+pandas==3.0.3
+fastapi==0.138.2
+uvicorn[standard]==0.49.0
+dash==4.3.0
+dash-leaflet==1.1.3
+dash-extensions==2.0.5
+plotly==6.8.0
+requests==2.34.2
+python-dotenv==1.2.2

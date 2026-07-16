@@ -1,0 +1,833 @@
+{
+  "role": "rehearsal",
+  "contracts": {
+    "critical": {
+      "methods": {
+        "px4_native": {
+          "burden": {
+            "n_alert_episodes": 4,
+            "n_flights": 5,
+            "n_alerted_flights": 3,
+            "scoreable_flight_hours": 0.13861923305555557,
+            "airborne_flight_hours": 0.13944971833333333,
+            "episodes_per_scoreable_flight_hour": 28.856024606606265,
+            "scoreable_coverage": 0.9940445539245004
+          },
+          "events": {
+            "deadline_s": 5.0,
+            "n_events": 10,
+            "n_detected": 9,
+            "recall": 0.9,
+            "wilson_95": {
+              "lower": 0.5958499732047615,
+              "upper": 0.9821237869049271
+            },
+            "by_fault_mode": {
+              "3": {
+                "name": "noise",
+                "n_events": 5,
+                "n_detected": 5,
+                "recall": 1.0
+              },
+              "4": {
+                "name": "scale_factor",
+                "n_events": 5,
+                "n_detected": 4,
+                "recall": 0.8
+              }
+            },
+            "event_evaluable_coverage_macro": 1.0,
+            "delay_s": {
+              "median": 0.3050580000000025,
+              "p95": 0.5651455999999881
+            },
+            "per_event": [
+              {
+                "flight_id": "Real-Sensors/acce-GPS/447_1/log_71_2023-6-15-10-00-56/log_71_2023-6-15-10-00-56.ulg",
+                "flight_mode": "acce",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 0.2075889999999987,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/acce-GPS/449_1/log_73_2023-6-15-10-11-02/log_73_2023-6-15-10-11-02.ulg",
+                "flight_mode": "acce",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 0.6043479999999875,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/circling-GPS/390_1/log_36_2023-6-10-11-52-50/log_36_2023-6-10-11-52-50.ulg",
+                "flight_mode": "circling",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 0.3161309999999844,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/circling-GPS/392_1/log_38_2023-6-10-12-07-34/log_38_2023-6-10-12-07-34.ulg",
+                "flight_mode": "circling",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 0.20538399999998092,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/hover-GPS/100_2/log_7_2023-5-23-14-44-48/log_7_2023-5-23-14-44-48.ulg",
+                "flight_mode": "hover",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/hover-GPS/91_1/log_8_2023-5-22-14-33-50/log_8_2023-5-22-14-33-50.ulg",
+                "flight_mode": "hover",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 0.5063419999999894,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/velocity-GPS/310_1/log_27_2023-6-1-17-18-58/log_27_2023-6-1-17-18-58.ulg",
+                "flight_mode": "velocity",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 0.3050580000000025,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/velocity-GPS/312_1/log_22_2023-6-2-09-51-00/log_22_2023-6-2-09-51-00.ulg",
+                "flight_mode": "velocity",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 0.22181499999999232,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/waypoint-GPS/226_1/log_25_2023-5-31-10-19-58/log_25_2023-5-31-10-19-58.ulg",
+                "flight_mode": "waypoint",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 0.30465199999997594,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/waypoint-GPS/231_1/log_30_2023-5-31-10-55-32/log_30_2023-5-31-10-55-32.ulg",
+                "flight_mode": "waypoint",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 0.3991660000000081,
+                "event_evaluable_fraction": 1.0
+              }
+            ]
+          },
+          "passes_gate": false,
+          "current_role_passes_gate": false,
+          "prior_role_passes_gate": false
+        },
+        "cusum": {
+          "burden": {
+            "n_alert_episodes": 0,
+            "n_flights": 5,
+            "n_alerted_flights": 0,
+            "scoreable_flight_hours": 0.13861923305555557,
+            "airborne_flight_hours": 0.13944971833333333,
+            "episodes_per_scoreable_flight_hour": 0.0,
+            "scoreable_coverage": 0.9940445539245004
+          },
+          "events": {
+            "deadline_s": 5.0,
+            "n_events": 10,
+            "n_detected": 0,
+            "recall": 0.0,
+            "wilson_95": {
+              "lower": 0.0,
+              "upper": 0.2775327998628892
+            },
+            "by_fault_mode": {
+              "3": {
+                "name": "noise",
+                "n_events": 5,
+                "n_detected": 0,
+                "recall": 0.0
+              },
+              "4": {
+                "name": "scale_factor",
+                "n_events": 5,
+                "n_detected": 0,
+                "recall": 0.0
+              }
+            },
+            "event_evaluable_coverage_macro": 1.0,
+            "delay_s": {
+              "median": null,
+              "p95": null
+            },
+            "per_event": [
+              {
+                "flight_id": "Real-Sensors/acce-GPS/447_1/log_71_2023-6-15-10-00-56/log_71_2023-6-15-10-00-56.ulg",
+                "flight_mode": "acce",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/acce-GPS/449_1/log_73_2023-6-15-10-11-02/log_73_2023-6-15-10-11-02.ulg",
+                "flight_mode": "acce",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/circling-GPS/390_1/log_36_2023-6-10-11-52-50/log_36_2023-6-10-11-52-50.ulg",
+                "flight_mode": "circling",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/circling-GPS/392_1/log_38_2023-6-10-12-07-34/log_38_2023-6-10-12-07-34.ulg",
+                "flight_mode": "circling",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/hover-GPS/100_2/log_7_2023-5-23-14-44-48/log_7_2023-5-23-14-44-48.ulg",
+                "flight_mode": "hover",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/hover-GPS/91_1/log_8_2023-5-22-14-33-50/log_8_2023-5-22-14-33-50.ulg",
+                "flight_mode": "hover",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/velocity-GPS/310_1/log_27_2023-6-1-17-18-58/log_27_2023-6-1-17-18-58.ulg",
+                "flight_mode": "velocity",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/velocity-GPS/312_1/log_22_2023-6-2-09-51-00/log_22_2023-6-2-09-51-00.ulg",
+                "flight_mode": "velocity",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/waypoint-GPS/226_1/log_25_2023-5-31-10-19-58/log_25_2023-5-31-10-19-58.ulg",
+                "flight_mode": "waypoint",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/waypoint-GPS/231_1/log_30_2023-5-31-10-55-32/log_30_2023-5-31-10-55-32.ulg",
+                "flight_mode": "waypoint",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              }
+            ]
+          },
+          "passes_gate": false,
+          "current_role_passes_gate": false,
+          "prior_role_passes_gate": false
+        },
+        "lstm": {
+          "burden": {
+            "n_alert_episodes": 0,
+            "n_flights": 5,
+            "n_alerted_flights": 0,
+            "scoreable_flight_hours": 0.13375049333333333,
+            "airborne_flight_hours": 0.13944971833333333,
+            "episodes_per_scoreable_flight_hour": 0.0,
+            "scoreable_coverage": 0.9591306094546791
+          },
+          "events": {
+            "deadline_s": 5.0,
+            "n_events": 10,
+            "n_detected": 9,
+            "recall": 0.9,
+            "wilson_95": {
+              "lower": 0.5958499732047615,
+              "upper": 0.9821237869049271
+            },
+            "by_fault_mode": {
+              "3": {
+                "name": "noise",
+                "n_events": 5,
+                "n_detected": 5,
+                "recall": 1.0
+              },
+              "4": {
+                "name": "scale_factor",
+                "n_events": 5,
+                "n_detected": 4,
+                "recall": 0.8
+              }
+            },
+            "event_evaluable_coverage_macro": 1.0,
+            "delay_s": {
+              "median": 0.899327999999997,
+              "p95": 1.3159257999999852
+            },
+            "per_event": [
+              {
+                "flight_id": "Real-Sensors/acce-GPS/447_1/log_71_2023-6-15-10-00-56/log_71_2023-6-15-10-00-56.ulg",
+                "flight_mode": "acce",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 1.2063469999999938,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/acce-GPS/449_1/log_73_2023-6-15-10-11-02/log_73_2023-6-15-10-11-02.ulg",
+                "flight_mode": "acce",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 0.6043479999999875,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/circling-GPS/390_1/log_36_2023-6-10-11-52-50/log_36_2023-6-10-11-52-50.ulg",
+                "flight_mode": "circling",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 1.3177429999999788,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/circling-GPS/392_1/log_38_2023-6-10-12-07-34/log_38_2023-6-10-12-07-34.ulg",
+                "flight_mode": "circling",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/hover-GPS/100_2/log_7_2023-5-23-14-44-48/log_7_2023-5-23-14-44-48.ulg",
+                "flight_mode": "hover",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 0.5012189999999919,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/hover-GPS/91_1/log_8_2023-5-22-14-33-50/log_8_2023-5-22-14-33-50.ulg",
+                "flight_mode": "hover",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 1.0126989999999978,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/velocity-GPS/310_1/log_27_2023-6-1-17-18-58/log_27_2023-6-1-17-18-58.ulg",
+                "flight_mode": "velocity",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 1.3131999999999948,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/velocity-GPS/312_1/log_22_2023-6-2-09-51-00/log_22_2023-6-2-09-51-00.ulg",
+                "flight_mode": "velocity",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 0.720688999999993,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/waypoint-GPS/226_1/log_25_2023-5-31-10-19-58/log_25_2023-5-31-10-19-58.ulg",
+                "flight_mode": "waypoint",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 0.8078830000000039,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/waypoint-GPS/231_1/log_30_2023-5-31-10-55-32/log_30_2023-5-31-10-55-32.ulg",
+                "flight_mode": "waypoint",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 0.899327999999997,
+                "event_evaluable_fraction": 1.0
+              }
+            ]
+          },
+          "passes_gate": false,
+          "current_role_passes_gate": true,
+          "prior_role_passes_gate": false
+        }
+      }
+    },
+    "advisory": {
+      "methods": {
+        "px4_native": {
+          "burden": {
+            "n_alert_episodes": 4,
+            "n_flights": 5,
+            "n_alerted_flights": 3,
+            "scoreable_flight_hours": 0.13861923305555557,
+            "airborne_flight_hours": 0.13944971833333333,
+            "episodes_per_scoreable_flight_hour": 28.856024606606265,
+            "scoreable_coverage": 0.9940445539245004
+          },
+          "events": {
+            "deadline_s": 15.0,
+            "n_events": 10,
+            "n_detected": 9,
+            "recall": 0.9,
+            "wilson_95": {
+              "lower": 0.5958499732047615,
+              "upper": 0.9821237869049271
+            },
+            "by_fault_mode": {
+              "3": {
+                "name": "noise",
+                "n_events": 5,
+                "n_detected": 5,
+                "recall": 1.0
+              },
+              "4": {
+                "name": "scale_factor",
+                "n_events": 5,
+                "n_detected": 4,
+                "recall": 0.8
+              }
+            },
+            "event_evaluable_coverage_macro": 1.0,
+            "delay_s": {
+              "median": 0.3050580000000025,
+              "p95": 0.5651455999999881
+            },
+            "per_event": [
+              {
+                "flight_id": "Real-Sensors/acce-GPS/447_1/log_71_2023-6-15-10-00-56/log_71_2023-6-15-10-00-56.ulg",
+                "flight_mode": "acce",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 0.2075889999999987,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/acce-GPS/449_1/log_73_2023-6-15-10-11-02/log_73_2023-6-15-10-11-02.ulg",
+                "flight_mode": "acce",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 0.6043479999999875,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/circling-GPS/390_1/log_36_2023-6-10-11-52-50/log_36_2023-6-10-11-52-50.ulg",
+                "flight_mode": "circling",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 0.3161309999999844,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/circling-GPS/392_1/log_38_2023-6-10-12-07-34/log_38_2023-6-10-12-07-34.ulg",
+                "flight_mode": "circling",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 0.20538399999998092,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/hover-GPS/100_2/log_7_2023-5-23-14-44-48/log_7_2023-5-23-14-44-48.ulg",
+                "flight_mode": "hover",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/hover-GPS/91_1/log_8_2023-5-22-14-33-50/log_8_2023-5-22-14-33-50.ulg",
+                "flight_mode": "hover",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 0.5063419999999894,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/velocity-GPS/310_1/log_27_2023-6-1-17-18-58/log_27_2023-6-1-17-18-58.ulg",
+                "flight_mode": "velocity",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 0.3050580000000025,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/velocity-GPS/312_1/log_22_2023-6-2-09-51-00/log_22_2023-6-2-09-51-00.ulg",
+                "flight_mode": "velocity",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 0.22181499999999232,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/waypoint-GPS/226_1/log_25_2023-5-31-10-19-58/log_25_2023-5-31-10-19-58.ulg",
+                "flight_mode": "waypoint",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 0.30465199999997594,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/waypoint-GPS/231_1/log_30_2023-5-31-10-55-32/log_30_2023-5-31-10-55-32.ulg",
+                "flight_mode": "waypoint",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 0.3991660000000081,
+                "event_evaluable_fraction": 1.0
+              }
+            ]
+          },
+          "passes_gate": false,
+          "current_role_passes_gate": false,
+          "prior_role_passes_gate": false
+        },
+        "cusum": {
+          "burden": {
+            "n_alert_episodes": 1,
+            "n_flights": 5,
+            "n_alerted_flights": 1,
+            "scoreable_flight_hours": 0.13861923305555557,
+            "airborne_flight_hours": 0.13944971833333333,
+            "episodes_per_scoreable_flight_hour": 7.214006151651566,
+            "scoreable_coverage": 0.9940445539245004
+          },
+          "events": {
+            "deadline_s": 15.0,
+            "n_events": 10,
+            "n_detected": 7,
+            "recall": 0.7,
+            "wilson_95": {
+              "lower": 0.39677814746114537,
+              "upper": 0.8922087325936989
+            },
+            "by_fault_mode": {
+              "3": {
+                "name": "noise",
+                "n_events": 5,
+                "n_detected": 3,
+                "recall": 0.6
+              },
+              "4": {
+                "name": "scale_factor",
+                "n_events": 5,
+                "n_detected": 4,
+                "recall": 0.8
+              }
+            },
+            "event_evaluable_coverage_macro": 1.0,
+            "delay_s": {
+              "median": 5.602809000000008,
+              "p95": 12.148689299999987
+            },
+            "per_event": [
+              {
+                "flight_id": "Real-Sensors/acce-GPS/447_1/log_71_2023-6-15-10-00-56/log_71_2023-6-15-10-00-56.ulg",
+                "flight_mode": "acce",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 4.204218000000012,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/acce-GPS/449_1/log_73_2023-6-15-10-11-02/log_73_2023-6-15-10-11-02.ulg",
+                "flight_mode": "acce",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 5.602809000000008,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/circling-GPS/390_1/log_36_2023-6-10-11-52-50/log_36_2023-6-10-11-52-50.ulg",
+                "flight_mode": "circling",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 11.316424999999981,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/circling-GPS/392_1/log_38_2023-6-10-12-07-34/log_38_2023-6-10-12-07-34.ulg",
+                "flight_mode": "circling",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 5.709205999999995,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/hover-GPS/100_2/log_7_2023-5-23-14-44-48/log_7_2023-5-23-14-44-48.ulg",
+                "flight_mode": "hover",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/hover-GPS/91_1/log_8_2023-5-22-14-33-50/log_8_2023-5-22-14-33-50.ulg",
+                "flight_mode": "hover",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 12.505373999999989,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/velocity-GPS/310_1/log_27_2023-6-1-17-18-58/log_27_2023-6-1-17-18-58.ulg",
+                "flight_mode": "velocity",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/velocity-GPS/312_1/log_22_2023-6-2-09-51-00/log_22_2023-6-2-09-51-00.ulg",
+                "flight_mode": "velocity",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 5.217333999999994,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/waypoint-GPS/226_1/log_25_2023-5-31-10-19-58/log_25_2023-5-31-10-19-58.ulg",
+                "flight_mode": "waypoint",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": false,
+                "first_alarm_delay_s": null,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/waypoint-GPS/231_1/log_30_2023-5-31-10-55-32/log_30_2023-5-31-10-55-32.ulg",
+                "flight_mode": "waypoint",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 5.393549000000007,
+                "event_evaluable_fraction": 1.0
+              }
+            ]
+          },
+          "passes_gate": false,
+          "current_role_passes_gate": false,
+          "prior_role_passes_gate": false
+        },
+        "lstm": {
+          "burden": {
+            "n_alert_episodes": 6,
+            "n_flights": 5,
+            "n_alerted_flights": 3,
+            "scoreable_flight_hours": 0.13375049333333333,
+            "airborne_flight_hours": 0.13944971833333333,
+            "episodes_per_scoreable_flight_hour": 44.859647620489774,
+            "scoreable_coverage": 0.9591306094546791
+          },
+          "events": {
+            "deadline_s": 15.0,
+            "n_events": 10,
+            "n_detected": 10,
+            "recall": 1.0,
+            "wilson_95": {
+              "lower": 0.7224672001371107,
+              "upper": 0.9999999999999999
+            },
+            "by_fault_mode": {
+              "3": {
+                "name": "noise",
+                "n_events": 5,
+                "n_detected": 5,
+                "recall": 1.0
+              },
+              "4": {
+                "name": "scale_factor",
+                "n_events": 5,
+                "n_detected": 5,
+                "recall": 1.0
+              }
+            },
+            "event_evaluable_coverage_macro": 1.0,
+            "delay_s": {
+              "median": 1.9052970000000045,
+              "p95": 2.4561597500000003
+            },
+            "per_event": [
+              {
+                "flight_id": "Real-Sensors/acce-GPS/447_1/log_71_2023-6-15-10-00-56/log_71_2023-6-15-10-00-56.ulg",
+                "flight_mode": "acce",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 1.7079509999999942,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/acce-GPS/449_1/log_73_2023-6-15-10-11-02/log_73_2023-6-15-10-11-02.ulg",
+                "flight_mode": "acce",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 1.6075899999999876,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/circling-GPS/390_1/log_36_2023-6-10-11-52-50/log_36_2023-6-10-11-52-50.ulg",
+                "flight_mode": "circling",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 2.3149530000000027,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/circling-GPS/392_1/log_38_2023-6-10-12-07-34/log_38_2023-6-10-12-07-34.ulg",
+                "flight_mode": "circling",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 1.7077170000000024,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/hover-GPS/100_2/log_7_2023-5-23-14-44-48/log_7_2023-5-23-14-44-48.ulg",
+                "flight_mode": "hover",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 2.000889000000001,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/hover-GPS/91_1/log_8_2023-5-22-14-33-50/log_8_2023-5-22-14-33-50.ulg",
+                "flight_mode": "hover",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 2.504653999999988,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/velocity-GPS/310_1/log_27_2023-6-1-17-18-58/log_27_2023-6-1-17-18-58.ulg",
+                "flight_mode": "velocity",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 2.3093530000000158,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/velocity-GPS/312_1/log_22_2023-6-2-09-51-00/log_22_2023-6-2-09-51-00.ulg",
+                "flight_mode": "velocity",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 1.715361999999999,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/waypoint-GPS/226_1/log_25_2023-5-31-10-19-58/log_25_2023-5-31-10-19-58.ulg",
+                "flight_mode": "waypoint",
+                "fault_mode": 3,
+                "fault_mode_name": "noise",
+                "detected": true,
+                "first_alarm_delay_s": 1.8097050000000081,
+                "event_evaluable_fraction": 1.0
+              },
+              {
+                "flight_id": "Real-Sensors/waypoint-GPS/231_1/log_30_2023-5-31-10-55-32/log_30_2023-5-31-10-55-32.ulg",
+                "flight_mode": "waypoint",
+                "fault_mode": 4,
+                "fault_mode_name": "scale_factor",
+                "detected": true,
+                "first_alarm_delay_s": 2.396889000000016,
+                "event_evaluable_fraction": 1.0
+              }
+            ]
+          },
+          "passes_gate": false,
+          "current_role_passes_gate": false,
+          "prior_role_passes_gate": false
+        }
+      }
+    }
+  },
+  "selected_critical_method": null,
+  "preliminary_status": "no_go_on_current_role",
+  "lstm_magnitude_diagnostic": {
+    "n_cells": 23110,
+    "trained_vs_random_spearman": 0.6777439848925972,
+    "trained_vs_magnitude_spearman": 0.6896555160143351,
+    "gate_threshold": 0.8,
+    "passes": true
+  },
+  "holdout_status": "sealed_pending_separate_approval"
+}

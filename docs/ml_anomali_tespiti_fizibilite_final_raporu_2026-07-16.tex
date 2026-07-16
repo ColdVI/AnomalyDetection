@@ -1,0 +1,1756 @@
+% !TeX program = xelatex
+% Overleaf: Menu -> Compiler -> XeLaTeX
+\documentclass[11pt,a4paper,oneside]{report}
+
+\usepackage[a4paper,top=2.25cm,bottom=2.25cm,left=2.35cm,right=2.35cm,headheight=15pt]{geometry}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setdefaultlanguage{turkish}
+\setotherlanguage{english}
+\defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\setmainfont{TeX Gyre Pagella}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{DejaVu Sans Mono}[Scale=0.86]
+
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{ragged2e}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{makecell}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{float}
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{bookmark}
+\usepackage{xurl}
+
+\definecolor{Navy}{HTML}{16324F}
+\definecolor{Blue}{HTML}{245B8A}
+\definecolor{LightBlue}{HTML}{EAF3FA}
+\definecolor{DarkRed}{HTML}{8B1E1E}
+\definecolor{LightRed}{HTML}{FBECEC}
+\definecolor{DarkGreen}{HTML}{276749}
+\definecolor{LightGreen}{HTML}{EAF7F0}
+\definecolor{DarkGold}{HTML}{806000}
+\definecolor{LightGold}{HTML}{FFF8DB}
+\definecolor{MidGray}{HTML}{5F6B76}
+\definecolor{LightGray}{HTML}{F4F6F8}
+\definecolor{RuleGray}{HTML}{D6DCE2}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=Navy,
+  urlcolor=Blue,
+  citecolor=DarkGreen,
+  pdftitle={İHA ve ADS-B Telemetrisi Anomali Tespiti: Kapsamlı Teknik Rapor ve Fizibilite Hükmü},
+  pdfauthor={AnomalyDetection Projesi},
+  pdfsubject={Makine öğrenmesi, fiziksel tutarlılık, derin öğrenme ve operasyonel fizibilite değerlendirmesi},
+  pdfkeywords={anomaly detection, ADS-B, UAV, machine learning, LSTM, Isolation Forest, CUSUM, feasibility}
+}
+
+\setstretch{1.08}
+\setlist[itemize]{leftmargin=1.55em,itemsep=0.22em,topsep=0.35em}
+\setlist[enumerate]{leftmargin=1.75em,itemsep=0.28em,topsep=0.35em}
+\setlength{\emergencystretch}{3em}
+\setlength{\LTpre}{0.5em}
+\setlength{\LTpost}{0.8em}
+\renewcommand{\arraystretch}{1.16}
+
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\metric}[1]{\textbf{\textcolor{Navy}{#1}}}
+\newcommand{\pass}{\textbf{\textcolor{DarkGreen}{GEÇTİ}}}
+\newcommand{\fail}{\textbf{\textcolor{DarkRed}{KALDI/BAŞARISIZ}}}
+\newcommand{\na}{\textcolor{MidGray}{uygulanmadı}}
+\newcommand{\fasaat}{yanlış alarm/saat}
+\newcommand{\FA}{FA}
+
+\newtcolorbox{verdictbox}{
+  colback=LightRed,
+  colframe=DarkRed,
+  boxrule=0.9pt,
+  arc=2mm,
+  left=4mm,right=4mm,top=3mm,bottom=3mm,
+  breakable
+}
+
+\newtcolorbox{infobox}[1][]{
+  colback=LightBlue,
+  colframe=Blue,
+  boxrule=0.6pt,
+  arc=2mm,
+  left=4mm,right=4mm,top=2.5mm,bottom=2.5mm,
+  title=#1,
+  fonttitle=\bfseries\sffamily,
+  breakable
+}
+
+\newtcolorbox{warningbox}[1][]{
+  colback=LightGold,
+  colframe=DarkGold,
+  boxrule=0.6pt,
+  arc=2mm,
+  left=4mm,right=4mm,top=2.5mm,bottom=2.5mm,
+  title=#1,
+  fonttitle=\bfseries\sffamily,
+  breakable
+}
+
+\newtcolorbox{successbox}[1][]{
+  colback=LightGreen,
+  colframe=DarkGreen,
+  boxrule=0.6pt,
+  arc=2mm,
+  left=4mm,right=4mm,top=2.5mm,bottom=2.5mm,
+  title=#1,
+  fonttitle=\bfseries\sffamily,
+  breakable
+}
+
+\titleformat{\chapter}[display]
+  {\normalfont\sffamily\bfseries\color{Navy}}
+  {\filleft\Large\chaptername\ \thechapter}
+  {0.5ex}
+  {\titlerule\vspace{1ex}\Huge}
+  [\vspace{0.5ex}\titlerule]
+
+\titleformat{\section}
+  {\Large\sffamily\bfseries\color{Navy}}
+  {\thesection}{0.7em}{}
+
+\titleformat{\subsection}
+  {\large\sffamily\bfseries\color{Blue}}
+  {\thesubsection}{0.7em}{}
+
+\titleformat{\subsubsection}
+  {\normalsize\sffamily\bfseries\color{MidGray}}
+  {\thesubsubsection}{0.7em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily İHA/ADS-B Anomali Tespiti}
+\fancyhead[R]{\small\sffamily Teknik Fizibilite Raporu}
+\fancyfoot[C]{\small\sffamily \thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{1.3cm}
+
+  {\sffamily\bfseries\color{Navy}\fontsize{25}{31}\selectfont
+  İHA ve ADS-B Telemetrisi\\[0.25em]
+  Anomali Tespiti\par}
+
+  \vspace{0.8cm}
+
+  {\sffamily\color{Blue}\fontsize{16}{21}\selectfont
+  Kapsamlı Makine Öğrenmesi Raporu\\
+  ve Teknik Fizibilite Hükmü\par}
+
+  \vspace{1.4cm}
+
+  \begin{tcolorbox}[
+    width=0.88\textwidth,
+    colback=LightGray,
+    colframe=RuleGray,
+    boxrule=0.6pt,
+    arc=2mm,
+    left=5mm,right=5mm,top=4mm,bottom=4mm
+  ]
+  \centering
+  \sffamily
+  \textbf{Kapsam}\\[0.3em]
+  Arşivlenmiş non-ADS-B çalışmaları (ML-0--ML-16), RFLY çalışmaları,
+  reddedilmiş ilk ADS-B yaklaşımları ve aktif ADS-B contextual-physics hattı
+  birlikte değerlendirilmiştir.
+  \end{tcolorbox}
+
+  \vfill
+
+  \begin{tabular}{rl}
+    \textbf{Rapor tarihi:} & 16 Temmuz 2026\\
+    \textbf{Proje deposu:} & \code{AnomalyDetection}\\
+    \textbf{Belge niteliği:} & Teknik kapanış ve yönetim değerlendirmesi\\
+    \textbf{Derleyici:} & XeLaTeX\\
+  \end{tabular}
+
+  \vspace{1.2cm}
+
+  {\small\color{MidGray}
+  Bu rapor, deneylerin olumlu ve olumsuz sonuçlarını aynı ölçüm disipliniyle
+  sunmak; ``neyi, neden kullandık; sorunu neden çözmedi; hangi düzeltmeleri
+  yaptık; neden yine yeterli olmadı?'' sorularına kanıtlı cevap vermek amacıyla
+  hazırlanmıştır.\par}
+\end{titlepage}
+
+\pagenumbering{roman}
+
+\chapter*{Belge Durumu ve Ana Hüküm}
+\addcontentsline{toc}{chapter}{Belge Durumu ve Ana Hüküm}
+
+\begin{verdictbox}
+\textbf{\large Teknik hüküm}
+
+Mevcut veri setleri, etiket sözleşmeleri, sensör gözlenebilirliği, platformlar
+arası dağılım farkı ve kabul edilen operasyonel yanlış alarm bütçesi altında;
+farklı platform ve anomali ailelerini kapsayan, düşük yanlış alarmlı,
+operasyonel kullanıma hazır \textbf{genel bir anomali tespit sistemi
+achievable değildir}. Projenin mevcut kapsamıyla ürün fizibilitesi
+doğrulanmamış; deneysel kanıtlar hedefin bu koşullarda karşılanamadığını
+göstermiştir.
+
+\medskip
+
+Bu hüküm, ``anomali tespiti hiçbir koşulda mümkün değildir'' anlamına gelmez.
+Dar kapsamlı fiziksel limit denetleyicileri, veri-kalitesi monitörleri,
+belirli sensör veya arıza türlerine özel dedektörler ve araştırma prototipleri
+yapılabilir. Ancak bunlar başlangıçta hedeflenen genel ve operasyonel ML
+ürünüyle aynı iddiayı taşımaz.
+\end{verdictbox}
+
+\begin{warningbox}[Önemli yorum sınırı]
+Repo tarihinde ALFA üzerinde mevcut Isolation Forest skoru ile CUSUM karar
+katmanının birleştiği bir hücre, advisory Gate-C benzeri hedefi
+\metric{0,625 recall / 7,91 \fasaat} ile geçmiştir. Bu sonuç:
+\begin{itemize}
+  \item yeni LightGBM modelinin başarısı değildir;
+  \item çok küçük ve platforma özel ALFA havuzuna aittir;
+  \item bağımsız final kör holdout ile doğrulanmamıştır;
+  \item diğer platformlara ve genel ürün iddiasına taşınamamıştır.
+\end{itemize}
+Bu nedenle raporun doğru cümlesi ``hiçbir sayı hiçbir zaman geçmedi'' değil,
+``geçerli event truth, gerçekçi alarm yükü, platform genellemesi ve bağımsız
+final doğrulamayı birlikte sağlayan genel bir uçtan uca aday oluşmadı''dır.
+\end{warningbox}
+
+\tableofcontents
+\clearpage
+
+\pagenumbering{arabic}
+
+\chapter{Yönetici Özeti}
+
+\section{Ne yapıldı?}
+
+Çalışmada beş ana veri ailesi kullanıldı:
+
+\begin{enumerate}
+  \item \textbf{ALFA}: sabit kanatlı İHA gerçek aktüatör ve motor arızaları,
+  \item \textbf{UAV Attack}: PX4 multirotor GPS spoofing, jamming ve ping/DoS kayıtları,
+  \item \textbf{UAV-SEAD}: daha geniş PX4 normal ve anomali havuzu,
+  \item \textbf{RflyMAD}: gerçek motor ve sensör arızaları ile simülasyon adayları,
+  \item \textbf{ADS-B/adsb.lol}: etiketsiz, gerçek ve büyük ölçekli insanlı hava aracı trafiği.
+\end{enumerate}
+
+Bu kaynaklar üzerinde:
+
+\begin{itemize}
+  \item parser, zaman hizalama, birim dönüşümü ve null/missingness yönetimi;
+  \item fiziksel tutarlılık residual'ları ve nedensel zaman serisi özellikleri;
+  \item gerçek event interval'ı ve sentetik enjeksiyon truth sözleşmeleri;
+  \item Isolation Forest, LightGBM, Dense-AE, LSTM-AE, LSTM forecasting,
+  USAD ve Chronos;
+  \item robust median/MAD, rolling istatistik, EWMA, CUSUM, persistence,
+  K-of-N ve episode birleştirme;
+  \item platforma özgü eşik kalibrasyonu ve conformal calibration;
+  \item satır, pencere, event, uçuş ve uçuş-saati seviyesinde değerlendirme
+\end{itemize}
+
+uygulandı.
+
+\section{Neden tek bir başarı metriği yeterli olmadı?}
+
+İlk deneylerde AUROC veya AUPRC yüksek olduğunda model başarılı görünebiliyordu.
+Fakat operasyonel anomali tespitinde asıl soru, anomalilerin ortalamada daha
+yüksek skorlanması değil; kabul edilebilir alarm bütçesinde kaç gerçek olayın
+yakalandığıdır.
+
+Örneğin ADS-B robust rule skorlayıcı, corrected truth v2 üzerinde
+\metric{0,764883 AUROC} ve \metric{0,883313 AUPRC} üretmiştir. Aynı eşik doğal
+trafikte yaklaşık \metric{4,808533 alarm olayı/saat} oluşturmuş ve uçuşların
+yaklaşık \metric{\%89,24}'ünde alarm vermiştir. Dolayısıyla ranking metriği iyi,
+ürün çalışma noktası ise kabul edilemezdir.
+
+\section{Nihai deneysel örüntü}
+
+Tekrarlanan sonuç şudur:
+
+\begin{center}
+\begin{tcolorbox}[
+  width=0.92\textwidth,
+  colback=LightBlue,
+  colframe=Blue,
+  boxrule=0.7pt,
+  arc=2mm
+]
+\centering\sffamily
+\textbf{Eşik gevşetildiğinde} recall yükseldi fakat yanlış alarm patladı.\\[0.35em]
+\(\Downarrow\)\\[-0.2em]
+\textbf{Eşik operasyonel bütçeye sıkılaştırıldığında} yanlış alarm azaldı fakat recall sıfıra yaklaştı.
+\end{tcolorbox}
+\end{center}
+
+Model aileleri ve feature setleri değişse de bu değiş-tokuş genel olarak
+kapanmadı. Sorun yalnızca tek bir kötü algoritma, yanlış hiperparametre veya
+yetersiz eğitim süresi değildir.
+
+\section{Yönetim için önerilen kapanış cümlesi}
+
+\begin{infobox}[Önerilen resmî ifade]
+Projede fiziksel kural tabanlı residual analizleri, robust istatistiksel
+skorlar, EWMA/CUSUM, Isolation Forest, LightGBM, Dense ve LSTM Autoencoder,
+LSTM forecasting, USAD, Chronos ve contextual-conformal modeller test
+edilmiştir. Veri genişletme, platforma özgü kalibrasyon, session tabanlı
+split, gerçek arıza interval'ı, sentetik severity enjeksiyonu, nedensel
+özellik üretimi, missingness/staleness modelleme ve operasyonel alarm bütçesi
+değerlendirmeleri uygulanmıştır. Bazı dar veri setlerinde veya sentetik
+anomali türlerinde iyi ranking sonuçları alınmış olsa da bu sonuçlar gerçek
+event truth, platform genellemesi, düşük yanlış alarm ve bağımsız final
+doğrulamayı birlikte karşılamamıştır. Mevcut veri ve sensör kapsamı altında
+genel amaçlı operasyonel anomali dedektörü hedefi teknik olarak achievable
+değildir.
+\end{infobox}
+
+\chapter{Kapsam, Deney Sözleşmesi ve Metrikler}
+
+\section{Repo kapsamı}
+
+Rapor iki tarihsel alanı ve aktif alanı birlikte ele alır:
+
+\begin{itemize}
+  \item \code{archive/2026-07-10_legacy_non_adsb_ml}: ALFA, UAV Attack,
+  UAV-SEAD ve RflyMAD üzerinde ML-0--ML-16 araştırma hattı;
+  \item \code{archive/2026-07-10_rejected_adsb_attempts}: ilk iki,
+  koordinesiz ve daha sonra reddedilmiş ADS-B yaklaşımı;
+  \item aktif \code{adsb/}: 10 Temmuz resetinden sonra temiz namespace ile
+  kurulan fiziksel residual, kural, CUSUM, S2 ve contextual model hattı.
+\end{itemize}
+
+Arşiv tarihçedir; aktif modele arşiv paketlerinden kod import edilmemiştir.
+Aktif ADS-B parser'ı veri okuma altyapısıdır; tek başına kabul edilmiş bir
+anomali modeli değildir.
+
+\section{Veri katmanları}
+
+\begin{longtable}{L{0.16\textwidth}L{0.30\textwidth}L{0.45\textwidth}}
+\toprule
+\textbf{Katman} & \textbf{İşlev} & \textbf{Temel kural}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Katman} & \textbf{İşlev} & \textbf{Temel kural}\\
+\midrule
+\endhead
+Bronze & Ham kaynağın saklanması & Kaynak dosyası değiştirilmez; provenance ve indirme bilgisi korunur.\\
+Silver & Kaynak-özel ayrıştırma & Birimler, topic'ler, zaman ekseni, veri erişilebilirliği ve kaynak semantiği düzenlenir.\\
+Gold/Feature & Model girdileri & Fiziksel residual, rolling, CUSUM, spectral, missingness ve platforma özgü özellikler üretilir.\\
+Split & Train/calibration/test/holdout & Uçuş veya session izolasyonu uygulanır; normal-only novelty training ile supervised split birbirinden ayrılır.\\
+Artifact & Model, scaler ve eşik & Eğitim verisine ait scaler, CUSUM baseline, model ağırlığı, karar politikası ve checksum birlikte tutulur.\\
+\bottomrule
+\end{longtable}
+
+Rapor tarihi civarındaki yerel envanter yaklaşık \(41{,}6\ \text{GB}\) veri
+kapsamına ulaşmıştır; Bronze, Silver ve sentetik ADS-B çıktıları bunun büyük
+bölümünü oluşturmuştur. Bu hacim, bağımsız arıza örneği sayısının da büyük
+olduğu anlamına gelmez.
+
+\section{Değerlendirme birimleri}
+
+\begin{longtable}{L{0.17\textwidth}L{0.34\textwidth}L{0.40\textwidth}}
+\toprule
+\textbf{Birim} & \textbf{Ne ölçer?} & \textbf{Yanlış kullanım riski}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Birim} & \textbf{Ne ölçer?} & \textbf{Yanlış kullanım riski}\\
+\midrule
+\endhead
+Satır & Tek telemetri satırının anomalilik skoru & Aynı uçuş içindeki binlerce bağımlı satır bağımsız örnek sanılabilir.\\
+Pencere & Kısa zaman dizisinin skoru & Tüm saldırı uçuşunu pozitif etiketlemek kısa imzayı seyreltebilir.\\
+Event onset & Anomali başladıktan sonra yeni alarm oluşması & Event başlamadan önce açık alarm ``tespit'' sayılırsa recall şişer.\\
+Event overlap & Alarm ile anomali aralığının herhangi bir kesişimi & Onset duyarlılığı ve gerçek yeni tespit gücüyle aynı değildir.\\
+Uçuş & Uçuşta en az bir alarm veya uçuş agregat skoru & Uzun uçuşların alarm alma olasılığı doğal olarak yükselir.\\
+Uçuş-saati & Zamanla normalize edilmiş alarm yükü & Episode merge alarm saturasyonunu gizleyebilir; row coverage ile birlikte bakılmalıdır.\\
+\bottomrule
+\end{longtable}
+
+\section{Başarı kapıları}
+
+\begin{longtable}{L{0.18\textwidth}L{0.72\textwidth}}
+\toprule
+\textbf{Kapı} & \textbf{Tanım}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Kapı} & \textbf{Tanım}\\
+\midrule
+\endhead
+Gate A & Determinizm, veri sızıntısı olmaması, split ve holdout izolasyonu, checksum ve güvenlik doğrulamaları.\\
+Gate B & Yeni adayın kayıtlı mevcut baseline'ı önceden belirlenmiş marj ve seed kararlılığıyla geçmesi. Bazı fazlarda \(+0{,}05\) recall ve en az 3/5 seed şartı kullanıldı.\\
+Gate C -- critical & En az \(0{,}30\) event recall ve en fazla \(2\) \fasaat.\\
+Gate C -- advisory & En az \(0{,}50\) event recall ve en fazla \(12\) \fasaat.\\
+ADS-B Pareto & 100 skorlanabilir uçuş-saatinde \(0{,}1,\ 0{,}5,\ 1,\ 2,\ 5\) episode bütçeleri.\\
+\bottomrule
+\end{longtable}
+
+\begin{warningbox}[Kapılar arasında doğrudan sayı karşılaştırması]
+Eski Gate-C birimi \(\FA/\text{saat}\), aktif ADS-B Pareto birimi ise
+\(\text{episode}/100\text{ saat}\)tir. Bu iki bütçe aynı değildir. ADS-B
+bütçesi çok daha sıkıdır ve ürün sözleşmesinin değiştiğini gösterir. Bu
+nedenle eski bir recall/FA hücresi ile ADS-B contextual sonucu doğrudan
+``hangisi daha iyi?'' diye kıyaslanmamalıdır.
+\end{warningbox}
+
+\chapter{Veri Setleri, Temizlik ve Feature Engineering}
+
+\section{ALFA}
+
+\subsection{Kaynak ve etiket yapısı}
+
+ALFA, sabit kanatlı bir İHA'da gerçek motor ve kumanda yüzeyi arızaları
+içeren etiketli uçuş veri setidir. Resmî işlenmiş corpus 47 uçuştu. Ham ROS
+bag kaynaklarından 7 ek uçuş kurtarılarak legacy feature havuzu 54 uçuşa
+çıkarıldı.
+
+Sınıflar normal, engine, aileron, rudder, elevator, birleşik
+aileron--rudder ve unknown kayıtlarını içerir. Bazı sınıflarda yalnızca
+birkaç bağımsız uçuş vardır. Repo içindeki farklı artifact revizyonlarında
+normal veya rudder sayısı bir uçuş farklı raporlanabilmektedir; bu nedenle
+tek tek artifact manifestleri karıştırılmadan kullanılmalıdır.
+
+\begin{warningbox}[İstatistiksel örneklem]
+ALFA'nın milyonlarca telemetri satırı üretmesi, rudder veya elevator sınıfı
+için büyük bir örneklem oluşturmaz. Bağımsız birim uçuş/session olduğundan
+bazı arıza sınıflarındaki recall değerleri bir veya birkaç örneğe dayanır.
+\end{warningbox}
+
+\subsection{Preprocessing ve temizlik}
+
+\begin{itemize}
+  \item Global position tablosu zaman omurgası olarak kullanıldı.
+  \item Topic CSV'leri en yakın zaman damgasıyla \code{merge_asof}
+  kullanılarak, aktif parser'da yaklaşık \(0{,}5\) saniye toleransla birleştirildi.
+  \item Roll, pitch, yaw ve airspeed için measured--commanded farkları üretildi.
+  \item \code{nav_info} üzerinden altitude error, airspeed error,
+  cross-track error ve waypoint distance alındı.
+  \item \code{mavctrl} kaynaklarından \(x/y/z\) path deviation eklendi.
+  \item \code{vfr_hud} üzerinden airspeed, ground speed, throttle ve climb eklendi.
+  \item Ölçülen ve istenen \(x/y/z\) hızları ile vektörel hız büyüklükleri türetildi.
+  \item Mutlak enlem, boylam ve mutlak zaman doğrudan ML girdisi yapılmadı.
+  \item Arıza tipi klasör adından, aktif arıza başlangıcı mümkün olduğunda
+  \code{failure_status} üzerinden çıkarıldı.
+  \item Çoğul/tekil etiket farkları normalize edildi.
+\end{itemize}
+
+Eski referans parser daha agresif bir politika kullanıyordu: tümü-null
+kolonları atıyor, yaklaşık \(250\) ms toleransla birleştiriyor ve sayısal
+kolonlara lineer interpolasyon uyguluyordu. Bu davranış aktif parser ile
+aynı kabul edilmemelidir.
+
+\subsection{Bulunan veri hatası}
+
+\code{velocity_mps} ilk üretimlerde \(\%100\) null çıkıyordu. Parser,
+\code{measured} ve \code{desired} benzeri adlar beklerken gerçek alanlar
+\code{field.meas_x} ve \code{field.des_x} biçimindeydi. Kolon eşleme
+düzeltildikten sonra null oranı yaklaşık \(\%9{,}3\)'e indi.
+
+\subsection{Üretilen özellikler}
+
+\begin{itemize}
+  \item roll, pitch, yaw, airspeed ve velocity residual'ları;
+  \item residual mutlak değeri ve zamansal türevi;
+  \item GPS haversine hızı, ivme ve iki nokta arası mesafe;
+  \item altitude, airspeed, cross-track ve path-deviation residual'ları;
+  \item 2 ve 5 saniyelik rolling ortalama, standart sapma ve enerji;
+  \item EWMA, nedensel CUSUM ve spektral enerji;
+  \item freeze sayaçları, availability maskeleri ve \code{in_air};
+  \item koordine dönüş residual'ı:
+  \[
+    r_{\text{turn}} =
+    \dot{\psi} - \frac{g\tan(\phi)}{V},
+    \qquad V>5\ \text{m/s};
+  \]
+  \item özgül enerji ve tırmanma tutarlılığı.
+\end{itemize}
+
+\subsection{Sentetik enjeksiyonlar}
+
+ALFA Silver verisine yalnız kontrollü değerlendirme amacıyla freeze, bias,
+drift, noise, GPS ramp ve dropout enjeksiyonları uygulandı. Enjeksiyonlar
+gerçek arıza ground-truth'unun yerine geçirilmedi.
+
+\subsection{ALFA deney sonuçları}
+
+\begin{longtable}{L{0.34\textwidth}L{0.22\textwidth}L{0.35\textwidth}}
+\toprule
+\textbf{Deney} & \textbf{Sonuç} & \textbf{Yorum}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Deney} & \textbf{Sonuç} & \textbf{Yorum}\\
+\midrule
+\endhead
+Monolitik satır Isolation Forest & ROC-AUC \(0{,}497\pm0{,}026\) & Rastgele seviyesinde; satır etiketi ve feature sulanması sorunu.\\
+Modüler Isolation Forest & Uçuş ROC-AUC \(0{,}833\pm0{,}172\) & Modüler fizik grupları monolitik modele göre daha iyi.\\
+Guidance-only IF & ROC-AUC yaklaşık \(0{,}864\) & Kontrol-tepki modülü bazı uçuşlarda gürültü ekledi.\\
+İlk LSTM-AE & ROC-AUC yaklaşık \(0{,}731\) & Normal eğitim verisi yetersizdi.\\
+Dense-AE & ROC-AUC yaklaşık \(0{,}622\) & LSTM ve IF altında kaldı.\\
+Normal veri genişletilmiş LSTM-AE & \(0{,}918\pm0{,}104\) & Projedeki gerçek DL kazanımlarından biri; ancak küçük \(n\) ve geniş belirsizlik.\\
+Causal düzeltme öncesi \code{alt_error_cusum} & \(0{,}878\) & Gelecek bilgisi/seri-geneli baseline şüphesi.\\
+Causal düzeltme sonrası \code{alt_error_cusum} & \(0{,}611\) & Eski görünen başarı büyük ölçüde düştü.\\
+Causal en güçlü tek sinyal & \code{xtrack_error}: \(0{,}751\) & Daha savunulabilir residual.\\
+Sabit reçete LightGBM / IF / LSTM-AE & \(0{,}843/0{,}858/0{,}872\) AUPRC & Supervised LightGBM mevcut yöntemleri geçmedi.\\
+Mevcut IF + CUSUM advisory & Recall \(0{,}625\), FA \(7{,}91/\text{saat}\) & Dar ALFA hücresi geçti; genel ürün ve yeni model başarısı değil.\\
+\bottomrule
+\end{longtable}
+
+\section{UAV Attack}
+
+\subsection{Kaynak}
+
+PX4 multirotor kayıtlarından oluşan 19 log işlendi:
+
+\begin{itemize}
+  \item 6 benign,
+  \item 6 GPS spoofing,
+  \item 6 ping/DoS,
+  \item 1 jamming.
+\end{itemize}
+
+Kaynak yaklaşık \(683{,}9\) MB ve 767 CSV dosyası içeriyordu.
+
+\subsection{Preprocessing}
+
+Aktif legacy parser dört ana topic kullandı:
+
+\begin{itemize}
+  \item \code{vehicle_global_position},
+  \item \code{vehicle_attitude},
+  \item \code{battery_status},
+  \item \code{vehicle_gps_position}.
+\end{itemize}
+
+Dosya adı regex'i düzeltildi. Etiket çıkarımında en yakın klasöre öncelik
+verildi; böylece üst klasöründe ``GPS Spoofing'' yazan benign logların
+yanlış etiketlenmesi önlendi. Ping/DoS için ayrıca kural eklendi.
+
+Global position zaman omurgası olarak kullanıldı; quaternion Euler
+açılarına çevrildi. Attitude, battery ve GPS alanları yaklaşık \(200\) ms
+toleransla birleştirildi. NED sistemindeki aşağı-pozitif hız, yukarı-pozitif
+vertical-rate biçimine çevrildi. Varsa UTC mikro-saniye alanı, yoksa göreli
+zaman kullanıldı.
+
+Batarya akımındaki \(-1\) değerinin fiziksel akım değil ``bilinmiyor''
+sentineli olduğu görülerek maskelendi.
+
+\subsection{Özellikler}
+
+\begin{itemize}
+  \item Haversine ve Öklid tabanlı kinematik;
+  \item bildirilen GPS hızı ile konum türevi arasındaki
+  \code{gps_speed_residual};
+  \item dikey hız residual'ı;
+  \item course change;
+  \item GPS health ve uydu kalitesi değişimleri;
+  \item batarya özellikleri;
+  \item rolling, CUSUM, freeze ve staleness;
+  \item missingness ve \code{is_moving}.
+\end{itemize}
+
+\subsection{Sonuç ve gözlenebilirlik sınırı}
+
+\begin{longtable}{L{0.36\textwidth}L{0.23\textwidth}L{0.32\textwidth}}
+\toprule
+\textbf{Deney} & \textbf{Sonuç} & \textbf{Yorum}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Deney} & \textbf{Sonuç} & \textbf{Yorum}\\
+\midrule
+\endhead
+Monolitik satır IF & \(0{,}209\pm0{,}138\) ROC-AUC & Skor ters yönde; NaN-medyan imputasyonu saldırı satırını normale çekti.\\
+Modüler IF & \(0{,}600\pm0{,}212\) uçuş ROC-AUC & Monolitik yaklaşımdan iyi, belirsizlik yüksek.\\
+LSTM/Dense AE & Yaklaşık \(0{,}677\) & Spoofing/jamming güçlü; ping/DoS zayıf.\\
+LSTM-AE spoofing/jamming & Yaklaşık \(1{,}0/1{,}0\) & Mevcut sensörlerde güçlü imza olan sınıflar.\\
+LSTM-AE ping/DoS & Yaklaşık \(0{,}53\) & Rastgele seviyesine yakın.\\
+SEAD eşiği transferi ve yeniden kalibrasyon & \(0{,}375\to0{,}783\); normal FA \(1{,}00\to0{,}33\) & Eşiğin platforma özel olması gerektiğini gösterdi.\\
+\bottomrule
+\end{longtable}
+
+Ping/DoS loglarının 4/6'sında kullanılan topic'lerde gözlenebilir saldırı
+etkisi bulunmadı. Paket geliş aralığı veya ağ katmanı metadatası mevcut
+değildi. Modelin görmediği bir ağ etkisini uçuş telemetrisinden tespit etmesi
+beklenemez; bu algoritma değil sensör/gözlenebilirlik sınırıdır.
+
+2 m/s düşük şiddetli GPS ramp enjeksiyonlarında uçuş alarmı oluşmadı. Daha
+geniş 2--20 m/s severity sweep'i tamamlanmadığı için detectability eşiği
+nicel olarak belirlenemedi.
+
+\section{UAV-SEAD}
+
+\subsection{Havuz ve split}
+
+Güncel feature manifesti toplam 1.244 uçuş içerir:
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+\textbf{Sınıf} & \textbf{Uçuş}\\
+\midrule
+Normal & 898\\
+Altitude anomaly & 72\\
+External position anomaly & 193\\
+Global position anomaly & 40\\
+Mechanical anomaly & 41\\
+\midrule
+Toplam & 1.244\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+200 uçuş final holdout olarak ayrılmış, geliştirme havuzu 1.044 uçuşta
+kalmıştır. Eski belgelerdeki ``1.044 toplam'' ifadesi tüm yerel havuz değil,
+holdout dışı geliştirme kapsamıdır. Veri 60, 179, 349, 611 ve 1.244 uçuş
+aşamalarıyla genişletildi.
+
+Mapping içindeki sekiz multi-class kategori ve 141 ``Uncategorized'' kayıt,
+tekil ve doğrulanabilir sınıf sözleşmesi sağlamadığı için resmi havuza
+alınmadı.
+
+\subsection{Preprocessing}
+
+\code{pyulog} ile aşağıdaki PX4 topic aileleri işlendi:
+
+\begin{itemize}
+  \item global/local position ve attitude;
+  \item battery ve GPS;
+  \item estimator status ve EKF innovations;
+  \item barometer;
+  \item setpoint;
+  \item actuator controls ve actuator outputs.
+\end{itemize}
+
+Indoor uçuşlarda global position bulunmadığında local position fallback
+olarak kullanıldı. Topic'ler yaklaşık \(200\) ms toleransla birleştirildi.
+Mapping aralıkları event truth ve kategori üretimi için korundu.
+
+Split session tarihleri üzerinden yapıldı. Aynı session'ın train ve test
+tarafına düşmesi engellendi; normal ve anomali karışık session'lar
+karantinaya alındı.
+
+\subsection{Eklenen feature aileleri}
+
+\begin{itemize}
+  \item altitude--barometer--local position residual'ları;
+  \item EKF innovation büyüklükleri, oranları ve status flag'leri;
+  \item setpoint response residual'ları;
+  \item actuator effort ve control strain;
+  \item nedensel/expanding actuator output symmetry;
+  \item vibration, reset counter ve valid maskeleri;
+  \item dikey innovation bileşenleri.
+\end{itemize}
+
+\subsection{Yapısal veri problemleri}
+
+\begin{itemize}
+  \item \code{alt_local_residual}, altitude anomaly grubunda \(\%0\)
+  erişilebilirlik gösterdi.
+  \item Barometer kapsaması yaklaşık \(\%7\) düzeyindeydi.
+  \item EKF oranları bazı testlerde ters ayrım üretti; estimator ölçümü
+  reddettiğinde innovation bastırılabildiği için anomali daha normal
+  görünebiliyordu.
+  \item Yüzlerce normal uçuş yalnızca onlarca bağımsız session'a aitti.
+  Örneğin 398 normal örnek 64 session'dan, geliştirme tarafı yaklaşık 49
+  session'dan geliyordu.
+\end{itemize}
+
+\subsection{UAV-SEAD sonuçları}
+
+\begin{longtable}{L{0.37\textwidth}L{0.23\textwidth}L{0.31\textwidth}}
+\toprule
+\textbf{Faz/aday} & \textbf{Sonuç} & \textbf{Karar}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Faz/aday} & \textbf{Sonuç} & \textbf{Karar}\\
+\midrule
+\endhead
+Naif range satır ROC & \(0{,}474\to0{,}799\) & Artışın önemli kısmı veri/split metodolojisinden geldi.\\
+LightGBM descriptor & AUPRC \(0{,}349\) & IF \(0{,}385\)'in altında; Gate B kaldı.\\
+ML9 fusion & Recall \(0{,}222\), FA \(25{,}83/\text{saat}\) & Operasyonel Gate C kaldı.\\
+Chronos motor & \(0{,}205\to0{,}390\) recall & Mechanical Gate B geçti.\\
+Chronos vertical & \(0{,}096\to0{,}023\) recall & Kötüleşti.\\
+Chronos fusion & \(0{,}213/23{,}92\) & Kategori kazancı genel alarma dönüşmedi.\\
+Tek-feature \code{actuator_thrust_cmd} & \(0{,}205\to0{,}459\) & Gate B geçti; normal yük \(38{,}1\) FA/saat.\\
+İki-kanal dengeli birleşim & Recall \(0{,}217\to0{,}291\), FA \(23{,}7\to44{,}7\) & Recall, alarm yüküyle satın alındı; reddedildi.\\
+ML14 normal genişletme & Existing fusion FA \(23{,}63\to9{,}86\) & FA düştü; recall \(0{,}1186\)'ya çöktü.\\
+ML14 critical & FA \(12{,}87\to1{,}60\), recall \(0{,}0417\) & Bütçe içinde fakat faydasız recall.\\
+ML15 drift/jackknife en iyi & \(0{,}1145/8{,}4146\) & Gate C/D3 kaldı.\\
+ML15 critical & \(0{,}0433/1{,}596\) & Alarm bütçesi sağlanırken gerçek tespit kayboldu.\\
+\bottomrule
+\end{longtable}
+
+\subsection{Derin öğrenmede magnitude artefaktı}
+
+LSTM-AE, Dense-AE ve USAD skorları ilk bakışta yaklaşık \(0{,}21\) recall
+gösterebiliyordu. Fakat:
+
+\begin{itemize}
+  \item eğitimli ve eğitimsiz model skor korelasyonu yaklaşık \(0{,}964\),
+  \item eğitimli skor ile ham residual magnitude korelasyonu yaklaşık \(0{,}965\)
+\end{itemize}
+
+ölçüldü. Bu, skorun büyük ölçüde öğrenilmiş davranıştan değil genlikten
+geldiğini gösterdi. Relative error ile magnitude korelasyonu
+\(0{,}15\)--\(0{,}55\) seviyesine düşürüldüğünde recall çoğu deneyde
+\(\%6\)'nın altında kaldı.
+
+\section{RflyMAD}
+
+\subsection{Gerçek uçuş havuzu}
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+\textbf{Kategori} & \textbf{Uçuş}\\
+\midrule
+Real-Motor & 242\\
+Real-Sensors & 197\\
+Real-No\_Fault & 51\\
+\midrule
+Toplam & 490\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+SEAD PX4 parser altyapısı yeniden kullanıldı. Klasör taksonomisinden sınıf,
+case kimliğinden session üretildi.
+
+\subsection{Event truth düzeltmesi}
+
+Başlangıçta klasörü arızalı olan uçuşun tamamı anomali kabul edilmişti.
+Gerçek arıza aralığı daha sonra:
+
+\begin{itemize}
+  \item öncelikle \code{rfly_ctrl_lxl} içinde \code{id/mode != 1500},
+  \item mümkün değilse \code{TestInfo}
+\end{itemize}
+
+üzerinden çıkarıldı. Klasörü motor fault olduğu halde aktif fault aralığı
+bulunmayan beş uçuş corrected scoring'den dışlandı.
+
+Pooled kaynaklarda bir platformda hiç bulunmayan kolonun başka platform
+medyanıyla doldurulması da engellendi. Source-schema presence maskesi
+eklenerek ``hayalet sensör'' imputasyonu düzeltildi.
+
+\subsection{İlk görünen başarı ve geçersizleşmesi}
+
+\begin{longtable}{L{0.40\textwidth}L{0.23\textwidth}L{0.28\textwidth}}
+\toprule
+\textbf{Değerlendirme} & \textbf{Sonuç} & \textbf{Yorum}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Değerlendirme} & \textbf{Sonuç} & \textbf{Yorum}\\
+\midrule
+\endhead
+Eski full-flight proxy advisory & \(0{,}749/10{,}18\) & İlk bakışta geçiyor; gerçek event interval kullanılmadı.\\
+Eski full-flight proxy critical & \(0{,}573/1{,}23\) & Geçersiz proxy başarı.\\
+Corrected RFLY-only \code{itki_komutu} CUSUM advisory & \(0{,}526/22{,}275\) & Recall kısmen korundu, alarm yükü başarısız.\\
+Corrected critical & \(0{,}442/9{,}228\) & Critical bütçeyi aştı.\\
+Pooled corrected en iyi & Yaklaşık \(0{,}149/30\) & Platform havuzlama kötüleşti.\\
+Bütçe içine zorlanan pooled & Yaklaşık \(0{,}066/9{,}39\) & Recall operasyonel anlamını kaybetti.\\
+\bottomrule
+\end{longtable}
+
+Simülasyon ve severity çalışması planlandı; resmi deney yürütüldüğü sırada
+gerekli simülasyon/\code{TestInfo} kaynakları yerelde olmadığı için preflight
+aşamasında durdu. Simülasyon subsetlerinin daha sonra indirilmiş olması,
+tamamlanmış ve geçerli bir deney sonucu anlamına gelmez.
+
+\section{Fiziksel tutarsızlık nedeniyle eğitim dışı bırakılan ek CSV'ler}
+
+SurveilDrone-Net23 benzeri bir drone kaynağı ile afet operasyonları temalı
+başka bir CSV adayı incelendi. GPS teleportation, yalnız tamsayı irtifa,
+konum--hız tutarsızlığı ve fiziksel olarak mümkün görünmeyen hareketler
+bulundu. Bu kaynaklar gerçek anomaly ground-truth'u olarak kullanılmadı;
+yalnız pipeline veya dashboard demosu için uygun görüldü.
+
+\chapter{ADS-B Veri Hattı ve Fiziksel Model}
+
+\section{Reset sonrası problem çerçevesi}
+
+10 Temmuz 2026 tarihinde eski non-ADS-B hat ile ilk iki ADS-B yaklaşımı
+arşivlendi. Aktif çalışma temiz \code{adsb/} namespace'iyle başladı.
+
+ADS-B kaynağı gerçek, büyük ölçekli fakat etiketsiz insanlı hava aracı
+trafiğidir. Bu nedenle aktif problem supervised saldırı sınıflandırması
+değil, fiziksel/bağlamsal beklenmediklik ve veri kalitesi izleme problemidir.
+
+\section{Veri envanteri}
+
+Üç tarihsel gün kullanıldı:
+
+\begin{itemize}
+  \item 28 Şubat 2026,
+  \item 1 Mart 2026,
+  \item 16 Mart 2026.
+\end{itemize}
+
+Authoritative streaming envanteri:
+
+\begin{itemize}
+  \item 638 Silver part,
+  \item 256.155.009 satır,
+  \item yaklaşık 542.461 uçuş segmenti,
+  \item yaklaşık 497.570,9 skorlanabilir uçuş-saat.
+\end{itemize}
+
+Eski dokümanlarda 256.150.550 satır sayısı da bulunur. Manifestler arasında
+4.459 satırlık sayım farkı kayıtlıdır; raporda streaming authoritative sayı
+esas alınmıştır.
+
+\subsection{Alan kapsaması}
+
+\begin{center}
+\begin{tabular}{lr@{\qquad}lr}
+\toprule
+\textbf{Alan} & \textbf{Kapsama} & \textbf{Alan} & \textbf{Kapsama}\\
+\midrule
+Latitude/longitude & \(\%100\) & Speed & \(\%98{,}1\)\\
+Track & \(\%95{,}2\) & Barometric altitude & \(\%89{,}4\)\\
+Geometric altitude & \(\%89{,}2\) & Vertical rate & \(\%89{,}4\)\\
+IAS & \(\%29{,}7\) & Roll & \(\%28{,}4\)\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Doğrulanmış UAV/drone etiketi bulunmamaktadır. B6 benzeri 25 örnek
+incelenmiş fakat UAV kimliği doğrulanmamıştır. Dolayısıyla aktif veri,
+doğrudan ``drone saldırı veri seti'' değildir.
+
+\section{Parser ve veri semantiği}
+
+\begin{itemize}
+  \item Gzip veya plain trace JSON okundu.
+  \item 14 elemanlı trace satırları ayrıştırıldı.
+  \item Feet metreye \(0{,}3048\), knot m/s'ye \(0{,}5144\), feet/min m/s'ye
+  \(0{,}00508\) katsayılarıyla çevrildi.
+  \item Doğrudan trace alanlarına forward-fill uygulanmadı.
+  \item Provider'ın sparse aircraft-dictionary alanları kendi güncelleme
+  semantiğiyle taşındı; v2'de her alan için update flag, update time ve age
+  kaydedildi.
+  \item \code{on_ground} olduğunda altitude null yapıldı.
+  \item \code{dbFlags} military biti ayrıştırıldı; alan eksikse ``military
+  değil'' değil ``doğrulanmadı'' kabul edildi.
+  \item Part üretimi streaming/chunked yapıldı.
+  \item Checkpoint ve resume atomik hale getirildi.
+  \item Yarım kalan tar arşivinde yalnız ilgili kısmi part'lar kaldırılıp o
+  tar yeniden işlendi.
+\end{itemize}
+
+Uçuş segmentasyonu 1.800 saniyelik boşluk kuralıyla yapıldı. 1.500 aircraft
+üzerindeki kontrol örneği 4.230 uçuş üretmiş, provider
+\code{flags_new_leg} ile uyum yaklaşık \(\%60{,}4\) kalmıştır. Uçuş sınırı
+kendi başına kesin ground truth değildir.
+
+\section{Fiziksel residual'lar}
+
+\subsection{Vertical-rate residual}
+
+\[
+r_{vr,t}
+= vr_{\text{reported},t}
+- \frac{alt_t-alt_{t-1}}{\Delta t}.
+\]
+
+\subsection{Ground-speed residual}
+
+\[
+r_{v,t}
+= v_{\text{reported},t}
+- \frac{d_{\text{haversine}}(p_t,p_{t-1})}{\Delta t}.
+\]
+
+\subsection{Heading residual}
+
+\[
+r_{\psi,t}
+= \operatorname{wrap}_{[-180,180)}
+\left(
+\psi_{\text{reported},t}
+- \operatorname{bearing}(p_{t-1},p_t)
+\right).
+\]
+
+\subsection{East/north hız residual'ları}
+
+Bildirilen ground speed ve track üzerinden doğu/kuzey hız bileşenleri
+çıkarıldı; bunlar konum türevinden elde edilen bileşenlerle karşılaştırıldı:
+
+\[
+r_{E,t}=v^{\text{reported}}_{E,t}-v^{\text{position}}_{E,t},
+\qquad
+r_{N,t}=v^{\text{reported}}_{N,t}-v^{\text{position}}_{N,t}.
+\]
+
+\subsection{Diğer fiziksel kontroller}
+
+\begin{itemize}
+  \item Barometric--geometric altitude farkının türevi,
+  \item gözlenen track-rate ile \(g\tan(\text{roll})/V\) arasındaki
+  turn--bank residual'ı,
+  \item cadence, message gap ve availability maskeleri.
+\end{itemize}
+
+\section{S2 veri kalitesi katmanı}
+
+Hareket residual'larından ayrı ikinci katmanda squawk, emergency, NIC,
+NACp, SIL, message gap, altitude availability ve veri kalitesi izlendi.
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+\textbf{Doğal kalite nedeni} & \textbf{Yaklaşık olay/saat}\\
+\midrule
+Message gap & 2,8905\\
+NIC unknown & 0,5281\\
+NACp missing & 0,1952\\
+SIL missing & 0,1952\\
+Altitude unavailable & 0,00508\\
+Declared emergency/status & 0,00033\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Bu değerler attack ground-truth'u değildir; doğal veri kalitesi ve beyan
+durumu yükünü gösterir.
+
+\section{Sentetik enjeksiyon truth v2}
+
+8.910 uçuş için clean ve beş kontrollü enjeksiyon tarifi üretildi:
+
+\begin{enumerate}
+  \item vertical-rate freeze,
+  \item ground-speed bias,
+  \item track freeze,
+  \item 2 m/s position ramp,
+  \item altitude dropout.
+\end{enumerate}
+
+Toplam yaklaşık 26,8 milyon satır ve 646 MB çıktı oluştu.
+
+Truth v2 üç farklı kavramı ayırdı:
+
+\begin{itemize}
+  \item \code{injection_active}: kod enjeksiyonu o anda aktif mi?
+  \item \code{observable_changed}: modelin kullandığı gözlem gerçekten değişti mi?
+  \item \code{evaluable_truth}: satır değerlendirme için fiziksel ve
+  sözleşmesel olarak uygun mu?
+\end{itemize}
+
+Eski proxy etiket, enjeksiyonun aktif olduğu her satırı pozitif sayarak
+yaklaşık \(0{,}75\) civarında yapay AUC tavanı üretiyordu. Truth v2 bu
+yanlılığı azalttı. Sentetik veri yalnız kontrollü test içindir; gerçek saldırı
+ground-truth'u olarak kabul edilmemiştir.
+
+\chapter{Denenen Yöntemler ve Skorlar}
+
+\section{Robust fiziksel kural skoru}
+
+Her residual kanalı için eğitim-normal dağılımından median ve MAD hesaplandı:
+
+\[
+z_{c,t}
+= \frac{|x_{c,t}-\operatorname{median}_c|}
+{\operatorname{MAD}_c}.
+\]
+
+Kanal cezası:
+
+\[
+p_{c,t}
+= \operatorname{clip}(z_{c,t}-3,0,10)
+\]
+
+olarak tanımlandı ve kullanılabilir kanallar eşit ağırlıkla birleştirildi.
+
+İlk sürümde MAD değeri sıfır olan kanallara küçük epsilon verilmesi, normal
+pencerelerin \(\%93{,}8\)'inin pozitif skor almasına neden oldu. Sıfır
+MAD'li kanallar dışlanınca skor daha anlamlı hale geldi.
+
+\begin{longtable}{L{0.36\textwidth}L{0.20\textwidth}L{0.35\textwidth}}
+\toprule
+\textbf{Truth-v2 sonucu} & \textbf{AUC/ölçüm} & \textbf{Yorum}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Truth-v2 sonucu} & \textbf{AUC/ölçüm} & \textbf{Yorum}\\
+\midrule
+\endhead
+Genel AUROC & 0,764883 & Ranking anlamlı.\\
+Genel AUPRC & 0,883313 & Pozitif oranı ve reçete karışımı dikkate alınmalı.\\
+Altitude dropout & 0,566965 & Fiziksel residual yerine S2 kapsamına daha uygun.\\
+Speed bias & 0,974023 & Güçlü ve doğrudan gözlenebilir enjeksiyon.\\
+Position ramp & 0,558927 & Zayıf/örtük gözlenebilirlik.\\
+Track freeze & 0,889552 & İyi ayrım.\\
+Vertical-rate freeze & 0,696337 & Orta düzey ayrım.\\
+Doğal alarm yükü & 4,808533 episode/saat & Operasyonel olarak kabul edilemez.\\
+Alarm alan uçuş oranı & \(\%89{,}2356\) & AUC başarısının ürün başarısı olmadığını gösterir.\\
+\bottomrule
+\end{longtable}
+
+\section{CUSUM}
+
+Kalıcı küçük sapmaları biriktirmek için tek yönlü CUSUM kullanıldı:
+
+\[
+S_t=\max\left(0,S_{t-1}+z_t-k\right).
+\]
+
+CUSUM uçuş sınırı, büyük zaman boşluğu ve zemin durumu gibi koşullarda reset
+ediliyordu; fakat bir uçuş içinde uzun süre birikiyordu.
+
+Full streaming değerlendirmede:
+
+\begin{itemize}
+  \item rule yükü yaklaşık \(1{,}061\)--\(1{,}171\) episode/saat,
+  \item CUSUM \(h=1\) yükü yaklaşık \(5{,}33\)--\(6{,}07\) episode/saat,
+  \item uçuşların yaklaşık \(\%99{,}1\)'i alarm,
+  \item satırların yaklaşık \(\%78\)--\(\%80\)'i alarm
+\end{itemize}
+
+oldu. Yakın alarmları tek episode olarak birleştirmek gerçek saturasyonu
+gizleyebildiği için row coverage ve alarm alan uçuş oranı da raporlandı.
+
+\section{Isolation Forest}
+
+Isolation Forest, etiketsiz normal davranıştan dışarı çıkan örnekleri bulmak
+için kullanıldı. Monolitik, modüler, tek-feature ve flat contextual
+varyantları denendi.
+
+ADS-B'de aynı beş residual üzerinde:
+
+\begin{itemize}
+  \item eğitimli skor ile magnitude korelasyonu \(0{,}995958\),
+  \item eğitimli skor ile shuffled-model skor korelasyonu \(0{,}995841\)
+\end{itemize}
+
+çıktı. Model pratikte residual genliğini yeniden sıralıyordu; bağlam
+öğrendiği gösterilemedi.
+
+\section{LightGBM}
+
+10 saniyelik causal pencerelerden kanal başına yaklaşık 20 descriptor
+üretilerek class-balanced LightGBM eğitildi. Normal-only novelty split'ten
+ayrı supervised split ve session izolasyonu kullanıldı.
+
+\begin{itemize}
+  \item SEAD window AUPRC: LightGBM \(0{,}349\), IF \(0{,}385\);
+  \item ALFA sabit reçete: LightGBM \(0{,}843\), IF \(0{,}858\),
+  LSTM-AE \(0{,}872\).
+\end{itemize}
+
+Supervised model etiketi kullanmasına rağmen baseline'ı geçmedi. Optuna veya
+sonuç sonrası hiperparametre kurtarma yapılmadı; ön-kayıtlı Gate B kararı
+korundu.
+
+\section{Dense-AE, LSTM-AE ve LSTM forecasting}
+
+Autoencoder yaklaşımı normal pencereleri yeniden üretmeyi, reconstruction
+error'ı anomaly skoru olarak kullanmayı amaçladı. LSTM forecasting geçmiş
+pencereden bir sonraki davranışı tahmin etti.
+
+ALFA'da normal veri artırıldığında LSTM-AE'nin \(0{,}731\to0{,}918\)
+iyileşmesi, yeterli ve daha temsil edici normal verinin bazı dar domainlerde
+faydalı olduğunu gösterdi.
+
+ADS-B ilk DL turunda:
+
+\begin{itemize}
+  \item 60/638 part,
+  \item window length 12,
+  \item stride 6,
+  \item history 8,
+  \item maksimum gap 60 saniye,
+  \item 15 epoch,
+  \item batch size 512,
+  \item sekiz ana residual kanalı,
+  \item train-only robust scaling ve clip \(=5\)
+\end{itemize}
+
+kullanıldı.
+
+Eski, truth hatası içeren pooled AUC'ler:
+
+\begin{itemize}
+  \item Dense-AE \(0{,}572\),
+  \item LSTM-AE \(0{,}568\),
+  \item LSTM forecast \(0{,}552\).
+\end{itemize}
+
+Skorların magnitude ile korelasyonu \(0{,}86\)--\(0{,}94\) aralığındaydı.
+
+\section{USAD}
+
+USAD iki decoder ve adversarial reconstruction ile daha keskin anomaly
+ayrımı üretmek amacıyla denendi. Legacy küçük veri deneyinde ALFA \(0{,}450\),
+UAV Attack \(0{,}531\) ile LSTM-AE'nin altında kaldı. ADS-B uygulamasında loss
+yaklaşık 23 milyar seviyesine çıkarak sayısal olarak patladı.
+
+Bounded decoder veya farklı optimizer çalışması araştırıldı fakat ana
+fizik/truth hattı başarısızken USAD debug'ı ürün sonucunu değiştirecek öncelik
+olarak görülmedi.
+
+\section{Chronos ve foundation model denemeleri}
+
+Chronos Bolt Tiny, SEAD'de \code{alt} ve actuator-output kanallarında
+zero-shot causal forecast residual üretmek için kullanıldı.
+
+\begin{itemize}
+  \item Mechanical recall \(0{,}205\to0{,}390\): Gate B geçti.
+  \item Vertical recall \(0{,}096\to0{,}023\): kötüleşti.
+  \item Fusion \(0{,}213/23{,}92\) FA/saat: Gate C kaldı.
+\end{itemize}
+
+MOMENT foundation model kurulumu Python 3.14 ile eski NumPy/bağımlılık
+uyumsuzluğu nedeniyle tamamlanamadı.
+
+\section{Contextual LSTM ve conformal calibration}
+
+\subsection{Amaç}
+
+Önceki modellerin ``büyük residual = anomali'' artefaktını azaltmak için,
+doğrudan residual büyüklüğü yerine geçmiş bağlamdan bir sonraki residual
+dağılımı tahmin edildi.
+
+\subsection{Girdi ve mimari}
+
+Girdi:
+
+\begin{itemize}
+  \item 12 geçmiş adım,
+  \item yalnız geçmişten türetilmiş uçuş fazı,
+  \item track sin/cos,
+  \item gerçek \(\Delta t\) ve cadence,
+  \item availability maskeleri,
+  \item toplam 19 input boyutu.
+\end{itemize}
+
+Tahmin kanalları vertical, speed, heading, east ve north residual'larıdır.
+Model bir katmanlı, hidden size 32 LSTM'dir. Her kanal için beklenen ortalama
+\(\mu_c\) ve ölçek \(\sigma_c\) üretir; \(\sigma\) yaklaşık
+\([0{,}1,5]\) aralığında sınırlandırılır.
+
+Maskeli, kanallar arası açık eşit ağırlıklı Gaussian NLL kullanıldı:
+
+\[
+\mathcal{L}
+= \frac{1}{\sum_{t,c}m_{t,c}}
+\sum_{t,c} m_{t,c}
+\left[
+\log\sigma_{t,c}
++ \frac{(y_{t,c}-\mu_{t,c})^2}{2\sigma_{t,c}^2}
+\right].
+\]
+
+Anomaly skoru standartlaştırılmış tahmin hatasıdır:
+
+\[
+a_{t,c}
+= \frac{|y_{t,c}-\mu_{t,c}|}{\sigma_{t,c}}.
+\]
+
+\subsection{Eğitim ve magnitude kontrolü}
+
+\begin{itemize}
+  \item 2.929 uçuş,
+  \item yaklaşık 1,267 milyon satır,
+  \item beş epoch,
+  \item NLL \(0{,}795\to0{,}709\).
+\end{itemize}
+
+Eğitimli model skorunun magnitude korelasyonu yaklaşık \(0{,}6496\),
+karşılaştırma korelasyonu yaklaşık \(0{,}6542\) oldu. Önceki \(0{,}99\)
+seviyelerinden daha düşük olduğu için modelin yalnız magnitude kopyalamadığı
+kontrolü geçti.
+
+\subsection{Conformal hiyerarşi}
+
+Eşikler channel + phase + cadence düzeyinde kalibre edildi. Grup örneği
+1.000'in altındaysa phase, sonra channel düzeyine fallback yapıldı.
+
+Kalibrasyon örneği:
+
+\begin{itemize}
+  \item 60/237 part,
+  \item 8.182 uçuş,
+  \item yaklaşık 3,321 milyon pencere,
+  \item yaklaşık 16 milyon uzun-format skor satırı.
+\end{itemize}
+
+Alarm bütçesi \(0{,}1,\ 0{,}5,\ 1,\ 2,\ 5\) episode/100 uçuş-saat olarak
+ön-kayıtlandı. Bütçe payları yaklaşık S2 \(\%15\), speed \(\%27{,}7\),
+heading \(\%22{,}8\), vertical/east/north için \(\%11{,}5\)'er olarak
+dağıtıldı. Instant, 30 saniye persistence ve accumulation kararları
+değerlendirildi.
+
+\subsection{Contextual truth-v2 sonuçları}
+
+\begin{longtable}{L{0.25\textwidth}L{0.15\textwidth}L{0.18\textwidth}L{0.31\textwidth}}
+\toprule
+\textbf{Reçete} & \textbf{Bütçe} & \textbf{Recall} & \textbf{Gecikme / not}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Reçete} & \textbf{Bütçe} & \textbf{Recall} & \textbf{Gecikme / not}\\
+\midrule
+\endhead
+Vertical spike & \(V=5\) & 0,000589 & Yaklaşık 316 s; \(\%0{,}06\) recall.\\
+Vertical freeze & \(V=5\) & 0,003061 & Yaklaşık 682 s; \(\%0{,}31\) recall.\\
+Speed spike & kayıtlı & 0,056030 & 0 s; en iyi kısa-gecikmeli kanallardan biri.\\
+Speed bias & kayıtlı & 0,012826 & Yaklaşık 19,66 s.\\
+Heading & kayıtlı & 0,000940 & Yaklaşık 189 s.\\
+East/north CUSUM & \(V=0{,}1\) & 0,071268 & Yaklaşık 3.610 s; coverage 0,0286.\\
+East/north CUSUM & \(V=5\) & 0,497194 & Yaklaşık 1.101 s; coverage 0,3094.\\
+\bottomrule
+\end{longtable}
+
+East/north \(V=5\) sonucunda paired clean burden yaklaşık
+\(0{,}01998/\text{saat}\) olmasına rağmen aktif enjeksiyonun gözlenebilir
+coverage'ı yalnızca \(\%30{,}94\) civarındadır. Altitude dropout, fiziksel
+contextual kanal yerine S2 veri kalitesi kapsamındadır.
+
+Debug amacıyla alarm bütçesi ciddi biçimde gevşetilip \(\alpha=0{,}5\)
+civarına çıkarıldığında recall bazı reçetelerde \(\%74\)--\(\%92\) seviyesine
+ulaşmış; fakat doğal yük yaklaşık 9 alarm/saat olmuştur.
+
+\begin{successbox}[Contextual modelden çıkarılan doğru sonuç]
+Model mekanizması tamamen bozuk değildir: gevşek eşikte anomalileri
+görebilmektedir ve önceki modeller kadar magnitude bağımlı değildir. Fakat
+doğal varyasyon ile anomaliyi kayıtlı operasyonel alarm bütçesinde ayıracak
+diskriminasyon oluşmamıştır.
+\end{successbox}
+
+Full 237-part kalibrasyon, eşit bütçeli rule karşılaştırması ve ayrı final
+blind unseal aşamasına geçilmedi. Kullanılan üç ADS-B günü fit,
+calibration/development ve rehearsal rollerinde kullanılmıştır; üç günün
+tamamı kör holdout değildir.
+
+\section{Araştırılan fakat tamamlanmayan yöntemler}
+
+\begin{longtable}{L{0.25\textwidth}L{0.61\textwidth}}
+\toprule
+\textbf{Yöntem} & \textbf{Durum}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Yöntem} & \textbf{Durum}\\
+\midrule
+\endhead
+Matrix Profile & Literatür ve yol haritasında sağlam unsupervised baseline olarak araştırıldı; resmi tam deney tamamlanmadı.\\
+TranAD & Az veri ve adversarial transformer adayı olarak araştırıldı; uygulanmış resmî sonuç yok.\\
+Robust covariance / PCA & Baseline/yol haritası seviyesinde kaldı.\\
+MOMENT & Python 3.14 ve bağımlılık uyumsuzluğu nedeniyle kurulamadı.\\
+RFLY severity/simulation & Preflight veri eksikliği nedeniyle resmi deney tamamlanmadı.\\
+ADS-B weighted-loss AE & Önceki adım kapıları geçmediği için koşullu dal çalıştırılmadı.\\
+USAD bounded-output smoke & Ana fizik/truth hattı önceliği nedeniyle tamamlanmadı.\\
+ADS-B manual top-100 audit & Bekleyen insan incelemesi; ürün kanıtı üretmedi.\\
+Full contextual calibration ve blind holdout & Önceki aşamada recall--alarm dengesi geçmediği için açılmadı.\\
+\bottomrule
+\end{longtable}
+
+\chapter{Kronoloji ve Başarısızlık Zinciri}
+
+\section{Özet kronoloji}
+
+\begin{longtable}{L{0.12\textwidth}L{0.31\textwidth}L{0.47\textwidth}}
+\toprule
+\textbf{Faz} & \textbf{Hipotez} & \textbf{Sonuç}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Faz} & \textbf{Hipotez} & \textbf{Sonuç}\\
+\midrule
+\endhead
+ML-0/1 & Tek genel feature uzayı + Isolation Forest & ALFA yaklaşık rastgele, UAV Attack ters skor; monolitik satır modeli reddedildi.\\
+ML-1 modüler & Fiziksel modüller feature sulanmasını azaltır & ALFA/UAV iyileşti; küçük validation-normal havuzu eşik kararsızlığı yarattı.\\
+ML-2 & LSTM-AE zamansal imzayı öğrenir & UAV Attack'ta IF'yi geçti; ALFA'da önce geçemedi.\\
+ML-3 & Ablation, enjeksiyon ve USAD ile hata modu ayrılır & Guidance-only kazancı, platforma özel kalibrasyon ve düşük severity kaçışı ölçüldü; USAD elendi.\\
+ML-4 & Daha fazla normal veri LSTM'yi düzeltir & ALFA LSTM-AE \(0{,}731\to0{,}918\); veri hipotezi dar domain için doğrulandı.\\
+ML-5/6/7 & Causal özellik ve doğru event onset & Eski CUSUM başarıları ve event recall ciddi düştü; leakage/proxy sorunları düzeltildi.\\
+ML-8A & Temporal descriptor + LightGBM daha iyi ayrım sağlar & SEAD ve ALFA'da IF/LSTM baseline'larını geçmedi.\\
+ML-9 & EKF ve motor-simetri feature'ları kategori boşluğunu kapatır & Küçük recall artışı; fusion Gate C kaldı.\\
+ML-10 & Chronos zero-shot forecast daha güçlü davranış modeli sağlar & Mechanical Gate B geçti; fusion alarm yükü yüzünden kaldı.\\
+ML-12 & Tek feature, modül içi seyrelmeyi azaltır & Mechanical recall \(0{,}459\); normal alarm yükü \(38{,}1/\text{saat}\).\\
+ML-13 & Sistem ve mekanik kanalları ayırmak fusion kaybını önler & Recall arttı; FA 1,89--3,83 kat yükseldi.\\
+ML-14 & Daha fazla ve çeşitli normal session FA'yı azaltır & FA azaldı, recall yaklaşık \(0{,}12\)'ye çöktü.\\
+ML-15 & Kalibrasyon drift/jackknife ile genellenir & En iyi \(0{,}1145/8{,}4146\); Gate kaldı.\\
+ML-16 & Relative/genlik normalize DL skoru artefaktı çözer & Magnitude korelasyonu düştü; gerçek recall çoğunlukla \(\%6\)'nın altında.\\
+RFLY-0 & Yeni gerçek fault verisi Gate C'yi açar & Full-flight proxy geçiyor göründü.\\
+RFLY-1 & Gerçek fault interval ve source schema düzeltmesi & Başarı geçersizleşti; corrected FA kabul edilemez.\\
+İlk ADS-B & Fiziksel rule + IF sentetik anomalileri düşük yükle yakalar & Truth ve MAD düzeltmesi sonrası \(25{,}537\) yeni alarm/saat; reddedildi.\\
+Aktif ADS-B & Robust rule/CUSUM + doğru truth & AUC iyi, doğal alarm yükü çok yüksek.\\
+Contextual ADS-B & Bağlam, conformal eşik ve sıkı bütçe ayrımı sağlar & Magnitude sorunu azaldı; kayıtlı bütçede recall sıfıra yaklaştı.\\
+\bottomrule
+\end{longtable}
+
+\section{Hipotezlerin sıralı olarak reddedilmesi}
+
+\begin{enumerate}
+  \item \textbf{Tek genel anomaly modeli}: monolitik IF rastgele/ters sonuç verdi.
+  \item \textbf{Fiziksel modüllere bölme}: ALFA'da fayda sağladı, genel transferi çözmedi.
+  \item \textbf{Normal veri ekleme}: yanlış alarmı azalttı; sıkı eşikte recall çöktü.
+  \item \textbf{Supervised model}: LightGBM, unsupervised baseline'ı geçmedi.
+  \item \textbf{Daha karmaşık derin model}: bazı skorlar magnitude/reconstruction artefaktı çıktı.
+  \item \textbf{Foundation model}: kategori kazancı operasyonel fusion'a dönüşmedi.
+  \item \textbf{CUSUM}: küçük sapmayı topladı, doğal uçuşta alarm saturasyonu oluşturdu.
+  \item \textbf{Platform havuzlama}: heterojen normalleri karıştırdı ve genellemeyi bozdu.
+  \item \textbf{ADS-B fiziksel tutarlılık}: güçlü sentetik sapmaları yakaladı,
+  doğal trafikte alarm yükünü kontrol edemedi.
+  \item \textbf{Contextual öğrenme}: magnitude bağımlılığını azalttı; sıkı bütçede
+  gerekli recall'ı üretemedi.
+\end{enumerate}
+
+\chapter{Bulunan Hatalar ve Uygulanan Düzeltmeler}
+
+\section{Satır, uçuş ve event seviyesinin karıştırılması}
+
+Bir uçuşta çok sayıda satır bulunması bağımsız örnek sayısını artırmaz.
+Satır ROC-AUC yüksekken uçuşların çoğu alarm alabilir. Değerlendirme daha
+sonra event onset, overlap, uçuş, uçuş-saati, delay ve coverage olarak
+ayrıldı.
+
+\section{Tüm uçuşu anomali kabul etmek}
+
+RflyMAD'de klasör etiketi tüm uçuşa uygulanınca model uçuş profili ile fault
+aralığını karıştırdı. Gerçek interval kullanıldığında görünen Gate-C başarısı
+kayboldu.
+
+\section{Event başlamadan önce açık alarmı tespit saymak}
+
+Eski overlap recall, event öncesi açılmış alarmın event aralığına taşmasını
+başarı sayabiliyordu. ``Yeni alarm/onset recall'' tanımı getirildiğinde bazı
+sonuçlar yaklaşık \(0{,}59\) overlap'tan \(0{,}19\)--\(0{,}22\) onset
+recall'a düştü.
+
+\section{Gelecek bilgisi ve causal CUSUM}
+
+CUSUM center ve \(k\) parametrelerinin tüm seri veya test verisinden
+etkilenmesi engellendi. Train-normal baseline sabitlendi ve prefix
+invariance testi eklendi. ALFA \code{alt_error_cusum} sonucu
+\(0{,}878\to0{,}611\) düştü.
+
+\section{NaN-medyan imputasyonu}
+
+UAV Attack'ta saldırı sırasında kaybolan değer medyana doldurulunca saldırı
+daha normal görünüyordu. Missingness ve availability daha sonra özellik ve
+maske olarak ele alındı.
+
+\section{Kaynakta olmayan sensörü medyanla üretmek}
+
+Pooled platformlarda bir kaynakta hiç bulunmayan kolonun başka kaynağın
+medyanıyla doldurulması engellendi. Source schema maskesi eklendi.
+
+\section{Magnitude artefaktı}
+
+Eğitimli skor, eğitimsiz/shuffled skor ve ham büyüklük arasındaki korelasyon
+zorunlu teşhis haline getirildi. Model eğitiminin gerçekten yeni sinyal
+öğrenip öğrenmediği bu kontrolle ayrıldı.
+
+\section{Sentetik truth semantiği}
+
+\code{injection_active}, \code{observable_changed} ve
+\code{evaluable_truth} ayrıldı. Böylece kodun bir değeri değiştirmeye
+çalışması ile model girdisinde fiziksel olarak gözlenebilir değişim oluşması
+aynı kabul edilmedi.
+
+\section{Episode merge ile alarm yükünün gizlenmesi}
+
+Uzun süre açık kalan alarmı tek episode saymak alarm sayısını düşük
+gösterebilir. Bu nedenle alarm satır coverage'ı ve alarm alan uçuş oranı
+episode/saat ile birlikte raporlandı.
+
+\section{Yoğun grid üzerinde hayalî pencere}
+
+Eski temporal descriptor hattında telemetri boşlukları boyunca yoğun 1
+saniyelik grid pencereleri üretilebiliyordu. Gap-aware pencereleme ile
+düzeltildi; eski çıktı superseded olarak işaretlendi.
+
+\section{Repository paketleme hatası}
+
+Ankorsuz \code{data/} gitignore deseni \code{src/ml/data/} kod paketini de
+eşleyebiliyordu. Temiz clone'da import hatası yaratacak bu problem
+\code{/data/} biçiminde düzeltilerek ML pipeline modülleri version control
+kapsamına alındı.
+
+\chapter{Kök Neden Analizi}
+
+\section{Geçerli ground-truth eksikliği}
+
+ADS-B kaynağında gerçek saldırı veya arıza etiketi yoktur. Sentetik
+enjeksiyon, fiziksel anlamı ve feature-level gözlenebilirliği doğrulanmadan
+gerçek attack ground-truth'u değildir.
+
+\section{Sensör gözlenebilirliği}
+
+Ping/DoS gibi olaylar mevcut uçuş telemetrisini değiştirmiyorsa telemetri
+modeli bu olayı göremez. Ağ paket zamanlaması, sequence number, receiver
+durumu veya RF seviyesi olmadan problem gözlenebilir değildir.
+
+\section{Hedef platform uyumsuzluğu}
+
+Aktif ADS-B verisi çoğunlukla insanlı hava araçlarından gelmektedir. UAV
+anomali ürününün doğrudan hedef dağılımını temsil etmez.
+
+\section{Domain shift}
+
+ALFA sabit kanat, PX4 multirotor, Rfly ve ADS-B normal davranışları farklıdır.
+Aynı residual adı ve eşik bu platformlarda aynı fiziksel anlamı veya
+dağılımı taşımamaktadır. Platforma özgü kalibrasyon transfer deneyinde
+doğrudan ölçülmüştür.
+
+\section{Bağımsız örnek sayısının küçüklüğü}
+
+Satır hacmi yüksek olsa da bağımsız arıza uçuşu, araç ve session sayısı
+düşüktür. Küçük \(n\):
+
+\begin{itemize}
+  \item eşik kararsızlığı,
+  \item geniş güven aralığı,
+  \item fault-family recall'un bir iki örnekle değişmesi,
+  \item validation--test normal dağılım kayması
+\end{itemize}
+
+oluşturmuştur.
+
+\section{Normal davranışın heterojenliği}
+
+Uçuş fazı, aircraft tipi, manevra, hava, sensör kalitesi, cadence ve provider
+semantiği normal dağılımı genişletmektedir. Bu heterojenlik, anomaly ile
+normal kuyruğun operasyonel eşikte iç içe geçmesine yol açar.
+
+\section{Recall--yanlış alarm çelişkisi}
+
+Projenin en kararlı sonucu aşağıdaki değiş-tokuştur:
+
+\[
+\text{yüksek recall}
+\quad\Longrightarrow\quad
+\text{yüksek doğal alarm yükü},
+\]
+
+\[
+\text{düşük doğal alarm yükü}
+\quad\Longrightarrow\quad
+\text{çok düşük recall}.
+\]
+
+ADS-B debug eşiğinde yüksek recall görülebilmesi, mekanizmanın sinyal
+üretebildiğini; kayıtlı bütçede recall'ın çökmesi ise doğal varyasyon ile
+anomali ayrımının yeterli olmadığını gösterir.
+
+\section{Alarm bütçesi birimi ve ürün sözleşmesi}
+
+Eski deneylerde saat başına 2 veya 12 alarm sınırları kullanılırken aktif
+ADS-B çalışması 100 saatte 0,1--5 episode bütçesine geçti. Bütçeyi gevşetmek
+``modeli kurtarmak'' değil, farklı alarm yüküne sahip yeni bir ürün
+sözleşmesi tanımlamaktır.
+
+\section{Kör final doğrulama eksikliği}
+
+Dar kapsamlı olumlu sonuçlar bulunmasına rağmen tüm genel ürün iddiaları için
+ayrı, hiç açılmamış ve yalnız finalde kullanılan bir holdout başarısı
+gösterilemedi. Bazı SEAD holdoutları kapalı tutuldu; ADS-B contextual hat ise
+blind unseal aşamasına gelmeden önceki kapıda kaldı.
+
+\chapter{Neler Gerçekten Çalıştı?}
+
+\begin{successbox}[Savunulabilir kazanımlar]
+\begin{itemize}
+  \item Büyük ADS-B verisi streaming, deterministik ve devam ettirilebilir
+  biçimde işlendi.
+  \item Provenance, checkpoint, checksum, split ve artifact sözleşmeleri
+  geliştirildi.
+  \item Row, window, event, uçuş ve saat seviyeleri metodolojik olarak ayrıldı.
+  \item Leakage, proxy truth, ghost imputation ve magnitude artefaktları
+  bulunup ölçüldü.
+  \item ALFA'da dar kapsamlı gerçek arıza ayrımı ve LSTM-AE kazanımı gösterildi.
+  \item Speed bias ve track freeze gibi güçlü sentetik ADS-B sapmaları
+  fiziksel residual ile iyi sıralandı.
+  \item S2 katmanı doğal veri kalitesi olaylarını açıklanabilir nedenlerle
+  üretebildi.
+  \item Contextual LSTM'nin yalnız magnitude kopyalamadığı gösterildi.
+  \item Başarısızlık ``model kötü'' ifadesinden çıkarılıp veri, truth,
+  gözlenebilirlik ve alarm bütçesi bileşenlerine ayrıldı.
+\end{itemize}
+\end{successbox}
+
+Bu çıktılar araştırma ve veri mühendisliği başarısıdır. Genel operasyonel
+anomali ürününün kabul edildiği anlamına gelmez.
+
+\chapter{Teknik Fizibilite Hükmü}
+
+\section{Hedeflenen ürün}
+
+Hedef; farklı platformlarda, bilinen ve bilinmeyen anomaly türlerinde,
+gerçek zamanlı veya yakın gerçek zamanlı çalışabilen, yüksek event recall ve
+düşük yanlış alarm üreten genel bir dedektördü.
+
+\section{Neden mevcut koşullarda achievable değil?}
+
+\begin{enumerate}
+  \item Hedef ADS-B/UAV saldırıları için yeterli gerçek ve interval etiketli
+  veri bulunmamaktadır.
+  \item Bazı saldırı etkileri kullanılan sensörlerde gözlenebilir değildir.
+  \item ADS-B verisi doğrudan UAV hedef dağılımını temsil etmemektedir.
+  \item Platformlar arası normal davranış ve sensör şeması uyumsuzdur.
+  \item Bağımsız fault/session örneklemi küçüktür.
+  \item Feature ve model iyileştirmeleri doğal normal kuyruğunu anomaly
+  kuyruğundan kayıtlı alarm bütçesinde ayıramamıştır.
+  \item Olumlu dar sonuçlar genel ve bağımsız final doğrulamaya taşınmamıştır.
+\end{enumerate}
+
+\begin{verdictbox}
+\textbf{Nihai karar:}
+
+Mevcut problem tanımı değiştirilmeden, yalnız yeni bir model ailesi,
+daha büyük sinir ağı, daha uzun eğitim veya hiperparametre taraması eklemek
+genel ürün fizibilitesini kanıtlamak için yeterli değildir. Bu nedenle
+proje, mevcut veri ve operasyonel kabul şartlarıyla
+\textbf{not achievable / teknik olarak fizibl değil} olarak
+kapatılmalıdır.
+\end{verdictbox}
+
+\section{Bu hükmün sınırı}
+
+Aşağıdaki daha dar ürünler fizibl olabilir:
+
+\begin{itemize}
+  \item ADS-B veri kalitesi ve message-gap monitörü;
+  \item belirli uçak/receiver grubu için platforma özgü residual monitörü;
+  \item yalnız güçlü speed-bias veya track-freeze benzeri sapmaları hedefleyen
+  kural dedektörü;
+  \item ALFA benzeri sabit platform ve bilinen fault family için özel model;
+  \item insan analiste anomaly ranking/triage sağlayan araştırma aracı.
+\end{itemize}
+
+Bu ürünler için iddia ve başarı metriği ayrı yazılmalıdır.
+
+\chapter{Yeniden Başlama Koşulları}
+
+Yeni bir çalışmanın aynı başarısızlıkları tekrar etmemesi için aşağıdakiler
+başlangıç önkoşulu olmalıdır:
+
+\begin{enumerate}
+  \item \textbf{Tek hedef platform}: ADS-B insanlı uçak mı, PX4 UAV mı,
+  RF/network attack mı açıkça seçilmeli.
+  \item \textbf{Gerçek normal dağılım}: üretim hedefiyle aynı araç, sensör,
+  receiver ve cadence'den gelmeli.
+  \item \textbf{Event interval etiketi}: anomaly başlangıç ve bitişi
+  doğrulanmalı.
+  \item \textbf{Gerekli sensör}: DoS için network/RF metadatası, spoofing
+  için bağımsız INS/GNSS referansı eklenmeli.
+  \item \textbf{Alarm bütçesi}: operasyon ekibiyle önceden dondurulmalı.
+  \item \textbf{Blind holdout}: model geliştirmeden önce ayrılmalı ve son
+  kabul testine kadar açılmamalı.
+  \item \textbf{Platforma özel model}: tek genel ağırlık veya eşik
+  varsayılmamalı.
+  \item \textbf{Sentetik validasyon}: enjeksiyonun fiziksel anlamı,
+  şiddeti, aktif coverage'ı ve gözlenebilirliği doğrulanmalı.
+  \item \textbf{Operasyonel metrik}: AUROC/AUPRC yanında event recall,
+  onset delay, FA/saat, alarm alan uçuş oranı ve row coverage zorunlu olmalı.
+\end{enumerate}
+
+Bu önkoşullar olmadan yeni algoritma denemek, önceki sonucu farklı model
+adıyla tekrar etme riski taşır.
+
+\chapter{Beklenen Yönetim Soruları ve Hazır Cevaplar}
+
+\section*{AUC yüksekse neden başarısız sayılıyor?}
+\addcontentsline{toc}{section}{AUC yüksekse neden başarısız sayılıyor?}
+
+AUROC yalnız anomaly skorlarının normal skorlardan daha yukarı sıralanma
+olasılığını ölçer. Bir eşik seçildiğinde uçuşların \(\%89\)'u alarm alıyorsa
+yüksek AUC operasyonel başarı değildir.
+
+\section*{Neden Isolation Forest kullanıldı?}
+\addcontentsline{toc}{section}{Neden Isolation Forest kullanıldı?}
+
+Gerçek saldırı etiketi olmayan normal-only novelty problemine uygun, hızlı
+ve açıklanabilir bir baseline olduğu için kullanıldı. Ancak birçok deneyde
+ham residual magnitude dedektörüne dönüştüğü ölçüldü.
+
+\section*{Neden LightGBM kullanıldı?}
+\addcontentsline{toc}{section}{Neden LightGBM kullanıldı?}
+
+Etiketli event pencerelerindeki doğrusal olmayan descriptor ilişkilerini
+öğrenmek ve unsupervised modelin kaçırdığı fault ailelerini yakalamak için.
+SEAD ve ALFA'da kayıtlı baseline'ı geçmedi.
+
+\section*{Neden derin öğrenme kullanıldı?}
+\addcontentsline{toc}{section}{Neden derin öğrenme kullanıldı?}
+
+Zamansal bağımlılığı, uçuş dinamiğini ve doğrusal olmayan normal davranışı
+öğrenmek için. ALFA'da normal veri artırılınca fayda sağladı; heterojen
+SEAD/ADS-B ortamında magnitude ve reconstruction artefaktı baskın kaldı.
+
+\section*{Daha büyük model sorunu çözmez mi?}
+\addcontentsline{toc}{section}{Daha büyük model sorunu çözmez mi?}
+
+Sensörde bulunmayan sinyali, hatalı etiketi veya doğal/anomaly dağılımlarının
+operasyonel eşikte çakışmasını model boyutu çözmez. Daha büyük model
+overfitting ve kalibrasyon riskini artırabilir.
+
+\section*{Daha fazla veri çözmez mi?}
+\addcontentsline{toc}{section}{Daha fazla veri çözmez mi?}
+
+Aynı tür etiketsiz heterojen verinin artması doğal alarm kuyruğunu daha iyi
+ölçer; fakat gerçek anomaly etiketi ve eksik sensörü üretmez. ALFA örneği,
+doğru domain normal verisinin dar bir problemde faydalı olduğunu; SEAD
+örneği ise heterojen normal artışının recall'ı kurtarmadığını göstermiştir.
+
+\section*{Eşiği gevşetsek olmaz mı?}
+\addcontentsline{toc}{section}{Eşiği gevşetsek olmaz mı?}
+
+Recall yükselir; fakat deneylerde yaklaşık 9--25 alarm/saat veya daha yüksek
+yük oluşmuştur. Bu, mevcut ürün şartını karşılamak değil alarm sözleşmesini
+değiştirmektir.
+
+\section*{ALFA sonucu başarı değil mi?}
+\addcontentsline{toc}{section}{ALFA sonucu başarı değil mi?}
+
+Dar ve platforma özel bir araştırma başarısıdır. Küçük örneklemli, bazı
+sınıflarda \(n=1\)--4 düzeyinde, final blind holdout'suz ve diğer platformlara
+transfer edilemeyen sonuç genel ürün kanıtı değildir.
+
+\section*{Sentetik anomaly neden yeterli değil?}
+\addcontentsline{toc}{section}{Sentetik anomaly neden yeterli değil?}
+
+Enjeksiyon gerçek fiziksel saldırının etkisini, şiddetini ve sensör
+gözlenebilirliğini temsil etmelidir. Aksi halde model gerçek saldırıyı değil,
+bizim yazdığımız dönüşüm kodunu öğrenir.
+
+\section*{ADS-B ile drone anomalisi tespit edildi mi?}
+\addcontentsline{toc}{section}{ADS-B ile drone anomalisi tespit edildi mi?}
+
+Hayır. Aktif veri büyük ölçüde insanlı hava aracı ADS-B trafiğidir ve
+doğrulanmış UAV ground-truth'u yoktur. Yapılan çalışma ADS-B fiziksel
+tutarlılık ve veri kalitesi analizidir.
+
+\section*{Project tamamen imkânsız mı?}
+\addcontentsline{toc}{section}{Project tamamen imkânsız mı?}
+
+Evrensel olarak değil. Ancak mevcut kapsam, veri, gözlem kanalları ve alarm
+bütçesi altında hedeflenen genel operasyonel ürün achievable değildir. Dar
+ve yeniden tanımlanmış alt ürünler mümkündür.
+
+\section*{Neden daha fazla yöntem denenmedi?}
+\addcontentsline{toc}{section}{Neden daha fazla yöntem denenmedi?}
+
+Matrix Profile, TranAD, PCA, robust covariance ve MOMENT gibi adaylar
+araştırıldı. Fakat temel truth, gözlenebilirlik ve alarm yükü sorunları model
+ailesinden bağımsızdır. Önceki kapılar geçilmeden sınırsız yöntem taramak
+sonuç sonrası seçim yanlılığı yaratır.
+
+\chapter{Sonuç}
+
+Bu proje yalnızca ``denedik, olmadı'' seviyesinde kapanmamıştır. Farklı veri
+setleri, fiziksel varsayımlar, ML ve DL modelleri, kalibrasyon yöntemleri,
+sentetik truth sözleşmeleri ve operasyonel alarm kararları ardışık biçimde
+test edilmiştir.
+
+İlk bakışta olumlu görünen sonuçlar leakage, proxy etiket, tüm-uçuş etiketi,
+magnitude artefaktı veya alarm birimi açısından tekrar denetlenmiştir.
+Düzeltmelerden sonra genel örüntü değişmemiştir:
+
+\begin{verdictbox}
+Kabul edilebilir yanlış alarm seviyesinde recall operasyonel olarak yetersiz;
+recall yükseltildiğinde ise alarm yükü kabul edilemezdir. Mevcut veride gerçek
+anomaly ground-truth'u, hedef platform temsili ve gerekli sensör
+gözlenebilirliği de eksiktir. Bu nedenle genel operasyonel anomali tespit
+ürünü mevcut şartlarla teknik olarak fizibl değildir.
+\end{verdictbox}
+
+\appendix
+
+\chapter{Repo İçindeki Ana Kanıt Belgeleri}
+
+\begin{longtable}{L{0.34\textwidth}L{0.56\textwidth}}
+\toprule
+\textbf{Belge} & \textbf{İçerik}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Belge} & \textbf{İçerik}\\
+\midrule
+\endhead
+\path{docs/decisions.md} & Aktif ve tarihsel mimari/deney kararları, ADR kayıtları.\\
+\path{docs/adsb_overall_model_report_2026-07-14.md} & Aktif ADS-B fizik, kural, DL ve doğal yük sonuçları.\\
+\path{docs/DURUM_TESHIS_VE_YOL_HARITASI.md} & Durum teşhisi ve aşamalı yol haritası.\\
+\path{docs/adsb_contextual_candidate_v1_prereg_2026-07-14.md} & Contextual LSTM ön-kayıt sözleşmesi.\\
+\path{docs/adsb_contextual_physics_v1_alarm_budget_prereg_2026-07-14.md} & ADS-B alarm bütçesi ve Pareto sözleşmesi.\\
+\path{archive/2026-07-10_legacy_non_adsb_ml/docs/ML_YETERSIZLIKLER_KAYDI.md} & Eski ML hattının yetersizlikleri ve açık sınırlar.\\
+\path{archive/2026-07-10_legacy_non_adsb_ml/docs/ML1_BULGULAR_VE_HATALAR.md} & ML fazlarının bulgu ve hata kayıtları.\\
+\path{archive/2026-07-10_legacy_non_adsb_ml/docs/ANOMALI_METOT_ARASTIRMASI.md} & Yöntem araştırması ve hata modu--metot eşlemesi.\\
+\path{archive/2026-07-10_rejected_adsb_attempts/docs/CODEX_ADSB_BEHAVIORAL_V1_RESULTS.md} & Reddedilen ilk ADS-B behavioral yaklaşım sonuçları.\\
+\bottomrule
+\end{longtable}
+
+\chapter{Kısa Terimler Sözlüğü}
+
+\begin{longtable}{L{0.21\textwidth}L{0.69\textwidth}}
+\toprule
+\textbf{Terim} & \textbf{Açıklama}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Terim} & \textbf{Açıklama}\\
+\midrule
+\endhead
+ADS-B & Uçağın kimlik, konum, hız ve durum bilgisini yayınladığı gözetim sistemi.\\
+Residual & Ölçülen/bildirilen değer ile fiziksel veya öğrenilmiş beklenen değer arasındaki fark.\\
+AUROC & Pozitif örneklerin negatiflerden daha yüksek sıralanma olasılığına dayalı ranking metriği.\\
+AUPRC & Precision--recall eğrisi altındaki alan; sınıf dengesizliğine AUROC'dan daha duyarlı.\\
+Event recall & Gerçek anomaly olaylarının ne kadarında geçerli alarm oluştuğu.\\
+False alarm/hour & Normal sürede oluşan yanlış alarm sayısının saatle normalize edilmiş hali.\\
+CUSUM & Küçük fakat kalıcı sapmaları zaman içinde biriktiren ardışık değişim skoru.\\
+Isolation Forest & Normal dağılımın dışında kalan örnekleri ağaç izolasyonu ile skorlayan yöntem.\\
+Autoencoder & Normal veriyi yeniden üretmeyi öğrenen; reconstruction error'ı anomaly skoru yapan sinir ağı.\\
+Conformal calibration & Kalibrasyon skorlarının ampirik dağılımından kapsama kontrollü eşik üreten yaklaşım.\\
+Magnitude artefaktı & Model skorunun öğrenilmiş davranış yerine büyük ham sinyal genliğini takip etmesi.\\
+Proxy truth & Gerçek anomaly interval'ı yerine yaklaşık klasör, uçuş veya enjeksiyon durumu etiketi kullanılması.\\
+Observable coverage & Enjeksiyon aktifken kullanılan model girdilerinde gerçekten gözlenebilir değişim oluşan oran.\\
+Blind holdout & Model ve eşik seçimi tamamlanana kadar hiç açılmayan final değerlendirme bölümü.\\
+\bottomrule
+\end{longtable}
+
+\chapter{Overleaf Derleme Notu}
+
+Bu dosya tek başına derlenebilir. Overleaf üzerinde:
+
+\begin{enumerate}
+  \item \code{ml_anomali_tespiti_fizibilite_final_raporu_2026-07-16.tex}
+  dosyasını yeni projeye yükleyin.
+  \item \textbf{Menu} bölümünde \textbf{Compiler} seçeneğini
+  \textbf{XeLaTeX} yapın.
+  \item \textbf{Recompile} düğmesine basın.
+\end{enumerate}
+
+Rapor dış görsel veya ayrı bibliography dosyasına ihtiyaç duymaz.
+
+\end{document}

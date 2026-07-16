@@ -1,0 +1,55 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[turkish]{babel}
+\usepackage{geometry,booktabs,xcolor,hyperref}
+\geometry{margin=2.2cm}
+\title{UAV GNSS Bütünlük Fizibilitesi v1\\Rehearsal Sonuç Raporu}
+\author{AnomalyDetection Projesi}
+\date{}
+\begin{document}
+\maketitle
+\section{Karar Durumu}
+Bu belge kör holdout sonucu değildir. Holdout ayrı onay verilene kadar mühürlüdür.
+Ürün için nihai GO kararı verilemez. Rehearsal ön sonucu: \texttt{no\_go\_on\_current\_role}.
+
+\section{Dondurulmuş Sözleşme}
+Tek ürün iddiası, PX4 üzerinde mevcut telemetriyle GNSS noise ve scale-factor
+arızalarının kabul edilebilir gecikme ve operatör yüküyle tespitidir. Motor sağlığı
+bu turda kapsam dışıdır; mevcut gerçek loglarda ESC RPM/akım/sıcaklık değerleri
+ölçülmemiştir. Config SHA-256: \texttt{bca69f1e48ee5370aa0e7656ccc626a32911a382adf621797d5c27370c8ff696}.
+
+\section{Rehearsal Sonuçları}
+\begin{tabular}{llrrrr}
+\toprule
+Sözleşme & Yöntem & Deadline recall & Wilson alt & Alarm/saat & Kapı \\
+\midrule
+critical & px4\_native & 90.0\% & 59.6\% & 28.856 & FAIL \\
+critical & cusum & 0.0\% & 0.0\% & 0.000 & FAIL \\
+critical & lstm & 90.0\% & 59.6\% & 0.000 & FAIL \\
+advisory & px4\_native & 90.0\% & 59.6\% & 28.856 & FAIL \\
+advisory & cusum & 70.0\% & 39.7\% & 7.214 & FAIL \\
+advisory & lstm & 100.0\% & 72.2\% & 44.860 & FAIL \\
+\bottomrule
+\end{tabular}
+
+\section{LSTM Geçerlilik Tanısı}
+Eğitilmiş skor ile random-init skor Spearman korelasyonu:
+\textbf{0.678}.
+Eğitilmiş skor ile ham büyüklük korelasyonu:
+\textbf{0.690}.
+Ön-kayıt kapısı 0.80'dir. Sonuç:
+\textbf{PASS}.
+FAIL durumunda LSTM recall değeri ürün kanıtı olarak kullanılamaz.
+
+\section{Yorumlama Sınırları}
+RflyMAD gerçek GPS-fault havuzu küçüktür. SIL/HIL rüzgâr verileri GPS
+ground-truth'u değildir ve yalnız çevresel yanlış-alarm stres testi olabilir.
+Sentetik veya simülasyon recall'ı ürün kanıtı sayılmaz. \texttt{not\_evaluable}
+süreleri normal veya anomaly sınıfına zorlanmamıştır.
+
+\section{Sonraki Kapı}
+Holdout yalnız \texttt{HOLDOUT\_UNSEAL.json} içinde frozen config hash'ine bağlı
+ayrı onay kaydı oluşturulduğunda açılabilir. Sonuç görüldükten sonra eşik, özellik,
+pencere veya model değiştirmek yeni prereg gerektirir.
+\end{document}

@@ -1,0 +1,16 @@
+{
+  "status": "ready",
+  "candidate_namespace": "uav_gnss_integrity_v1",
+  "config_path": "configs/uav_gnss_integrity_v1.json",
+  "config_sha256": "bca69f1e48ee5370aa0e7656ccc626a32911a382adf621797d5c27370c8ff696",
+  "role_counts": {
+    "fit": 20,
+    "calibration": 10,
+    "rehearsal": 15,
+    "holdout": 20,
+    "development": 23,
+    "quarantine": 6
+  },
+  "quarantine_policy": "fault_id != 123456 is excluded from GPS metrics",
+  "holdout_unsealed": false
+}

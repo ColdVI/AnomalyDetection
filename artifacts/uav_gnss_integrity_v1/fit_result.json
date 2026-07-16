@@ -1,0 +1,147 @@
+{
+  "data_role": "natural_clean_fit",
+  "contains_synthetic": false,
+  "n_flights": 20,
+  "n_rows": 4044,
+  "n_windows": 3671,
+  "scaler": {
+    "clip": 5.0,
+    "calibration": {
+      "z_gps_hpos_n": {
+        "median": -0.018791461728731647,
+        "mad": 0.10371067487030548
+      },
+      "z_gps_hpos_e": {
+        "median": -0.0038708355740986336,
+        "mad": 0.07723680441133828
+      },
+      "z_gps_hvel_n": {
+        "median": -0.016752212051645936,
+        "mad": 0.10425112709371955
+      },
+      "z_gps_hvel_e": {
+        "median": -0.0013997319225241191,
+        "mad": 0.09409614810613409
+      },
+      "z_gps_vvel": {
+        "median": 0.0027247675346993073,
+        "mad": 0.09003721680984217
+      },
+      "ratio_gps_hpos": {
+        "median": 0.00031476683216169477,
+        "mad": 0.00039586269419523886
+      },
+      "ratio_gps_hvel": {
+        "median": 0.00044308320502750576,
+        "mad": 0.000531282633759838
+      },
+      "ratio_gps_vvel": {
+        "median": 0.0001470603165216744,
+        "mad": 0.00020748390890903463
+      },
+      "gps_eph": {
+        "median": 0.7350000143051147,
+        "mad": 0.06226919363737106
+      },
+      "gps_epv": {
+        "median": 1.0250000953674316,
+        "mad": 0.17346417596340177
+      },
+      "gps_hdop": {
+        "median": 0.6499999761581421,
+        "mad": 0.029651971721649167
+      },
+      "gps_vdop": {
+        "median": 0.8100000023841858,
+        "mad": 0.07413001767396926
+      },
+      "gps_satellites_used": {
+        "median": 19.0,
+        "mad": 1.4826
+      },
+      "gps_noise_per_ms": {
+        "median": 89.0,
+        "mad": 11.8608
+      },
+      "gps_jamming_indicator": {
+        "median": 13.0,
+        "mad": 1.4826
+      },
+      "local_vx": {
+        "median": 0.005724658956751227,
+        "mad": 0.6774441920489073
+      },
+      "local_vy": {
+        "median": 0.009522584266960621,
+        "mad": 0.5089555518714711
+      },
+      "local_vz": {
+        "median": -0.002703642938286066,
+        "mad": 0.09045042393514886
+      }
+    },
+    "excluded": []
+  },
+  "forecaster_config": {
+    "input_features": 18,
+    "target_channels": 5,
+    "hidden_size": 32,
+    "num_layers": 1,
+    "min_scale": 0.1,
+    "max_scale": 5.0
+  },
+  "target_channels": [
+    "z_gps_hpos_n",
+    "z_gps_hpos_e",
+    "z_gps_hvel_n",
+    "z_gps_hvel_e",
+    "z_gps_vvel"
+  ],
+  "training_loss": [
+    1.0508738980245214,
+    0.8873969382403235,
+    0.7334492361957973,
+    0.6399302218597482,
+    0.5769845162026404,
+    0.5186781743604785,
+    0.4651902934018288,
+    0.4130314546331532
+  ],
+  "cusum": {
+    "schema_version": 1,
+    "config": {
+      "channels": [
+        "z_gps_hpos_n",
+        "z_gps_hpos_e",
+        "z_gps_hvel_n",
+        "z_gps_hvel_e",
+        "z_gps_vvel"
+      ],
+      "reference_shift_z": 1.0,
+      "z_clip": 8.0,
+      "max_gap_s": 1.5
+    },
+    "calibration": {
+      "z_gps_hpos_n": {
+        "median": -0.01877739494196238,
+        "mad": 0.10451284784535797
+      },
+      "z_gps_hpos_e": {
+        "median": -0.0033947612464749954,
+        "mad": 0.07426547418099068
+      },
+      "z_gps_hvel_n": {
+        "median": -0.018026837914493644,
+        "mad": 0.10785633018520215
+      },
+      "z_gps_hvel_e": {
+        "median": -0.0010394522805180894,
+        "mad": 0.0968458956104396
+      },
+      "z_gps_vvel": {
+        "median": 0.005654101662306999,
+        "mad": 0.09161232526929866
+      }
+    }
+  }
+}

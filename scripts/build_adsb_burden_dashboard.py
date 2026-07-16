@@ -1,13 +1,11 @@
-"""ADS-B contextual_physics_v1 dogal-yuk gorsel paneli.
+"""ADS-B contextual_physics_v1 dogal-yuk + gercek recall gorsel paneli.
 
-ADR-041'de uretilen iki ham rapor dosyasini (LSTM alfa egrileri + CUSUM esik
-egrileri) okuyup docs/adsb_contextual_physics_v1_burden_dashboard.html olarak
-grafikli, tek-dosyalik bir panel uretir. Sayilar elle kopyalanmiyor -- ham JSON
+ADR-041 (dogal yanlis-alarm, LSTM alfa + CUSUM esik egrileri) ve ADR-042
+(truth-v2 gercek recall, mevcutsa) ham rapor dosyalarini okuyup
+docs/adsb_contextual_physics_v1_burden_dashboard.html olarak grafikli,
+tek-dosyalik bir panel uretir. Sayilar elle kopyalanmiyor -- ham JSON
 rapordan okunuyor, bu yuzden yeni bir kosu sonrasi script yeniden calistirmak
-yeterli.
-
-Bu panel bir DETECTION/RECALL panosu DEGIL -- yalniz normal veride olculen
-dogal yanlis-alarm davranisini gosterir (bkz. sayfadaki durum uyarisi).
+yeterli. Truth-v2 raporu henuz yoksa recall bolumu otomatik gizlenir.
 
 Kullanim:
     python scripts/build_adsb_burden_dashboard.py
@@ -22,6 +20,7 @@ ROOT = Path(__file__).parent.parent
 BUDGET_PATH = ROOT / "configs" / "adsb_contextual_physics_v1_alarm_budget.json"
 LSTM_REPORT_PATH = ROOT / "artifacts/adsb/runs/20260714_contextual_physics_v1_development_burden_v2/development_burden_curves.json"
 CUSUM_REPORT_PATH = ROOT / "artifacts/adsb/runs/20260714_contextual_physics_v1_cusum_burden_v1/cusum_burden_report.json"
+TRUTH_V2_REPORT_PATH = ROOT / "artifacts/adsb/runs/20260715_contextual_physics_v1_truth_v2_eval_v1/truth_v2_eval_report.json"
 OUT_PATH = ROOT / "docs" / "adsb_contextual_physics_v1_burden_dashboard.html"
 
 
@@ -29,6 +28,7 @@ def load_payload() -> dict:
     budget = json.loads(BUDGET_PATH.read_text(encoding="utf-8"))
     lstm = json.loads(LSTM_REPORT_PATH.read_text(encoding="utf-8"))
     cusum = json.loads(CUSUM_REPORT_PATH.read_text(encoding="utf-8"))
+    truth_v2 = json.loads(TRUTH_V2_REPORT_PATH.read_text(encoding="utf-8")) if TRUTH_V2_REPORT_PATH.exists() else None
 
     channel_shares = budget["budget_shares_of_total"]
     pareto_grid = budget["budget_grid_episodes_per_100_scoreable_flight_hours"]
@@ -87,6 +87,32 @@ def load_payload() -> dict:
         for v, h in cusum["derived_h_by_pareto_point"].items()
     ]
 
+    recall_series = None
+    if truth_v2 is not None:
+        recall_series = []
+        for recipe, data in truth_v2["results"].items():
+            if "profiles" in data:
+                for profile_name, points in data["profiles"].items():
+                    recall_series.append({
+                        "recipe": recipe,
+                        "label": profile_name,
+                        "points": [
+                            {"pareto_v": p["pareto_v"], "recall": p["event_recall"] or 0.0,
+                             "n_events": p["n_events"], "n_detected": p["n_detected_events"]}
+                            for p in points
+                        ],
+                    })
+            else:
+                recall_series.append({
+                    "recipe": data["recipe"],
+                    "label": "east_north_cusum_joint",
+                    "points": [
+                        {"pareto_v": p["pareto_v"], "recall": p["event_recall"] or 0.0,
+                         "n_events": p["n_events"], "n_detected": p["n_detected_events"]}
+                        for p in data["points"]
+                    ],
+                })
+
     return {
         "provenance": {
             "lstm_calibration_day": lstm["calibration_day"],
@@ -107,10 +133,11 @@ def load_payload() -> dict:
             "development_points": dev_points,
             "pareto_markers": pareto_markers,
         },
+        "recall_series": recall_series,
     }
 
 
-TEMPLATE = """<title>contextual_physics_v1 -- Dogal Alarm Yuku Paneli</title>
+TEMPLATE = """<title>contextual_physics_v1 -- Dogal Yuk ve Gercek Recall Paneli</title>
 <style>
 :root {
   --bg: #f5f3ee;
@@ -124,6 +151,8 @@ TEMPLATE = """<title>contextual_physics_v1 -- Dogal Alarm Yuku Paneli</title>
   --good-soft: #e4f3e8;
   --warn: #a3781f;
   --warn-soft: #f3ecd9;
+  --bad: #b5453c;
+  --bad-soft: #f7e6e4;
   --grid-line: #e4e0d3;
   --mono: "Cascadia Mono", "Consolas", ui-monospace, "SFMono-Regular", monospace;
   --sans: "Segoe UI", ui-sans-serif, system-ui, -apple-system, sans-serif;
@@ -132,6 +161,7 @@ TEMPLATE = """<title>contextual_physics_v1 -- Dogal Alarm Yuku Paneli</title>
   --c3: #1f7d76;
   --c4: #5b6bc9;
   --c5: #6b8f4e;
+  --c6: #9a4f7d;
   --cal: #8891a0;
   --dev: #9a4f7d;
 }
@@ -140,8 +170,9 @@ TEMPLATE = """<title>contextual_physics_v1 -- Dogal Alarm Yuku Paneli</title>
     --bg: #10141a; --bg-elevated: #171c24; --ink: #e8e6de; --ink-dim: #96a0ab;
     --border: #2a3138; --accent: #5ec7bd; --accent-soft: #1a2c2c;
     --good: #6cc78e; --good-soft: #16281d; --warn: #d9b95e; --warn-soft: #2b2413;
+    --bad: #e08079; --bad-soft: #2c1917;
     --grid-line: #232a32;
-    --c1: #e0897a; --c2: #d9b95e; --c3: #5ec7bd; --c4: #8b97e0; --c5: #93bd78;
+    --c1: #e0897a; --c2: #d9b95e; --c3: #5ec7bd; --c4: #8b97e0; --c5: #93bd78; --c6: #c98cb0;
     --cal: #7c8798; --dev: #c98cb0;
   }
 }
@@ -149,16 +180,18 @@ TEMPLATE = """<title>contextual_physics_v1 -- Dogal Alarm Yuku Paneli</title>
   --bg: #10141a; --bg-elevated: #171c24; --ink: #e8e6de; --ink-dim: #96a0ab;
   --border: #2a3138; --accent: #5ec7bd; --accent-soft: #1a2c2c;
   --good: #6cc78e; --good-soft: #16281d; --warn: #d9b95e; --warn-soft: #2b2413;
+  --bad: #e08079; --bad-soft: #2c1917;
   --grid-line: #232a32;
-  --c1: #e0897a; --c2: #d9b95e; --c3: #5ec7bd; --c4: #8b97e0; --c5: #93bd78;
+  --c1: #e0897a; --c2: #d9b95e; --c3: #5ec7bd; --c4: #8b97e0; --c5: #93bd78; --c6: #c98cb0;
   --cal: #7c8798; --dev: #c98cb0;
 }
 :root[data-theme="light"] {
   --bg: #f5f3ee; --bg-elevated: #ffffff; --ink: #1b1f24; --ink-dim: #565f68;
   --border: #ddd8cc; --accent: #1f7d76; --accent-soft: #e2efee;
   --good: #3f8f5c; --good-soft: #e4f3e8; --warn: #a3781f; --warn-soft: #f3ecd9;
+  --bad: #b5453c; --bad-soft: #f7e6e4;
   --grid-line: #e4e0d3;
-  --c1: #c9634f; --c2: #c99a3f; --c3: #1f7d76; --c4: #5b6bc9; --c5: #6b8f4e;
+  --c1: #c9634f; --c2: #c99a3f; --c3: #1f7d76; --c4: #5b6bc9; --c5: #6b8f4e; --c6: #9a4f7d;
   --cal: #8891a0; --dev: #9a4f7d;
 }
 * { box-sizing: border-box; }
@@ -177,6 +210,7 @@ header.top p { margin: 0; color: var(--ink-dim); font-size: 0.92rem; max-width: 
   padding: 16px 18px; border-left: 4px solid var(--good);
 }
 .status-card.warn { border-left-color: var(--warn); }
+.status-card.bad { border-left-color: var(--bad); }
 .status-card h3 { margin: 0 0 8px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-dim); }
 .status-card ul { margin: 0; padding-left: 18px; font-size: 0.9rem; }
 .status-card li { margin-bottom: 6px; }
@@ -216,16 +250,27 @@ footer.prov code { font-family: var(--mono); background: var(--accent-soft); col
 </style>
 <div class="page">
   <header class="top">
-    <h1>contextual_physics_v1 -- Dogal Alarm Yuku</h1>
-    <p>Bes fiziksel-sapma sinyalinin, TAMAMEN NORMAL (etiketsiz, olay enjekte edilmemis) ucus
-    verisinde esik/hassasiyet degistikce urettigi dogal yanlis-alarm oranini gosterir.
+    <h1>contextual_physics_v1 -- Dogal Yuk ve Gercek Recall</h1>
+    <p>Ust kisim: bes fiziksel-sapma sinyalinin TAMAMEN NORMAL (olay enjekte edilmemis) ucus
+    verisinde urettigi dogal yanlis-alarm orani. Alt kisim: ayni dondurulmus esiklerle, gercek/
+    enjekte edilmis olaylari GERCEKTEN yakalayip yakalamadigimiz (ADR-042).
     Tum deney kayitlari icin: <a href="experiment_dashboard.html">deney kayit paneli</a>.</p>
   </header>
 
   <div class="status-grid" id="status-grid"></div>
 
+  <section class="chart-section" id="recall-section">
+    <h2>Gercek olay yakalama orani (recall) -- ADR-042</h2>
+    <p class="sub">Yatay eksen: Pareto butce noktasi (0.1 = en siki/en az alarm, 5.0 = en gevsek
+    test edilen nokta -- hala 100 uçus-saatinde 5 alarm demek, gevsek degil). Dikey eksen:
+    8.910 gercek/enjekte olayin kacini yakaladigimiz. Cizgiler ne kadar asagidaysa o kadar kotu.</p>
+    <div class="chart-wrap" id="recall-chart"></div>
+    <div class="legend" id="recall-legend"></div>
+    <div class="callout" id="recall-callout"></div>
+  </section>
+
   <section class="chart-section" id="lstm-section">
-    <h2>Hiz / yon / dikey-hiz -- hassasiyet egrileri</h2>
+    <h2>Hiz / yon / dikey-hiz -- hassasiyet egrileri (dogal yanlis-alarm)</h2>
     <p class="sub">Yatay eksen: esik gevsekligi (alfa, log olcek -- kucuk = siki/az alarm). Dikey
     eksen: normal ucusta saatte kac alarm dogdugu (log olcek). Kesikli cizgiler her kanalin
     Pareto=1.0 (100 saatte 1 alarm) hedefini gosterir.</p>
@@ -350,23 +395,97 @@ function renderStatus() {
       <ul>
         <li>Model ham sinyal buyuklugune degil gercek zamansal oruntuye tepki veriyor (bagimsiz
         kontrolden gecti) -- Isolation Forest ayni kontrolu gecemedi.</li>
-        <li>Normal ucusta yanlis-alarm davranisi artik gercek veriyle olculuyor; 5 sinyalin 4'unde
-        hedeflenen en siki butcelerde bile oran dusuk.</li>
-        <li>Karar katmani ~150x hizlandi, esdegerligi kanitlandi -- artik daha genis olcekte
-        olculebiliyor.</li>
+        <li>Normal ucusta yanlis-alarm davranisi olculuyor ve kontrol altinda; ucuncu, bagimsiz bir
+        gunde de (rehearsal) makul olcude kararli kaldi.</li>
+        <li>Olay-hizalama/alarm mekanizmasi dogrulandi: eşik kasten gevsetildiginde recall
+        %74-92'ye cikiyor -- kod dogru calisiyor, sorun butce (asagida).</li>
       </ul>
     </div>
-    <div class="status-card warn">
-      <h3>Henuz olculmedi (tespit basarisi)</h3>
+    <div class="status-card bad">
+      <h3>Olculdu ve kotu cikti: gercek yakalama orani (ADR-042)</h3>
       <ul>
-        <li>Gercek anomalileri YAKALAMA orani (recall) bu turlarda HIC test edilmedi -- burada
-        gosterilen her sey "normalde ne kadar sik yanlis alarm veriyor" sorusuna cevap.</li>
-        <li>Eski kural-bazli sisteme karsi esit-butceli kiyas henuz yapilmadi.</li>
-        <li>Yani "anomali tespiti iyilesiyor mu" sorusuna simdi kesin cevap YOK -- temel
-        saglamlasiyor, tespit basarisi ayri ve daha sonraki bir olcum.</li>
+        <li>5 sinyalin 4'unde (hiz/yon/dikey-hiz tabanli), dondurulmus butcelerle gercek/enjekte
+        olaylarin en gevsek noktada bile %6'sindan azi yakalaniyor.</li>
+        <li>Kok neden: butce "100 ucus-SAATINDE kac alarm" biriminde -- ama her olay TEK ucusun
+        ~yarim saatlik penceresinde kanitlanmak zorunda. Birim uyusmazligi, model zayifligi degil.</li>
+        <li>Istisna: dogu/kuzey CUSUM dedektoru cok daha iyi genelledi (en gevsekte %49.7) --
+        surekli-biriken tasarimi sonraki tur icin somut bir ipucu.</li>
+        <li>Eski kural-bazli sisteme kiyas (rol #6) hala yapilmadi. Sonraki adim: yeni, cok daha
+        genis bir butce izgarasi icin ayri bir on-kayit.</li>
       </ul>
     </div>
   `;
+}
+
+function renderRecall() {
+  const section = document.getElementById("recall-section");
+  if (!DATA.recall_series) {
+    section.style.display = "none";
+    return;
+  }
+  const palette = ["var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)", "var(--c6)"];
+  const pareto = DATA.pareto_grid;
+  const width = 900, height = 340;
+  const margin = { top: 16, right: 24, bottom: 40, left: 54 };
+  const plotW = width - margin.left - margin.right;
+  const plotH = height - margin.top - margin.bottom;
+  const container = document.getElementById("recall-chart");
+  const svg = el("svg", { class: "chart", width, height, viewBox: `0 0 ${width} ${height}` }, container);
+  const plot = el("g", { transform: `translate(${margin.left},${margin.top})` }, svg);
+
+  const xPos = (i) => (pareto.length === 1 ? plotW / 2 : (i / (pareto.length - 1)) * plotW);
+  const maxRecall = Math.max(0.1, ...DATA.recall_series.flatMap(s => s.points.map(p => p.recall)));
+  const yTop = Math.min(1.0, Math.ceil(maxRecall * 10) / 10 + 0.05);
+  const yPos = (v) => plotH - (v / yTop) * plotH;
+
+  for (const frac of [0, 0.25, 0.5, 0.75, 1.0].map(f => f * yTop)) {
+    const y = yPos(frac);
+    el("line", { class: "grid-line", x1: 0, x2: plotW, y1: y, y2: y }, plot);
+    el("text", { class: "axis-label", x: -8, y: y + 3, "text-anchor": "end" }, plot).textContent = `${(frac * 100).toFixed(0)}%`;
+  }
+  pareto.forEach((v, i) => {
+    const x = xPos(i);
+    el("line", { class: "grid-line", x1: x, x2: x, y1: 0, y2: plotH }, plot);
+    el("text", { class: "axis-label", x, y: plotH + 16, "text-anchor": "middle" }, plot).textContent = `V=${v}`;
+  });
+
+  DATA.recall_series.forEach((s, i) => {
+    const color = palette[i % palette.length];
+    const pts = pareto.map((v, idx) => {
+      const point = s.points.find(p => p.pareto_v === v);
+      return [xPos(idx), yPos(point ? point.recall : 0), point];
+    });
+    const d = pts.map((p, idx) => `${idx === 0 ? "M" : "L"}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(" ");
+    el("path", { class: "series-line", d, stroke: color }, plot);
+    pts.forEach(([x, y, point]) => {
+      const dot = el("circle", { class: "series-dot", cx: x, cy: y, r: 3.5, fill: color }, plot);
+      if (point) {
+        el("title", {}, dot).textContent =
+          `recall=${(point.recall * 100).toFixed(2)}% (${point.n_detected}/${point.n_events} olay)`;
+      }
+    });
+  });
+
+  el("text", { class: "axis-label", x: plotW / 2, y: plotH + 34, "text-anchor": "middle" }, plot)
+    .textContent = "Pareto butce noktasi (100 ucus-saatinde kac alarm)";
+
+  document.getElementById("recall-legend").innerHTML = DATA.recall_series.map((s, i) => `
+    <div class="legend-item">
+      <span class="legend-swatch" style="background:${palette[i % palette.length]}"></span>${s.label}
+    </div>`).join("");
+
+  const worst = [...DATA.recall_series].sort((a, b) => {
+    const am = Math.max(...a.points.map(p => p.recall));
+    const bm = Math.max(...b.points.map(p => p.recall));
+    return am - bm;
+  });
+  const best = worst[worst.length - 1];
+  const bestMax = Math.max(...best.points.map(p => p.recall));
+  document.getElementById("recall-callout").innerHTML = `
+    <b>Okuma:</b> Cizgiler ne kadar duz/asagida ise, o sinyal gercek olaylari o kadar az
+    yakaliyor. En iyi genelleyen: <b>${best.label}</b> (en gevsek noktada %${(bestMax * 100).toFixed(1)}
+    recall) -- digerlerinin cogu her noktada %6'nin altinda kaliyor. Butun esikler ADR-041'de
+    dondurulmustu, burada hicbiri sonuca bakilarak degistirilmedi.`;
 }
 
 function renderLstm() {
@@ -489,6 +608,7 @@ function renderProvenance() {
 }
 
 renderStatus();
+renderRecall();
 renderLstm();
 renderSensitivity();
 renderCusum();

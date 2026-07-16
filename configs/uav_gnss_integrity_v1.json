@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "uav_gnss_integrity_v1",
+  "frozen_before_results": true,
+  "data": {
+    "bronze_root": "data/objectstore/bronze/rflymad",
+    "fit_source": "Real-No_Fault only",
+    "fault_truth_source": "rfly_ctrl_lxl",
+    "gps_fault_id": 123456,
+    "quarantined_fault_id": 123455
+  },
+  "output_dir": "artifacts/uav_gnss_integrity_v1",
+  "features": {
+    "base_topic": "estimator_innovations",
+    "base_cadence_hz": 2.0,
+    "max_gap_s": 1.5,
+    "not_evaluable_is_first_class": true,
+    "forward_fill": false
+  },
+  "episodes": {
+    "merge_gap_s": 10.0
+  },
+  "cusum": {
+    "reference_shift_z": 1.0,
+    "z_clip": 8.0
+  },
+  "lstm": {
+    "history_rows": 12,
+    "hidden_size": 32,
+    "num_layers": 1,
+    "min_scale": 0.1,
+    "max_scale": 5.0,
+    "robust_clip": 5.0,
+    "epochs": 8,
+    "batch_size": 256,
+    "learning_rate": 0.001,
+    "seed": 20260716,
+    "min_calibration_group": 20,
+    "persistence_s": {
+      "critical": 1.0,
+      "advisory": 2.0
+    },
+    "magnitude_domination_spearman_max": 0.8
+  },
+  "contracts": {
+    "critical": {
+      "deadline_s": 5.0,
+      "max_false_alarms_per_hour": 2.0,
+      "normal_scoreable_coverage_min": 0.95,
+      "fault_evaluable_coverage_min": 0.90,
+      "recall_min": 0.70,
+      "wilson_lower_min": 0.40,
+      "per_mode_recall_min": 0.60
+    },
+    "advisory": {
+      "deadline_s": 15.0,
+      "max_false_alarms_per_hour": 12.0,
+      "normal_scoreable_coverage_min": 0.95,
+      "fault_evaluable_coverage_min": 0.90,
+      "recall_min": 0.90,
+      "wilson_lower_min": 0.60,
+      "per_mode_recall_min": 0.80
+    }
+  },
+  "holdout": {
+    "requires_separate_unseal_record": true,
+    "approval_literal": "UNSEAL HOLDOUT"
+  }
+}
+

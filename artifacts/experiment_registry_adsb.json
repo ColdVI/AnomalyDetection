@@ -141,5 +141,37 @@
     "status": "development_accepted_operational_rejected",
     "key_finding": "İki açık madde kapandı: (1) karar-katmanı ~150x hızlandı (145k satırda 17.0s→0.11s), 20x daha büyük ölçekte tekrar koşuldu; vertical_rate_spike'ın diğer kanallardan çok daha alfa-hassas olduğu bulgusu çok daha sağlam istatistikle doğrulandı. (2) east/north kanalları ilk kez ölçüldü (hazır ortak-eksen CUSUM dedektörü yeniden kullanıldı) — diğer kanallardan belirgin şekilde daha sessiz, ama en sıkı bütçe noktası tek-episode istatistiğine dayandığı için güvenilmez ilan edildi. Yeni metodoloji notu: çok gevşek alfa'da episode/saat metriği tek başına yanıltıcı olabiliyor (episode-birleştirme etkisi), alerted_flight_fraction ile birlikte okunmalı.",
     "notes": "Raporlar: artifacts/adsb/runs/20260714_contextual_physics_v1_development_burden_v2/development_burden_curves.json, artifacts/adsb/runs/20260714_contextual_physics_v1_cusum_burden_v1/cusum_burden_report.json. Yeni kod: adsb/contextual_decision_fast.py, tests/test_adsb_contextual_decision_fast.py, scripts/adsb_contextual_physics_v1_cusum_burden.py. Görsel panel: docs/adsb_contextual_physics_v1_burden_dashboard.html (scripts/build_adsb_burden_dashboard.py ile üretilir). Hâlâ tam-hacim değil (20/216, 60/237) — sıradaki: ölçeği tekrar büyütmek, CUSUM h-ızgarasını sıkı uçta inceltmek, sonra donmuş rehearsal (rol #4)."
+  },
+  {
+    "id": "ADR-042",
+    "date": "2026-07-16",
+    "track": "ADS-B contextual_physics_v1 — rol #4 (rehearsal) + rol #5 (truth-v2 gerçek recall) — İLK GERÇEK RECALL SONUCU",
+    "method": "contextual_physics_v1 LSTM (5 profil) + adsb.cusum.VectorPageCUSUM, ADR-041'de dondurulmuş alfa/h değerleriyle, hiç yeni eşik aranmadan",
+    "dataset": "Rehearsal: ADS-B gerçek uçuş verisi, rehearsal rolü (2026-03-16, 20/185 parça). Truth-v2: sentetik/enjekte gerçek-olay corpus'u (data/objectstore/synthetic/adsb_v2_20260713_01), 8.910 uçuş, yalnız değerlendirmede kullanıldı",
+    "columns_or_channels": [
+      "vertical_rate_residual",
+      "speed_residual",
+      "heading_residual",
+      "east_velocity_residual",
+      "north_velocity_residual"
+    ],
+    "metrics_table": [
+      {"score_or_module": "vertical_rate_spike", "decision_policy": "instant", "budget_tier": "Pareto V=5.0", "recall": 0.0006, "fa_per_hour": null},
+      {"score_or_module": "vertical_rate_freeze", "decision_policy": "persistence (30s)", "budget_tier": "Pareto V=5.0", "recall": 0.0031, "fa_per_hour": null},
+      {"score_or_module": "speed_spike", "decision_policy": "instant", "budget_tier": "Pareto V=5.0", "recall": 0.0560, "fa_per_hour": null},
+      {"score_or_module": "speed_bias", "decision_policy": "persistence (30s)", "budget_tier": "Pareto V=5.0", "recall": 0.0128, "fa_per_hour": null},
+      {"score_or_module": "heading_inconsistency", "decision_policy": "persistence (30s)", "budget_tier": "Pareto V=5.0", "recall": 0.0009, "fa_per_hour": null},
+      {"score_or_module": "east_north_cusum_joint", "decision_policy": "joint 2-axis Page-CUSUM", "budget_tier": "Pareto V=0.1 (en sıkı)", "recall": 0.0713, "fa_per_hour": null},
+      {"score_or_module": "east_north_cusum_joint", "decision_policy": "joint 2-axis Page-CUSUM", "budget_tier": "Pareto V=5.0 (en gevşek)", "recall": 0.4972, "fa_per_hour": null}
+    ],
+    "thresholds_or_targets": "ADR-041'de dondurulmuş Pareto bütçe noktaları/alfa/h — bu turda hiçbiri değiştirilmedi",
+    "gate_results": {
+      "Rehearsal kararlılığı (V>=0.5)": "GEÇTİ (hedefin ~0.3-2 katı arası, heading en istikrarlı)",
+      "Rehearsal kararlılığı (V=0.1, en sıkı)": "ZAYIF (vertical_rate_spike 15x, speed_spike 11x sapma)",
+      "Bug-vs-gerçek-bulgu kontrolü (alfa=0.5 zorlama)": "recall %74-92'ye çıktı, %9/saat FA ile — mekanizma doğru çalışıyor, sorun bütçe"
+    },
+    "status": "rejected",
+    "key_finding": "Projenin İLK gerçek recall ölçümü: 5 profilin 4'ünde (LSTM tabanlı) recall en gevşek bütçe noktasında bile %6'nın altında. Kök neden: alarm bütçesi '100 uçuş-saatinde kaç alarm' biriminde tanımlandı ama her olay TEK uçuşun ~0.5-1 saatlik penceresinde kanıtlanmak zorunda — birim uyuşmazlığı, model zayıflığı değil (gevşek alfa=0.5 ile recall %74-92'ye çıkıyor, sadece FA bütçesi izin vermiyor). Ayrı bir bulgu: doğu/kuzey CUSUM dedektörü aynı doğal-yük mantığıyla kalibre edildiği hâlde çok daha iyi genelledi (V=5.0'da %49.7 recall) — sürekli-biriken (asla uçuş-sınırlı sıfırlanmayan) tasarımı yüzünden olabilir, sonraki tur için somut bir ipucu.",
+    "notes": "Raporlar: artifacts/adsb/runs/20260715_contextual_physics_v1_rehearsal_v1/rehearsal_report.json, artifacts/adsb/runs/20260715_contextual_physics_v1_truth_v2_eval_v1/truth_v2_eval_report.json. Yeni kod: scripts/adsb_contextual_physics_v1_rehearsal.py, scripts/adsb_contextual_physics_v1_truth_v2_eval.py. Metodoloji disiplini: ADR-037'nin dondurulmuş bütçesi bu bulguya rağmen DEĞİŞTİRİLMEDİ — yeni, daha geniş bir ızgara için ayrı ön-kayıt gerekiyor, bu oturumda başlatılmadı. altitude_dropout recipe'i kapsam dışı (S2 katmanının işi). Rol #6 (ADR-025 kuralına kıyas) ve rol #7 (kör holdout) hâlâ başlamadı."
   }
 ]

@@ -577,25 +577,31 @@ function heatmapWeightExpression(breaks, propName = "weight") {
 // de log10'a cevrilip interpolate ediliyor -- carpik dagilimda (birkac hub
 // cok yuksek, cogu hucre dusuk) linear skaladan cok daha ayirt edici.
 const HEX_COLORS = ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"];
-// breaks'i kesinlikle artan (strictly ascending) hale getirir -- bazi
-// dagilimlarda (ör. az veri iceren realtime pencereleri) yuzdelik dilimler
-// ayni degere denk gelebiliyor, bu da log10 sonrasi MapLibre'nin interpolate
-// ifadesini kirıyordu ("Input/output values must be strictly ascending",
-// bkz. individual/metehan_geo_country projesindeki ayni duzeltme, 2026-07-08).
-function sanitizeBreaks(breaks) {
-  const b = breaks.slice();
-  for (let i = 1; i < b.length; i++) {
-    if (b[i] <= b[i - 1]) b[i] = b[i - 1] + 1;
+// 2026-07-16 BUG DUZELTMESI: eski sanitizeBreaks() HAM (log10 oncesi) degerleri
+// ardisik yapiyordu ama Math.log10(Math.max(b,1)) donusumu bu ardisikligi
+// BOZABILIYORDU -- ornegin ham breaks [0,1,2,5,20] icin log10(max(x,1))
+// sirasiyla [0, 0, 0.301, 0.699, 1.301] verir: ILK IKI DURAK AYNI (0)!
+// MapLibre'nin "interpolate" ifadesi durak degerlerinin KESINLIKLE artan
+// olmasini sart kosuyor -- ayni durak ciftinde bu sessizce/hatali
+// basarisiz oluyordu. Askeri filtre gibi COGU hex'in 0 oldugu (yani ham
+// breaks'in kucuk tam sayilarda yigildigi) durumlarda bu neredeyse HER
+// ZAMAN tetikleniyordu -- sivilde (hicbir hex 0 olmadigindan) neredeyse hic
+// gorulmuyordu. Duzeltme: ardisikligi HAM degerler yerine LOG-DONUSUMLU
+// degerler uzerinde, kucuk bir epsilon ile saglar.
+function sanitizeAscendingLog(logValues, epsilon = 1e-4) {
+  const v = logValues.slice();
+  for (let i = 1; i < v.length; i++) {
+    if (v[i] <= v[i - 1]) v[i] = v[i - 1] + epsilon;
   }
-  return b;
+  return v;
 }
 // propName: 2026-07-10 eklendi -- Uçak Türü (Tümü/Sivil/Askeri) filtresi
 // ayni GeoJSON icindeki farkli bir sayisal alana (point_count/flight_count_civil/
 // flight_count_military) bakarak renklendirir, yeniden fetch gerekmez.
 function log10ColorExpression(breaks, propName = "point_count") {
-  const sanitized = sanitizeBreaks(breaks);
+  const logVals = sanitizeAscendingLog(breaks.map(b => Math.log10(Math.max(b, 1))));
   const stops = [];
-  sanitized.forEach((b, i) => stops.push(Math.log10(Math.max(b, 1)), HEX_COLORS[i]));
+  logVals.forEach((v, i) => stops.push(v, HEX_COLORS[i]));
   return ["interpolate", ["linear"], ["log10", ["max", ["get", propName], 1]], ...stops];
 }
 
@@ -605,9 +611,9 @@ function log10ColorExpression(breaks, propName = "point_count") {
 // SOLUK, yogun hub'lar cok daha BASKIN gorunuyor, ayni log10 skalasinda.
 const OPACITY_LEVELS = [0.12, 0.32, 0.55, 0.78, 0.95];
 function log10OpacityExpression(breaks, propName = "point_count") {
-  const sanitized = sanitizeBreaks(breaks);
+  const logVals = sanitizeAscendingLog(breaks.map(b => Math.log10(Math.max(b, 1))));
   const stops = [];
-  sanitized.forEach((b, i) => stops.push(Math.log10(Math.max(b, 1)), OPACITY_LEVELS[i]));
+  logVals.forEach((v, i) => stops.push(v, OPACITY_LEVELS[i]));
   return ["interpolate", ["linear"], ["log10", ["max", ["get", propName], 1]], ...stops];
 }
 
