@@ -1608,3 +1608,76 @@ zaten `_score_batched`/parça-parça yükleme ile bellek-güvenli ama hız-optim
 **Açık madde:** Sıradaki adım: (a) ölçeği tekrar büyütmek (20→50→tam 216/237 parça); (b) CUSUM
 h-adayları ızgarasını sıkı uçta daha ince hale getirmek (daha fazla calibration parçası, en sıkı
 Pareto noktası için); (c) yalnız bundan sonra donmuş rehearsal'a (rol #4) geçmek.
+
+## ADR-042: contextual_physics_v1 — rol #4 (donmuş rehearsal) ve rol #5 (truth-v2 gerçek
+recall) tamamlandı; dondurulmuş alarm bütçeleri gerçek olay yakalama için çok sıkı çıktı
+
+- Durum: Development rejected (mevcut Pareto bütçe noktalarında); yeni, geniş bir bütçe
+  ızgarası için ayrı ön-kayıt gerektiren açık, önemli bir bulgu
+- Tarih: 2026-07-16
+
+**Karar — rol #4 (rehearsal):** `scripts/adsb_contextual_physics_v1_rehearsal.py` (yeni),
+ADR-041'de dondurulmuş alfa (LSTM, 5 profil) ve h (CUSUM) değerlerini, hiçbir yeni seçim
+yapmadan, üçüncü, bağımsız bir günde (2026-03-16, rehearsal rolü — ne fit ne calibration ne
+development görmüş) aynen uyguladı. 60 calibration + 20 fit + 20 rehearsal parçası tarandı
+(8.102.088 LSTM penceresi, 8.643.797 CUSUM satırı). **Sonuç: çoğunlukla kararlı** — orta/gevşek
+Pareto noktalarında (V≥0.5) gerçekleşen oran hedefin ~0.3–2 katı arasında kaldı; heading_
+inconsistency en istikrarlısı (hedefin %93–130'u, her noktada). En sıkı nokta (V=0.1) yine en
+kırılgan: vertical_rate_spike hedefin 15 katı, speed_spike 11 katı çıktı — ADR-041'de zaten
+görülen "tek-episode istatistiği kırılgan" örüntüsünün üçüncü bağımsız günde de tekrarı.
+
+**Karar — rol #5 (truth-v2):** `scripts/adsb_contextual_physics_v1_truth_v2_eval.py` (yeni),
+gerçek/enjekte edilmiş 8.910 uçuşluk sentetik truth-v2 corpus'unu (`data/objectstore/synthetic/
+adsb_v2_20260713_01`, yalnız değerlendirmede kullanıldı — fit/calibration/scaling'e hiç girmedi)
+ADR-041'de dondurulmuş alfa/h değerleriyle skorladı. 4 recipe 5 fizik kanalıyla eşleşti
+(`vertical_rate_frozen`→vertical_rate_residual, `ground_speed_biased`→speed_residual,
+`track_frozen`→heading_residual, `position_ramp_stealthy`→east/north CUSUM); `altitude_dropout`
+kapsam dışı bırakıldı (S2 veri-kalitesi katmanının işi, NN/CUSUM fizik kanallarıyla eşleşmiyor).
+
+**Ön-kontrol (bug mü gerçek mi):** Küçük bir örneklemde (200 uçuş) recall neredeyse sıfır
+çıkınca, önce alfa'yı kasıtlı olarak çok gevşek (0.5) bir değere zorlayıp aynı testi tekrar
+çalıştırdık. Recall %74–92'ye çıktı (ama karşılığında temiz veride saatte ~9 alarm — kullanılamaz).
+Bu, olay-hizalama/alarm mekanizmasının DOĞRU çalıştığının kanıtı; sorun kod değil, bütçe.
+
+**Kanıt (tam corpus, 8.910 olay):**
+
+| Profil | Recall (V=0.1, en sıkı) | Recall (V=5.0, en gevşek) | Gecikme medyanı (V=5.0) |
+|---|---|---|---|
+| vertical_rate_spike | %0.06 | %0.06 (alfa zaten izgaranın en sıkı ucuna sabit) | 316 s |
+| vertical_rate_freeze | %0 | %0.31 | 682 s |
+| speed_spike | %2.53 | %5.60 | 0 s (anlık) |
+| speed_bias | %0.01 | %1.28 | 20 s |
+| heading_inconsistency | %0 | %0.09 | 189 s |
+| east_north_cusum (ortak) | %7.13 | **%49.72** | 1101 s |
+
+**En önemli bulgu:** 5 profilin 4'ünde (spike/freeze/bias/inconsistency) recall Pareto=5.0'da
+bile **%6'nın altında** — dondurulmuş bütçelerle gerçek anomalilerin neredeyse hiçbiri
+yakalanmıyor. Kök neden ölçüldü, tahmin değil: bütçe "100 skorlanabilir uçuş-SAATİNDE kaç
+alarm" birimindeydi (ADR-037), ama truth-v2'de her olay TEK bir uçuşun ~0.5–1 saatlik penceresinde
+kanıtlanmak zorunda. Hedef oranı (saatte 0.0001–0.06) o pencereye çarpınca beklenen alarm sayısı
+zaten yüzde birkaçın altında çıkıyor — model zayıf olduğu için değil, bütçe birimi ile
+değerlendirme birimi uyuşmadığı için. Yukarıdaki gevşek-alfa kontrolü bunu doğruluyor.
+
+**Ayrı ve önemli bir gözlem — CUSUM belirgin şekilde daha iyi genelledi:** `east_north_cusum`
+(ADR-029'un ortak, sürekli-biriken Page-CUSUM istatistiği) aynı doğal-yük mantığıyla kalibre
+edildiği hâlde V=0.1'de bile %7.1, V=5.0'da %49.7 recall verdi — LSTM tabanlı beş profilin
+hepsinden kat kat yüksek. Muhtemel neden: CUSUM kanıtı ham (robust-z) alanda, uçuş boyunca
+sıfırlanmadan sürekli biriktiriyor; LSTM'in persistence/accumulation modları ise conformal
+p-değeri üzerinden çalışıyor ve yalnız TEK uçuş süresiyle sınırlı — kanıt birikecek zamanı
+yapısal olarak daha az. Bu, sonraki tasarım turunda ciddiye alınması gereken somut bir ipucu.
+
+**Karar (metodoloji disiplini gereği):** ADR-037'nin dondurulmuş Pareto ızgarası/bütçe payları
+BU ADR'de DEĞİŞTİRİLMEDİ — sonucu görüp aynı run içinde parametre düzeltmek, projenin ML-0..16
+hattını çökerten tam hatadır. Bunun yerine: (1) bu bulgu olduğu gibi kaydedildi; (2) yeni, çok
+daha geniş bir Pareto ızgarası (ör. 100 saatte 5 değil, 50–500 arası) ve/veya persistence/
+accumulation pencere tasarımının (tek-uçuş sınırı yerine daha uzun kanıt birikimi) yeniden
+tasarımı için AYRI, sonuç görülmeden yazılacak bir ön-kayıt gerekiyor — bu oturumda başlatılmadı.
+
+**Bilinen sınırlamalar:** Ölçek hâlâ tam değil (calibration 60/237, rehearsal 20/185,
+truth-v2 corpus'un tamamı ama yalnız 4/5 recipe NN kapsamında). `active_interval_coverage`
+(alarmın olayı ne kadar kapsadığı) çoğu profilde neredeyse sıfır; CUSUM'da V=5.0'da %30.9 —
+bu da ayrıca izlenmesi gereken bir metrik. Rol #6 (ADR-025 kuralıyla eşit-bütçeli kıyas) ve
+rol #7 (üçlü kör holdout) hâlâ başlamadı; holdout ayrı bir unseal kararı olmadan açılmayacak.
+
+Artifact'lar: `artifacts/adsb/runs/20260715_contextual_physics_v1_rehearsal_v1/rehearsal_report.json`,
+`artifacts/adsb/runs/20260715_contextual_physics_v1_truth_v2_eval_v1/truth_v2_eval_report.json`.
