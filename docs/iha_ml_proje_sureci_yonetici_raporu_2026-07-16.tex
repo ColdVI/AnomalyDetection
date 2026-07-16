@@ -1,0 +1,808 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[turkish]{babel}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\geometry{top=2.2cm,bottom=2.2cm,left=2.2cm,right=2.2cm}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!45!black,
+  urlcolor=blue!55!black,
+  pdftitle={İHA Telemetrisinde Anomali Tespiti Proje Süreci ve Fizibilite Raporu},
+  pdfauthor={Anıl Keskin}
+}
+
+\definecolor{navy}{HTML}{17365D}
+\definecolor{softblue}{HTML}{EAF2F8}
+\definecolor{softgray}{HTML}{F3F4F6}
+\definecolor{darkgreen}{HTML}{1B5E20}
+\definecolor{darkred}{HTML}{8B1E1E}
+
+\titleformat{\section}{\Large\bfseries\color{navy}}{\thesection.}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\color{navy}}{\thesubsection.}{0.6em}{}
+\setlist[itemize]{leftmargin=1.6em,itemsep=3pt,topsep=4pt}
+\setlist[enumerate]{leftmargin=1.8em,itemsep=4pt,topsep=4pt}
+\renewcommand{\arraystretch}{1.18}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small İHA Telemetrisi Anomali Tespiti}
+\rhead{\small Proje Süreci ve Fizibilite}
+\cfoot{\thepage}
+
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\resultok}[1]{\textcolor{darkgreen}{\textbf{#1}}}
+\newcommand{\resultno}[1]{\textcolor{darkred}{\textbf{#1}}}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{2.4cm}
+  {\Huge\bfseries\color{navy}
+  İHA Telemetrisinde\\[5pt]
+  Anomali Tespiti\par}
+  \vspace{0.7cm}
+  {\LARGE Proje Süreci, Teknik Kararlar ve\\
+  Fizibilite Değerlendirmesi\par}
+  \vspace{1.3cm}
+  {\large Yönetici ve teknik değerlendirme görüşmeleri için hazırlanmıştır\par}
+  \vfill
+
+  \begin{tabular}{rl}
+    \textbf{Hazırlayan:} & Anıl Keskin \\
+    \textbf{Tarih:} & 16 Temmuz 2026 \\
+    \textbf{Kapsam:} & Veri hazırlama, özellik mühendisliği, ML/DL, fiziksel yöntemler, doğrulama \\
+  \end{tabular}
+
+  \vfill
+  \fcolorbox{navy}{softblue}{
+    \begin{minipage}{0.88\textwidth}
+      \textbf{Raporun amacı:} Çalışmayı depo içi deney kodlarıyla değil; hedef,
+      kullanılan uçuş telemetrisi, karşılaşılan problemler, uygulanan çözümler,
+      yöntem değişikliklerinin gerekçesi ve nihai teknik hüküm üzerinden anlatmaktır.
+    \end{minipage}}
+  \vspace*{1.4cm}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Yönetici özeti}
+
+Bu proje tarafıma, İHA ve uçuş telemetrisi üzerinde anomali tespitinin makine
+öğrenmesiyle ne ölçüde gerçekleştirilebileceğinin araştırılması amacıyla verildi.
+Veri kaynaklarının araştırılması ve indirilmesi, farklı kayıt biçimleri için
+okuyucuların geliştirilmesi, veri temizleme, özellik üretimi, modelleme, deney
+tasarımı, hata analizi ve teknik raporlama çalışmalarının büyük bölümü tarafımdan
+gerçekleştirildi.
+
+Çalışma yalnızca ``bir model eğitip doğruluk değerine bakma'' şeklinde
+yürütülmedi. Beş farklı veri ailesi üzerinde gerçek arıza, siber saldırı, simülasyon
+ve etiketsiz doğal uçuş davranışı birlikte incelendi. Klasik makine öğrenmesi,
+derin öğrenme, istatistiksel değişim tespiti ve uçuş fiziğine dayalı kontrol
+yöntemleri karşılaştırıldı. LSTM Autoencoder, Dense Autoencoder, USAD, Isolation
+Forest, LightGBM ve bağlamsal LSTM gibi öğrenen yöntemlerin yanında CUSUM,
+robust z-skoru, otopilot kalıntıları ve fiziksel tutarlılık kontrolleri kullanıldı.
+
+Süreç boyunca ilk bakışta başarılı görünen bazı sonuçların veri sızıntısı, hatalı
+etiket kapsamı, ölçek/genlik etkisi veya aynı uçuşun eğitim ve testte temsil
+edilmesi gibi nedenlerle gerçeği olduğundan iyi gösterdiği tespit edildi. Bu
+problemler düzeltildikçe sonuçların düşmesi bir başarısızlık değil, çalışmanın
+güvenilir hâle gelmesidir.
+
+Nihai bulgu şudur:
+
+\begin{quote}
+\resultno{Mevcut veri, etiket ve sensör gözlenebilirliği ile farklı İHA
+platformlarına genellenebilen, kabul edilebilir arıza yakalama oranını düşük
+yanlış alarm yüküyle birlikte sağlayan genel amaçlı bir anomali tespit ürünü
+teknik olarak doğrulanamamıştır.}
+\end{quote}
+
+Bu hüküm ``makine öğrenmesi hiçbir şey öğrenemedi'' anlamına gelmemektedir.
+Belirli veri setlerinde ve belirli arıza türlerinde güçlü ayrışma elde edilmiştir.
+Ancak model eşiği arızaları yakalayacak kadar gevşetildiğinde operatörün
+kullanamayacağı kadar çok alarm oluşmuş; yanlış alarmları azaltacak kadar
+sıkılaştırıldığında ise gerçek arızaların önemli bölümü kaçırılmıştır. Son yapılan
+GNSS bütünlük çalışması da aynı temel sınırı daha kontrollü bir deneyle
+doğrulamıştır.
+
+\section{Projenin başlangıç hedefi ve benim sorumluluğum}
+
+\subsection{Başlangıçta hedeflenen}
+
+İlk hedef; İHA telemetrisindeki olağan dışı davranışları, her arıza için ayrı bir
+el yazımı kural gerektirmeden tespit edebilecek bir makine öğrenmesi sistemi
+geliştirmekti. Beklenen sistemin:
+
+\begin{itemize}
+  \item normal uçuş davranışını öğrenmesi,
+  \item sensör, aktüatör, navigasyon veya kontrol kaynaklı sapmaları fark etmesi,
+  \item mümkünse farklı uçuş ve platformlarda çalışması,
+  \item gerçek arızaları yeterli oranda yakalarken düşük yanlış alarm üretmesi
+\end{itemize}
+
+amaçlandı.
+
+\subsection{Fiilen yürüttüğüm çalışmalar}
+
+Projenin teknik sahipliği kapsamında aşağıdaki işler uçtan uca ele alındı:
+
+\begin{itemize}
+  \item açık ve kurum içi erişilebilir veri kaynaklarının araştırılması,
+  \item ROS bag, PX4 ULog, CSV ve büyük ölçekli ADS-B kayıtlarının okunması,
+  \item farklı örnekleme hızındaki telemetri kanallarının zaman ekseninde birleştirilmesi,
+  \item hatalı, eksik, donmuş veya fiziksel olarak anlamsız kayıtların temizlenmesi,
+  \item uçuş, olay ve zaman satırı seviyesinde etiketlerin yeniden kurulması,
+  \item ham sensörlerden fiziksel ve istatistiksel yeni özelliklerin üretilmesi,
+  \item klasik ML, derin öğrenme ve fiziksel yöntemlerin uygulanması,
+  \item eşik kalibrasyonu, kör test ayrımı ve yanlış alarm analizi,
+  \item yanıltıcı başarıların kök neden analizi,
+  \item son fizibilite deneyinin tasarlanması ve karar raporunun hazırlanması.
+\end{itemize}
+
+Bu nedenle rapor yalnız sonuçları değil, hangi teknik gözlemin bir sonraki
+karara yol açtığını da açıklamaktadır.
+
+\section{Kullanılan telemetri ve üretilen genel özellikler}
+
+Veri setlerinde sütun adları ve kayıt biçimleri değişse de çalışılan bilgi
+grupları aşağıdaki ortak başlıklarda toplandı.
+
+\begin{longtable}{p{0.22\textwidth}p{0.31\textwidth}p{0.39\textwidth}}
+\toprule
+\textbf{Bilgi grubu} & \textbf{Ham telemetri örnekleri} & \textbf{Üretilen veya kontrol edilen özellikler} \\
+\midrule
+\endhead
+Zaman ve uçuş kimliği &
+Zaman damgası, uçuş/oturum kimliği, mesaj sırası &
+Örnekleme aralığı, veri boşluğu süresi, mesaj donması, uçuş bazlı bölme ve olay süresi \\
+
+Konum ve navigasyon &
+Enlem, boylam, yerel X--Y--Z, GPS irtifası, uydu sayısı, GPS fix durumu &
+İki konum arasındaki mesafe, konumdan hesaplanan hız, GPS hız tutarlılığı,
+konum sıçraması, donmuş konum sayacı \\
+
+Hız ve yön &
+Yer hızı, kuzey/doğu hızları, dikey hız, heading/yaw &
+Hız değişimi, yön değişimi, dönüş oranı, hız bileşenleri arası tutarlılık,
+ani hız ve yön sıçramaları \\
+
+Tutum ve dinamik &
+Roll, pitch, yaw, açısal hızlar, ivmeler &
+Açı farkları, türevler, hareketli ortalama/sapma, dönüş ile yatış açısı
+arasındaki fiziksel uyum \\
+
+Otopilot ve kestirim &
+İstenen ve ölçülen durumlar, EKF innovation, test ratio, reset ve hata bayrakları &
+İstenen--gerçekleşen kontrol hatası, kestirim kalıntıları, sensör güven
+göstergeleri ve kalıcı sapma skorları \\
+
+Aktüatör ve enerji &
+Motor/PWM komutları, itki komutu, batarya gerilimi/akımı, ESC telemetrisi &
+Motor simetrisi, komut--tepki farkı, enerji tüketim değişimi, tek kanalda
+donma veya doygunluk \\
+
+Veri kalitesi &
+Eksik değer, geçersiz sayı, sentinel değer, kanalın kaybolması &
+Eksiklik oranı, kanal kullanılabilirliği, sabitlenme süresi, fiziksel sınır
+kontrolü ve değerlendirilebilirlik bayrağı \\
+\bottomrule
+\end{longtable}
+
+\subsection{Ön işleme ve temizleme yaklaşımı}
+
+Temizleme işlemleri yalnız eksik hücre doldurmaktan ibaret tutulmadı. Aşağıdaki
+problemler ayrı ayrı ele alındı:
+
+\begin{itemize}
+  \item Aynı fiziksel büyüklüğün farklı veri kaynaklarında farklı sütun
+  isimleriyle tutulması eşleştirildi.
+  \item Farklı frekansta gelen sensör ve otopilot mesajları ortak zaman çizelgesine
+  hizalandı.
+  \item GPS olmayan kapalı alan uçuşlarında yerel konum kanalları kullanıldı;
+  GPS varmış gibi sahte değer üretilmedi.
+  \item Eksik değerler modelin ``eksikliği arıza sanmasına'' yol açmayacak biçimde
+  işlendi; ayrıca eksiklik bilgisi ayrı veri kalitesi özelliği olarak korundu.
+  \item Donmuş GPS, sıfırda kalan ESC alanları, geçersiz doğruluk değerleri ve
+  sentinel değerler tespit edildi.
+  \item Bir uçuşta arıza yalnız belirli bir zaman aralığında gerçekleşiyorsa,
+  tüm uçuşu arızalı sayan kaba etiketler olay başlangıç ve bitişine göre düzeltildi.
+  \item Aynı uçuş veya aynı oturumun eğitim ve test tarafına dağılması engellendi.
+\end{itemize}
+
+\subsection{Sentetik anomali kullanımı}
+
+Gerçek arıza örneğinin az olduğu yerlerde hız sapması, konum kayması, donma,
+dropout veya yön değişimi gibi kontrollü enjeksiyonlar yalnız değerlendirme
+amacıyla kullanıldı. Sentetik veri modelin eğitiminde gerçek arıza varmış gibi
+kullanılmadı.
+
+Ayrıca yalnız ``enjeksiyon komutu verildi'' bilgisi yeterli kabul edilmedi.
+Değişikliğin ilgili telemetri kanalında gerçekten oluşup oluşmadığı ve modelin
+gördüğü özelliklerde gözlenebilir olup olmadığı kontrol edildi. Böylece fiziksel
+olarak görünmeyen bir enjeksiyonun kaçırılması model hatası olarak sayılmadı.
+
+\section{Veri kaynakları ve projedeki rolleri}
+
+\begin{longtable}{p{0.20\textwidth}p{0.34\textwidth}p{0.38\textwidth}}
+\toprule
+\textbf{Veri ailesi} & \textbf{Neden kullanıldı?} & \textbf{Projeye sağladığı temel ders} \\
+\midrule
+\endhead
+ALFA &
+Gerçek sabit kanat uçuşları ve aktüatör/arıza örnekleri içerdiği için &
+Ham uçuş kayıtlarından daha zengin özellik çıkarıldığında LSTM Autoencoder
+gibi yöntemlerin belirli bir platformda güçlü ayrışma sağlayabildiğini gösterdi. \\
+
+UAV Attack &
+GPS spoofing, jamming ve hizmet engelleme saldırılarını içerdiği için &
+Dosya adı veya senaryo etiketi ile fiziksel telemetri etkisinin aynı şey
+olmadığını; bazı saldırıların mevcut sensörlerde görünmeyebildiğini gösterdi. \\
+
+UAV-SEAD &
+GPS, irtifa, mekanik ve dış konum anomalileriyle daha çeşitli normal uçuşlar
+içerdiği için &
+Normal veri miktarını artırmanın her zaman başarı getirmediğini; farklı görev ve
+uçuş davranışlarının normal sınıfını zorlaştırdığını gösterdi. \\
+
+RflyMAD &
+Gerçek ve simülasyon uçuşlarında arıza zamanları incelenebildiği için &
+Tüm uçuşu arızalı kabul eden etiketlerin sonuçları şişirdiğini; gerçek olay
+zamanı kullanıldığında operasyonel performansın belirgin şekilde düştüğünü gösterdi. \\
+
+ADS-B &
+Çok büyük ölçekte, doğal ve etiketsiz hava trafiği davranışı sağladığı için &
+Bir yöntemin sentetik anomalileri yakalamasının yeterli olmadığını; doğal trafik
+üzerinde alarm yükünün ayrıca ölçülmesi gerektiğini gösterdi. \\
+\bottomrule
+\end{longtable}
+
+\section{Proje günlüğü: gözlemden karara ilerleyen süreç}
+
+\subsection{İlk adım: temel anomali modeli}
+
+\textbf{Hedef:} Normal uçuş davranışından uzak satırları otomatik bulmak.
+
+\textbf{Uygulama:} İlk olarak Isolation Forest tabanlı bir yöntem kuruldu.
+Bu yöntem etiket gerektirmeden çok boyutlu veride seyrek ve uç değerleri
+ayırt edebildiği için uygun bir başlangıç noktasıydı.
+
+\textbf{Karşılaşılan sorun:} Tüm telemetri tek modele verildiğinde yüksek
+boyut, eksik değer doldurma ve farklı ölçekler skoru bozdu. Model çoğu zaman
+arıza davranışından çok büyük sayısal değere veya veri eksikliğine tepki verdi.
+
+\textbf{Ne yaptım:} Özellikleri navigasyon, dinamik, aktüatör ve veri kalitesi
+gibi gruplara ayırdım. Her grup için ayrı skor üretip bunları doğrulama verisine
+göre normalize ederek birleştirdim. Değerlendirmeyi yalnız satır seviyesinden
+çıkarıp uçuş ve olay seviyesine taşıdım.
+
+\textbf{Sonuç ve düşünce:} Temel ayrışma iyileşti; ancak tek bir genel modelin
+farklı uçuş şartlarını güvenilir biçimde kapsamayacağı görüldü. Bu nedenle
+zaman bağımlılığını öğrenebilen modellere geçildi.
+
+\subsection{Autoencoder ve LSTM dönemi}
+
+\textbf{Hedef:} Normal telemetrinin çok değişkenli ve zamansal örüntüsünü
+öğrenmek; yeniden üretilemeyen bölümleri anomali saymak.
+
+\textbf{Uygulama:} Dense Autoencoder, LSTM Autoencoder ve USAD denendi. LSTM
+özellikle uçuş verisinin sıralı yapısını modelleyebildiği için tercih edildi.
+Eşik belirlemek için normal doğrulama verisindeki hata dağılımı ve kuyruk
+modelleme yöntemleri kullanıldı.
+
+\textbf{Olumlu bulgu:} ALFA verisi ham uçuş kayıtlarıyla büyütülüp fiziksel
+özellikler eklendiğinde LSTM Autoencoder yaklaşık 0{,}92 uçuş-seviyesi AUC
+değerine ulaştı. Bu, belirli bir platform ve arıza tanımı altında derin
+öğrenmenin yararlı sinyal bulabildiğini gösterdi.
+
+\textbf{Karşılaşılan sorun:} Aynı başarı daha heterojen veri setlerine ve farklı
+platformlara taşınamadı. Eşik başka platformda doğrudan kullanıldığında dağılım
+kayması nedeniyle alarm dengesi bozuldu.
+
+\textbf{Ne yaptım:} Modelin kendisini taşımak ile eşik kalibrasyonunu birbirinden
+ayırdım. Yeni platformun yalnız normal uçuşlarıyla eşik yeniden ayarlandı.
+
+\textbf{Sonuç ve düşünce:} Kalibrasyon aktarımı belirgin biçimde iyileştirdi,
+ancak platformlar arası genel bir model için yeterli olmadı. Sorunun yalnız
+model mimarisi değil, normal davranış dağılımının platforma ve göreve göre
+değişmesi olduğu anlaşıldı.
+
+\subsection{Daha fazla veri ve daha fazla özellik}
+
+\textbf{Hedef:} Performans düşüşünün veri azlığından kaynaklanıp kaynaklanmadığını
+test etmek.
+
+\textbf{Uygulama:} Normal uçuş sayısı artırıldı; EKF innovation/test-ratio,
+motor simetrisi, istenen--ölçülen değer farkları, GPS hız tutarlılığı, donma
+sayaçları ve spektral özellikler eklendi.
+
+\textbf{Karşılaşılan sorun:} Sabit kanat verisinde daha fazla ham uçuş yararlı
+olurken, çok rotorlu ve görev çeşitliliği yüksek veride daha fazla normal uçuş
+modelin öğrenmesi gereken normal davranış uzayını genişletti. Yanlış alarm bazı
+eşiklerde azaldı, fakat gerçek arıza yakalama oranı da düştü.
+
+\textbf{Sonuç ve düşünce:} ``Daha fazla veri her zaman daha iyi sonuç verir''
+varsayımının bu problem için geçerli olmadığı görüldü. Verinin miktarından önce
+görev, platform ve uçuş rejimi bakımından temsil kabiliyeti önemliydi.
+
+\subsection{Süpervizyonlu model ve hazır zaman serisi modeli}
+
+\textbf{Hedef:} Etiketli bölümlerde denetimli öğrenmenin ve büyük ön-eğitimli
+zaman serisi modellerinin sınırı aşıp aşamayacağını görmek.
+
+\textbf{Uygulama:} LightGBM ile pencere tabanlı sınıflandırma ve Chronos
+zero-shot tahmin modeli denendi. Tahmin edilen sinyal ile ölçülen sinyal
+arasındaki fark anomali skoru olarak kullanıldı.
+
+\textbf{Gözlem:} Chronos bazı mekanik arıza örneklerinde önceki yönteme göre
+daha iyi yakalama sağladı; ancak düşük yanlış alarm şartında yeterli seviyeye
+ulaşamadı. LightGBM ise veri setindeki sınırlı ve dengesiz etiket yapısı nedeniyle
+kararlı bir üstünlük göstermedi.
+
+\textbf{Sonuç ve düşünce:} Daha güçlü veya daha güncel bir model kullanmanın,
+gözlenebilirlik ve etiket sorununu tek başına çözemeyeceği doğrulandı.
+
+\subsection{Tek bir güçlü özelliğin keşfi}
+
+\textbf{Gözlem:} Özellikleri tek tek incelediğimde, bazı aktüatör arızalarında
+itki komutunun tek başına çok güçlü sinyal taşıdığı görüldü. Aynı özellik büyük
+bir özellik grubuna eklendiğinde katkısı zayıflıyordu.
+
+\textbf{Ne yaptım:} Bu sinyal için ayrı ve ince bir skorlayıcı oluşturdum.
+
+\textbf{Sonuç:} Kategori içindeki en iyi ayrışmalardan biri elde edildi.
+Ancak alarm sistemi seviyesinde diğer kanallarla birleştirildiğinde yanlış alarm
+yükü arttı ve genel operasyonel hedef yine karşılanmadı.
+
+\textbf{Ders:} Çok sayıda özellik kullanmak her zaman avantaj değildir. Güçlü
+bir sinyal, ilgisiz veya gürültülü sütunlar içinde seyrelerek kaybolabilir.
+
+\subsection{Etiket ve değerlendirme hatalarının düzeltilmesi}
+
+\textbf{Gözlem:} Bazı veri setlerinde ``bu uçuşta bir yerde arıza var'' bilgisi,
+tüm uçuş satırlarına arıza etiketi olarak yayılmıştı. Böyle bir değerlendirme,
+modelin arıza öncesi normal bölümü de doğru alarm saymasına neden olabiliyordu.
+
+\textbf{Ne yaptım:} Gerçek arıza başlangıç ve bitiş zamanlarını kontrol
+kanallarından yeniden çıkardım. Çelişkili arıza kimliklerini karantinaya aldım.
+Eğitim, doğrulama ve test ayrımlarını uçuş/oturum kimliği üzerinden kurdum.
+
+\textbf{Sonuç:} Bazı yüksek görünen sonuçlar düştü. Örneğin gerçek olay aralığı
+kullanıldığında yaklaşık 0{,}53 yakalama ve saatte 22 civarında yanlış alarm
+seviyesi görüldü.
+
+\textbf{Düşünce:} Sonuç düşmüş olsa da bu değişiklik gereklidir. Önceki sayı
+ürün performansını değil, kaba etiketle uyumu gösteriyordu. Bundan sonra ana
+karar ölçütü olarak olay yakalama ve uçuş saati başına yanlış alarm birlikte
+kullanıldı.
+
+\subsection{Derin öğrenmede genlik artefaktının bulunması}
+
+\textbf{Gözlem:} LSTM Autoencoder, Dense Autoencoder ve USAD gibi üç farklı
+mimarinin neredeyse aynı uçuşları aynı sırada anomalik görmesi şüpheli bulundu.
+
+\textbf{Ne yaptım:} Eğitilmiş ağın skorunu rastgele ağırlıklı, yani hiç
+öğrenmemiş bir ağın skoruyla ve ham sinyal büyüklüğüyle karşılaştırdım.
+
+\textbf{Bulgu:} Sıralama korelasyonu yaklaşık 0{,}96 çıktı. Başka bir ifadeyle,
+modelin başarısı büyük ölçüde öğrenilmiş davranıştan değil, büyük genlikli
+sinyallerin daha yüksek yeniden üretim hatası oluşturmasından geliyordu.
+
+\textbf{Müdahale:} Kanal başına ölçek etkisi giderildi, robust ölçekleme ve
+genlik-normalize skorlar uygulandı.
+
+\textbf{Sonuç:} Görünen başarı büyük ölçüde kayboldu. Bu noktada modelin
+öğrendiği sanılan sinyalin önemli bölümünün sayısal artefakt olduğu kanıtlandı.
+Sonraki tüm sinir ağı deneylerine ``eğitilmiş model--rastgele model--ham
+genlik'' kontrolü zorunlu olarak eklendi.
+
+\subsection{ADS-B ile büyük ölçekli doğal alarm yükü analizi}
+
+\textbf{Hedef:} Etiketli küçük veri setlerinde iyi görünen yöntemlerin, yüz
+binlerce uçuş içeren doğal hava trafiğinde ne kadar alarm üreteceğini görmek.
+
+\textbf{Uygulama:} Üç tam günlük ADS-B verisi işlendi. Uçuşlar oluşturuldu;
+yer hızı, dikey hız, yön, doğu/kuzey hız bileşenleri, irtifa kaynakları ve
+dönüş--yatış tutarlılığı gibi fiziksel kalıntılar üretildi. Veri boşluğu ve
+kalite problemleri anomali skorundan ayrı tutuldu.
+
+\textbf{Gözlem:} İlk yaklaşım sentetik anomalilerin büyük bölümünü yakalıyor
+görünse de doğal trafikte saatte yaklaşık 25 alarm üretiyordu. Bu yük operasyonel
+olarak kabul edilebilir değildi.
+
+\textbf{Ne yaptım:} Bağlama duyarlı LSTM tahmin modeli, fiziksel robust skorlayıcı,
+Page CUSUM ve kalibre eşikler karşılaştırıldı. Enjeksiyonun gerçekten gözlenebilir
+olup olmadığı ayrıca kontrol edildi.
+
+\textbf{Sonuç:} Fiziksel CUSUM belirli konum sapmalarında anlamlıydı; fakat
+farklı anomali profillerine genellenemedi. LSTM genlik testini geçmesine rağmen
+çok düşük alarm bütçesinde yeterli olay yakalama oranına ulaşamadı.
+
+\textbf{Düşünce:} Büyük veri, küçük veri üzerindeki başarıyı doğrulamak yerine
+doğal davranış çeşitliliğini ve yanlış alarm problemini görünür hâle getirdi.
+
+\section{Kullanılan yöntemler: neden seçildi, ne gösterdi?}
+
+\begin{longtable}{p{0.20\textwidth}p{0.27\textwidth}p{0.34\textwidth}p{0.12\textwidth}}
+\toprule
+\textbf{Yöntem} & \textbf{Seçilme nedeni} & \textbf{Temel gözlem} & \textbf{Karar} \\
+\midrule
+\endhead
+Isolation Forest &
+Etiketsiz veride hızlı ve açıklanabilir başlangıç modeli olması &
+Ölçek, eksiklik ve yüksek boyuttan kolay etkilendi; modüler kullanıldığında
+iyileşti fakat genelleme sınırlı kaldı &
+Referans yöntem \\
+
+Dense Autoencoder &
+Zamansal olmayan basit yeniden üretim tabanı sağlamak &
+Bazı veri setlerinde LSTM ile aynı sıralamayı üretti; genlik etkisi bulundu &
+Tek başına uygun değil \\
+
+LSTM Autoencoder &
+Telemetrinin zaman bağımlılığını öğrenmek &
+Belirli sabit kanat verisinde güçlüydü; heterojen platformlarda ve artefakt
+kontrolünden sonra üstünlük kalıcı olmadı &
+Koşullu yararlı \\
+
+USAD &
+Adversarial yeniden üretimle daha keskin ayrışma ihtimali &
+Ek karmaşıklığa rağmen temel Autoencoder'lardan kararlı biçimde iyi olmadı &
+Elenmiştir \\
+
+LightGBM &
+Etiketli pencerelerde güçlü tabular sınıflandırma sağlamak &
+Etiket azlığı, dengesizlik ve platform farkı nedeniyle yeterli genelleme sağlamadı &
+Elenmiştir \\
+
+Chronos &
+Ön-eğitimli zaman serisi bilgisini zero-shot kullanmak &
+Bazı mekanik olaylarda iyileşme sağladı; düşük alarm yükünde yeterli olmadı &
+Araştırma sonucu \\
+
+CUSUM / Page CUSUM &
+Küçük fakat kalıcı ortalama değişimlerini biriktirmek &
+Konum sapması gibi belirli olaylarda sessiz ve etkiliydi; hızlı veya farklı
+arıza tiplerinde kaçırma oranı yükseldi &
+Dar kapsamda uygun \\
+
+Fiziksel tutarlılık skorları &
+Uçuş kinematiği ve sensörler arası ilişkileri doğrudan kontrol etmek &
+Modelden bağımsız, açıklanabilir sinyal sağladı; sensör gözlenebilirliği yoksa
+doğal olarak çalışmadı &
+Temel güvenlik katmanı \\
+
+Bağlamsal LSTM tahmini &
+Uçuş fazı ve geçmiş pencereye göre sonraki değeri tahmin etmek &
+Genlik artefaktı kontrolünü geçti; geliştirme ve prova verisi arasında alarm
+dengesi kararlı değildi &
+Ürün için yetersiz \\
+\bottomrule
+\end{longtable}
+
+\section{Metrikleri nasıl yorumladım?}
+
+Raporun önceki sürümünde çok sayıda AUC, recall ve yanlış alarm değeri bulunuyordu.
+Bu değerler tek başına amaç değil, bir sonraki teknik kararı vermek için kullanıldı.
+
+\subsection{AUC neyi söyledi, neyi söylemedi?}
+
+AUC, anomalik örneklerin normallerden genel olarak daha yüksek skor alıp
+almadığını gösterir. Model karşılaştırmak ve bir sinyalin varlığını görmek için
+yararlıdır. Ancak tek başına:
+
+\begin{itemize}
+  \item hangi eşikte alarm verileceğini,
+  \item bir arızanın zamanında yakalanıp yakalanmadığını,
+  \item operatöre saatte kaç alarm gideceğini
+\end{itemize}
+
+göstermez. Bu nedenle yüksek AUC gördüğümde ``ürün hazır'' sonucu çıkarmadım;
+eşik altında olay yakalama ve yanlış alarm yükünü ayrıca kontrol ettim.
+
+\subsection{Recall düştüğünde ne düşündüm?}
+
+Recall, gerçek arızaların ne kadarının yakalandığını gösterir. Recall düşükse
+önce şu olasılıklar incelendi:
+
+\begin{enumerate}
+  \item Arıza ilgili sensör kanalında gerçekten gözlenebilir mi?
+  \item Etiket arızanın gerçek başlangıç ve bitişini doğru gösteriyor mu?
+  \item Eşik farklı platform veya görev nedeniyle yanlış mı kalibre edildi?
+  \item Normal davranış ile arıza davranışı gerçekten üst üste mi biniyor?
+\end{enumerate}
+
+Bu kontrollerden sonra özellik, model veya eşik değişikliğine gidildi.
+
+\subsection{Yanlış alarm yükseldiğinde ne düşündüm?}
+
+Yanlış alarm/saat değeri, sistemin normal uçuşta operatöre ne kadar gereksiz
+uyarı üreteceğini gösterir. Eşik gevşetildiğinde recall yükseliyor fakat yanlış
+alarm da hızla artıyorsa, model sıralama yapabiliyor olsa bile güvenilir karar
+sınırı oluşturamıyor demektir.
+
+Projede tekrar eden ana örüntü tam olarak budur: arızaları yakalayan eşikler
+fazla alarm üretmiş; sakin çalışan eşikler ise arızaların önemli bölümünü
+kaçırmıştır.
+
+\subsection{Benzer modeller aynı sonucu verdiğinde ne yaptım?}
+
+Birbirinden farklı üç derin öğrenme modelinin aynı örnekleri aynı sırada
+anomali görmesi ilk bakışta güven verici gibi durabilir. Ben bunu ayrıca bir
+şüphe işareti olarak değerlendirdim. Rastgele model ve ham genlik karşılaştırması
+sayesinde ortak sonucun gerçek öğrenmeden değil ölçek etkisinden kaynaklandığı
+ortaya çıkarıldı.
+
+\section{Başlıca teknik sorunlar ve uygulanan karşılıklar}
+
+\begin{longtable}{p{0.25\textwidth}p{0.32\textwidth}p{0.35\textwidth}}
+\toprule
+\textbf{Sorun} & \textbf{Neden önemliydi?} & \textbf{Uyguladığım karşılık} \\
+\midrule
+\endhead
+Veri sızıntısı riski &
+Aynı uçuşun eğitim ve testte bulunması sonucu yapay olarak yükseltir &
+Uçuş ve oturum bazlı ayrım; normalizasyonun yalnız eğitim verisinde öğrenilmesi \\
+
+Tüm uçuşa yayılan kaba etiket &
+Arıza öncesi normal bölüm bile doğru alarm sayılabilir &
+Gerçek olay başlangıç/bitişinin kontrol kanallarından çıkarılması \\
+
+Eksik veya donmuş sensör &
+Model arıza yerine veri kalitesini öğrenebilir &
+Kalite bayrakları, eksiklik oranı, freeze sayaçları ve ayrı kalite katmanı \\
+
+Farklı platform dağılımı &
+Aynı hız, titreşim veya komut ölçeği her platformda normal olmayabilir &
+Platforma özel normal kalibrasyon ve transfer deneyi \\
+
+Normal uçuş çeşitliliği &
+Görev, rüzgâr ve manevra farkı arızaya benzeyebilir &
+Uçuş fazı/bağlam özellikleri ve doğal alarm yükü testi \\
+
+Az ve dengesiz arıza örneği &
+Denetimli model birkaç senaryoyu ezberleyebilir &
+Etiketsiz yöntemler, olay bazlı değerlendirme ve sonuçların güven aralığıyla incelenmesi \\
+
+Genlik baskınlığı &
+Autoencoder büyük sayıyı anomali sanabilir &
+Robust ölçekleme, kanal normalize hata ve rastgele ağ kontrolü \\
+
+Sentetik anomalinin kolaylığı &
+Yapay değişim gerçek arızadan daha görünür olabilir &
+Fiziksel anlam, gözlenebilir değişim ve doğal trafik alarm yükü kontrolü \\
+
+Sensör gözlenebilirliği &
+Arızanın etkisi kaydedilmiyorsa hiçbir model güvenilir tespit yapamaz &
+Önce kanal/instrumentation denetimi; görünmeyen arızanın kapsam dışına alınması \\
+\bottomrule
+\end{longtable}
+
+\section{Son kontrollü çalışma: GNSS bütünlük tespiti}
+
+Genel amaçlı anomali tespitinin sınırları görüldükten sonra son bir kontrollü
+deney tasarlandı. Amaç, problemi daraltarak gerçek uçuşlarda GNSS bütünlük
+bozulmasını yakalamanın mümkün olup olmadığını görmekti.
+
+\subsection{Neden motor arızası yerine GNSS seçildi?}
+
+Önce veri enstrümantasyonu incelendi. Gerçek uçuş kayıtlarında ESC alanları
+bulunsa da RPM, akım ve sıcaklık değerlerinin tamamının sıfır olduğu görüldü.
+Bu nedenle motor arızasını bu kanallarla doğrulamak teknik olarak mümkün değildi.
+
+GNSS tarafında ise konum, hız, doğruluk ve otopilot kestirim bilgileri mevcuttu.
+Bu nedenle son deney GNSS bütünlük problemine odaklandı. GPS klasöründeki
+kayıtların tamamı otomatik olarak GPS arızası sayılmadı; farklı arıza kimliği
+taşıyan altı uçuş karantinaya alındı.
+
+\subsection{Karşılaştırılan üç yaklaşım}
+
+\begin{enumerate}
+  \item \textbf{PX4/otopilot yerel göstergeleri:} EKF ve GNSS kalite
+  göstergelerinin doğrudan kullanımı.
+  \item \textbf{Çok kanallı Page CUSUM:} Konum, hız ve kestirim kalıntılarındaki
+  kalıcı değişimin istatistiksel olarak biriktirilmesi.
+  \item \textbf{Bağlamsal LSTM:} Normal uçuş geçmişinden bir sonraki telemetri
+  durumunun tahmin edilmesi ve tahmin hatasının skorlanması.
+\end{enumerate}
+
+\subsection{Ne görüldü?}
+
+\begin{itemize}
+  \item Otopilot göstergeleri arızaların önemli bölümüne tepki verdi; fakat
+  normal uçuşlarda da saatte onlarca alarm üretti.
+  \item CUSUM normal uçuşta daha sakindi. Buna karşılık sıkı eşikte olayları
+  kaçırdı; gevşek eşikte bazı veri bölümlerinde başarılı olsa da rüzgâr ve
+  simülasyon stresinde uyarı yükü arttı.
+  \item LSTM bir prova grubunda yüksek yakalama gösterebildi; ancak geliştirme
+  grubunda aynı alarm dengesi korunmadı. Sonuç veri bölümleri arasında kararlı
+  değildi.
+  \item LSTM'nin genlik artefaktına dayanmadığı ayrıca doğrulandı. Dolayısıyla
+  bu son denemedeki problem ``ağ hiçbir şey öğrenmedi'' değil; öğrenilen
+  ilişkinin yeni uçuş koşullarına yeterince genellenememesi ve kabul edilebilir
+  alarm eşiğinin oluşmamasıdır.
+\end{itemize}
+
+\subsection{Neden son kör test açılmadı?}
+
+Geliştirme ve prova verilerinde önceden tanımlanan yakalama--yanlış alarm dengesi
+birlikte sağlanamadı. Bu durumda son kör test verisini açmak, modele tekrar tekrar
+bakıp test setine uyum sağlama riski doğuracaktı. Bu nedenle son test bölümü
+kapalı tutuldu. Bu karar başarısızlığı gizlemek için değil, sonucun metodolojik
+bütünlüğünü korumak için alındı.
+
+\section{Nihai fizibilite hükmü}
+
+\subsection{Mevcut kapsam için karar}
+
+\resultno{Mevcut veri setleri, etiket kalitesi ve sensör kapsamıyla genel amaçlı,
+platformlar arası çalışan ve operasyonel alarm yükünü karşılayan ML tabanlı İHA
+anomali tespit ürünü gerçekleştirilebilir olarak doğrulanmamıştır.}
+
+Bu kararın temel gerekçeleri:
+
+\begin{itemize}
+  \item gerçek ve doğru zaman etiketli arıza örneğinin sınırlı olması,
+  \item bazı arızaların kaydedilen sensörlerde fiziksel olarak görünmemesi,
+  \item platform, görev, rüzgâr ve uçuş fazı değişiminin normal davranışı
+  ciddi ölçüde değiştirmesi,
+  \item başarılı görünen bazı sonuçların etiket veya ölçek artefaktına dayanması,
+  \item gerçek arıza yakalama ile yanlış alarm yükünün aynı anda kabul edilebilir
+  seviyeye getirilememesi.
+\end{itemize}
+
+\subsection{Neler yapılabilir durumda?}
+
+Çalışma tamamen sonuçsuz değildir. Aşağıdaki daha dar kapsamlar teknik olarak
+daha gerçekçidir:
+
+\begin{itemize}
+  \item Belirli platform ve belirli arıza ailesi için platforma özel model,
+  \item GNSS konum sapması için fiziksel kalıntı + CUSUM tabanlı yardımcı uyarı,
+  \item otopilotun mevcut kalite göstergelerini birleştiren açıklanabilir izleme katmanı,
+  \item veri kalitesi, donma, dropout ve sensör tutarsızlığı için deterministik kurallar,
+  \item yalnız doğru sensörlerle enstrümante edilmiş yeni veri toplama kampanyası
+  sonrasında motor/aktüatör özelinde yeni fizibilite çalışması.
+\end{itemize}
+
+\subsection{Devam kararı verilirse önerilen yol}
+
+Yeni bir genel model denemek yerine aşağıdaki sıra önerilmektedir:
+
+\begin{enumerate}
+  \item Tek bir platform ve tek bir arıza ailesi seçilmelidir.
+  \item Arızanın hangi sensörde, hangi gecikmeyle ve ne büyüklükte görüleceği
+  fiziksel olarak tanımlanmalıdır.
+  \item Arıza başlangıç/bitiş zamanı kontrollü deneyle kaydedilmelidir.
+  \item Normal veri; görev, rüzgâr, yük, uçuş fazı ve pilotaj çeşitliliğini
+  temsil edecek şekilde toplanmalıdır.
+  \item Önce fiziksel kural ve CUSUM referansı kurulmalı, ML yalnız ölçülebilir
+  ek katkı sağlıyorsa devreye alınmalıdır.
+  \item Başarı AUC ile değil, olay yakalama, tespit gecikmesi ve uçuş saati
+  başına yanlış alarm ile kabul edilmelidir.
+\end{enumerate}
+
+\section{Yönetim görüşmesinde beklenen sorular ve kısa cevaplar}
+
+\subsection*{``Neden bu kadar farklı model denedin?''}
+
+Her model farklı bir hipotezi test etti. Isolation Forest etiketsiz uç değerleri,
+Autoencoder'lar normal örüntünün yeniden üretimini, LSTM zaman bağımlılığını,
+LightGBM etiketli ayrımı, Chronos ön-eğitimli tahmin bilgisini, CUSUM kalıcı
+küçük sapmaları ve fiziksel skorlar sensörler arası tutarlılığı sınadı. Amaç
+rastgele model çoğaltmak değil, sorunun modelden mi, veriden mi, etiketten mi
+yoksa gözlenebilirlikten mi kaynaklandığını ayırmaktı.
+
+\subsection*{``LSTM'de iyi değer gördün; neden devam etmedin?''}
+
+Belirli bir veri setinde iyi AUC görüldü. Ancak aynı başarı başka platformda
+korunmadı ve bazı Autoencoder sonuçlarının ham sinyal genliğiyle oluştuğu
+kanıtlandı. Son bağlamsal LSTM genlik testini geçse bile geliştirme ve prova
+uçuşlarında aynı yanlış alarm dengesini sağlayamadı. Bu nedenle tek bir iyi
+değer ürün fizibilitesi için yeterli sayılmadı.
+
+\subsection*{``Recall'ı artırmak için eşiği düşürseydin olmaz mıydı?''}
+
+Eşik düşürüldüğünde daha fazla arıza yakalandı, fakat normal uçuşlarda saatte
+onlarca alarm oluştu. Böyle bir sistem operatör tarafından kısa sürede
+önemsizleştirilir. Güvenlik uygulamasında yakalama oranı ve alarm yükü birlikte
+sağlanmalıdır.
+
+\subsection*{``Daha fazla veri neden sorunu çözmedi?''}
+
+Daha fazla veri aynı dağılımdan ve doğru temsil ile gelirse yararlıdır. Burada
+ek normal uçuşlar farklı görev, manevra ve koşullar içerdiği için normal davranış
+alanını genişletti. Model daha az yanlış alarm üretmeyi öğrenirken bazı gerçek
+arıza örneklerini de normal kabul etmeye başladı.
+
+\subsection*{``Sentetik arızalar başarılıysa neden ürün yapılmadı?''}
+
+Sentetik arızalar çoğu zaman gerçek arızadan daha temiz ve görünürdür. Ayrıca
+enjeksiyon uygulanmış olması, değişikliğin model girdisinde mutlaka oluştuğu
+anlamına gelmez. Bu nedenle sentetik yakalama yalnız yöntem testi olarak
+kullanıldı; doğal uçuş alarm yükü ve gerçek olaylar ayrıca değerlendirildi.
+
+\subsection*{``Sorun modelde mi, veride mi?''}
+
+Tek bir neden yoktur. Bazı erken sonuçlarda ölçek ve etiket problemi vardı;
+bunlar düzeltildi. Son kontrollü deneyde model gerçekten zamansal ilişki
+öğrendi, fakat uçuşlar arası genelleme ve alarm eşiği kararlı olmadı. Daha temel
+sınır, arıza örneğinin azlığı, normal davranışın genişliği ve bazı arızaların
+mevcut sensörlerde yeterince gözlenememesidir.
+
+\subsection*{``Bu çalışma başarısız mı?''}
+
+Ürün hedefi açısından mevcut kapsam için sonuç \textbf{NO-GO}'dur. Mühendislik
+açısından ise neden çalışmadığı ölçülmüş, yanıltıcı başarılar bulunup giderilmiş,
+veri ve enstrümantasyon eksikleri belirlenmiş ve hangi dar kapsamların anlamlı
+olduğu gösterilmiştir. Bu, yeni yatırım kararının yanlış metriklere dayanmasını
+engelleyen somut bir çıktıdır.
+
+\section{Sonuç}
+
+Proje boyunca veri toplama ve işleme hattından model geliştirmeye, fiziksel
+özellik üretiminden etiket denetimine, derin öğrenme artefakt analizinden büyük
+ölçekli doğal alarm testine kadar bütün zincir ele alındı. İlk sonuçlarla
+yetinilmeyip her yüksek değerin kaynağı sorgulandı; sonuçlar düştüğünde bunu
+gizlemek yerine neden düştüğü araştırıldı.
+
+Elde edilen nihai teknik sonuç şudur: Mevcut veri ve sensör kapsamı, genel
+amaçlı bir İHA anomali tespit ürününü güvenilir biçimde doğrulamak için yeterli
+değildir. En doğru devam yolu yeni bir genel model denemek değil; tek platform,
+tek arıza ailesi, doğru enstrümantasyon ve kontrollü gerçek arıza zamanlarıyla
+dar kapsamlı yeni bir veri kampanyası yürütmektir.
+
+\appendix
+
+\section{Terimlerin kısa karşılığı}
+
+\begin{description}[leftmargin=3.2cm,style=nextline]
+  \item[AUC] Modelin anomalik örnekleri normal örneklerden genel olarak ayırma
+  gücü. Tek başına operasyonel başarı değildir.
+  \item[Recall] Gerçek arıza olaylarının yakalanan oranı.
+  \item[Yanlış alarm/saat] Normal uçuş sırasında bir saatte üretilen gereksiz
+  alarm sayısı.
+  \item[Autoencoder] Normal veriyi sıkıştırıp yeniden üretmeyi öğrenen; yüksek
+  yeniden üretim hatasını anomali kabul eden sinir ağı.
+  \item[LSTM] Zaman sıralı veride geçmiş bilgiyi kullanabilen sinir ağı yapısı.
+  \item[CUSUM] Küçük fakat kalıcı değişimleri zaman içinde biriktiren
+  istatistiksel değişim tespit yöntemi.
+  \item[Fiziksel kalıntı] İki sensör veya fiziksel ilişki arasındaki beklenen ve
+  ölçülen değer farkı.
+  \item[Kör test] Model ve eşik kararları tamamlanana kadar açılmayan son
+  değerlendirme verisi.
+\end{description}
+
+\section{Teknik kanıt dokümanları}
+
+Bu rapor yönetici ve teknik görüşme anlatımı için sadeleştirilmiştir. Ayrıntılı
+deney tabloları, karar kayıtları ve son GNSS deneyinin sayısal çıktıları proje
+deposunda aşağıdaki belgelerde korunmaktadır:
+
+\begin{itemize}
+  \item Ayrıntılı fizibilite raporu:
+  \code{docs/final_rapor_ml_fizibilite_2026-07-16.tex}
+  \item Geniş teknik rapor:
+  \code{docs/ml_anomali_tespiti_fizibilite_final_raporu_2026-07-16.tex}
+  \item GNSS son deney raporu:
+  \code{artifacts/uav_gnss_integrity_v1/uav_gnss_integrity_v1_final_no_go_report.tex}
+  \item GNSS deney yapılandırması:
+  \code{configs/uav_gnss_integrity_v1.json}
+\end{itemize}
+
+\end{document}
