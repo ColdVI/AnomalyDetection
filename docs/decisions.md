@@ -183,7 +183,7 @@ Mimari diyagram tek bir consumer'ın aynı anda Redis + InfluxDB + MinIO'ya yazd
 gösteriyordu (3 sink, 1 consumer). Uygulamada **iki ayrı consumer** tercih edildi:
 
 - `src/ingestion/adsblol_consumer.py` — `group.id = dashboard-consumer`; Redis + InfluxDB
-- `Dashboard/minio_archiver.py` — `group.id = minio-archiver`; MinIO Bronze
+- `Dashboard/codes/minio_archiver.py` — `group.id = minio-archiver`; MinIO Bronze
 
 **Neden?** Separation of Concerns: arşivleyici çöktüğünde dashboard etkilenmiyor;
 arşivleyici bağımsız ölçeklenebilir; her consumer kendi offset'ini yönetiyor.
@@ -789,7 +789,7 @@ paketinde, `src/ml/` ve RFLY'ye hiç dokunulmadan yürütülüyor (plan onayı, 
 Repoda bu iş için önemli altyapı zaten mevcuttu: takım arkadaşı Metehan'ın staj projesinin ortak
 fazında kurduğu adsb.lol tar→Bronze→Silver pipeline'ı (`src/silver/parse_adsblol_historical.py`,
 ADR-003) ve `src/gold/unify.py`'deki Gold şema eşlemesi. En az bir günlük tar zaten parse edilmiş
-(97.8M satır, 67.577 uçak — `logs/parallel_parse/*.log`, `Dashboard/FULL_PROJECT_HANDOFF.md` §3.3)
+(97.8M satır, 67.577 uçak — `logs/parallel_parse/*.log`, `Dashboard/docs/FULL_PROJECT_HANDOFF.md` §3.3)
 ama bu veri Metehan'ın kendi makinesindeki Docker `minio_data` volume'ünde; bu makinede ne ham
 tar ne de parse edilmiş Silver verisi var, MinIO da şu an erişilemez durumda (2026-07-10 denendi,
 Docker başlatılamadı). **Bu açık bir engel** — kullanıcının Drive'daki ham tar'lardan birini bu

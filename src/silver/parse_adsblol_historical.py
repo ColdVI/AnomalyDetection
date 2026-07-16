@@ -155,7 +155,7 @@ def parse_trace_bytes(raw: bytes) -> pd.DataFrame:
     trace = data.get("trace", [])
 
     # 2026-07-10 (kullanici istegi): adsb.lol/readsb'nin dbFlags bit alaninin
-    # 1. biti askeri ucak demek (bkz. Dashboard/uav_producer.py'deki AYNI
+    # 1. biti askeri ucak demek (bkz. Dashboard/codes/uav_producer.py'deki AYNI
     # mantik) -- dbFlags dosya-seviyesinde (icao/timestamp gibi), trace
     # icindeki HER satir icin sabit. Eksikse (ucak topluluk veritabaninda
     # yoksa, ~%10 vaka) varsayilan False -- "askeri OLDUGU DOGRULANMAMIS"

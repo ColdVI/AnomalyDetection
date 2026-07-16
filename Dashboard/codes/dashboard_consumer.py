@@ -17,6 +17,7 @@ Kullanim:
 """
 import json
 import os
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -24,6 +25,13 @@ import redis
 from confluent_kafka import Consumer
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import WriteOptions
+
+# ONEMLI: logging_setup ciplak import edilebilsin diye -- bu dosya hem
+# Docker'da "python codes/dashboard_consumer.py" ile __main__ olarak, hem de
+# testlerde "from Dashboard.codes import dashboard_consumer" ile calisiyor
+# (bkz. app.py'deki ayni sekildeki sys.path shim yorumu, ayni sebep).
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from logging_setup import enable_file_logging
 
 # ONEMLI: Docker'da "localhost" container'in KENDI icini isaret eder --
 # BOOTSTRAP/REDIS_HOST/INFLUX_HOST bu yuzden ortam degiskeniyle
@@ -276,7 +284,7 @@ def main():
                 stats["flights"] += 1
 
             elif topic == ALERTS_TOPIC:
-                # sema: KAFKA_SCHEMA.md'deki uav.alerts bolumune bakiniz
+                # sema: docs/KAFKA_SCHEMA.md'deki uav.alerts bolumune bakiniz
                 rdb.lpush("iha:recent_alerts", json.dumps(data))
                 rdb.ltrim("iha:recent_alerts", 0, 19)
                 stats["alerts"] += 1
@@ -301,4 +309,5 @@ def main():
 
 
 if __name__ == "__main__":
+    enable_file_logging("dashboard_consumer")
     main()

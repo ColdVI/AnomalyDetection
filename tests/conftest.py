@@ -8,16 +8,16 @@ import pytest
 
 from src.common.fakes import FakeMinioClient
 
-# ONEMLI: Dashboard/app.py modul SEVIYESINDE INFLUX_TOKEN'i okuyup (env
+# ONEMLI: Dashboard/codes/app.py modul SEVIYESINDE INFLUX_TOKEN'i okuyup (env
 # degiskeni yoksa VE influx_token.txt dosyasi da yoksa) SystemExit firlatiyor
-# (bkz. Dashboard/app.py, TOKEN_FILE kontrolu) -- bu satir, "Dashboard.app"i
+# (bkz. Dashboard/codes/app.py, TOKEN_FILE kontrolu) -- bu satir, "Dashboard.app"i
 # import eden HERHANGI bir test dosyasindan ONCE (conftest.py, pytest
 # tarafindan tum test modullerinden ONCE yuklenir) calismali. Gercek bir
 # InfluxDB baglantisi KURULMUYOR (InfluxDBClient kurucusu lazy, sadece
 # gercek sorgu/yazma caginca aga cikar), bu yuzden sahte bir token yeterli.
 os.environ.setdefault("INFLUX_TOKEN", "test-token-for-pytest")
 
-# ONEMLI: Dashboard/app.py, clientside JS callback'lerini kaydetmek icin
+# ONEMLI: Dashboard/codes/app.py, clientside JS callback'lerini kaydetmek icin
 # dash_extensions.javascript.assign() kullaniyor (bkz. _GEOJSON_STYLE_JS/
 # _ON_EACH_FEATURE_JS) -- assign() her cagrildiginda (modul import
 # ANINDA) su anki CALISMA DIZINine GORECELI bir "assets/dashExtensions_

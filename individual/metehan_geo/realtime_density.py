@@ -14,7 +14,7 @@ day_count buraya TASINMADI (plan madde: "opsiyonel, dusuk oncelik") --
 --live/--24h/--7d pencereleri zaten kisa, "kac farkli gun" ayrimi bu
 olcekte anlamli degil.
 
-MLAT/ads_source_type katmani de burada YOK -- Kafka semasinda (KAFKA_SCHEMA.md)
+MLAT/ads_source_type katmani de burada YOK -- Kafka semasinda (Dashboard/docs/KAFKA_SCHEMA.md)
 per-nokta kaynak tipi tasinmiyor (sadece "source"="adsblol"/"opensky", hangi
 SISTEM, historical'daki mlat/adsb_icao/tisb ayrimi degil). Bu bilinen bir
 kapsam siniri (2026-07-07 karari).

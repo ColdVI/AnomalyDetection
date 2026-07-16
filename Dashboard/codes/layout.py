@@ -414,7 +414,7 @@ def build_layout(*, build_timezone_options, build_signal_staleness_options,
         # -------------------------------------- Istatistik paneli (overlay) --
         # Simdilik tek grafik: saat basina benzersiz ucak sayisi (son 24 saat)
         # -- /api/traffic_stats zaten mevcuttu (eskiden arayuzden kaldirilmisti,
-        # bkz. FULL_PROJECT_HANDOFF.md Bolum 12), burada geri kullaniliyor.
+        # bkz. docs/FULL_PROJECT_HANDOFF.md Bolum 12), burada geri kullaniliyor.
         html.Div(id="stats-panel", style={**STATS_PANEL_BASE, "display": "none"},
                  children=[
             html.Div(style={"display": "flex", "justifyContent": "space-between",

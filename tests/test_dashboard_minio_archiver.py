@@ -3,7 +3,7 @@ arşivleyici testleri."""
 
 from __future__ import annotations
 
-from Dashboard import minio_archiver as archiver
+from Dashboard.codes import minio_archiver as archiver
 from dashboard_fakes import FakeMinio
 
 
@@ -80,6 +80,6 @@ def test_dashboard_consumer_and_archiver_use_different_kafka_group_ids():
     """dashboard_consumer.py ile AYNI mesajlari BAGIMSIZ okumali (modul
     docstring'i) -- Kafka'da farkli group.id, ayni mesaji IKI kez okumayi
     (consumer group'un ayni mesaji paylasmasi yerine) garanti eder."""
-    from Dashboard import dashboard_consumer
+    from Dashboard.codes import dashboard_consumer
     assert archiver.GROUP_ID != "dashboard-consumer"
     assert archiver.GROUP_ID == "minio-archiver"

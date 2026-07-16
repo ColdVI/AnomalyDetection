@@ -34,7 +34,7 @@ if not INFLUX_TOKEN:
 
 # ------------------------------------------------------------------ FastAPI --
 
-app_api = FastAPI(title="ADS-B Local API")
+app_api = FastAPI(title="UAV API")
 app_api.add_middleware(CORSMiddleware, allow_origins=["*"],
                         allow_methods=["*"], allow_headers=["*"])
 
@@ -45,7 +45,13 @@ _query_api = _influx.query_api()
 
 # --------------------------------------------------------------------- Dash --
 
-app_dash = Dash(__name__, title="Dashboard")
+# ONEMLI: assets/ artik server.py'nin YANINDA degil, bir ust dizinde
+# (Dashboard/assets/, kod Dashboard/codes/'e tasindiktan sonra -- statik
+# varliklar ayri tutulsun diye). assets_folder verilmezse Dash bunu
+# server.py'nin KENDI dizininde arar (Dashboard/codes/assets/) ve dash_extensions'in
+# assign() ile ürettigi dashExtensions_default.js'i YANLIS yere yazar/bulamaz.
+_ASSETS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets")
+app_dash = Dash(__name__, title="Dashboard", assets_folder=_ASSETS_DIR)
 
 
 # Tarayicinin varsayilan <body> kenar bosluguyla (genelde 8px) koyu tema
@@ -96,8 +102,20 @@ app_dash.index_string = '''
             .leaflet-tooltip-left:before  { border-left-color: var(--dash-border) !important; }
             .leaflet-tooltip-right:before { border-right-color: var(--dash-border) !important; }
 
-            /* Sol-ust +/- yakinlastirma butonlari -- Leaflet'in varsayilani
-               beyaz kutu/siyah yazi, koyu temaya uydurmak icin gecersiz
+            /* Sol-ust koseyi (+/- yakinlastirma butonlari) tasiyan Leaflet
+               konteyner'i -- ONEMLI: z-index Leaflet'in kendi CSS'inde
+               .leaflet-control-zoom'da DEGIL, bu sarmalayici .leaflet-top
+               .leaflet-left'te (varsayilan 1000) tanimli. Sol panel
+               (LEFT_PANEL_BASE, zIndex 800, sol kenarin TAMAMINI top:0'dan
+               bottom:0'a kapliyor) acilinca +/- butonlari 1000 > 800
+               oldugu icin panelin UZERINDE yuzuyormus gibi gorunuyordu.
+               Filtre butonlariyla (zIndex 700) AYNI muameleyi goruyor:
+               panel acikken kontroller onun ALTINDA kalip gizlensin,
+               "biniyor" gorunumu bitsin. */
+            .leaflet-top.leaflet-left {
+                z-index: 700 !important;
+            }
+            /* Beyaz kutu/siyah yazi -- koyu temaya uydurmak icin gecersiz
                kiliyoruz (digerleriyle AYNI renk paleti). */
             .leaflet-control-zoom {
                 border: 1px solid var(--dash-border) !important;

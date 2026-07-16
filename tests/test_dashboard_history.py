@@ -10,7 +10,7 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from Dashboard import app as dashapp
+from Dashboard.codes import app as dashapp
 
 
 def _fake_query_data_frame(monkeypatch, df: pd.DataFrame):

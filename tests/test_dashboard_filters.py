@@ -11,7 +11,7 @@ test ediliyor."""
 
 from __future__ import annotations
 
-from Dashboard import app as dashapp
+from Dashboard.codes import app as dashapp
 from dashboard_fakes import find_by_id
 
 

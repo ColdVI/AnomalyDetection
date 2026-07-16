@@ -1,8 +1,8 @@
 services:
   # ONEMLI: Zookeeper KALDIRILDI -- Kafka artik KRaft modunda (kendi
   # kendini yonetiyor, ayri bir koordinasyon servisi gerekmiyor). Zookeeper
-  # sadece lokal/native kurulumun bir kalintisiydi (bkz. Dashboard/
-  # FULL_PROJECT_HANDOFF.md Bolum 6.3), Docker'da tek-broker icin gereksiz
+  # sadece lokal/native kurulumun bir kalintisiydi (bkz.
+  # Dashboard/docs/FULL_PROJECT_HANDOFF.md Bolum 6.3), Docker'da tek-broker icin gereksiz
   # bir servis + ekstra ~512MB RAM demekti. KRaft, Kafka'nin kendisinin
   # onerdigi/varsayilan yolu (Zookeeper 4.0'da tamamen kaldiriliyor).
   kafka:
@@ -120,14 +120,15 @@ services:
 
   # --------------------------------------------------------------------
   # Dashboard servisleri (Dashboard/) -- adsb.lol -> Kafka -> Redis/InfluxDB
-  # -> Dash. Detay/gecmis: Dashboard/FULL_PROJECT_HANDOFF.md ve
-  # Dashboard/HANDOFF_UPDATE_2026-07-07.md. Dorduncu servis (dashboard-app)
+  # -> Dash. Detay/gecmis: Dashboard/docs/FULL_PROJECT_HANDOFF.md ve
+  # Dashboard/docs/HANDOFF_UPDATE_2026-07-07.md. Dorduncu servis (dashboard-app)
   # icindeki FastAPI'ye "localhost:8000" ile erisir -- FastAPI+Dash AYNI
   # process'te (app.py) calistigi icin bu kasitli, degistirilmemeli.
   # --------------------------------------------------------------------
   uav-producer:
     build:
-      context: ./Dashboard
+      context: .
+      dockerfile: Dashboard/Dockerfile
     image: iha-dashboard:local
     profiles: ["streaming"]
     restart: unless-stopped
@@ -142,14 +143,17 @@ services:
       # Bos/yanlissa producer SESSIZCE anonim erisime duser.
       OPENSKY_CLIENT_ID: ${OPENSKY_CLIENT_ID:-}
       OPENSKY_CLIENT_SECRET: ${OPENSKY_CLIENT_SECRET:-}
+    volumes:
+      - ./Dashboard/logs:/app/logs
     depends_on:
       - kafka
       - redis
-    command: ["python", "uav_producer.py"]
+    command: ["python", "codes/uav_producer.py"]
 
   dashboard-consumer:
     build:
-      context: ./Dashboard
+      context: .
+      dockerfile: Dashboard/Dockerfile
     image: iha-dashboard:local
     profiles: ["streaming"]
     restart: unless-stopped
@@ -160,15 +164,18 @@ services:
       INFLUX_ORG: iha-org
       INFLUX_BUCKET: uav-history
       INFLUX_TOKEN: iha-influx-token-docker
+    volumes:
+      - ./Dashboard/logs:/app/logs
     depends_on:
       - kafka
       - redis
       - influxdb
-    command: ["python", "dashboard_consumer.py"]
+    command: ["python", "codes/dashboard_consumer.py"]
 
   dashboard-app:
     build:
-      context: ./Dashboard
+      context: .
+      dockerfile: Dashboard/Dockerfile
     image: iha-dashboard:local
     profiles: ["streaming"]
     restart: unless-stopped
@@ -181,14 +188,17 @@ services:
     ports:
       - "8000:8000"
       - "8050:8050"
+    volumes:
+      - ./Dashboard/logs:/app/logs
     depends_on:
       - redis
       - influxdb
-    command: ["python", "app.py"]
+    command: ["python", "codes/app.py"]
 
   minio-archiver:
     build:
-      context: ./Dashboard
+      context: .
+      dockerfile: Dashboard/Dockerfile
     image: iha-dashboard:local
     profiles: ["streaming"]
     restart: unless-stopped
@@ -197,10 +207,12 @@ services:
       MINIO_ENDPOINT: minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+    volumes:
+      - ./Dashboard/logs:/app/logs
     depends_on:
       - kafka
       - minio
-    command: ["python", "minio_archiver.py"]
+    command: ["python", "codes/minio_archiver.py"]
 
 volumes:
   influxdb_data:
