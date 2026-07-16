@@ -10,6 +10,163 @@ kısaltılmış) — tamamen uydurma/sembolik değil.
 
 ---
 
+## FAZ 0 — Uçtan Uca Pipeline: İki Ayrı Veri Yolu, Tek Ortak Gold Çıkışı
+
+Projede birbirinden **tamamen bağımsız çalışan iki veri yolu** var: biri **hazır/statik veri
+setleri** (adsb.lol tarihsel arşiv + ALFA + UAV Attack) için, diğeri **gerçek zamanlı canlı
+akış** (adsb.lol live feed) için. İkisi de sonunda aynı yere — Gold katmanına — akar, ama
+tetiklenme biçimleri, sıklıkları ve kod yolları tamamen farklı. Bu bölüm ikisini de baştan
+sona, hangi kodun hangi anda çalıştığını göstererek anlatıyor.
+
+```
+              HAZIR VERI SETI YOLU                        GERCEK ZAMANLI YOL
+              (elle / talep uzerine)                      (surekli + gunluk)
+              ---------------------                       -------------------
+adsb.lol tarihsel .tar arsivleri              adsb.lol "world" REST endpoint (her 60sn)
+ALFA / UAV Attack .zip                                     |
+        |                                                  v
+        v                                    uav_producer.py --> Kafka "uav.flights"
+scripts/upload_bronze_all.py                               |
+        |                                     +-------------+--------------+
+        v                                     |                             |
+BRONZE (ham .tar/.zip, MinIO)      dashboard_consumer.py         minio_archiver.py
+        |                          (group=dashboard-consumer)    (group=minio-archiver)
+        v                          -> Redis (canli durum)        -> Bronze JSONL:
+python -m src.silver               -> InfluxDB "uav-history"        adsblol_realtime/_landing/
+  .parse_adsblol_historical           (batch)                       states-<ts>.jsonl
+  (tar-bazli checkpoint'li)                                         (500 mesaj VEYA 60sn'de flush)
+        |                                                           |
+        v                                                           v (HER GUN saat 17:00'de)
+SILVER "adsblol_historical"                            python -m src.silver.parse_adsblol_realtime
+  (Parquet, birim donusumlu,                                        --daily-at 17:00
+   is_military etiketli)                                            |
+        |                                                            v
+        |                                            SILVER "adsblol_realtime" (Parquet)
+        |                                            + basarili yazimdan SONRA Bronze
+        |                                              JSONL silinir (yaz-sonra-sil)
+        |                                            + heartbeat: data/state/
+        |                                              silver_realtime_heartbeat.txt
+        |                                                            |
+        +---------------------------+-------------------------------+
+                                     v
+                    python -m src.gold.unify   (ELLE calistirilir -- otomatik degil!)
+                    stream_unify(): once eski Gold'u siler (clear_gold_before_unify),
+                    sonra TUM Silver source_type'larini (adsblol_historical,
+                    adsblol_realtime, alfa, uav_attack) 7+3 ortak semaya donusturup
+                    tek tek GOLD "unified/" prefix'ine yazar
+                                     |
+                                     v
+                    GOLD (2.76 milyar satir, 6.861 parca, unified/ prefix)
+                                     |
+              +----------------------+----------------------+
+              v                      v                       v
+  individual/metehan_geo/     team_dashboard/api.py    src/ml/build_features.py
+  build_flight_density.py     (Silver+Gold'u DOGRUDAN   (zengin, kaynak-ozgu
+  (yogunluk/askeri harita,     okur, export icin --      sema -- ML egitimi
+  kendi pickle checkpoint'i)   density'den BAGIMSIZ)      icin ayri Gold cikisi)
+```
+
+### 0.1 Hazır (Statik) Veri Seti Pipeline'ı — Adım Adım
+
+Bu yol **tetiklenme bazlı**: bir zamanlayıcı/cron YOK, sadece yeni veri eklendiğinde
+(yeni tar indirildiğinde, ya da ALFA/UAV Attack ilk kez işlendiğinde) elle çalıştırılıyor.
+
+1. **İndirme:** Tar dosyaları (`v2025.08.15-planes-readsb-prod-0.tar` gibi) elle indirilip
+   `data/bronze/adsblol_historical/_input/` klasörüne konur.
+2. **Bronze'a yükleme:** `scripts/upload_bronze_all.py` — idempotent (`_already_uploaded()`
+   kontrolü ile daha önce yüklenmiş dosyayı atlar), her tarı MinIO Bronze'a ham `.tar` olarak
+   yazar, başarılı yüklemeden sonra yerel kopyayı siler.
+3. **Silver'a parse:** `python -m src.silver.parse_adsblol_historical` (gerçek CLI bayrakları:
+   `--local-tar`, `--bronze-prefix`, `--batch-size`, `--fresh`). Her tar için: gzip açma, JSON
+   parse, `dbFlags` bitfield'inden `is_military` çıkarımı, feet→m/knots→m/s/fpm→m/s birim
+   dönüşümü. Tar-bazlı checkpoint (`data/state/silver_historical_checkpoint.json`) sayesinde
+   kesinti olursa SADECE yarım kalan tar yeniden işlenir, tamamlanmış tarlar atlanır.
+   - **ALFA / UAV Attack:** Bu ikisi artık `archive/2026-07-10_legacy_non_adsb_ml/src/silver/`
+     altında, yani ana pipeline'ın PARÇASI değil, arşivlenmiş/legacy — proje ALFA/UAV Attack'i
+     bir kez işleyip Gold'a soktuktan sonra (bkz. FAZ 1.1) sürekli yeniden çalıştırılan bir yol
+     olarak kullanılmıyor. `parse_alfa.py`/`parse_uav_attack.py`'nin kendi `main()`'i sadece
+     `--bronze-object`/`--local-out` alıyor, checkpoint YOK — her çalıştırmada kendi
+     source_type'ını (`alfa`/`uav_attack`) tamamen silip sıfırdan yazıyor (küçük, tek seferlik
+     veri setleri için checkpoint gereksiz karmaşıklık olurdu).
+4. **Gold'a birleştirme:** `python -m src.gold.unify` — **elle çalıştırılır**, otomatik/zamanlı
+   DEĞİLDİR. `stream_unify()` önce `clear_gold_before_unify()` ile önceki Gold çıktısını TAMAMEN
+   siler, sonra `COLUMN_MAPS`'teki HER source_type için (adsblol_historical, adsblol_realtime,
+   alfa, uav_attack) Silver'daki tüm parçaları tek tek okuyup 7+3 ortak şemaya çevirip Gold'a
+   yazar (streaming — RAM'e toplu yüklemeden).
+5. **Downstream (harita/analiz):** `individual/metehan_geo/build_flight_density.py` (askeri/
+   sivil yoğunluk haritası, kendi pickle checkpoint'iyle), `individual/metehan_geo_country`
+   (ülke bazlı analiz), `team_dashboard/api.py` (Silver+Gold'u export için doğrudan okur, bu
+   ikisi de MANUEL tetiklenir).
+
+**Neden bu yol günlük DEĞİL:** Statik/hazır veri setleri doğası gereği sabit — yeni bir tar
+indirilmediği sürece işlenecek yeni veri yok. Bu yüzden zamanlayıcı yerine "yeni veri geldiğinde
+elle tetikle" modeli seçildi; gereksiz günlük yeniden-işleme (zaten değişmemiş veriyi tekrar
+tekrar okumak) CPU/zaman israfı olurdu.
+
+### 0.2 Gerçek Zamanlı Pipeline'ı — Adım Adım (Günlük Dönüşüm Dahil)
+
+Bu yol **sürekli** (canlı akış) + **günlük** (Silver dönüşümü) iki farklı ritimde çalışıyor.
+
+1. **Canlı toplama (sürekli, 60sn'de bir):** `Dashboard/codes/uav_producer.py` — adsb.lol'ün
+   "world" modunda (yarıçap `DEFAULT_WORLD_RADIUS_NM = 12000`, tüm dünyayı kapsayacak şekilde)
+   tüm uçakları sorgular, her uçağı Kafka `uav.flights` topic'ine `icao24` key'iyle yazar.
+2. **İki bağımsız tüketici (sürekli, aynı topic'i FARKLI `group.id` ile okur):**
+   - `dashboard_consumer.py` (`group.id=dashboard-consumer`) — `uav.flights` + `uav.alerts`'i
+     dinler, canlı durumu Redis'e, batch halinde InfluxDB `uav-history` bucket'ına yazar.
+     Bu, dashboard'daki canlı harita/tablo görünümünü besler.
+   - `minio_archiver.py` (`group.id=minio-archiver`) — aynı `uav.flights`'i BAĞIMSIZ olarak
+     dinler, ham mesajları JSONL satırları halinde Bronze'a yazar:
+     `bronze/adsblol_realtime/_landing/states-<UTC-zaman-damgasi>.jsonl`. Yazma tetikleyicisi:
+     **500 mesaj birikince VEYA 60 saniye geçince** (hangisi önce gerçekleşirse) — bu, hem
+     çok küçük dosya sayısının patlamasını hem de veri kaybını (uzun süre bekleyip flush
+     etmemeyi) önlüyor.
+3. **GÜNLÜK dönüşüm — Bronze JSONL → Silver Parquet (asıl "günlük" adım budur):**
+   `python -m src.silver.parse_adsblol_realtime --daily-at 17:00` (Windows Görev
+   Zamanlayıcı'sında oturum açılışında `scripts/start_silver_realtime_loop.bat` ile
+   otomatik başlatılacak şekilde kurulu):
+   - **Başlangıçta hemen bir "catch-up" geçişi** yapılır (o ana kadar Bronze'da birikmiş NE
+     VARSA işlenir) — sonra döngü, `_seconds_until("17:00")` hesabıyla her gün YEREL saat
+     17:00'i hedefler (PC ne zaman açık olursa olsun, sabit bir sayaç yerine gerçek saat
+     hedeflenir — PC kapalıyken sayaç donmaz).
+   - Bronze'daki `adsblol_realtime/_landing/` altındaki TÜM JSONL dosyaları okunur, aynı
+     birim dönüşümleri (feet→m, knots→m/s, fpm→m/s) uygulanır, sonuç Silver'a
+     `adsblol_realtime` source_type'ı olarak Parquet yazılır.
+   - **Yaz-sonra-sil deseni:** Bir Bronze JSONL dosyası, karşılık gelen Silver Parquet yazımı
+     BAŞARILI olduktan SONRA silinir (`_delete_processed`) — yazma yarıda kesilirse Bronze
+     dosyası öylece kalır, bir sonraki koşuda tekrar denenir (idempotent, crash-safe).
+   - Her başarılı koşuda `data/state/silver_realtime_heartbeat.txt` dosyasına zaman damgası
+     yazılır. Bu dosyanın GÜNCEL kalması, döngünün sağlıklı çalıştığının; ESKİMESİ ise
+     döngünün sessizce durduğunun (ör. bir istisna fırlatıp döngünün kendisinin çökmesi,
+     ya da PC'nin uzun süre kapalı kalması) dış-gözlemlenebilir işareti.
+4. **Gold'a yansıma — OTOMATİK DEĞİL (önemli, açık bir mimari nokta):** `COLUMN_MAPS`
+   içinde `adsblol_realtime` için bir eşleme HAZIR olsa da, hiçbir zamanlayıcı/script
+   `stream_unify()`'i otomatik tetiklemiyor. Yani gerçek zamanlı veri Silver'da HER GÜN
+   güncelleniyor, ama bu güncel veri Gold'a (ve dolayısıyla haritalara/export'lara) ancak
+   `python -m src.gold.unify` **elle** yeniden çalıştırıldığında yansıyor. Bu, mevcut
+   mimarinin bilinçli olarak basit tutulmuş ama tam otomatik olmayan bir noktası.
+
+**Bu oturumda gerçekte yaşanan somut örnek:** Zamanlanmış günlük görev bir noktada (kök neden
+tam doğrulanamadı, muhtemelen bir PC/oturum kapanması) 7 gün boyunca sessizce durmuş, bu süre
+zarfında Bronze `_landing/` altında ~4.300 civarı işlenmemiş JSONL dosyası birikmişti —
+heartbeat dosyasının 7 gün önceki bir tarihte kalmış olması bu durumu tespit etmeyi sağladı.
+Host Python'unun (Windows Smart App Control kısıtlaması nedeniyle) doğrudan çalıştırılamadığı
+bir anda, aynı işi yapan hafif bir Docker konteyneri (`iha-dashboard:local` imajı + `pyarrow`
+kurulumu üzerinden) tek seferlik bir "catch-up" çalıştırması olarak devreye alınıp birikmiş
+günler işlendi ve günlük döngü yeniden etkinleştirildi.
+
+### 0.3 İki Yolun Karşılaştırması (Özet Tablo)
+
+| | Hazır Veri Seti (adsb.lol tarihsel + ALFA/UAV Attack) | Gerçek Zamanlı (adsb.lol live) |
+|---|---|---|
+| Tetiklenme | Elle, yeni veri eklendiğinde | Sürekli toplama + günlük (17:00) Silver dönüşümü |
+| Bronze girişi | Tam `.tar`/`.zip` dosyaları | Küçük JSONL parçaları (500 msg/60sn) |
+| Checkpoint | Tar-bazlı JSON checkpoint (historical); yok (ALFA/UAV Attack, tek seferlik) | Yok (dosya-bazlı yaz-sonra-sil zaten idempotent) |
+| Silver çıktısı | `adsblol_historical`, `alfa`, `uav_attack` | `adsblol_realtime` |
+| Gold'a yansıma | Elle (`python -m src.gold.unify`) | Elle (`python -m src.gold.unify`) — realtime Silver güncel olsa da Gold'a OTOMATİK gitmiyor |
+| Sağlık göstergesi | Checkpoint dosyasındaki `completed_tars` sayısı | `silver_realtime_heartbeat.txt`'in güncelliği |
+
+---
+
 ## FAZ 1 — Ortak Altyapı: Veri Kaynağı, Bronze/Silver/Gold, Kafka, Docker
 
 ### 1.1 Veri Kaynağı Kararı: OpenSky yerine adsb.lol
@@ -850,3 +1007,148 @@ C: Erken optimizasyondan kaçınma prensibi — 11 tar'lık ilk reprocess ~5 saa
 veri hacmi 30 tar'a (~17 saat tahmini) çıkınca SOMUT olarak ortaya çıktı — yani bu, "önce
 basit çöz, ölçek gerektirdiğinde karmaşıklaştır" yaklaşımının bir örneği, eksik planlama
 değil.
+
+---
+
+## Genel Sunum Anlatımı — Takım Projesi Baştan Sona (Konuşma Metni)
+
+Bu bölüm, yukarıdaki teknik detaylardan bağımsız olarak, **doğrudan sunumda okunabilecek/
+anlatılabilecek** akıcı bir metin. Slayt başlıklarına karşılık gelecek şekilde bölümlere
+ayrıldı; her bölüm 30-60 saniyelik bir konuşma parçası düşünülerek yazıldı.
+
+### 1) Problem ve Motivasyon
+
+Bu proje, hava trafiği verisi (uçak konum/hız/irtifa kayıtları) üzerinden **anomali tespiti**
+yapabilecek bir veri platformu kurmayı hedefliyor: hem gerçek zamanlı akan uçuşları izleyip
+şüpheli davranışları (rota sapması, sinyal kaybı, askeri/sivil karışık trafik gibi) yakalamak,
+hem de aylar süren tarihsel veri üzerinde bu davranışların ne kadar yaygın olduğunu ölçmek.
+Bunu yapabilmek için önce sağlam, ölçeklenebilir, geri dönülebilir bir **veri altyapısı**
+kurmamız gerekiyordu — bu rapor esas olarak o altyapının hikâyesini anlatıyor.
+
+### 2) Veri Kaynağı Kararı
+
+Plan başta OpenSky Network API'sini öngörüyordu, ama OpenSky kimlik doğrulama ve günlük kota
+gerektiriyor — hem TB'larca tarihsel arşiv indirmeye hem sürekli canlı sorgu atmaya birlikte
+yetmiyordu. Bunun yerine `adsb.lol` seçildi: kota yok, kimlik doğrulama yok, hem **günlük
+tam-ağ tarihsel arşiv** (tar dosyaları) hem **canlı REST feed** aynı kaynaktan geliyor. Buna
+ek olarak, gerçek arıza/saldırı etiketleri taşıyan iki açık veri seti daha eklendi: **ALFA**
+(gerçek uçuş arızası ground-truth'u) ve **UAV Attack** (iyi huylu/kötü niyetli saldırı
+etiketleri) — bu ikisi, ileride yapılacak anomali tespitinin precision/recall gibi somut
+metriklerle ölçülebilmesini sağlıyor.
+
+### 3) Mimari: Bronze / Silver / Gold
+
+Ham veriyi doğrudan "temiz" bir tabloya yazmak yerine üç katmanlı bir mimari (medallion
+architecture) kurduk:
+
+- **Bronze**: hiçbir dönüşüm yapılmadan saklanan ham dosyalar (tar/zip/JSONL).
+- **Silver**: birim dönüşümü (feet→metre, knots→m/s), etiket çıkarımı (askeri/sivil),
+  provenance bilgisiyle zenginleştirilmiş Parquet.
+- **Gold**: tüm farklı kaynakların (adsb.lol tarihsel, adsb.lol gerçek zamanlı, ALFA, UAV
+  Attack) ortak 7+3 kolonluk tek bir şemaya hizalandığı, birleşik veri seti.
+
+Bunu üç katmana ayırmamızın nedeni basit: bir parse hatası olduğunda (ki iki kez oldu),
+ham veri bozulmadığı için sadece o katmanı düzeltip yeniden üretmek yetiyor — tüm veriyi
+yeniden indirmeye gerek kalmıyor. Depolama için MinIO (S3-uyumlu, Docker ile ayağa kalkan,
+ücretsiz) kullandık; kod, gerçek S3'e sadece endpoint değiştirerek geçebilecek şekilde
+soyutlanmış durumda.
+
+### 4) İki Ayrı Veri Yolu: Hazır Veri Seti ve Gerçek Zamanlı Akış
+
+Platformda iki bağımsız veri yolu işliyor. **Hazır veri seti yolu**, adsb.lol'ün tarihsel tar
+arşivlerini ve ALFA/UAV Attack'i elle/talep üzerine Bronze'a yükleyip Silver'da işleyip
+Gold'da birleştiriyor — yeni bir tar eklenmediği sürece bu yol tetiklenmiyor. **Gerçek
+zamanlı yol** ise sürekli çalışıyor: bir "producer" her 60 saniyede bir tüm dünyadaki uçakları
+sorgulayıp Kafka'ya yazıyor, iki bağımsız "consumer" bu veriyi eş zamanlı olarak hem canlı
+gösterim için Redis/InfluxDB'ye hem arşivleme için MinIO'ya (ham JSONL olarak) akıtıyor. Bu
+ham JSONL'ler her gün saat 17:00'de otomatik olarak Silver'a (Parquet'e) dönüştürülüp
+işlenmiş dosya silinerek Bronze temiz tutuluyor — yani gerçek zamanlı veri her gün kendini
+"sindirip" kalıcı hale getiriyor. İki yol da sonunda aynı Gold katmanına akıyor, oradan da
+haritalar, yoğunluk analizleri ve takım export panosu besleniyor.
+
+### 5) Kafka ile Gerçek Zamanlı Akış — Neden Bu Kadar Katmanlı?
+
+Kafka'yı seçme nedenimiz basit: tek bir üreticiden gelen veriyi birden fazla bağımsız
+tüketiciye dağıtmak. Dashboard'un canlı görselleştirmesi ile ham veri arşivleme işi
+BİRBİRİNDEN BAĞIMSIZ olsun istedik — biri çökerse diğeri etkilenmesin. Kafka'nın
+consumer-group modeli bunu doğal olarak destekliyor: her tüketici kendi ilerleme takibini
+(offset) bağımsız tutuyor, aynı mesajı ikisi de görüyor ama biri diğerini bekletmiyor.
+
+### 6) Karşılaşılan Krizler ve Nasıl Çözüldü
+
+Süreç boyunca gerçek, somut sorunlarla karşılaştık — bunlar sadece "planlandığı gibi gitti"
+demek yerine, projenin olgunlaştığı yerler:
+
+- **Çift sayım bug'ı:** Gold birleştirme adımı, art arda çalıştırıldığında veriyi ikiye/üçe
+  katlıyordu çünkü önceki çalışmanın çıktısını silmiyordu. Bunu, aynı veriyle iki kez
+  çalıştırıp satır sayısının katlandığını GÖZLEMLEYEREK bulduk; düzeltip bir daha geri
+  gelmesin diye özel bir regresyon testi ekledik.
+- **Bellek patlaması:** Yoğunluk/askeri harita hesaplayan script, veri hacmi büyüyünce
+  32 GB'a kadar şişip diske takas (swap) yapmaya başladı, saatlerce ilerlemedi. Kök nedeni
+  (küme içindeki verinin bellek-verimsiz saklanması) bulup veriyi paketlenmiş tamsayılara
+  çevirerek bellek kullanımını ~15 kata kadar düşürdük, üstelik uzun süren işlemler için
+  kesintiye dayanıklı bir "checkpoint" (kaldığı yerden devam etme) sistemi ekledik.
+  Bu sayede 30 tar'ın işlenmesi (~17 saat) bir PC kapanmasına rağmen veri kaybı olmadan
+  tamamlanabildi.
+  - **Not (dürüst bir teknik detay):** Checkpoint tek başına "gerçek" bir çözüm değil —
+    her koşunun tepe bellek ihtiyacını azaltmıyor, sadece bir kesintide baştan başlamayı
+    önlüyor. Veri daha da büyürse (60-100 tar gibi) aynı bellek tavanına yeniden
+    çarpılabilir; kalıcı çözüm sıralı/parça-bazlı işleme ya da DuckDB gibi disk-tabanlı bir
+    agregasyon motoruna geçiş olurdu — bu, ileride ele alınacak bir iyileştirme olarak not
+    edildi.
+- **"Rename-drift" (isim değişikliği kalıntısı) sınıfı hatalar:** Üç ayrı gerçek olayda
+  (InfluxDB bucket adı, Kafka topic adı, Dashboard Docker imajı), kodda/konfigürasyonda
+  yapılan bir isimlendirme değişikliği, UZUN SÜREDİR çalışan eski konteynerlere/imajlara
+  yansımamıştı — yani kod güncel ama çalışan altyapı eskiydi. Üçü de kök nedeni bulup ya
+  isim güncellemesi ya da imajı yeniden inşa ederek çözüldü; bu, "kod değişince altyapının
+  da güncellenmesi gerektiğini" doğrulayan tekrarlayan bir ders oldu.
+- **Askeri filtre görünmüyordu (sivil çalışıyordu):** Harita üzerindeki renk skalası
+  mantığı, ham veriyi logaritmik dönüşüme soktuktan SONRA artık artan sırada olmayabiliyordu
+  — bu, askeri trafiğin %50'sinden fazlasının sıfır olması nedeniyle neredeyse HER ZAMAN
+  askeri filtreyi kırıyordu, sivil filtreyi ise neredeyse HİÇ etkilemiyordu (sivil veride
+  sıfır neredeyse yok). Kök neden koddan bulundu, düzeltme her iki harita projesine de
+  uygulandı.
+
+### 7) Bugünkü Rakamlar (Sunumda Doğrudan Kullanılabilir)
+
+- **Toplam veri:** 30 tarihsel arşiv dosyası (64,1 GB'lık 19 yeni tar dahil), Gold katmanında
+  **2.762.067.817 satır**, **6.861 parça**, 4 farklı kaynak tipinde (adsb.lol tarihsel,
+  adsb.lol gerçek zamanlı, ALFA, UAV Attack).
+  - Yeni veri eklenmeden önceki 11 tar'a kıyasla: benzersiz uçak sayısı 254.909 → **386.779**
+    (+%51,7), askeri işaretli uçak 9.308 → **12.753** (+%37,0), toplam satır +%174,2.
+    Bu, veri hacmi çok artsa da yeni uçak keşfinin yavaşladığını (aynı ~11 aylık pencere
+    yeniden dolduruluyor) gösteriyor — azalan getiri (diminishing returns) örneği.
+- **Ülke bazlı proje:** 11.213 benzersiz uçak, 117 farklı ülke, en baskın ülke ABD (%61,2).
+- **Okyanus-geçen uçuş tespiti:** Naif yöntem (sadece ülke karşılaştırması) sadece **1**
+  uçuş buluyordu; gerçek büyük-daire geometrik yöntem (uçuş rotasını örnekleyip açık okyanus
+  kutularıyla kesişim kontrolü) **521 bacak / 186 uçak** buldu — yöntem seçiminin sonucu ne
+  kadar değiştirebileceğinin somut bir kanıtı.
+- **Uçtan uca işlem süresi (Bronze→Silver→Gold→Yoğunluk):** toplam **~29 saat 40 dakika**
+  işlem süresi (Bronze yükleme ~18dk, Silver 30 tar ~17sa12dk, Gold birleştirme ~1sa41dk,
+  yoğunluk/askeri analiz ~10sa27dk) — yaklaşık 2,5-3 takvim günü (kesintiler dahil).
+- **Yoğunluk analizi (H3 altıgen ızgara, 3 çözünürlük):** en ince çözünürlükte (res5,
+  ~8,5km altıgenler) 268.234 hex, bunların 127.883'ünde (%47,7) askeri trafik gözlendi.
+
+### 8) Test ve Doğrulama
+
+Toplam **351/351** test (ML/torch dışı aktif test paketi) geçiyor; bunun 46'sı Bronze/Silver/
+MinIO, 7'si Gold birleştirme regresyonu (çift-sayım bug'ını özellikle koruyan test dahil),
+40'ı Kafka/Dashboard testleri. Testlerin gerçek bir MinIO/Kafka sunucusu GEREKTİRMEMESİ
+kasıtlı bir tasarım: depolama istemcisi bir "Protocol" (yapısal arayüz) olarak tanımlandığı
+için testlerde bellek-içi sahte bir istemci gerçek sunucunun yerine geçebiliyor — bu sayede
+testler saniyeler içinde, Docker'a hiç ihtiyaç duymadan çalışıyor. Uçtan uca (gerçek tarayıcı,
+Playwright) testlerde 13'ten sadece 1'i geçti — bu, henüz tam kök nedeni netleşmemiş, ileride
+araştırılacak açık bir bulgu olarak not edildi (dashboard sunucu tarafında ayaktaydı, ama
+gerçek tarayıcıda canlı veri render'ı bekleneni vermiyordu).
+
+### 9) Sonuç ve Gelecek Çalışmalar
+
+Bugün elimizde: sağlam, geri dönülebilir, test edilmiş bir Bronze/Silver/Gold veri hattı; hem
+hazır veri seti hem gerçek zamanlı akış için çalışan, birbirinden bağımsız iki besleme yolu;
+2,76 milyar satırlık birleşik bir Gold veri seti; bunun üzerine kurulu yoğunluk/askeri
+haritalar, ülke bazlı analiz ve bir takım export panosu var. Açık kalan noktalar dürüstçe şu:
+Gold'un gerçek zamanlı veriyi otomatik almaması (elle tetikleme gerektiriyor), 7 günlük
+gerçek zamanlı sorgu modunun büyük veri hacminde hâlâ bellek sorunu yaşaması, ve E2E tarayıcı
+testlerinin çoğunun henüz geçmemesi. Bunlar sonraki iterasyon için somut, ölçülebilir bir
+yol haritası oluşturuyor — "her şey bitti" değil, "nerede olduğumuzu ve nereye gideceğimizi
+tam olarak biliyoruz" diyebileceğimiz bir nokta.

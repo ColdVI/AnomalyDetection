@@ -83,7 +83,12 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1g
+          # 2026-07-16: 1g -> 2g -- ayni Kafka'da yasanan sorunun ayni turden
+          # tekrari (bkz. teknik_rehber.md Bolum 1/9): 7 gunluk pencereyi
+          # sorgularken container OOM-kill (exit 137) ile cokuyordu. 1GB, artik
+          # gercekten dolu 7-gunluk retention'i (bucket adi duzeltildikten
+          # sonra) sorgulamaya yetmiyordu.
+          memory: 2g
 
   minio:
     image: minio/minio:latest
