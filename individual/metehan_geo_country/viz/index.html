@@ -283,19 +283,26 @@ const HEX_COLORS = ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"];
 // boylece hem "total_hex_count" (varsayilan) hem de dinamik "secili ulkenin
 // bu hucredeki sayisi" (["get", ["literal", ulke], ["get","per_country_counts"]])
 // ayni fonksiyonla renklendirilebiliyor.
-function log10ColorExpression(valueExpr, breaks) {
-  // MapLibre'nin interpolate ifadesi kesinlikle artan (strictly ascending)
-  // stop anahtarlari bekler -- kucuk/seyrek pencerelerde (ör. "1 Gün")
-  // quantile breaks'in bir kismi ayni degere denk gelebiliyor (ör. [1,1,1,2,6]),
-  // bu da log10 sonrasi ayni x degerine ("Input/output values must be
-  // strictly ascending" hatasi) yol aciyordu -- her adimi bir onceki
-  // adimdan en az 1 buyuk olacak sekilde duzeltiyoruz.
-  const sanitized = breaks.slice();
-  for (let i = 1; i < sanitized.length; i++) {
-    if (sanitized[i] <= sanitized[i - 1]) sanitized[i] = sanitized[i - 1] + 1;
+// 2026-07-16 BUG DUZELTMESI: eski versiyon HAM breaks'i (log10 oncesi)
+// ardisik yapiyordu, ama Math.log10(Math.max(b,1)) donusumu bunu
+// BOZABILIYORDU -- ornegin ham [0,1,2,5,20] icin log10(max(x,1)) sirasiyla
+// [0, 0, 0.301, 0.699, 1.301] verir: ILK IKI DURAK AYNI (0)! Coğu deger
+// 0/1 civarinda yigilan seyrek dagilimlarda (ana projedeki askeri filtre
+// AYNI hatayla bulundu, bkz. individual/metehan_geo/viz/index.html) bu
+// MapLibre'nin "strictly ascending" sartini ihlal edip katmanin render
+// edilmemesine yol aciyordu. Duzeltme: ardisikligi HAM degerler yerine
+// LOG-DONUSUMLU degerler uzerinde, kucuk bir epsilon ile saglar.
+function sanitizeAscendingLog(logValues, epsilon = 1e-4) {
+  const v = logValues.slice();
+  for (let i = 1; i < v.length; i++) {
+    if (v[i] <= v[i - 1]) v[i] = v[i - 1] + epsilon;
   }
+  return v;
+}
+function log10ColorExpression(valueExpr, breaks) {
+  const logVals = sanitizeAscendingLog(breaks.map(b => Math.log10(Math.max(b, 1))));
   const stops = [];
-  sanitized.forEach((b, i) => stops.push(Math.log10(Math.max(b, 1)), HEX_COLORS[i]));
+  logVals.forEach((v, i) => stops.push(v, HEX_COLORS[i]));
   return ["interpolate", ["linear"], ["log10", ["max", valueExpr, 1]], ...stops];
 }
 
@@ -305,13 +312,10 @@ function log10ColorExpression(valueExpr, breaks) {
 // opakligi da 0.12 (en soluk) - 0.95 (en baskin) araliginda interpolate
 // ediyoruz, renk ile AYNI breaks/valueExpr kullanarak ikisi tutarli kalsin.
 function log10OpacityExpression(valueExpr, breaks) {
-  const sanitized = breaks.slice();
-  for (let i = 1; i < sanitized.length; i++) {
-    if (sanitized[i] <= sanitized[i - 1]) sanitized[i] = sanitized[i - 1] + 1;
-  }
+  const logVals = sanitizeAscendingLog(breaks.map(b => Math.log10(Math.max(b, 1))));
   const OPACITY_LEVELS = [0.12, 0.32, 0.55, 0.78, 0.95];
   const stops = [];
-  sanitized.forEach((b, i) => stops.push(Math.log10(Math.max(b, 1)), OPACITY_LEVELS[i]));
+  logVals.forEach((v, i) => stops.push(v, OPACITY_LEVELS[i]));
   return ["interpolate", ["linear"], ["log10", ["max", valueExpr, 1]], ...stops];
 }
 
