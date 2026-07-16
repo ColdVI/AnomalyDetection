@@ -1,0 +1,601 @@
+% İHA/Uçuş Telemetrisi Anomali Tespiti — Final Raporu ve Fizibilite Hükmü
+% Derleme: tectonic final_rapor_ml_fizibilite_2026-07-16.tex
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Pagella}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{TeX Gyre Cursor}
+
+\usepackage{polyglossia}
+\setmainlanguage{turkish}
+
+\usepackage[margin=2.4cm]{geometry}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[colorlinks=true,linkcolor=black!70!blue,urlcolor=blue!60!black]{hyperref}
+
+\definecolor{accent}{RGB}{31,125,118}
+\definecolor{failred}{RGB}{160,60,50}
+\definecolor{okgreen}{RGB}{55,120,80}
+
+\newcommand{\code}[1]{\texttt{\small #1}}
+\newcommand{\gatefail}[1]{\textcolor{failred}{\textbf{#1}}}
+\newcommand{\gatepass}[1]{\textcolor{okgreen}{\textbf{#1}}}
+
+\setlength{\parskip}{4pt plus 1pt}
+\setlength{\parindent}{0pt}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\title{\bfseries İHA/Uçuş Telemetrisi Anomali Tespiti\\[4pt]
+\Large Kapsamlı Final Raporu ve Fizibilite Hükmü}
+\author{Anıl Keskin}
+\date{16 Temmuz 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent Bu rapor, depoda yürütülmüş \textbf{tüm} anomali-tespit çalışmasını
+--- arşivlenmiş fazlar (ML-0..ML-16, RFLY-0/1, reddedilen ilk ADS-B denemeleri)
+ve aktif ADS-B hattı (ADR-021..ADR-042) dahil --- tek belgede toplar. Amaç, üst
+yönetime ``neyi neden denedik, ne sonuç aldık, neden yetmedi'' sorularının
+tamamına sayısal kanıtla cevap vermektir. Hüküm: \textbf{mevcut veri, etiket ve
+operasyonel bütçe koşulları altında hedeflenen ürün ulaşılabilir değildir};
+gerekçeler ölçülmüş, izole edilmiş ve yapısal niteliktedir.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%=====================================================================
+\section{Yönetici özeti --- hüküm}
+
+Proje; \textbf{5 veri seti} (ALFA, UAV Attack, UAV-SEAD, RflyMAD, ADS-B/adsb.lol)
+üzerinde, \textbf{17'den fazla faz} boyunca (ML-0..ML-16, RFLY-0/1, 8 adımlı ADS-B
+hattı + bağlamsal aday), \textbf{12'den fazla yöntem ailesiyle} (istatistiksel,
+kural-bazlı/fiziksel, klasik makine öğrenmesi, dört farklı derin-öğrenme mimarisi,
+foundation model, konformal kalibrasyon, füzyon/kanal mimarileri) yürütülmüştür.
+\textbf{Hiçbir konfigürasyon, önceden ilan edilmiş operasyonel kapıyı (recall +
+yanlış-alarm bütçesi \emph{birlikte}) geçememiştir.}
+
+Başarısızlığın nedenleri tahmin değil ölçümdür (Bölüm~\ref{sec:kok}): küçük ve
+heterojen etiketli örneklem, proxy-etiket hataları (bulunup düzeltildi, sayılar
+düştü), derin modelleri sahte başarıya götüren genlik-baskınlığı artefaktı
+(bulundu, ölçüldü, giderilince altında sinyal kalmadı) ve ADS-B'de saat-bazlı
+alarm bütçesi ile tek-uçuş olay penceresi arasındaki birim uyuşmazlığı.
+
+Yol boyunca gerçek, savunulabilir kazanımlar da üretildi (Bölüm~\ref{sec:pozitif}):
+basit kural-bazlı skorlayıcının üç sinir ağını geçtiğinin gösterilmesi,
+genlik-baskınlığı teşhis protokolü, proxy-etiket düzeltme metodolojisi ve tek
+başına \%49{,}7 recall'a ulaşan CUSUM konum-sapması dedektörü. Ancak bunların
+hiçbiri hedeflenen operasyonel ürün iddiasını taşımaya yetmemiştir.
+
+%=====================================================================
+\section{Hedef ve başarı kriterleri (önceden ilan edilmiş kapılar)}
+
+Proje, ``sonucu görüp eşik ayarlama'' hatasına karşı baştan itibaren
+\emph{ön-kayıtlı (pre-registered) kapı disipliniyle} yürütüldü: her faz, sonuç
+görülmeden yazılı kabul kriteri koydu.
+
+\begin{table}[h!]
+\centering\small
+\begin{tabularx}{\textwidth}{lL}
+\toprule
+\textbf{Kapı} & \textbf{Tanım} \\
+\midrule
+Gate A & Güvenlik/determinizm: veri sızıntısı yok, kör holdout kapalı, checksum bütünlüğü \\
+Gate B & Yeni yöntem, mevcut en iyiyi önceden tanımlı marjla ($+0{,}05$ recall, $\geq 3/5$ seed) geçmeli \\
+Gate C & Operasyonel hedef: \textbf{critical $\geq 0{,}30$ recall @ $\leq 2$ yanlış-alarm/saat; advisory $\geq 0{,}50$ @ $\leq 12$} \\
+ADS-B Pareto & 100 skorlanabilir uçuş-saatinde $0{,}1$ / $0{,}5$ / $1$ / $2$ / $5$ alarm bütçe ızgarası \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Sonuç özeti: Gate A neredeyse her fazda geçti (altyapı sağlam); Gate B \textbf{iki
+kez} geçti (ML-10 Chronos-mekanik, ML-12 tek-özellik \code{itki\_komutu});
+\gatefail{Gate C / operasyonel kapı hiçbir fazda, hiçbir veri setinde, hiçbir
+yöntemle geçilemedi.}
+
+%=====================================================================
+\section{Veri setleri: kaynak, ön-işleme, temizlik, enjeksiyon}
+
+\subsection{ALFA (Carnegie Mellon; sabit kanat, gerçek uçuş arızaları)}
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt]
+  \item \textbf{İçerik:} 47 işlenmiş uçuş (makaledeki sayının tamamı; eksik indirme
+  değil, veri setinin doğal boyutu). Kritik sınır: rudder arızası \textbf{4 uçuşta},
+  aileron+rudder \textbf{1 uçuşta} --- bu sınıflarda her ``tespit oranı''
+  istatistiksel olarak anlamsızdır.
+  \item \textbf{Ön-işleme:} processed CSV $\to$ Bronze (ham) $\to$ Silver (birim
+  dönüşümü, \code{merge\_asof} ile topic birleştirme) $\to$ Gold 7+3 ortak kolon.
+  Ham rosbag'lerden 7 ek uçuş parse edilerek havuz 54 uçuş / 15 normale çıkarıldı.
+  \item \textbf{Temizlik:} \code{velocity\_mps} \%100 null çıkıyordu; kök neden kolon
+  adlandırmasıydı (\code{nav\_info-velocity} alanları \code{meas\_x/des\_x} adında).
+  Düzeltme sonrası null oranı \%9{,}3.
+  \item \textbf{Özellikler:} 73$\to$85 el yapımı özellik (wrap-aware açı farkları,
+  haversine, CUSUM, spektral, donma sayaçları, otopilot residual'ları; fizik-prior
+  $\mathrm{turn\_residual} = \dot\psi - g\tan(\phi)/V$).
+  \item \textbf{Enjeksiyon:} freeze / bias / drift / noise / gps\_ramp / dropout ---
+  6 senaryo, birim testli.
+\end{itemize}
+
+\subsection{UAV Attack (PX4 çok rotorlu; GPS spoofing / jamming / DoS)}
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt]
+  \item \textbf{İçerik:} 683{,}9 MB zip, 767 CSV; benign/malicious etiketli.
+  \item \textbf{Temizlik:} (1) \code{split\_log\_and\_topic} regex'i topic'i yanlış
+  bölüyordu, bilinen 5 topic adına ankrajlı eşleşmeyle düzeltildi; (2) Ping-DoS
+  satırları etiketsiz kalıyordu, yol-tabanlı etiket kuralı eklendi.
+  \item \textbf{En değerli türetim:} \code{gps\_speed\_residual} (konumdan hesaplanan
+  hız vs alıcının bildirdiği hız) --- gizli/gerçekçi spoofing'i yakaladı.
+  \item \textbf{Dürüst kapsam beyanı:} Ping-DoS imzası 6 logun 4'ünde fiziğe hiç
+  yansımıyor; bu kanallardan tespit \emph{yapılamaz}.
+\end{itemize}
+
+\subsection{UAV-SEAD (HuggingFace; dron GPS-spoofing + irtifa/mekanik/konum anomalileri)}
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt]
+  \item \textbf{Büyütme tarihi:} $60 \to 179 \to 349 \to 611 \to$ \textbf{1.044 uçuş}
+  (899 normal; 200 uçuşluk kör holdout hiç açılmadı). Tek-sınıf havuzları fiilen
+  tüketildi.
+  \item \textbf{Ön-işleme:} pyulog ile ULog parse; iç mekân uçuşlarında GPS yok
+  $\to$ yerel-konum fallback; EKF innovation/test-ratio kolonları Silver'a eklendi.
+  \item \textbf{Split disiplini:} normal-only eğitim, uçuş bazlı bölme, 5 seed;
+  oturum-bazlı split seed varyansını $\pm0{,}212 \to \pm0{,}012$'ye indirdi ve adil
+  satır-ROC'u $0{,}474 \to 0{,}799$'a taşıdı (kazanç modelden değil veri
+  temizliğinden).
+  \item \textbf{Yapısal sorun (ölçüldü):} 398-normal aşamasında havuz yalnız
+  \textbf{64 bağımsız oturuma} dağılıyordu; gerçek bağımsız örneklem uçuş sayısının
+  çok altında. Literatür (\emph{Heterogeneous Normal Classes}) bu durumda veri
+  artsa bile performansın düşebileceğini öngörür; ML-14'te birebir yaşandı.
+  \item \textbf{Etiket sorunu:} \code{alt\_local\_residual} irtifa-anomali sınıfında
+  \%0 dolulukta (topic yapısal olarak eksik); en az bir ``normal'' etiketli uçuşta
+  donmuş-GPS/eph$\approx$25000 sentineli bulundu.
+\end{itemize}
+
+\subsection{RflyMAD (gerçek + simüle dron; motor/sensör arızaları)}
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt]
+  \item \textbf{İçerik:} 490 \emph{gerçek} uçuş (Real-Motor 242, Real-Sensors 197,
+  Real-No\_Fault 51). Simülasyon alt-kümeleri indirildi ama gerçek-normal havuzuyla
+  asla karıştırılmadı.
+  \item \textbf{İki gerçek hata düzeltildi:} (1) ``hayalet imputation'' --- bir
+  kaynakta hiç olmayan kolon başka kaynağın medyanıyla doluyordu; (2)
+  \textbf{whole-flight proxy etiketi} --- ilk resmi sonuç (0{,}749 recall) arızalı
+  uçuşun tamamını anomali sayıyordu. ULog'daki \code{rfly\_ctrl\_lxl} mesajından
+  gerçek $(\mathrm{onset}, \mathrm{end})$ aralığı çıkarıldı; klasör etiketiyle
+  çelişen 5 uçuş sonuç görülmeden dışlandı.
+  \item \textbf{Düzeltilmiş sonuç:} RFLY-only $0{,}526$ recall / $22{,}28$ FA-saat
+  (recall hedefi geçiyor, FA bütçenin $\sim$2 katı); SEAD+RFLY havuzu
+  $0{,}149$ / $30{,}00$ (havuzlama ciddi kötüleştirdi). İkisi de operasyonel kapıda
+  kaldı.
+\end{itemize}
+
+\subsection{ADS-B (adsb.lol; etiketsiz gerçek hava trafiği --- güncel odak)}
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt]
+  \item \textbf{İçerik:} 3 tam gün, $\sim$3'er GB tar, \textbf{256{,}15 milyon satır},
+  638 Silver parçası, $\sim$542 bin uçuş segmenti, $\sim$497.571 skorlanabilir
+  uçuş-saati. Provenance sayımında $+4.459$ satırlık açıklanamayan fark bulundu;
+  sessizce düzeltilmedi, ``çözümsüz-kayıtlı'' olarak manifest'e yazıldı.
+  \item \textbf{Ön-işleme:} tar streaming parse (tek kanonik parser; iki bağımsız
+  denemenin aynı parser'ı kullandığı denetlendi) $\to$ Silver; 1800 s boşluk
+  kuralıyla uçuş segmentasyonu; roller (fit/calibration/development/rehearsal)
+  dosya \emph{ve} uçuş düzeyinde manifest'le kilitli.
+  \item \textbf{Özellikler (öğrenilmemiş, aritmetik fizik residual'ları):}
+  \code{vertical\_rate\_residual}, \code{speed\_residual}, \code{heading\_residual},
+  \code{east/north\_velocity\_residual}, \code{altitude\_source\_residual}
+  (barometrik-geometrik irtifa uyumu; literatürdeki self-consistency spoofing
+  tespitinden motive), \code{turn\_bank\_residual}. Veri-kalitesi sinyalleri ayrı
+  \textbf{S2 katmanında}.
+  \item \textbf{Ölçekleme kuralları:} train-normal medyan/MAD; MAD=0 kanal
+  floor'lanmaz, \emph{tamamen dışlanır} ve manifest'e yazılır; robust clip=5.
+  (SEAD'deki genlik-baskınlığı ve arşivdeki zero-MAD derslerinin doğrudan sonucu.)
+  \item \textbf{Sentetik/enjeksiyon:} 5 senaryo (\code{vertical\_rate\_frozen},
+  \code{ground\_speed\_biased}, \code{track\_frozen}, \code{position\_ramp\_stealthy},
+  \code{altitude\_dropout}); kalıcı corpus 8.910 uçuş $\times$ (temiz + 5) = 26{,}8M
+  satır, SHA-256'lı. \textbf{Katı kural:} sentetik veri asla fit/ölçekleme/kalibrasyona
+  girmez, yalnız değerlendirme --- runtime kontrolüyle zorlanır.
+  \item \textbf{Etiket düzeltmesi (truth-v2):} İlk sentetik değerlendirme
+  ``onset'ten dosya sonuna her satır anomali'' proxy'si kullanıyordu; bu, ölçülebilir
+  AUC'ye $\sim$0{,}75 tavan koyuyordu. truth-v2 satır düzeyinde
+  \emph{injection\_active / observable\_changed / evaluable\_truth} ayrımı getirdi
+  (666.739 aktif dropout satırının yalnız 570.666'sı gerçekten gözlemlenebilir).
+\end{itemize}
+
+%=====================================================================
+\section{Denenen yöntemler --- tam envanter}
+
+\subsection{İstatistiksel / matematiksel / kural-bazlı}
+
+\begin{small}
+\begin{longtable}{@{}p{0.24\textwidth}p{0.20\textwidth}p{0.48\textwidth}@{}}
+\toprule
+\textbf{Yöntem} & \textbf{Neden seçildi} & \textbf{Sonuç} \\
+\midrule
+\endhead
+Modüler Isolation Forest + val-normalize füzyon &
+Etiketsiz novelty tespiti; modülerlik kategori atfı verir &
+ALFA uçuş-ROC 0{,}833; monolitik satır-IF çöktü (0{,}50/0{,}21); SEAD'de
+operasyonel kapıyı hiç geçemedi \\
+\addlinespace
+Causal CUSUM (train-normal taban) &
+Kalıcı küçük kaymaları biriktirir &
+Dürüstlük düzeltmesi: ``en güçlü sinyal'' sanılan \code{alt\_error} 0{,}878'in
+causal ölçümü \textbf{0{,}611}; gerçek en güçlü \code{xtrack\_error} 0{,}751 \\
+\addlinespace
+POT/GPD uç-değer eşiği &
+Eşiği uç-değer teorisiyle seçmek &
+ML-5'te val-max'ı ilk kez geçti, varsayılan yapıldı; kapıları tek başına açmadı \\
+\addlinespace
+Robust z-score kural skorlayıcısı &
+Öğrenmesiz, denetlenebilir; genlik artefaktı yapısal olarak imkânsız &
+\gatepass{Üç sinir ağını geçti} (havuz AUC 0{,}600 vs 0{,}552--0{,}572); truth-v2
+sonrası AUROC 0{,}765; olay recall 0{,}96/0{,}95 (gecikme 19 s/57 s); ama doğal yük
+4{,}81 alarm/saat (uçuşların \%89{,}2'si alarmlı) $\to$ operasyonel değil \\
+\addlinespace
+İki eksenli Page-CUSUM &
+Sinsi konum kayması tek satırda görünmez; birikim şart &
+\gatepass{Projenin en iyi tekil recall'ı: \%49{,}7} (en gevşek bütçe); en sıkıda
+\%7{,}1; doğal yükü en sessiz kanal \\
+\addlinespace
+Hiyerarşik konformal kalibrasyon &
+Skorlar Gauss değil; ``ne kadar nadir'' sorusuna dağılımsız cevap &
+Çalıştı (16M satırlık kalibrasyon, sağlıklı kapsam); ama tek-uçuş penceresi sınırı
+recall'ı boğdu (ADR-042) \\
+\addlinespace
+Oturum-jackknife drift kalibrasyonu &
+Val$\to$test FA kaymasına istatistiksel düzeltme &
+FA'yı bütçeye çekti ama recall açığını kapatamadı (en iyi 0{,}1145 @ 8{,}41) \\
+\bottomrule
+\end{longtable}
+\end{small}
+
+\subsection{Klasik makine öğrenmesi}
+
+\begin{small}
+\begin{tabularx}{\textwidth}{@{}p{0.26\textwidth}p{0.24\textwidth}L@{}}
+\toprule
+\textbf{Yöntem} & \textbf{Neden} & \textbf{Sonuç} \\
+\midrule
+LightGBM (pencere tanımlayıcı, sınıf dengeli) &
+``Az etiketle süpervizyon katkı verir mi?'' &
+\gatefail{Hayır}: AUPRC 0{,}349 $<$ mevcut IF 0{,}385; literatürle tutarlı \\
+\addlinespace
+Isolation Forest (ADS-B bağlamsal keşif) &
+LSTM'den farklı kör-nokta profili umudu &
+Elendi: eğitilmiş skor, ham genlikle ve karıştırılmış eğitimsiz-eşdeğerle
+$\rho \approx 0{,}996$ \\
+\bottomrule
+\end{tabularx}
+\end{small}
+
+\subsection{Derin öğrenme}
+
+\begin{small}
+\begin{longtable}{@{}p{0.24\textwidth}p{0.22\textwidth}p{0.46\textwidth}@{}}
+\toprule
+\textbf{Yöntem} & \textbf{Neden} & \textbf{Sonuç} \\
+\midrule
+\endhead
+LSTM-Autoencoder &
+Zamansal örüntü + reconstruction; alanın klasik yaklaşımı &
+ALFA'da veri büyütmeyle $0{,}731 \to$ \gatepass{0{,}918} (tek net DL kazanımı);
+SEAD'de Gate B kaldı ve \textbf{genlik-baskınlığı} çıktı; ADS-B'de FLAGGED \\
+\addlinespace
+Dense-Autoencoder &
+LSTM'e parametre-eş basit kontrol &
+SEAD'de aynı sonuç, aynı artefakt; ADS-B'de ölçekleme sonrası FLAGGED \\
+\addlinespace
+USAD (adversarial çift decoder) &
+Literatürde reconstruction'dan güçlü iddiası &
+ALFA'da LSTM-AE'ye kaybetti; SEAD'de aynı artefakt; ADS-B'de loss sayısal patladı
+($2{,}3\times10^{10}$) --- $\rho$ testinin tek başına yetmediğinin kanıtı \\
+\addlinespace
+Chronos-bolt-tiny (zero-shot foundation model) &
+Eğitimsiz forecast-residual (MOMENT bu ortama kurulamadı; gerçek, tekrarlanabilir
+kurulum hatası) &
+Gate B mekanik dalda \gatepass{GEÇTİ} ($0{,}205 \to 0{,}390$); füzyonda kayboldu,
+Gate C kaldı; dikey kanalda geriledi ($0{,}096 \to 0{,}023$) \\
+\addlinespace
+LSTM next-step forecaster (\code{contextual\_physics\_v1}) &
+Reconstruction yerine tahmin; faz/kadans açık girdi; genlik artefaktına yapısal
+önlem &
+\gatepass{Genlik kapısını geçen tek NN} ($\rho = 0{,}65$ vs FLAGGED
+$0{,}84$--$0{,}99$); doğal yanlış-alarm kontrol altında; ama gerçek recall'da
+5 profilin 4'ü $<$\%6 (ADR-042; kök neden bütçe birimi) \\
+\bottomrule
+\end{longtable}
+\end{small}
+
+\subsection{Mimari / skor katmanı denemeleri}
+
+\begin{small}
+\begin{longtable}{@{}p{0.28\textwidth}p{0.26\textwidth}p{0.38\textwidth}@{}}
+\toprule
+\textbf{Deneme} & \textbf{Neden} & \textbf{Sonuç} \\
+\midrule
+\endhead
+Max-füzyon (modül maksimumu) &
+Tek operatör skoru &
+Yüksek-FA'lı kategori uzmanlarını bütçede kullanamıyor (ölçüldü:
+\code{itki\_komutu} 38{,}1 FA-saat bırakıyor) \\
+\addlinespace
+İnce modül (tek özellikli IF) &
+Seyrelme hipotezi: güçlü özellik 16'lı modülde sulanıyor &
+Gate B \gatepass{geçti} ($0{,}205 \to 0{,}459$, kategori rekoru); Gate C yine
+kaldı \\
+\addlinespace
+İki kanallı alarm mimarisi &
+Uzman modüle ayrı bütçe &
+Recall $+0{,}074..0{,}105$ ama FA $1{,}89$--$3{,}83\times$ şişti;
+\gatefail{reddedildi} \\
+\addlinespace
+Genlik-normalize skorlar (relerr / rankpct) &
+Artefaktı skor katmanında gidermek (yeniden eğitimsiz) &
+\textbf{Belirleyici negatif sonuç}: relerr genlik bağımlılığını gerçekten kırdı
+($\rho\ 0{,}15$--$0{,}55$) ama recall yok oldu ($<0{,}06$) --- ham kazancın altında
+öğrenilmiş sinyal yoktu \\
+\addlinespace
+Veri büyütme (SEAD normal $324 \to 899$) &
+FA'yı doğal çeşitlilikle düşürmek &
+FA $23{,}6 \to 9{,}95$ düştü ama recall da $0{,}21 \to 0{,}126$ düştü; kapı yine
+açılmadı \\
+\bottomrule
+\end{longtable}
+\end{small}
+
+%=====================================================================
+\section{Kronoloji --- faz faz, kapı sonuçlarıyla}
+
+\begin{small}
+\begin{longtable}{@{}p{0.13\textwidth}p{0.47\textwidth}p{0.32\textwidth}@{}}
+\toprule
+\textbf{Faz} & \textbf{Ne yapıldı} & \textbf{Kapı sonucu} \\
+\midrule
+\endhead
+ML-0..1 & Özellik/split/ölçekleme altyapısı; monolitik IF çöktü, modüler IF+füzyon kuruldu & Keşif; ALFA uçuş-ROC 0{,}833 \\
+ML-2 & Dense-AE + LSTM-AE, POT eşiği & ALFA'da IF $>$ LSTM-AE; UAV'de AE $>$ IF \\
+ML-3 & Enjeksiyon çerçevesi + ablasyon + USAD & Kalibre-transfer tezi kanıtlandı ($0{,}375\to0{,}783$); USAD elendi \\
+ML-4 & Veri büyütme (ALFA rosbag) & \gatepass{ALFA LSTM-AE 0{,}918} --- tek net DL kazanımı \\
+ML-5 & SEAD 349 uçuş + oturum-split & Satır-ROC $0{,}474\to0{,}799$ (veri temizliğinden); EKF test-ratio ters sinyal \\
+ML-6/7 & Causal CUSUM + event-onset düzeltmesi + kör holdout & Şişkin sayılar düştü ($0{,}878\to0{,}611$; $0{,}594\to0{,}194$) \\
+ML-8A & LightGBM süpervizyon denemesi & Gate B \gatefail{kaldı} ($0{,}349 < 0{,}385$) \\
+ML-9 & EKF innovation + motor-simetri özellikleri & Gate B \gatefail{kaldı} (kazançlar $+0{,}02$ düzeyinde) \\
+ML-10 & Chronos zero-shot forecast-residual & Gate B mekanikte \gatepass{geçti} (0{,}390); Gate C \gatefail{kaldı} \\
+ML-11 & Read-only görselleştirme/teşhis & \code{actuator\_thrust\_cmd} tek başına AUC 0{,}983 bulundu \\
+ML-12 & Tek özellikli ince modül & Gate B \gatepass{geçti} (0{,}459 rekor); Gate C \gatefail{kaldı} \\
+ML-13 & İki kanallı alarm mimarisi & Gate B \gatefail{kaldı} (FA $1{,}89$--$3{,}83\times$) \\
+ML-14 & SEAD normal 899'a büyütme & FA düştü, recall da düştü ($0{,}126$ @ $9{,}95$) \\
+ML-15 & Drift kalibrasyonu tam matris & Gate B/C \gatefail{kaldı} ($0{,}1145$ @ $8{,}41$) \\
+RFLY-0/1 & RflyMAD + interval-truth düzeltmesi & $0{,}749$ proxy $\to 0{,}526$ gerçek / $22{,}28$ FA; \gatefail{kaldı} \\
+ML-16 L/D/U & Üç DL mimarisi SEAD resmi hattında & Üçü de \gatefail{kaldı} + genlik artefaktı bulundu ($\rho=0{,}964$) \\
+ML-16 N & Genlik-normalize skorlar & Artefakt giderilince sinyal yok ($<0{,}06$) --- kapanış kanıtı \\
+ADS-B arşiv & İki koordinesiz ilk deneme & Reddedildi: \%97{,}6 sentetik recall ama 25{,}54 doğal alarm/saat \\
+ADSB 1--4 & 256M satır parse, sentetik corpus, manifest, truth-v2 & Kural $>$ NN; proxy tavanı ($\sim$0{,}75) bulunup düzeltildi \\
+ADSB 5--7 & Tam hacim doğal yük + S2 + freeze kapısı & Adım-7 kapısı \gatefail{kaldı} (CUSUM $h{=}1$ doygun \%99; NN'ler FLAGGED) \\
+Contextual v1 & Faz/kadans-koşullu LSTM forecaster & Genlik kapısı \gatepass{geçti} ($\rho=0{,}65$) --- ilk temiz NN \\
+ADR-037..041 & Bütçe ön-kaydı; IF elendi; kalibrasyon; doğal yük $20\times$; doğu/kuzey CUSUM & Doğal yük kontrol altında; IF $\rho=0{,}996$ ile elendi \\
+ADR-042 & Rehearsal (3.\ gün) + \textbf{truth-v2 gerçek recall} & Rehearsal kararlı; \gatefail{recall: 4/5 profil $<$\%6}; CUSUM \%49{,}7 istisna \\
+\bottomrule
+\end{longtable}
+\end{small}
+
+%=====================================================================
+\section{Skorlama yaklaşımları: ne, neden, ne oldu}
+
+\begin{enumerate}[leftmargin=1.4em,itemsep=3pt]
+  \item \textbf{Reconstruction hatası (AE'ler):} ``normali yeniden üret, üretemediğin
+  anomalidir.'' \emph{Neden başarısız:} kırpılmamış ölçekleme + birkaç aşırı-genlikli
+  pencere $\to$ hata, öğrenmeden bağımsız ``girdi ne kadar büyük'' ölçüsüne dejenere
+  oldu (üç mimari birebir aynı kategori sayıları üretti; eğitilmiş vs eğitilmemiş
+  $\rho = 0{,}964$).
+  \item \textbf{Forecast-residual (Chronos, contextual v1):} ``geçmişten sonrakini
+  tahmin et; sürpriz anomalidir.'' Genlik artefaktına yapısal olarak dirençli çıktı
+  (contextual v1 $\rho = 0{,}65$ ile geçti); ama tek başına operasyonel kapıyı
+  açamadı.
+  \item \textbf{Kural-bazlı ceza:} $\mathrm{pen} = \min(\max(0, z-3), 10)$, kanal
+  toplamı. Öğrenmesiz ve denetlenebilir; NN'leri geçti ama doğal yükü operasyonel
+  seviyeye inmedi.
+  \item \textbf{Z-score güveni $\to$ konformal p-değeri:} İlk sürüm Gauss
+  varsayımlıydı; residual'lar Gauss olmadığından hiyerarşik konformal kalibrasyona
+  geçildi (kanal+faz+kadans $\to$ kanal+faz $\to$ kanal fallback). Matematiksel
+  olarak doğru çalıştı.
+  \item \textbf{Zamansal karar modları:} instant (tek satır $p<\alpha$), persistence
+  (gerçek-saniye penceresi), accumulation ($-\log p$ birikimi, saniye ağırlıklı ---
+  yüksek kadansın sırf örnek sayısıyla hızlı alarm üretmesi engellendi), Page-CUSUM
+  (ham z alanında sürekli birikim). \emph{ADR-042 dersi:} konformal-p tabanlı modlar
+  tek-uçuş penceresiyle sınırlı kaldığı için boğuldu; ham alanda sürekli biriken
+  CUSUM aynı koşulda $\sim$7$\times$ iyi genelledi.
+\end{enumerate}
+
+%=====================================================================
+\section{Kök nedenler --- neden başarılamadı (hepsi ölçülmüş)}
+\label{sec:kok}
+
+\subsection{Etiket kalitesi: proxy etiketler sistematik şişiriyordu}
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt]
+  \item ALFA event-onset düzeltmesi: $0{,}594 \to 0{,}194$--$0{,}224$.
+  \item RFLY interval-truth düzeltmesi: $0{,}749 \to 0{,}526$ (ve 5 çelişkili-etiketli
+  uçuş bulundu).
+  \item ADS-B proxy-etiket AUC tavanı $\sim0{,}75 \to$ truth-v2 ile kaldırıldı.
+\end{itemize}
+Çıkarım: alandaki yayınlarda görülen yüksek sayıların bir kısmı muhtemelen aynı
+proxy hatasını taşımaktadır; biz düzelttik ve gerçek sayıların operasyonel bara
+yetmediğini gördük.
+
+\subsection{Küçük ve heterojen etiketli örneklem --- yapısal}
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt]
+  \item ALFA: rudder $n=4$, aileron+rudder $n=1$ (veri setinin kendisi bu kadar).
+  \item SEAD: normal havuz uçuş sayısına göre çok az bağımsız oturuma dağılıyor
+  (398-normal aşamasında 64 oturum); SEAD+RFLY havuzlaması sonucu kötüleştirdi
+  ($0{,}149$).
+  \item ``Normal sınıfı yapay homojenleştir'' kısayolu bilinçli reddedildi ---
+  denetimsiz tespitin varlık nedenine aykırıdır.
+\end{itemize}
+
+\subsection{Genlik-baskınlığı artefaktı: derin modellerin ``başarısı'' büyük ölçüde sahteydi}
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt]
+  \item Teşhis: eğitilmiş model sıralaması vs eğitilmemiş-rastgele aynı mimari
+  $\rho = 0{,}964$; vs saf $\lVert x\rVert^2$ $\rho = 0{,}965$ (SEAD); ADS-B NN'leri
+  $0{,}84$--$0{,}99$ bandı; IF $0{,}996$.
+  \item Kapanış kanıtı: genlik bağımlılığı gerçekten kaldırılınca (relerr) recall
+  $<0{,}06$ --- altta öğrenilmiş sinyal yoktu.
+  \item Tek istisna: \code{contextual\_physics\_v1} ($\rho = 0{,}65$) --- tasarımı bu
+  artefakta karşı kuruldu ve geçti.
+\end{itemize}
+
+\subsection{Recall--yanlış alarm makası hiçbir konfigürasyonda kapanmadı}
+Her Gate C tablosunda aynı örüntü: recall hedefe yaklaşan her hücre FA bütçesini
+aşıyor; bütçe içindeki her hücre recall'da çok düşük. ML-13 bunu mimariyle, ML-14
+veriyle, ML-15 kalibrasyonla zorladı; üçü de aynı duvara çarptı.
+
+\subsection{ADS-B'ye özgü: etiketsizlik + bütçe-birimi uyuşmazlığı (ADR-042)}
+ADS-B'de gerçek etiketli anomali yok; değerlendirme zorunlu olarak sentetik.
+Alarm bütçesi ``100 uçuş-saatinde $N$ alarm'' olarak donduruldu (7/24 izleme için
+doğru çerçeve); ama her sentetik olay tek uçuşun $\sim$0{,}5--1 saatlik penceresinde
+kanıtlanmak zorunda. Saatte $0{,}0001$--$0{,}06$'lık hedef oran o pencereye
+çarpılınca beklenen alarm sayısı matematiksel olarak yüzde-birkaçın altında kalıyor.
+\textbf{Model kör değil}: eşik kasıtlı gevşetilince ($\alpha = 0{,}5$) recall
+\%74--92'ye çıktı, ama doğal yük $\sim$9 alarm/saat oldu (kullanılamaz). Mevcut
+bütçe tanımı altında ``hem sessiz hem yakalar'' nokta yoktur.
+
+\subsection{Metodoloji faturası (dürüstlük)}
+Sonuç görüldükten sonra hiçbir eşik/parametre değiştirilmedi; bu yüzden
+``kurtarılmış'' tek bir sayı yok. Bedeli, raporlanabilir düşük sayılar; getirisi,
+her sayının savunulabilir olması. Kör holdout'lar (SEAD 200 uçuş; ADS-B üç günlük
+havuz) hiç açılmadı.
+
+%=====================================================================
+\section{Neler çalıştı --- dürüst pozitifler}
+\label{sec:pozitif}
+
+\begin{enumerate}[leftmargin=1.4em,itemsep=2pt]
+  \item \textbf{Kural-bazlı fizik skorlayıcısı üç sinir ağını geçti}
+  ($0{,}600$ vs $0{,}552$--$0{,}572$) --- ``önce basit ve denetlenebilir yöntem''
+  tezinin deneysel kanıtı.
+  \item \textbf{Genlik-baskınlığı teşhis protokolü} (eğitilmiş-vs-eğitilmemiş /
+  vs-ham-genlik $\rho$ testi) --- yeniden kullanılabilir; başka projelerin sahte
+  başarısını da yakalar.
+  \item \textbf{Proxy-etiket düzeltme metodolojisi} --- üç veri setinde aynı hata
+  sınıfı bulunup düzeltildi.
+  \item \textbf{Taşınabilir eşik kalibrasyonu tezi} (ML-3): model başka platforma
+  taşınır, eşik platforma kalibre edilir --- $0{,}375 \to 0{,}783$ ile kanıtlandı.
+  \item \textbf{VectorPageCUSUM konum-sapması dedektörü}: en sıkı bütçede \%7{,}1,
+  gevşekte \%49{,}7 recall, en sessiz doğal yük --- projeden çıkan tek ``işe
+  yarayabilir dedektör'' adayı.
+  \item \textbf{\code{contextual\_physics\_v1}}: genlik kapısını geçen tek
+  öğrenilmiş model; $150\times$ hızlandırılmış karar katmanı (bit-bit eşdeğerlik
+  kanıtlı); hiyerarşik konformal kalibrasyon altyapısı.
+  \item \textbf{Denetlenebilirlik altyapısı}: immutable run-manifest/SHA-256 zinciri,
+  ön-kayıt disiplini, 42 ADR'lik karar günlüğü, filtrelenebilir deney kayıt paneli.
+\end{enumerate}
+
+%=====================================================================
+\section{Fizibilite hükmü ve gerekçesi}
+
+\textbf{Hüküm: Mevcut koşullarda (eldeki veri setleri, etiket kalitesi, operasyonel
+alarm bütçeleri) hedeflenen operasyonel anomali-tespit ürünü ulaşılabilir
+değildir.} Bu, ``denedik olmadı'' değildir; üç bağımsız kanıt hattının kesişimidir:
+
+\begin{enumerate}[leftmargin=1.4em,itemsep=2pt]
+  \item \textbf{Yöntem uzayı dürüstçe tarandı:} istatistiksel, kural-bazlı, klasik
+  ML, dört DL mimarisi, foundation model, füzyon/kanal mimarileri, kalibrasyon
+  katmanları --- 12'den fazla aile, 17'den fazla faz. Başarısızlık tek bir yöntemin
+  değil, yöntem \emph{sınıflarının} ortak sonucudur.
+  \item \textbf{Nedenler izole edildi ve veri-yapısal çıktı} (Bölüm~\ref{sec:kok}):
+  küçük/heterojen etiketli örneklem, proxy-etiket şişmesi, genlik artefaktı
+  (giderilince altında sinyal yok), bütçe-birim uyuşmazlığı. Hiçbiri ``daha çok
+  epoch / daha iyi hiperparametre'' ile çözülecek türden değildir.
+  \item \textbf{İyileştirme kaldıraçlarının tümü çekildi:} veri büyütme (bir yerde
+  işe yaradı, diğerinde tersine tepti), özellik mühendisliği ($+0{,}02$),
+  süpervizyon (kaybetti), foundation model (kategori kazandı, füzyonda kayboldu),
+  mimari (FA şişti), kalibrasyon (yetmedi), yeni domain + sıfırdan disiplinli hat
+  (doğal yük kontrol altında ama gerçek recall $<$\%6). Çekilecek bilinen kaldıraç
+  kalmamıştır.
+\end{enumerate}
+
+\subsection*{Hükmü değiştirecek koşullar}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt]
+  \item \textbf{Gerçek, etiketli, yeterli hacimde anomali verisi} --- sentetik
+  enjeksiyon değil; olay başına onset/end damgalı, yüzlerce bağımsız olay. (RFLY
+  buna en yakındı ve tek başına $0{,}526$'ya ulaştı --- hâlâ FA bütçesi dışında ama
+  diğer her şeyden iyi.)
+  \item \textbf{Operasyonel bütçenin baştan farklı tanımı} --- ``saat başına alarm''
+  yerine ``olay penceresi başına tespit olasılığı + günlük operatör yükü'' gibi iki
+  eksenli bir sözleşme. ADR-042'nin gevşek-eşik kontrolü modelin \%74--92
+  yakalayabildiğini gösteriyor; sorun modelin gözü değil, bütçenin tanımıdır.
+  \item \textbf{Homojen ya da oturum-zengin normal havuzu} --- yüzlerce bağımsız
+  oturum.
+  \item CUSUM hattı (tek istisna) ayrıca değerlendirilebilir: konum-sapması özelinde,
+  gevşetilmiş bütçeyle sınırlı kapsamlı bir dedektör olarak yaşatılabilir --- ancak
+  bu, orijinal ``genel anomali tespit sistemi'' hedefi değildir.
+\end{itemize}
+
+%=====================================================================
+\section{Beklenen sorulara hazır cevaplar}
+
+\paragraph{S: Neden derin öğrenme işe yaramadı? Yanlış mı kullandınız?}
+Üç mimariyi (LSTM-AE, Dense-AE, USAD) resmi hatta, 5 seed'le, holdout-izoleli
+eğittik; üçü de aynı sayıları üretti. Nedenini bulduk: skorları öğrenme değil,
+girdi genliği belirliyordu (eğitilmemiş ağla $\rho = 0{,}964$). Artefaktı skor
+katmanında giderince altında sinyal kalmadı. Yani ``yanlış kullanım'' değil; bu
+veri/ölçekleme rejiminde öğrenilecek ayrıştırıcı sinyalin kendisi zayıf. Bunu
+düzeltmek için tasarlanan contextual forecaster genlik testini geçti ama
+operasyonel kapıyı o da açamadı.
+
+\paragraph{S: Basit yöntemleri denediniz mi, yoksa hep karmaşık mı gittiniz?}
+Tam tersi sırayla: en iyi ADS-B skorlayıcımız öğrenmesiz bir robust z-score kuralı
+ve sinir ağlarını yendi. Karmaşık yöntemler basitlerin açığını kapatmak için
+denendi; kapatamadı.
+
+\paragraph{S: Veri az diyorsunuz; daha çok veri toplasaydınız?}
+Topladık. SEAD normal havuzunu $324 \to 899$'a çıkardık: FA düştü ama recall da
+düştü ($0{,}21 \to 0{,}126$) --- literatürün öngördüğü heterojen-normal etkisi.
+ALFA'da ise büyütme gerçekten işe yaradı ($0{,}731 \to 0{,}918$), çünkü oradaki
+sorun gerçekten veri azlığıydı. İkisini de deneysel gösterdik. Etiketli
+\emph{anomali} verisi ise emekle büyütülemedi: ALFA'nın rudder sınıfı 4 uçuş,
+çünkü gerçek uçakta arıza üretmek riskli ve pahalıdır.
+
+\paragraph{S: \%97{,}6 recall gördüm eski raporda --- o ne oldu?}
+O sayı, arşivlenen ilk ADS-B denemesinin sentetik-kolay senaryolardaki sayısıydı
+ve yanında saatte $25{,}54$ doğal alarm vardı --- kullanılamaz bir dedektör.
+Yüksek sentetik recall tek başına başarı değildir; bu yüzden her sonucu
+doğal-yanlış-alarm ile \emph{çift} olarak raporlama kuralı koyduk.
+
+\paragraph{S: Eşikleri gevşetseniz recall gelmiyor mu?}
+Geliyor --- \%74--92'ye kadar ölçtük. Ama bedeli saatte $\sim$9 alarm; 500 bin
+uçuş-saatlik gerçek trafikte bu, operatör başına dakikalar içinde alarm yorgunluğu
+demektir. ``Hem sessiz hem yakalar'' nokta, bu veri ve bu bütçe tanımıyla mevcut
+değildir --- sorun bir ayar değil, iki hedefin bu koşullarda kesişmemesidir.
+
+\paragraph{S: Sonuçlara güvenebilir miyiz? Cherry-picking var mı?}
+Tersine cherry-picking var: üç ayrı veri setinde etiket hatası bulup sayılarımızı
+\emph{aşağı} düzelttik ($0{,}594 \to 0{,}194$; $0{,}749 \to 0{,}526$; AUC tavanı
+$0{,}75$'in kaldırılması). Tüm eşikler sonuç görülmeden donduruldu; kör
+holdout'lar hiç açılmadı; her koşunun SHA-256'lı manifest'i var; 42 ADR'lik karar
+günlüğü ve filtrelenebilir deney paneli her iddianın kaynağını gösterir.
+
+\paragraph{S: Bundan sonra ne yapılabilir?}
+(1)~Bu rapor ve panellerle sonucu belgeleyip kapatmak; (2)~yalnız CUSUM
+konum-sapması hattını, yeniden tanımlanmış bir bütçeyle, sınırlı kapsamlı dedektör
+olarak yaşatmak; (3)~gerçek etiketli olay verisi temin edilirse contextual hattı
+yeni bir ön-kayıtla yeniden değerlendirmek. Üçü de ayrı karar; hiçbiri mevcut
+hükümle çelişmez.
+
+%=====================================================================
+\section{Kaynak dizini}
+
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt]
+  \item Karar günlüğü (42 ADR): \code{docs/decisions.md}
+  \item Deney kayıt paneli (34 kayıt, filtrelenebilir): \code{docs/experiment\_dashboard.html}
+  \item ADS-B doğal yük + gerçek recall paneli: \code{docs/adsb\_contextual\_physics\_v1\_burden\_dashboard.html}
+  \item Teşhis dokümanı: \code{docs/DURUM\_TESHIS\_VE\_YOL\_HARITASI.md}
+  \item Yetersizlikler kaydı (30+ madde): \code{archive/2026-07-10\_legacy\_non\_adsb\_ml/docs/ML\_YETERSIZLIKLER\_KAYDI.md}
+  \item Arşivler: \code{archive/2026-07-10\_legacy\_non\_adsb\_ml/}, \code{archive/2026-07-10\_rejected\_adsb\_attempts/}
+  \item Son koşu artifact'ları: \code{artifacts/adsb/runs/20260715\_contextual\_physics\_v1\_truth\_v2\_eval\_v1/}, \code{.../rehearsal\_v1/}
+  \item Ön-kayıt sözleşmeleri: \code{docs/adsb\_contextual\_candidate\_v1\_prereg\_2026-07-14.md}, \code{docs/adsb\_contextual\_physics\_v1\_alarm\_budget\_prereg\_2026-07-14.md}
+\end{itemize}
+
+\end{document}
