@@ -1,0 +1,4 @@
+# Temporary explicit dependency record for the active GNSS pilot.
+# pyulog is installed in the project venv and is required to read PX4 ULog files.
+pyulog==1.2.2
+

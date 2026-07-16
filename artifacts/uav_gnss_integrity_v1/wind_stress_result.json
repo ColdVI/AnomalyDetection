@@ -1,0 +1,152 @@
+{
+  "role": "environmental_false_alarm_stress_only",
+  "is_gnss_ground_truth": false,
+  "domains": {
+    "SIL-Wind": {
+      "n_cases": 443,
+      "contracts": {
+        "critical": {
+          "methods": {
+            "px4_native": {
+              "n_alert_episodes": 18,
+              "n_flights": 443,
+              "n_alerted_flights": 16,
+              "scoreable_flight_hours": 12.20673611111111,
+              "airborne_flight_hours": 12.20673611111111,
+              "episodes_per_scoreable_flight_hour": 1.4745956524459969,
+              "scoreable_coverage": 1.0,
+              "warning_above_twice_real_budget": false
+            },
+            "cusum": {
+              "n_alert_episodes": 0,
+              "n_flights": 443,
+              "n_alerted_flights": 0,
+              "scoreable_flight_hours": 12.20673611111111,
+              "airborne_flight_hours": 12.20673611111111,
+              "episodes_per_scoreable_flight_hour": 0.0,
+              "scoreable_coverage": 1.0,
+              "warning_above_twice_real_budget": false
+            },
+            "lstm": {
+              "n_alert_episodes": 0,
+              "n_flights": 443,
+              "n_alerted_flights": 0,
+              "scoreable_flight_hours": 12.20673611111111,
+              "airborne_flight_hours": 12.20673611111111,
+              "episodes_per_scoreable_flight_hour": 0.0,
+              "scoreable_coverage": 1.0,
+              "warning_above_twice_real_budget": false
+            }
+          }
+        },
+        "advisory": {
+          "methods": {
+            "px4_native": {
+              "n_alert_episodes": 18,
+              "n_flights": 443,
+              "n_alerted_flights": 16,
+              "scoreable_flight_hours": 12.20673611111111,
+              "airborne_flight_hours": 12.20673611111111,
+              "episodes_per_scoreable_flight_hour": 1.4745956524459969,
+              "scoreable_coverage": 1.0,
+              "warning_above_twice_real_budget": false
+            },
+            "cusum": {
+              "n_alert_episodes": 101,
+              "n_flights": 443,
+              "n_alerted_flights": 90,
+              "scoreable_flight_hours": 12.20673611111111,
+              "airborne_flight_hours": 12.20673611111111,
+              "episodes_per_scoreable_flight_hour": 8.274120049835872,
+              "scoreable_coverage": 1.0,
+              "warning_above_twice_real_budget": false
+            },
+            "lstm": {
+              "n_alert_episodes": 84,
+              "n_flights": 443,
+              "n_alerted_flights": 72,
+              "scoreable_flight_hours": 12.20673611111111,
+              "airborne_flight_hours": 12.20673611111111,
+              "episodes_per_scoreable_flight_hour": 6.8814463780813195,
+              "scoreable_coverage": 1.0,
+              "warning_above_twice_real_budget": false
+            }
+          }
+        }
+      }
+    },
+    "HIL-Wind": {
+      "n_cases": 443,
+      "contracts": {
+        "critical": {
+          "methods": {
+            "px4_native": {
+              "n_alert_episodes": 45,
+              "n_flights": 443,
+              "n_alerted_flights": 41,
+              "scoreable_flight_hours": 11.788533923888886,
+              "airborne_flight_hours": 11.895499793888888,
+              "episodes_per_scoreable_flight_hour": 3.817268567112464,
+              "scoreable_coverage": 0.9910078708878669,
+              "warning_above_twice_real_budget": false
+            },
+            "cusum": {
+              "n_alert_episodes": 0,
+              "n_flights": 443,
+              "n_alerted_flights": 0,
+              "scoreable_flight_hours": 11.788533923888886,
+              "airborne_flight_hours": 11.895499793888888,
+              "episodes_per_scoreable_flight_hour": 0.0,
+              "scoreable_coverage": 0.9910078708878669,
+              "warning_above_twice_real_budget": false
+            },
+            "lstm": {
+              "n_alert_episodes": 0,
+              "n_flights": 443,
+              "n_alerted_flights": 0,
+              "scoreable_flight_hours": 11.10041362,
+              "airborne_flight_hours": 11.895499793888888,
+              "episodes_per_scoreable_flight_hour": 0.0,
+              "scoreable_coverage": 0.933160759306864,
+              "warning_above_twice_real_budget": false
+            }
+          }
+        },
+        "advisory": {
+          "methods": {
+            "px4_native": {
+              "n_alert_episodes": 45,
+              "n_flights": 443,
+              "n_alerted_flights": 41,
+              "scoreable_flight_hours": 11.788533923888886,
+              "airborne_flight_hours": 11.895499793888888,
+              "episodes_per_scoreable_flight_hour": 3.817268567112464,
+              "scoreable_coverage": 0.9910078708878669,
+              "warning_above_twice_real_budget": false
+            },
+            "cusum": {
+              "n_alert_episodes": 242,
+              "n_flights": 443,
+              "n_alerted_flights": 198,
+              "scoreable_flight_hours": 11.788533923888886,
+              "airborne_flight_hours": 11.895499793888888,
+              "episodes_per_scoreable_flight_hour": 20.528422072027027,
+              "scoreable_coverage": 0.9910078708878669,
+              "warning_above_twice_real_budget": false
+            },
+            "lstm": {
+              "n_alert_episodes": 251,
+              "n_flights": 443,
+              "n_alerted_flights": 162,
+              "scoreable_flight_hours": 11.10041362,
+              "airborne_flight_hours": 11.895499793888888,
+              "episodes_per_scoreable_flight_hour": 22.611770028800063,
+              "scoreable_coverage": 0.933160759306864,
+              "warning_above_twice_real_budget": false
+            }
+          }
+        }
+      }
+    }
+  }
+}
