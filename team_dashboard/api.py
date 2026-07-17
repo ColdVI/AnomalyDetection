@@ -155,6 +155,10 @@ def export(
     end: date = Query(...),
     columns: str = Query(..., description="Virgulle ayrilmis kolon adlari"),
     fmt: str = Query("parquet", pattern="^(parquet|csv)$"),
+    min_lat: float | None = Query(None, ge=-90, le=90),
+    max_lat: float | None = Query(None, ge=-90, le=90),
+    min_lon: float | None = Query(None, ge=-180, le=180),
+    max_lon: float | None = Query(None, ge=-180, le=180),
 ):
     _validate_layer_dataset(layer, dataset)
     if end < start:
@@ -167,11 +171,22 @@ def export(
         raise HTTPException(400, f"'{layer}/{dataset}' icin bilinmeyen kolon(lar): {sorted(unknown)}")
     if not requested_cols:
         raise HTTPException(400, "En az bir kolon secilmeli")
+
+    has_bbox = any(v is not None for v in (min_lat, max_lat, min_lon, max_lon))
+    if has_bbox and not {"lat", "lon"}.issubset(available_cols):
+        raise HTTPException(400, f"'{layer}/{dataset}' icin lat/lon kolonlari yok -- bolgesel filtre uygulanamaz")
+    if min_lat is not None and max_lat is not None and min_lat > max_lat:
+        raise HTTPException(400, "min_lat, max_lat'tan buyuk olamaz")
+    if min_lon is not None and max_lon is not None and min_lon > max_lon:
+        raise HTTPException(400, "min_lon, max_lon'dan buyuk olamaz")
+
     read_cols = list(dict.fromkeys(requested_cols + ["timestamp_utc"]))
     # Gold'da dataset secimi bir PREFIX degil, "unified/" icindeki bir
     # source_type DEGERI -- okurken ayrica bu kolona gore filtrelenmeli.
     if layer == "gold" and "source_type" not in read_cols:
         read_cols.append("source_type")
+    if has_bbox:
+        read_cols = list(dict.fromkeys(read_cols + ["lat", "lon"]))
 
     start_ts, end_ts = _day_to_epoch(start), _day_to_epoch(end, end_of_day=True)
     index_df = _get_index()
@@ -187,8 +202,9 @@ def export(
     if overlap.empty:
         raise HTTPException(404, "Secilen tarih araliginda veri bulunamadi")
 
-    logger.info("Export: %s/%s %s->%s, %d parca, tahmini %d satir",
-                layer, dataset, start, end, len(overlap), estimated_rows)
+    logger.info("Export: %s/%s %s->%s, %d parca, tahmini %d satir%s",
+                layer, dataset, start, end, len(overlap), estimated_rows,
+                f", bbox=({min_lat},{max_lat},{min_lon},{max_lon})" if has_bbox else "")
 
     client = _get_client()
     bucket = os.getenv("MINIO_SILVER_BUCKET" if layer == "silver" else "MINIO_GOLD_BUCKET",
@@ -200,6 +216,17 @@ def export(
         mask = (df["timestamp_utc"] >= start_ts) & (df["timestamp_utc"] <= end_ts)
         if layer == "gold":
             mask &= df["source_type"] == dataset
+        if has_bbox:
+            # NaN lat/lon karsilastirmalari otomatik False doner -- eksik
+            # konum verisi olan satirlar bolgesel filtrede kendiliginden elenir.
+            if min_lat is not None:
+                mask &= df["lat"] >= min_lat
+            if max_lat is not None:
+                mask &= df["lat"] <= max_lat
+            if min_lon is not None:
+                mask &= df["lon"] >= min_lon
+            if max_lon is not None:
+                mask &= df["lon"] <= max_lon
         chunk = df.loc[mask, [c for c in read_cols if c in df.columns]]
         if chunk.empty:
             continue
