@@ -1,0 +1,10 @@
+{
+  "k": 1.0,
+  "z_clip": 8.0,
+  "max_gap_s": 1.0,
+  "refractory_s": 60.0,
+  "bootstrap_block_s": 60.0,
+  "bootstrap_repetitions": 500,
+  "total_false_alarms_per_flight_hour": 0.5,
+  "seed": 11
+}

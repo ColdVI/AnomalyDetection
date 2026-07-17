@@ -1,0 +1,11 @@
+{
+  "reason": "rfly_ctrl_lxl_no_active_fault: internal RFLY control message indicates no active fault trigger, contradicting the folder label",
+  "source": "archive/2026-07-10_legacy_non_adsb_ml/artifacts/rfly1/interval_truth_report.json",
+  "flight_ids": [
+    "Real-Motor/circling/328_2/log_11_2023-6-7-08-29-38",
+    "Real-Motor/hover/2_2/log_7_2023-5-18-10-29-00",
+    "Real-Motor/waypoint/148_1/log_8_2023-5-26-08-12-00",
+    "Real-Motor/waypoint/150_1/log_11_2023-5-26-08-27-04",
+    "Real-Motor/waypoint/171_1/log_34_2023-5-26-11-13-16"
+  ]
+}
