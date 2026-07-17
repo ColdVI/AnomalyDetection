@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8" />
-<title>ADS-B Silver/Gold Veri Dışa Aktarma</title>
+<title>Veri Dışa Aktarım Paneli</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
   * { box-sizing: border-box; }
@@ -37,10 +37,6 @@
     border-radius: 7px; padding: 8px 9px; font-size: 13px; }
   .fmt-row { display: flex; gap: 16px; margin-top: 10px; }
   .fmt-row label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
-  .bbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
-  input[type="number"] { width: 100%; background: #0b0f14; border: 1px solid #2a3341; color: #e6e9ee;
-    border-radius: 7px; padding: 8px 9px; font-size: 13px; }
-  #bboxHint { font-size: 11.5px; color: #6d7789; margin-top: 8px; }
   #estimate { font-size: 12.5px; color: #9fb0c3; min-height: 18px; margin: 4px 0 16px; }
   #estimate.warn { color: #ff8a65; }
   #dsHint { font-size: 11.5px; color: #6d7789; margin-top: 6px; }
@@ -55,7 +51,7 @@
 </head>
 <body>
 <div class="card">
-  <h1>ADS-B Silver/Gold Veri Dışa Aktarma</h1>
+  <h1>Veri Dışa Aktarım Paneli</h1>
   <p class="sub">Grup projesinin Silver veya Gold katmanından, seçilen dataset/kolon/tarih aralığındaki veriyi Parquet/CSV olarak indirir.</p>
 
   <fieldset>
@@ -87,17 +83,6 @@
       <label><input type="radio" name="fmt" value="parquet" checked /> Parquet</label>
       <label><input type="radio" name="fmt" value="csv" /> CSV</label>
     </div>
-  </fieldset>
-
-  <fieldset id="bboxFieldset" disabled>
-    <legend>5. Bölgesel Filtre (opsiyonel)</legend>
-    <div class="bbox-grid">
-      <div class="field"><label>Min Enlem (lat)</label><input type="number" id="minLat" step="0.0001" min="-90" max="90" placeholder="ör. 36.0" /></div>
-      <div class="field"><label>Maks Enlem (lat)</label><input type="number" id="maxLat" step="0.0001" min="-90" max="90" placeholder="ör. 42.0" /></div>
-      <div class="field"><label>Min Boylam (lon)</label><input type="number" id="minLon" step="0.0001" min="-180" max="180" placeholder="ör. 26.0" /></div>
-      <div class="field"><label>Maks Boylam (lon)</label><input type="number" id="maxLon" step="0.0001" min="-180" max="180" placeholder="ör. 45.0" /></div>
-    </div>
-    <div id="bboxHint">Boş bırakılan alan o yönde sınır uygulamaz. Sadece o bölgedeki uçuşlar indirilir.</div>
   </fieldset>
 
   <div id="estimate">&nbsp;</div>
@@ -156,16 +141,6 @@ async function selectDataset(dataset) {
   endInput.value = META.max_date;
   document.getElementById("dateFieldset").disabled = false;
 
-  const hasLatLon = META.columns.includes("lat") && META.columns.includes("lon");
-  const bboxFieldset = document.getElementById("bboxFieldset");
-  bboxFieldset.disabled = !hasLatLon;
-  if (!hasLatLon) {
-    ["minLat", "maxLat", "minLon", "maxLon"].forEach(id => document.getElementById(id).value = "");
-    document.getElementById("bboxHint").textContent = "Bu dataset'te lat/lon kolonu yok, bölgesel filtre uygulanamaz.";
-  } else {
-    document.getElementById("bboxHint").textContent = "Boş bırakılan alan o yönde sınır uygulamaz. Sadece o bölgedeki uçuşlar indirilir.";
-  }
-
   document.getElementById("downloadBtn").disabled = false;
   refreshEstimate();
 }
@@ -173,20 +148,9 @@ async function selectDataset(dataset) {
 function resetDownstream() {
   document.getElementById("colsFieldset").disabled = true;
   document.getElementById("dateFieldset").disabled = true;
-  document.getElementById("bboxFieldset").disabled = true;
   document.getElementById("downloadBtn").disabled = true;
   document.getElementById("colsBox").innerHTML = "";
   document.getElementById("estimate").textContent = "";
-}
-
-function bboxParams() {
-  const ids = { minLat: "min_lat", maxLat: "max_lat", minLon: "min_lon", maxLon: "max_lon" };
-  const parts = [];
-  for (const [elId, param] of Object.entries(ids)) {
-    const v = document.getElementById(elId).value;
-    if (v !== "") parts.push(`${param}=${encodeURIComponent(v)}`);
-  }
-  return parts.length ? "&" + parts.join("&") : "";
 }
 
 function selectedColumns() {
@@ -227,24 +191,13 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
   const cols = selectedColumns();
   const msg = document.getElementById("msg");
   if (cols.length === 0) { msg.textContent = "En az bir kolon seçmelisiniz."; return; }
-
-  const minLat = document.getElementById("minLat").value;
-  const maxLat = document.getElementById("maxLat").value;
-  const minLon = document.getElementById("minLon").value;
-  const maxLon = document.getElementById("maxLon").value;
-  if (minLat !== "" && maxLat !== "" && parseFloat(minLat) > parseFloat(maxLat)) {
-    msg.textContent = "Min Enlem, Maks Enlem'den büyük olamaz."; return;
-  }
-  if (minLon !== "" && maxLon !== "" && parseFloat(minLon) > parseFloat(maxLon)) {
-    msg.textContent = "Min Boylam, Maks Boylam'dan büyük olamaz."; return;
-  }
   msg.textContent = "";
 
   const start = document.getElementById("startDate").value;
   const end = document.getElementById("endDate").value;
   const fmt = document.querySelector('input[name="fmt"]:checked').value;
   const url = `${API}/api/export?layer=${currentLayer}&dataset=${currentDataset}&start=${start}&end=${end}` +
-    `&columns=${encodeURIComponent(cols.join(","))}&fmt=${fmt}${bboxParams()}`;
+    `&columns=${encodeURIComponent(cols.join(","))}&fmt=${fmt}`;
   window.location.href = url;
 });
 
