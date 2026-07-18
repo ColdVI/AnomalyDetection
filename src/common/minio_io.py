@@ -260,11 +260,25 @@ def delete_layer_objects(
     return len(object_names)
 
 
-def read_parquet_object(client: ObjectStoreClient, bucket: str, object_name: str) -> pd.DataFrame:
-    """Read one Parquet object back from MinIO into a DataFrame."""
+def read_parquet_object(
+    client: ObjectStoreClient,
+    bucket: str,
+    object_name: str,
+    *,
+    columns: list[str] | None = None,
+) -> pd.DataFrame:
+    """Read one Parquet object back from MinIO into a DataFrame.
+
+    `columns`: optional column-pruning pushdown (Parquet is columnar, so
+    reading a subset is genuinely cheaper I/O, not just a post-hoc pandas
+    slice). Callers that only need e.g. `source_id`/`timestamp_utc` out of
+    a wide Gold row (team_dashboard's country-filtered export/estimate,
+    country_lookup.py's aircraft scan) should pass it -- default (None)
+    keeps the old "read every column" behavior unchanged.
+    """
     response = client.get_object(bucket, object_name)
     try:
-        return pd.read_parquet(io.BytesIO(response.read()))
+        return pd.read_parquet(io.BytesIO(response.read()), columns=columns)
     finally:
         response.close()
         response.release_conn()

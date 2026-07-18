@@ -27,6 +27,7 @@ import pandas as pd
 
 from src.common.minio_io import (
     ObjectStoreClient,
+    _validate_component,
     delete_layer_objects,
     get_minio_client,
     list_layer_objects,
@@ -187,26 +188,67 @@ def clear_gold_before_unify(client: ObjectStoreClient, *, gold_bucket: str | Non
     return removed
 
 
+def clear_gold_source_before_unify(
+    client: ObjectStoreClient, source_type: str, *, gold_bucket: str | None = None
+) -> int:
+    """Delete only the `<gold_bucket>/unified/<source_type>/` parts (2026-07-18: partial
+    refresh support) -- unlike `clear_gold_before_unify()`, every OTHER source_type's Gold
+    parts are left completely untouched. This is what lets a single-source update (e.g.
+    the daily adsblol_realtime catch-up) skip re-reading/re-writing the other ~2.76B
+    unrelated rows every time. Requires Gold parts to have been written with
+    `write_gold(..., partition=source_type)` (see `stream_unify()`) -- parts from BEFORE
+    that convention (flat `unified/part-*.parquet`, no per-source subfolder) are invisible
+    to this prefix and won't be cleared by it; a one-time full `stream_unify()` run migrates
+    a pre-partition Gold to the new layout."""
+    g_bucket = gold_bucket or os.getenv("MINIO_GOLD_BUCKET", "gold")
+    prefix = f"{GOLD_NAME}/{_validate_component(source_type, 'source_type')}/"
+    names = [obj.object_name for obj in client.list_objects(g_bucket, prefix=prefix, recursive=True)]
+    for name in names:
+        client.remove_object(g_bucket, name)
+    if names:
+        logger.info("Gold: cleared %d stale part(s) from %s/%s before partial unify", len(names), g_bucket, prefix)
+    return len(names)
+
+
 def stream_unify(
     client: ObjectStoreClient,
     *,
     silver_bucket: str | None = None,
     source_types: tuple[str, ...] = tuple(COLUMN_MAPS),
     gold_bucket: str | None = None,
+    refresh_only: tuple[str, ...] | None = None,
 ) -> int:
     """Stream each Silver Parquet file through the 7+3 column map and write one Gold
     Parquet per input file. Returns the total number of rows written.
 
-    Uses file-by-file streaming so large datasets (>64M rows) don't exhaust RAM.
-    Clears any prior `unified/` output first (see `clear_gold_before_unify`) so reruns
-    don't double-count.
+    Uses file-by-file streaming so large datasets (>64M rows) don't exhaust RAM. Each
+    Gold part is written under `unified/<source_type>/` (partitioned by source_type --
+    2026-07-18) so a partial refresh can target one source_type's parts precisely.
+
+    `refresh_only=None` (default): FULL rebuild, unchanged behavior -- clears the entire
+    `unified/` prefix (see `clear_gold_before_unify`) and reprocesses every source_type
+    in `source_types`, so reruns don't double-count.
+
+    `refresh_only=("adsblol_realtime",)`: PARTIAL refresh -- clears and rewrites ONLY the
+    listed source_type(s)' Gold parts (`clear_gold_source_before_unify`); every other
+    source_type's existing Gold data is left exactly as-is. Use this when only one Silver
+    source changed (e.g. the daily realtime catch-up) to avoid re-streaming the ~2.76B
+    unrelated historical rows every time.
     """
     s_bucket = silver_bucket or os.getenv("MINIO_SILVER_BUCKET", "silver")
-    clear_gold_before_unify(client, gold_bucket=gold_bucket)
+
+    if refresh_only is not None:
+        types_to_process = tuple(refresh_only)
+        for source_type in types_to_process:
+            clear_gold_source_before_unify(client, source_type, gold_bucket=gold_bucket)
+    else:
+        types_to_process = source_types
+        clear_gold_before_unify(client, gold_bucket=gold_bucket)
+
     total_rows = 0
     total_parts = 0
 
-    for source_type in source_types:
+    for source_type in types_to_process:
         mapping = COLUMN_MAPS.get(source_type)
         if mapping is None:
             raise ValueError(f"No Gold column mapping registered for source_type={source_type!r}")
@@ -220,7 +262,7 @@ def stream_unify(
         for obj_name in object_names:
             df = read_parquet_object(client, s_bucket, obj_name)
             aligned = _apply_column_map(df, mapping)
-            write_gold(aligned, GOLD_NAME, client=client, bucket=gold_bucket)
+            write_gold(aligned, GOLD_NAME, partition=source_type, client=client, bucket=gold_bucket)
             total_rows += len(aligned)
             total_parts += 1
 
@@ -277,6 +319,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Silver -> Gold (7+3 common-column unify)")
     parser.add_argument("--local-out", default=None, help="Optional local Parquet path (small datasets only)")
     parser.add_argument("--local-out-csv", default=None, help="Optional local CSV path (small datasets only)")
+    parser.add_argument(
+        "--refresh-only", nargs="+", default=None, metavar="SOURCE_TYPE",
+        help="Only rebuild these source_type(s)' Gold parts (2026-07-18 partial refresh) -- "
+             "e.g. --refresh-only adsblol_realtime. Every other source_type's existing Gold "
+             "data is left untouched. Omit for the default full rebuild.",
+    )
     args = parser.parse_args()
 
     client = get_minio_client()
@@ -299,7 +347,7 @@ def main() -> None:
             gold.to_csv(args.local_out_csv, index=False)
             logger.info("Local CSV copy written: %s", args.local_out_csv)
     else:
-        total = stream_unify(client)
+        total = stream_unify(client, refresh_only=tuple(args.refresh_only) if args.refresh_only else None)
         if total == 0:
             logger.error("Nothing written: Gold is empty (did any Silver step run?)")
 

@@ -181,9 +181,14 @@ def estimate(
     client = _get_client()
     bucket = os.getenv("MINIO_SILVER_BUCKET" if layer == "silver" else "MINIO_GOLD_BUCKET",
                         "silver" if layer == "silver" else "gold")
+    # Sadece maskeleme icin gereken 3 kolonu oku -- Gold/Silver satiri 10+
+    # kolon tasiyor, tahmin hicbirini DONDURMUYOR, sadece sayiyor. Parquet
+    # sutun-bazli oldugu icin bu gercek bir I/O tasarrufu (disk/agdan daha
+    # az veri cekilir), sadece bellek degil.
+    scan_cols = ["timestamp_utc", "source_id"] + (["source_type"] if layer == "gold" else [])
     total = 0
     for object_name in overlap["object_name"]:
-        df = read_parquet_object(client, bucket, object_name)
+        df = read_parquet_object(client, bucket, object_name, columns=scan_cols)
         mask = (df["timestamp_utc"] >= start_ts) & (df["timestamp_utc"] <= end_ts)
         if layer == "gold":
             mask &= df["source_type"] == dataset
@@ -259,7 +264,19 @@ def export(
     frames = []
     total = 0
     for object_name in overlap["object_name"]:
-        df = read_parquet_object(client, bucket, object_name)
+        # read_cols zaten TAM olarak gereken sutunlari tasiyor (istenen
+        # cikti kolonlari + filtreleme icin zorunlu eklenenler) -- Parquet'in
+        # kendi sutun-bazli okumasindan yararlanip gereksiz kolonlari hic
+        # diskten/agdan cekmeyelim. Silver'da (Gold'un aksine) sema teorik
+        # olarak parca-parca driftlenebilir -- boyle bir uyumsuzluk cikarsa
+        # (pyarrow "column not found" hatasi) TUM kolonlari okuyup eskisi
+        # gibi post-hoc filtrelemeye geri dus.
+        try:
+            df = read_parquet_object(client, bucket, object_name, columns=read_cols)
+        except Exception as exc:
+            logger.warning("Sutun-budamali okuma basarisiz (%s), tum kolonlarla tekrar deneniyor: %s",
+                            object_name, exc)
+            df = read_parquet_object(client, bucket, object_name)
         mask = (df["timestamp_utc"] >= start_ts) & (df["timestamp_utc"] <= end_ts)
         if layer == "gold":
             mask &= df["source_type"] == dataset
