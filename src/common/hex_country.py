@@ -13,16 +13,22 @@ sec -- bu dogru ulkeyi, yanlislikla genis "(reserved, ...)" etiketini degil.
 ONEMLI SINIRLAMA: Bu tablo ucagin KAYITLI OLDUGU (tescil) ulkeyi verir, o an
 hangi ulke uzerinde uctugunu DEGIL. Bir Turk tescilli ucak Almanya uzerinde
 ucabilir; bu modul sadece "Turkiye" doner, "Almanya" degil.
+
+Bu modul, `individual/metehan_geo_country/`'nin kendi hex_country.py'sinden
+2026-07-18'de src/common/'a tasindi (bkz. team_dashboard'un ulke-bazli
+export filtresi) -- ortak/paylasilan kod, iki proje de buradan import eder.
 """
 
 from __future__ import annotations
 
 import csv
+import json
 from dataclasses import dataclass
 from pathlib import Path
 
 DATA_DIR = Path(__file__).parent / "data"
 RANGE_CSV = DATA_DIR / "ICAOHexRange.csv"
+ISO2_MAP_JSON = DATA_DIR / "hex_country_to_iso2.json"
 
 # Bu iki onek, gercek bir ulkeye degil ICAO'nun kendi rezervasyonuna veya
 # hic tahsis edilmemis bosluga isaret eder -- coverage hesabinda ayri
@@ -67,6 +73,18 @@ def load_ranges(path: Path = RANGE_CSV) -> list[HexRange]:
     return ranges
 
 
+def load_iso2_map(path: Path = ISO2_MAP_JSON) -> dict[str, str]:
+    """hex_country.lookup()'un dondurdugu ulke adini (ör. 'United States',
+    'Sao Tome') Natural Earth GeoJSON'daki ISO_A2 koduna cevirir -- harita
+    tiklama ozelligi icin CANONICAL join key budur (isim/aksan/encoding
+    sorunlarindan bagimsiz). 3 ICAOHexRange girdisi (iki ICAO rezerve
+    blogu + dagilmis Yugoslavya) kasitli olarak bu haritada YOK -- gercek
+    bir ulkeye 1:1 karsilik gelmedigi icin (bkz. build script)."""
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 class HexCountryLookup:
     """Sirali aralik listesi uzerinde en-spesifik-eslesme lookup'i.
 
@@ -75,8 +93,9 @@ class HexCountryLookup:
     gerek yok.
     """
 
-    def __init__(self, ranges: list[HexRange] | None = None):
+    def __init__(self, ranges: list[HexRange] | None = None, iso2_map: dict[str, str] | None = None):
         self.ranges = ranges if ranges is not None else load_ranges()
+        self.iso2_map = iso2_map if iso2_map is not None else load_iso2_map()
 
     def lookup(self, hex_str: str) -> tuple[str | None, str]:
         """Donus: (ulke_adi_veya_None, kategori).
@@ -101,3 +120,11 @@ class HexCountryLookup:
         if best.is_country:
             return best.country, "country"
         return None, "reserved"
+
+    def lookup_iso2(self, hex_str: str) -> str | None:
+        """lookup()'un ulke adini dogrudan ISO_A2 koduna cevirir -- harita
+        tiklama/export filtresi gibi makine-makineye kullanim icin."""
+        country, category = self.lookup(hex_str)
+        if category != "country" or country is None:
+            return None
+        return self.iso2_map.get(country)

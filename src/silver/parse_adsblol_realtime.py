@@ -1,18 +1,31 @@
 """parse_adsblol_realtime.py -- adsb.lol realtime Silver parser.
 
-Reads raw JSONL files from MinIO Bronze (bronze/adsblol_realtime/_landing/),
-applies unit conversions, and writes Silver Parquet to MinIO.
+Reads raw JSONL files from MinIO Bronze (bronze/adsblol_realtime/_landing/)
+and writes Silver Parquet to MinIO.
 
-Each JSONL line is one raw `ac` entry from the adsb.lol v2 API response,
-as published by src/ingestion/adsblol_producer.py.
+2026-07-18 DUZELTME (onemli): Bu modul eskiden, artik var olmayan
+src/ingestion/adsblol_producer.py'nin yayinladigi VARSAYILAN ham adsb.lol
+`ac` semasini (hex, alt_baro, gs, baro_rate, dbFlags, flight, r, t...)
+bekliyordu. Gercek uretici Dashboard/codes/uav_producer.py ise Kafka'ya
+yazmadan ONCE _normalize_common() ile alanlari sadelestirip yeniden
+adlandiriyor (icao24, alt, velocity, vertical_rate, track, is_ground,
+is_military, callsign, ...) VE birim donusumunu KENDISI yapiyor (alt zaten
+metre, velocity/vertical_rate zaten m/s). Eski kod hicbir alani
+BULAMIYORDU -- source_id/alt/ground_speed_ms/vertical_rate_ms/
+flight_callsign SESSIZCE hep None, is_military/on_ground SESSIZCE hep
+False kaliyordu (bkz. proje sohbet gecmisi -- bu, 3 "isim degisikligi
+kalintisi" hatasiyla (InfluxDB bucket, Kafka topic, Dashboard image) AYNI
+turden 4. bir ornek). Bu tarihten ONCE islenmis realtime Silver/Gold
+satirlari (ham Bronze JSONL "yaz-sonra-sil" deseniyle zaten silindigi
+icin) GERI KAZANILAMAZ -- duzeltme sadece BUNDAN SONRA toplanan veriyi
+etkiler.
 
-Unit conversions (Silver's job per ADR-003):
-  alt_baro  feet → metres (* 0.3048), "ground" → on_ground=True, alt=None
-  alt_geom  feet → metres (* 0.3048)
-  gs        knots → m/s (* 0.5144)
-  baro_rate fpm → m/s (* 0.00508)
-  geom_rate fpm → m/s (* 0.00508)
-  ias, tas  knots → m/s (* 0.5144)
+Artik gercek JSONL semasi (Dashboard/codes/uav_producer.py + minio_archiver.py):
+  icao24, lat, lon, alt (metre), velocity (m/s), track (derece),
+  vertical_rate (m/s), is_ground (bool), is_military (bool), callsign,
+  category, squawk, emergency, signal_age_sec, source, cycle_id,
+  ts (ISO 8601, per-kayit hassas zaman damgasi -- dosya adindaki toplu
+  batch zaman damgasindan daha dogru, oncelik ona verilir).
 
 Usage:
     python -m src.silver.parse_adsblol_realtime
@@ -79,63 +92,40 @@ def _batch_timestamp(object_name: str) -> float | None:
         return None
 
 
-def _knots_to_ms(v) -> float | None:
-    return round(float(v) * 0.5144, 2) if v is not None else None
-
-
-def _fpm_to_ms(v) -> float | None:
-    return round(float(v) * 0.00508, 3) if v is not None else None
-
-
-def _feet_to_m(v) -> float | None:
-    return round(float(v) * 0.3048, 1) if v is not None else None
+def _record_timestamp(record: dict, fallback: float | None) -> float | None:
+    """Kayit-bazinda hassas 'ts' (ISO 8601) alanini tercih eder -- yoksa/
+    parse edilemezse dosya-adindan cikarilan kaba batch zaman damgasina
+    duser."""
+    ts_raw = record.get("ts")
+    if ts_raw:
+        try:
+            return datetime.fromisoformat(ts_raw).timestamp()
+        except (TypeError, ValueError):
+            pass
+    return fallback
 
 
 def _parse_ac_record(record: dict, batch_ts: float | None) -> dict:
-    alt_baro_raw = record.get("alt_baro")
-    on_ground = alt_baro_raw == "ground"
-    alt_m = None if (on_ground or alt_baro_raw is None) else _feet_to_m(alt_baro_raw)
-    alt_geom_raw = record.get("alt_geom")
-    alt_geom_m = None if alt_geom_raw is None else _feet_to_m(alt_geom_raw)
-    # 2026-07-10 (kullanici istegi): dbFlags bit 1 = askeri (Dashboard/codes/uav_producer.py
-    # ve parse_adsblol_historical.py ile AYNI mantik). Bu raw kayit adsb.lol'un ham
-    # `ac` girdisi oldugu icin dbFlags per-ucak burada mevcut (dosya-seviyesi degil).
-    try:
-        is_military = bool(int(record.get("dbFlags", 0) or 0) & 1)
-    except (TypeError, ValueError):
-        is_military = False
     return {
         "source_type": SOURCE_TYPE,
-        "source_id": record.get("hex"),
-        "timestamp_utc": batch_ts,
+        "source_id": record.get("icao24"),
+        "timestamp_utc": _record_timestamp(record, batch_ts),
         "lat": record.get("lat"),
         "lon": record.get("lon"),
-        "alt": alt_m,
-        "alt_geom_m": alt_geom_m,
-        "on_ground": on_ground,
+        "alt": record.get("alt"),                       # zaten metre (uav_producer.py SI'ye ceviriyor)
+        "on_ground": bool(record.get("is_ground", False)),
         "label": None,
-        "ground_speed_ms": _knots_to_ms(record.get("gs")),
+        "ground_speed_ms": record.get("velocity"),       # zaten m/s
         "track_deg": record.get("track"),
-        "vertical_rate_ms": _fpm_to_ms(record.get("baro_rate")),
-        "geom_vertical_rate_ms": _fpm_to_ms(record.get("geom_rate")),
-        "indicated_airspeed_ms": _knots_to_ms(record.get("ias")),
-        "true_airspeed_ms": _knots_to_ms(record.get("tas")),
-        "roll_deg": record.get("roll"),
-        "flight_callsign": (record.get("flight") or "").strip() or None,
+        "vertical_rate_ms": record.get("vertical_rate"), # zaten m/s
+        "flight_callsign": (record.get("callsign") or "").strip() or None,
         "category": record.get("category"),
         "squawk": record.get("squawk"),
         "emergency": record.get("emergency"),
-        "registration": record.get("r"),
-        "aircraft_type": record.get("t"),
-        "is_military": is_military,
-        "nic": record.get("nic"),
-        "rc": record.get("rc"),
-        "nac_p": record.get("nac_p"),
-        "sil": record.get("sil"),
-        "adsb_version": record.get("version"),
-        "seen": record.get("seen"),
-        "seen_pos": record.get("seen_pos"),
-        "rssi": record.get("rssi"),
+        "is_military": bool(record.get("is_military", False)),
+        "signal_age_sec": record.get("signal_age_sec"),
+        "source": record.get("source"),
+        "cycle_id": record.get("cycle_id"),
     }
 
 

@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from individual.metehan_geo_country.hex_country import HexCountryLookup
+from src.common.hex_country import HexCountryLookup
 
 DATA_DIR = Path(__file__).parent / "data"
 AIRCRAFT_CSV = DATA_DIR / "aircraft_dump_20260707_181141.csv"

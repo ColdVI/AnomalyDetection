@@ -25,7 +25,7 @@ from pathlib import Path
 import pandas as pd
 
 from individual.metehan_geo.geo import assign_h3_cell, h3_cell_to_polygon
-from individual.metehan_geo_country.hex_country import HexCountryLookup
+from src.common.hex_country import HexCountryLookup
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
