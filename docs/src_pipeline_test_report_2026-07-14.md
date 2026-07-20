@@ -7,6 +7,30 @@ Bu rapor, `src/` paketinin (ingestion → silver → gold veri pipeline'ı,
 incelemek, gereksiz olanları kaldırmak, her özellik için test yazmak ve
 bulguları bu raporda özetlemek.
 
+**Not (2026-07-20):** Bu rapor 2026-07-14 tarihli bir anlık görüntüdür,
+`src/` o tarihten sonra da değişti — aşağıdaki test sayıları ve `unify.py`
+davranış açıklaması artık GÜNCEL DEĞİL:
+
+- `tests/` klasörü tamamen yeniden düzenlendi (93 dosyadan 57 dosyaya
+  birleştirildi, `test_minio_retention.py`'nin kaldırılmasından sonraki bir
+  adım), bu yüzden buradaki dosya/test sayıları artık geçerli değil.
+- `src/gold/unify.py::stream_unify()` 2026-07-18'de MetehanSarikaya
+  tarafından değiştirildi: Gold artık `unified/<source_type>/` altında
+  source_type bazında partition'lı yazılıyor ve `refresh_only` ile tek bir
+  source_type kısmi olarak yenilenebiliyor (`clear_gold_source_before_unify`).
+  Aşağıdaki bölümlerde anlatılan "tek parça `unified/` prefix'i" davranışı
+  artık sadece varsayılan tam-yenileme moduna karşılık geliyor.
+- `src/silver/parse_adsblol_realtime.py` aynı tarihte, sessizce yanlış veri
+  üreten bir alan-eşleme hatası içeriyordu diye düzeltildi (gerçek üretici
+  `Dashboard/codes/uav_producer.py`'nin şemasıyla uyuşmuyordu — ayrıntı:
+  `docs/proje_kapsamli_rapor.md`, bölüm 1.3). Bu dosyayla ilgili aşağıdaki
+  testler o düzeltmeden önceki (artık kaldırılmış) `dbFlags` bit-mantığını
+  konu alıyor, güncel kod bu mantığı içermiyor.
+
+Güncel test sayıları ve `src/gold/unify.py` davranışı için doğrudan kodu ve
+`git log`'u referans alın; bu rapor sadece 2026-07-14'teki durumun kaydı
+olarak korunuyor.
+
 ## Özet sonuç
 
 | | Önce | Sonra |

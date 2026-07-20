@@ -1,27 +1,32 @@
-# ADS-B Anomaly Detection — Clean Restart
+# ADS-B Anomaly Detection
 
-Bu repo 2026-07-10 tarihinde sadeleştirildi. Önceki ALFA, UAV Attack, UAV-SEAD,
-RFLY ve ML-0…ML-16 deneyleri aktif çalışma alanından çıkarıldı. Aynı gün yazılan
-iki ADS-B model denemesi de kullanıcı tarafından baseline olarak kabul edilmedi ve
-ayrı bir arşive kaldırıldı.
+Bu repo, ortak gerçek-zamanlı ADS-B altyapısını (bu README) ve üzerine kurulu üç
+ayrı çalışmayı bir arada barındırıyor. Klasörlerin kime/neye ait olduğu için
+**[REPO_YAPISI.md](REPO_YAPISI.md)**'ye bakın — bu dosya güncel haritadır.
 
-Aktif hedef: gerçek ADS-B arşivlerinden, tanımı baştan açık kurulmuş bir
-`anomaly = yes/no` sistemi geliştirmek.
+Repo 2026-07-10'da bir kere sadeleştirildi: o tarihten önceki ALFA, UAV Attack,
+UAV-SEAD, RFLY ve ML-0…ML-16 denemeleri (iki reddedilen ADS-B model denemesi
+dahil) `main`'den çıkarılıp arşivlendi. Bu arşiv artık `main`'de değil, ayrı bir
+**`arsiv`** branch'inde tutuluyor (`git checkout arsiv` ile erişilebilir) — aktif
+baseline değildir, yeni modele import edilmez veya başarı kanıtı olarak
+kullanılmaz.
+
+Ortak altyapının aktif hedefi: gerçek ADS-B verisinden gerçek-zamanlı bir
+dashboard beslemek (bkz. `src/`, `Dashboard/`). Bireysel projelerin kendi
+hedefleri için `REPO_YAPISI.md`'deki ilgili bölümlere bakın.
 
 Başlangıç noktaları:
 
-- `adsb/README.md`: sıfırdan başlangıç sözleşmesi;
+- `REPO_YAPISI.md`: hangi klasör kime ait, hangi rapor nerede;
 - `docs/adsblo_data_format_reference (1) 2026-07-10 amt 11.03.27.md`: veri formatı;
-- `src/silver/parse_adsblol_historical.py`: korunmuş ham veri okuma altyapısı;
-- `archive/README.md`: önceki çalışmaların indeksi.
-
-`archive/` altındaki kod ve sonuçlar aktif baseline değildir; yeni modele import
-edilmez veya başarı kanıtı olarak kullanılmaz.
+- `src/silver/parse_adsblol_historical.py`: korunmuş ham veri okuma altyapısı.
 
 ## Kurulum ve çalıştırma
 
-Gerekli: Docker Desktop (Compose ile) ve Python 3.11+ (yerelde script/test
-çalıştırmak isteyenler için).
+Gerekli: Docker Desktop (Compose ile) ve Python 3.13+ (yerelde script/test
+çalıştırmak isteyenler için — kök `requirements.txt`'teki `numpy==2.5.0` pin'i
+3.12 altında kurulamıyor, `Dashboard/Dockerfile` de bu yüzden `python:3.13-slim`
+kullanıyor).
 
 1. Repoyu klonla, `.env.example` dosyasını `.env` olarak kopyala. Varsayılan
    değerler her makinede çalışır; `OPENSKY_CLIENT_ID`/`SECRET` gibi alanlar

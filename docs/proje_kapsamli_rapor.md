@@ -50,13 +50,15 @@ SILVER "adsblol_historical"                            python -m src.silver.pars
         +---------------------------+-------------------------------+
                                      v
                     python -m src.gold.unify   (ELLE calistirilir -- otomatik degil!)
-                    stream_unify(): once eski Gold'u siler (clear_gold_before_unify),
-                    sonra TUM Silver source_type'larini (adsblol_historical,
-                    adsblol_realtime, alfa, uav_attack) 7+3 ortak semaya donusturup
-                    tek tek GOLD "unified/" prefix'ine yazar
+                    stream_unify(): varsayilan modda once eski Gold'u siler
+                    (clear_gold_before_unify), sonra TUM Silver source_type'larini
+                    (adsblol_historical, adsblol_realtime, alfa, uav_attack) 7+3 ortak
+                    semaya donusturup GOLD "unified/<source_type>/" altina yazar
+                    (2026-07-18: source_type bazinda partition + --refresh-only ile
+                    TEK bir source_type'i, digerlerine dokunmadan, kismi yenileme)
                                      |
                                      v
-                    GOLD (2.76 milyar satir, 6.861 parca, unified/ prefix)
+                    GOLD (2.76 milyar satir, 6.861 parca, unified/<source_type>/ altinda)
                                      |
               +----------------------+----------------------+
               v                      v                       v
@@ -89,10 +91,14 @@ Bu yol **tetiklenme bazlı**: bir zamanlayıcı/cron YOK, sadece yeni veri eklen
      source_type'ını (`alfa`/`uav_attack`) tamamen silip sıfırdan yazıyor (küçük, tek seferlik
      veri setleri için checkpoint gereksiz karmaşıklık olurdu).
 4. **Gold'a birleştirme:** `python -m src.gold.unify` — **elle çalıştırılır**, otomatik/zamanlı
-   DEĞİLDİR. `stream_unify()` önce `clear_gold_before_unify()` ile önceki Gold çıktısını TAMAMEN
-   siler, sonra `COLUMN_MAPS`'teki HER source_type için (adsblol_historical, adsblol_realtime,
-   alfa, uav_attack) Silver'daki tüm parçaları tek tek okuyup 7+3 ortak şemaya çevirip Gold'a
-   yazar (streaming — RAM'e toplu yüklemeden).
+   DEĞİLDİR. Varsayılan (tam) modda `stream_unify()` önce `clear_gold_before_unify()` ile önceki
+   Gold çıktısını TAMAMEN siler, sonra `COLUMN_MAPS`'teki HER source_type için (adsblol_historical,
+   adsblol_realtime, alfa, uav_attack) Silver'daki tüm parçaları tek tek okuyup 7+3 ortak şemaya
+   çevirip Gold'a yazar (streaming — RAM'e toplu yüklemeden). **2026-07-18 güncellemesi:** her
+   parça artık `unified/<source_type>/` altına (source_type'a göre partition'lı) yazılıyor;
+   `--refresh-only adsblol_realtime` gibi bir bayrakla SADECE tek bir source_type'ın Gold
+   parçaları silinip yeniden yazılabiliyor, diğer ~2.76 milyar satırlık tarihsel veri hiç
+   dokunulmadan kalıyor (günlük realtime "catch-up" için eklendi).
 5. **Downstream (harita/analiz):** `individual/metehan_geo/build_flight_density.py` (askeri/
    sivil yoğunluk haritası, kendi pickle checkpoint'iyle), `individual/metehan_geo_country`
    (ülke bazlı analiz), `team_dashboard/api.py` (Silver+Gold'u export için doğrudan okur, bu
@@ -128,9 +134,20 @@ Bu yol **sürekli** (canlı akış) + **günlük** (Silver dönüşümü) iki fa
      VARSA işlenir) — sonra döngü, `_seconds_until("17:00")` hesabıyla her gün YEREL saat
      17:00'i hedefler (PC ne zaman açık olursa olsun, sabit bir sayaç yerine gerçek saat
      hedeflenir — PC kapalıyken sayaç donmaz).
-   - Bronze'daki `adsblol_realtime/_landing/` altındaki TÜM JSONL dosyaları okunur, aynı
-     birim dönüşümleri (feet→m, knots→m/s, fpm→m/s) uygulanır, sonuç Silver'a
-     `adsblol_realtime` source_type'ı olarak Parquet yazılır.
+   - Bronze'daki `adsblol_realtime/_landing/` altındaki TÜM JSONL dosyaları okunur, sonuç
+     Silver'a `adsblol_realtime` source_type'ı olarak Parquet yazılır. **2026-07-18
+     düzeltmesi (MetehanSarikaya):** bu modül eskiden artık var olmayan
+     `src/ingestion/adsblol_producer.py`'nin ham adsb.lol şemasını (`hex`, `alt_baro`, `gs`,
+     `dbFlags`...) bekliyordu ve kendi içinde feet→m/knots→m/s/fpm→m/s birim dönüşümü
+     yapıyordu; ama gerçek üretici `Dashboard/codes/uav_producer.py` Kafka'ya yazmadan ÖNCE
+     `_normalize_common()` ile alanları zaten yeniden adlandırıp (`icao24`, `alt`,
+     `velocity`, `is_military`...) SI birimine çeviriyor. Bu isim uyuşmazlığı yüzünden
+     `source_id`/`alt`/`ground_speed_ms`/`vertical_rate_ms`/`flight_callsign` SESSİZCE hep
+     `None`, `is_military`/`on_ground` SESSİZCE hep `False` kalıyordu — düzeltme sonrası artık
+     hiçbir birim dönüşümü yapılmıyor (değerler zaten SI olarak geliyor), alanlar gerçek
+     üreticinin şemasına göre okunuyor. Bu tarihten ÖNCE toplanmış realtime Silver/Gold
+     verileri bu hatayı taşıyordu; Bronze'un "yaz-sonra-sil" deseni yüzünden geriye dönük
+     düzeltilemedi, sadece bu tarihten SONRA toplanan veri doğru.
    - **Yaz-sonra-sil deseni:** Bir Bronze JSONL dosyası, karşılık gelen Silver Parquet yazımı
      BAŞARILI olduktan SONRA silinir (`_delete_processed`) — yazma yarıda kesilirse Bronze
      dosyası öylece kalır, bir sonraki koşuda tekrar denenir (idempotent, crash-safe).
@@ -364,17 +381,38 @@ isimlere ankrajlı tam eşleşme tercih edildi — basit ve doğrulanabilir.
 ### 1.4 Gold Katmanı: 7+3 Ortak Şema, Streaming Birleştirme
 
 ```python
-# src/gold/unify.py -- gercek kod
+# src/gold/unify.py -- gercek kod (2026-07-18 guncellemesi, MetehanSarikaya:
+# source_type bazinda partition + kismi (partial) yenileme destegi eklendi)
 GOLD_COLUMNS = ["timestamp_utc", "lat", "lon", "altitude_m", "velocity_mps",
                 "heading_deg", "vertical_rate_mps", "source_type", "source_id", "label"]
 
-def stream_unify(client, *, silver_bucket=None, source_types=tuple(COLUMN_MAPS), gold_bucket=None) -> int:
+def stream_unify(client, *, silver_bucket=None, source_types=tuple(COLUMN_MAPS),
+                  gold_bucket=None, refresh_only=None) -> int:
     """Her Silver Parquet dosyasini TEK TEK okuyup 7+3 semaya cevirir ve HER
     dosya icin bir Gold parcasi yazar -- >64M satirlik veri setleri icin
-    hepsini RAM'e yuklemeden calisir (streaming)."""
-    clear_gold_before_unify(client, gold_bucket=gold_bucket)   # eski rerun'un ciktisini SIL
+    hepsini RAM'e yuklemeden calisir (streaming). Her parca artik
+    unified/<source_type>/ altina yaziliyor (partition'li).
+
+    refresh_only=None (varsayilan): TAM yeniden kurulum -- once TUM
+    unified/ prefix'i silinir (clear_gold_before_unify), sonra source_types
+    icindeki HER source_type yeniden islenir.
+
+    refresh_only=("adsblol_realtime",) gibi verilirse: SADECE listelenen
+    source_type(lar)in Gold parcalari silinip yeniden yazilir
+    (clear_gold_source_before_unify); digger source_type'larin Gold verisi
+    HIC DOKUNULMADAN kalir -- gunluk realtime "catch-up" gibi tek-kaynakli
+    guncellemelerde ~2.76 milyar satirlik degismemis tarihsel veriyi
+    yeniden okuyup yazmaktan kacinmak icin eklendi."""
+    if refresh_only is not None:
+        types_to_process = tuple(refresh_only)
+        for source_type in types_to_process:
+            clear_gold_source_before_unify(client, source_type, gold_bucket=gold_bucket)
+    else:
+        types_to_process = source_types
+        clear_gold_before_unify(client, gold_bucket=gold_bucket)   # eski rerun'un ciktisini SIL
+
     total_rows = total_parts = 0
-    for source_type in source_types:
+    for source_type in types_to_process:
         mapping = COLUMN_MAPS[source_type]
         object_names = list_layer_objects(client, silver_bucket, source_type)
         if not object_names:
@@ -383,7 +421,7 @@ def stream_unify(client, *, silver_bucket=None, source_types=tuple(COLUMN_MAPS),
         for obj_name in object_names:
             df = read_parquet_object(client, silver_bucket, obj_name)
             aligned = _apply_column_map(df, mapping)      # kolon-eslemeyi uygula
-            write_gold(aligned, GOLD_NAME, client=client, bucket=gold_bucket)  # HEMEN yaz, biriktirme
+            write_gold(aligned, GOLD_NAME, partition=source_type, client=client, bucket=gold_bucket)
             total_rows += len(aligned)
             total_parts += 1
     return total_rows
@@ -451,7 +489,7 @@ def test_stream_unify_rerun_does_not_double_count_rows(fake_minio_client):
 
 | Yol | Konum | Şema | Kullanım |
 |---|---|---|---|
-| `src/gold/unify.py` | `gold/unified/` | Dar, 7+3 ortak kolon | Görselleştirme, dashboard, "tüm veri bir arada" sorguları |
+| `src/gold/unify.py` | `gold/unified/<source_type>/` (2026-07-18'den itibaren source_type bazında partition'lı) | Dar, 7+3 ortak kolon | Görselleştirme, dashboard, "tüm veri bir arada" sorguları |
 | `src/ml/build_features.py` | `data/gold/ml_features/` | Zengin, kaynak-özgü kolonlar korunur (`squawk`, `roll_deg`, `jamming_indicator`...) | ML model eğitimi |
 
 `unify.py`'nin dar şeması ML için yetersiz kalırdı (feature'lar kaybolur); `build_features.py`'nin
