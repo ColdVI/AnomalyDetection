@@ -61,7 +61,7 @@ FLIGHT_SEGMENT_BTN_ACTIVE_STYLE = {**FLIGHT_SEGMENT_BTN_STYLE,
     "border": "1px solid #00b4d8", "backgroundColor": "#0d2830"}
 HISTORY_PANEL_BASE = {
     "position": "absolute", "bottom": 0, "right": 0,
-    "width": "540px", "height": "300px",
+    "width": "680px", "height": "300px",
     "backgroundColor": "rgba(15,15,25,0.97)",
     "boxShadow": "-2px -2px 24px rgba(0,0,0,0.6)",
     "borderTopLeftRadius": "10px",

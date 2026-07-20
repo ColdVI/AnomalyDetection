@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Anomali Tespiti — Hap Bilgi Atlası</title>
+<style>
+  .viz-root{
+    color-scheme: light;
+    --page:#f9f9f7; --surface-1:#fcfcfb;
+    --ink:#0b0b0b; --ink-2:#52514e; --ink-3:#898781;
+    --grid:#e1e0d9; --baseline:#c3c2b7; --ring:rgba(11,11,11,0.10);
+    --series-1:#2a78d6;
+    --seq-100:#cde2fb; --seq-200:#9ec5f4; --seq-300:#6da7ec; --seq-400:#3987e5; --seq-500:#256abf; --seq-600:#184f95; --seq-700:#0d366b;
+    --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
+    --good-text:#006300;
+    --good-wash:rgba(12,163,12,.10); --warn-wash:rgba(250,178,25,.14); --crit-wash:rgba(208,59,59,.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:where(:not([data-theme="light"])) .viz-root{
+      color-scheme: dark;
+      --page:#0d0d0d; --surface-1:#1a1a19;
+      --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
+      --grid:#2c2c2a; --baseline:#383835; --ring:rgba(255,255,255,0.10);
+      --series-1:#3987e5;
+      --good-text:#0ca30c;
+      --good-wash:rgba(12,163,12,.16); --warn-wash:rgba(250,178,25,.14); --crit-wash:rgba(208,59,59,.18);
+    }
+  }
+  :root[data-theme="dark"] .viz-root{
+    color-scheme: dark;
+    --page:#0d0d0d; --surface-1:#1a1a19;
+    --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
+    --grid:#2c2c2a; --baseline:#383835; --ring:rgba(255,255,255,0.10);
+    --series-1:#3987e5;
+    --good-text:#0ca30c;
+    --good-wash:rgba(12,163,12,.16); --warn-wash:rgba(250,178,25,.14); --crit-wash:rgba(208,59,59,.18);
+  }
+
+  *{box-sizing:border-box;}
+  .viz-root{
+    background:var(--page); color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:.95rem; line-height:1.55;
+    max-width:1240px; margin:0 auto; padding:2.5rem 1.25rem 5rem;
+  }
+  h1,h2,h3{line-height:1.15; text-wrap:balance; margin:0;}
+  h1{font-size:clamp(1.7rem,3.6vw,2.4rem); font-weight:750; letter-spacing:-.015em;}
+  h2{font-size:1.28rem; font-weight:700;}
+  h3{font-size:1rem; font-weight:700;}
+  p{margin:.4rem 0 .9rem;}
+  .muted{color:var(--ink-2);}
+  .tiny{font-size:.78rem; color:var(--ink-3);}
+  .num{font-variant-numeric:tabular-nums;}
+
+  header.mast{margin-bottom:2rem; border-bottom:2px solid var(--ink); padding-bottom:1.2rem;}
+  .kicker{font-size:.74rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--series-1); margin-bottom:.5rem;}
+  .mast .sub{color:var(--ink-2); max-width:64rem; margin-top:.5rem;}
+  .mast .meta{display:flex; flex-wrap:wrap; gap:1.4rem; margin-top:.9rem; font-size:.78rem; color:var(--ink-3);}
+  .mast .meta b{color:var(--ink-2);}
+
+  section{margin:2.6rem 0; scroll-margin-top:1rem;}
+  .sec-head{display:flex; align-items:baseline; gap:.7rem; border-bottom:1px solid var(--grid); padding-bottom:.5rem; margin-bottom:1rem;}
+  .sec-head .no{font-size:.78rem; font-weight:800; color:var(--series-1); font-variant-numeric:tabular-nums;}
+  .sec-head .sub{margin-left:auto; font-size:.78rem; color:var(--ink-3);}
+
+  /* chips */
+  .chip{display:inline-flex; align-items:center; gap:.35em; font-size:.7rem; font-weight:700; letter-spacing:.03em; padding:.14rem .5rem; border-radius:999px; white-space:nowrap;}
+  .chip.ok{background:var(--good-wash); color:var(--good-text);}
+  .chip.mid{background:var(--warn-wash); color:var(--ink);}
+  .chip.bad{background:var(--crit-wash); color:var(--crit);}
+
+  /* stat strip */
+  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px; background:var(--grid); border:1px solid var(--grid); border-radius:6px; overflow:hidden; margin:1.2rem 0;}
+  .stat{background:var(--surface-1); padding: .9rem 1rem;}
+  .stat .v{font-size:1.7rem; font-weight:750; letter-spacing:-.02em;}
+  .stat .l{font-size:.78rem; color:var(--ink-2); margin-top:.15rem; line-height:1.3;}
+
+  /* tables */
+  .twrap{overflow-x:auto; border:1px solid var(--grid); border-radius:6px; background:var(--surface-1); margin:.8rem 0 1.2rem;}
+  table{border-collapse:collapse; width:100%; font-size:.84rem; min-width:560px;}
+  th{font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3); font-weight:700; text-align:left; padding:.55rem .7rem; border-bottom:1px solid var(--grid); background:var(--surface-1); position:sticky; top:0;}
+  td{padding:.5rem .7rem; border-bottom:1px solid var(--grid); vertical-align:top; color:var(--ink-2);}
+  tr:last-child td{border-bottom:none;}
+  td:first-child{color:var(--ink); font-weight:600;}
+  td.num,th.num{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .master td{min-width:130px;}
+  .master td .m{display:block; font-variant-numeric:tabular-nums; color:var(--ink); font-weight:600;}
+  .master td .d{display:block; font-size:.74rem; color:var(--ink-3); margin-top:.1rem;}
+
+  /* cards */
+  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1rem; margin:.8rem 0;}
+  .card{background:var(--surface-1); border:1px solid var(--grid); border-radius:6px; padding:1rem 1.1rem;}
+  .card h3{display:flex; align-items:center; gap:.5rem; margin-bottom:.3rem;}
+  .card h3 .tag{font-size:.66rem; font-weight:800; color:var(--series-1); border:1px solid var(--series-1); border-radius:4px; padding:.06rem .34rem; letter-spacing:.04em;}
+  .card .facts{font-size:.8rem; color:var(--ink-2); margin:.3rem 0 .6rem;}
+  .card ul{margin:.4rem 0 0; padding-left:1.05rem; font-size:.8rem; color:var(--ink-2);}
+  .card ul li{margin-bottom:.3rem;}
+  .card .hr{border-top:1px dashed var(--grid); margin:.7rem 0 .55rem;}
+  .card .cap{font-size:.7rem; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-3); font-weight:700; margin-bottom:.35rem;}
+
+  /* h-bars */
+  .bars{display:flex; flex-direction:column; gap:.42rem; margin:.5rem 0;}
+  .bar{display:grid; grid-template-columns:150px minmax(0,1fr) 62px; gap:.6rem; align-items:center; font-size:.8rem;}
+  .bar .n{color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .bar .v{font-variant-numeric:tabular-nums; text-align:right; color:var(--ink); font-weight:600;}
+  .track{position:relative; height:10px; background:transparent; border-radius:2px;}
+  .track::before{content:""; position:absolute; inset:0; border-left:1px solid var(--baseline);}
+  .fill{position:absolute; left:0; top:0; height:100%; border-radius:0 2px 2px 0; background:var(--series-1); min-width:2px;}
+  .fill.g{background:var(--good);}
+  .fill.c{background:var(--crit);}
+  .fill.w{background:var(--warn);}
+  .refline{position:absolute; top:-4px; bottom:-4px; width:1px; background:var(--ink-3);}
+  .refline::after{content:attr(data-l); position:absolute; top:-1.05rem; left:50%; transform:translateX(-50%); font-size:.62rem; color:var(--ink-3); white-space:nowrap;}
+
+  /* confusion matrices */
+  .cm-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(205px,1fr)); gap:1rem; margin:.8rem 0;}
+  .cm{background:var(--surface-1); border:1px solid var(--grid); border-radius:6px; padding:.85rem .9rem;}
+  .cm h4{margin:0 0 .1rem; font-size:.84rem; font-weight:700;}
+  .cm .auc{font-size:.72rem; color:var(--ink-3); margin-bottom:.55rem;}
+  .cm-tbl{display:grid; grid-template-columns:auto 1fr 1fr; gap:2px; font-size:.7rem;}
+  .cm-tbl .h{color:var(--ink-3); display:flex; align-items:center; justify-content:center; padding:.15rem;}
+  .cm-tbl .rl{color:var(--ink-3); display:flex; align-items:center; padding-right:.3rem; justify-content:flex-end;}
+  .cm-cell{border-radius:3px; padding:.45rem .3rem; text-align:center; line-height:1.25;}
+  .cm-cell b{display:block; font-size:.8rem; font-variant-numeric:tabular-nums;}
+  .cm-cell span{font-size:.64rem; opacity:.85; font-variant-numeric:tabular-nums;}
+  .q1{background:var(--seq-100); color:#0b0b0b;} .q2{background:var(--seq-200); color:#0b0b0b;}
+  .q3{background:var(--seq-300); color:#0b0b0b;} .q4{background:var(--seq-400); color:#fff;}
+  .q5{background:var(--seq-500); color:#fff;} .q6{background:var(--seq-600); color:#fff;} .q7{background:var(--seq-700); color:#fff;}
+
+  /* heat table */
+  .heat td.hc{text-align:center; font-variant-numeric:tabular-nums; font-weight:600; border-radius:3px;}
+
+  .note{background:var(--surface-1); border:1px solid var(--grid); border-left:4px solid var(--series-1); border-radius:4px; padding: .8rem 1rem; font-size:.85rem; color:var(--ink-2); margin:1rem 0;}
+  .note.bad{border-left-color:var(--crit);}
+  .note.good{border-left-color:var(--good);}
+  .note b{color:var(--ink);}
+
+  .verdict{background:var(--surface-1); border:1px solid var(--grid); border-left:5px solid var(--crit); border-radius:6px; padding:1.2rem 1.4rem; margin:1rem 0;}
+  .verdict .t{font-size:.7rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--crit); margin-bottom:.4rem;}
+  .verdict p{margin:0; font-size:1rem;}
+
+  .legend{display:flex; flex-wrap:wrap; gap:1rem; font-size:.74rem; color:var(--ink-2); margin:.4rem 0 .8rem;}
+  .legend .k{display:inline-flex; align-items:center; gap:.4em;}
+  .sw{width:.72em; height:.72em; border-radius:2px; display:inline-block;}
+
+  code{font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:.84em; overflow-wrap:anywhere;}
+  footer{margin-top:3rem; padding-top:1rem; border-top:1px solid var(--grid); font-size:.72rem; color:var(--ink-3); display:flex; flex-wrap:wrap; gap:.8rem; justify-content:space-between;}
+
+  @media print{
+    @page{size:A4 landscape; margin:10mm;}
+    html,body{background:#fff !important;}
+    .viz-root{max-width:none; padding:0; font-size:8.5pt; color:#111; background:#fff;}
+    header.mast{margin-bottom:1rem;}
+    section{margin:1.25rem 0;}
+    .card,.cm,.note,.verdict,.stat,.twrap{break-inside:avoid; page-break-inside:avoid;}
+    .twrap{overflow:visible;}
+    table{min-width:0;}
+    th{position:static;}
+    .master{font-size:6.8pt;}
+    .track,.fill,.chip,.cm-cell{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  }
+</style>
+</head>
+<body>
+
+<div class="viz-root">
+
+<header class="mast">
+  <div class="kicker">Hap Bilgi Atlası · yöntem × veri kümesi × sonuç</div>
+  <h1>İHA Telemetrisinde Anomali Tespiti — Bütün Deneylerin Tek Sayfası</h1>
+  <p class="sub">Projenin başından bugüne (arşivlenmiş fazlar dahil) her veri kümesi, her yöntem, her sonuç — gerçek sayılarla, tek bakışta. Uzun anlatım yok: tablolar, matrisler, dağılımlar. Sonuçlar deneyine göre keşif, geliştirme veya prova rolündedir; rolü belirtilmeyen sayı ürün kanıtı sayılmaz. <b>SEAD, GNSS ve ADS-B son holdout'ları açılmadı. RflyMAD'in 132 uçuşluk tarihsel holdout'ı yeni DL runnerında dışarıda kaldı; ancak 20 Temmuz'daki toplu şema/sayım incelemesi nedeniyle bu yeni hat için “hiç okunmamış kör test” iddiası yapılmıyor.</b></p>
+  <div class="meta">
+    <span><b>Tarih</b> 20 Temmuz 2026</span>
+    <span><b>Hazırlayan</b> Anıl Keskin</span>
+    <span><b>Kapsam</b> 6 veri kümesi · 12+ yöntem ailesi · ~80 konfigürasyon</span>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="v num">6</div><div class="l">veri kümesi (arşiv dahil)</div></div>
+  <div class="stat"><div class="v num">256 M</div><div class="l">işlenen en büyük tablo (ADS-B satır)</div></div>
+  <div class="stat"><div class="v num">12+</div><div class="l">yöntem ailesi</div></div>
+  <div class="stat"><div class="v num">2</div><div class="l">ara kabul kriterini geçen aday</div></div>
+  <div class="stat"><div class="v num">0</div><div class="l">operasyonel hedefi (yakalama + alarm birlikte) geçen</div></div>
+  <div class="stat"><div class="v num">4</div><div class="l">bulunan &amp; düzeltilen büyük ölçüm hatası</div></div>
+</div>
+
+<div class="verdict">
+  <div class="t">Tek cümlelik sonuç</div>
+  <p>Hiçbir yöntem–veri kombinasyonu, <b>yeterli arıza yakalama oranını</b> ve <b>kabul edilebilir yanlış-alarm yükünü aynı anda</b> sağlayamadı; en titiz iki son deneyde sinyalin varlığı istatistiksel olarak kanıtlandı ama güvenli alarm eşiği kuracak kadar arızasız uçuş verisi yoktu.</p>
+</div>
+
+<!-- ============ 01 MASTER MATRIX ============ -->
+<section id="matris">
+  <div class="sec-head"><span class="no">01</span><h2>Ana matris — yöntem × veri kümesi</h2><span class="sub">hücre: en iyi sonuç + durum</span></div>
+  <div class="legend">
+    <span class="k"><span class="chip ok">✓ iyi</span> sinyal/kriter karşılandı</span>
+    <span class="k"><span class="chip mid">◐ kısmi</span> sinyal var, operasyonel değil</span>
+    <span class="k"><span class="chip bad">✗ kaldı</span> hedef karşılanmadı / elendi</span>
+    <span class="k tiny">ROC-AUC: 0,5 = rastgele · AUPRC tabanı = pozitif sınıf oranı · FA/sa = saatlik yanlış alarm</span>
+  </div>
+  <div class="note"><b>Metrikler neden karışık?</b> Farklı metrikler farklı işleri ölçer ve birbirine çevrilemez: <b>ROC-AUC/AUPRC</b> eşik seçilmeden önceki <i>sıralama gücüdür</i> (alarm yükü hakkında hiçbir şey söylemez); <b>recall @ FA/sa</b> dondurulmuş bir eşikteki <i>operasyonel davranıştır</i>; <b>R²</b> öğrenilen komut→tepki ilişkisinin gücüdür. ROC-AUC ile AUPRC'nin sayısal değerleri de doğrudan kıyaslanamaz; AUPRC'nin rastgele tabanı veri setindeki anomali oranına bağlıdır. Yalnız AUC/AUPRC verilen hücre, o satırda operasyonel başarının gösterilmediği anlamına gelir. Elmayı elmayla kıyaslamak için hemen alttaki <b>ortak cetvele</b> bak — orada yalnız "recall + FA birlikte ölçülmüş" satırlar var.</div>
+  <div class="twrap">
+    <table class="master">
+      <thead><tr>
+        <th>Yöntem</th><th>ALFA<br><span style="text-transform:none">sabit kanat</span></th><th>UAV Attack<br><span style="text-transform:none">GPS saldırıları</span></th><th>UAV-SEAD<br><span style="text-transform:none">geniş çok-rotor</span></th><th>RflyMAD<br><span style="text-transform:none">gerçek arızalar</span></th><th>ADS-B<br><span style="text-transform:none">256M satır trafik</span></th><th>GNSS bütünlük<br><span style="text-transform:none">RflyMAD gerçek uçuşlarında son kontrollü deney</span></th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Isolation Forest (tek model, satır)</td>
+          <td><span class="m">0,497 AUC</span><span class="d">rastgele</span><span class="chip bad">✗</span></td>
+          <td><span class="m">0,209 AUC</span><span class="d">tersine skor</span><span class="chip bad">✗</span></td>
+          <td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>Isolation Forest (fizik modülleri)</td>
+          <td><span class="m">0,833 AUC</span><span class="d">±0,172 uçuş-ROC</span><span class="chip mid">◐</span></td>
+          <td><span class="m">0,600 AUC</span><span class="d">±0,212</span><span class="chip mid">◐</span></td>
+          <td><span class="m">AUPRC 0,385</span><span class="d">referans model; hedef ✗</span><span class="chip bad">✗</span></td>
+          <td><span class="m">9 fizik modülü + IF-füzyon</span><span class="d">5 tohumda olay recall 0,000; aktarılmış füzyon sessiz kaldı</span><span class="chip bad">✗</span></td>
+          <td><span class="m">elendi</span><span class="d">skor = ham genlik (ρ 0,996)</span><span class="chip bad">✗</span></td>
+          <td>—</td></tr>
+        <tr><td>LSTM Otokodlayıcı</td>
+          <td><span class="m">0,731 → 0,918 AUC</span><span class="d">veri büyütme sonrası — projenin en iyi tekil skoru</span><span class="chip ok">✓</span></td>
+          <td><span class="m">spoof/jam ≈1,0</span><span class="d">DoS 0,53 (sensörde iz yok)</span><span class="chip mid">◐</span></td>
+          <td><span class="m">recall 0,219</span><span class="d">genlik yanılsaması (ρ 0,964)</span><span class="chip bad">✗</span></td>
+          <td><span class="m">0,741 recall @ 145,81 FA/sa</span><span class="d">CUSUM/uyarı; AUROC 0,588; ρ 0,933</span><span class="chip bad">✗</span></td>
+          <td><span class="m">0,568 AUC</span><span class="d">kuralın altında</span><span class="chip bad">✗</span></td>
+          <td>—</td></tr>
+        <tr><td>Dense Otokodlayıcı</td>
+          <td><span class="m">0,622 AUC</span><span class="chip bad">✗</span></td>
+          <td><span class="m">≈0,677</span><span class="d">LSTM ile birlikte</span><span class="chip mid">◐</span></td>
+          <td><span class="m">recall 0,215</span><span class="d">aynı yanılsama</span><span class="chip bad">✗</span></td>
+          <td><span class="m">0,683 recall @ 135,94 FA/sa</span><span class="d">CUSUM/uyarı; AUROC 0,573; ρ 0,943</span><span class="chip bad">✗</span></td>
+          <td><span class="m">0,572 AUC</span><span class="chip bad">✗</span></td>
+          <td>—</td></tr>
+        <tr><td>USAD (çekişmeli otokodlayıcı)</td>
+          <td><span class="m">0,450 AUC</span><span class="chip bad">✗</span></td>
+          <td><span class="m">0,531 AUC</span><span class="chip bad">✗</span></td>
+          <td><span class="m">recall 0,217</span><span class="d">aynı yanılsama</span><span class="chip bad">✗</span></td>
+          <td><span class="m">0,669 recall @ 128,46 FA/sa</span><span class="d">CUSUM/uyarı; AUROC 0,540; ρ 0,999</span><span class="chip bad">✗</span></td>
+          <td><span class="m">eğitim çöktü</span><span class="d">loss ≈ 2,3×10¹⁰</span><span class="chip bad">✗</span></td>
+          <td>—</td></tr>
+        <tr><td>LightGBM (etiketli/denetimli)</td>
+          <td><span class="m">AUPRC 0,843</span><span class="d">IF 0,858 &amp; LSTM 0,872'nin altında</span><span class="chip bad">✗</span></td>
+          <td>—</td>
+          <td><span class="m">AUPRC 0,349</span><span class="d">etiketsiz IF 0,385'i geçemedi</span><span class="chip bad">✗</span></td>
+          <td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>Chronos (hazır tahmin modeli, sıfır-eğitim)</td>
+          <td>—</td><td>—</td>
+          <td><span class="m">motor 0,205→0,390</span><span class="d">iyileşme ✓ · dikey 0,096→0,023 ✗ · birleşim 0,213 @ 23,9 FA/sa ✗</span><span class="chip mid">◐</span></td>
+          <td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>Tek-özellik ince model (itki komutu)</td>
+          <td>—</td><td>—</td>
+          <td><span class="m">recall 0,205→0,459</span><span class="d">kategori rekoru; ama tek başına 38,1 FA/sa</span><span class="chip mid">◐</span></td>
+          <td><span class="m">itki komutu + CUSUM: 0,526 recall</span><span class="d">@ 22,3 FA/sa (bütçe ~2×)</span><span class="chip mid">◐</span></td>
+          <td>—</td><td>—</td></tr>
+        <tr><td>Kural-bazlı fizik skoru (öğrenmesiz)</td>
+          <td>—</td><td>—</td><td>—</td><td>—</td>
+          <td><span class="m">AUROC 0,765</span><span class="d">3 sinir ağını geçti; ama 4,81 alarm/sa, uçuşların %89'u alarmlı</span><span class="chip mid">◐</span></td>
+          <td>—</td></tr>
+        <tr><td>Ardışık değişim tespiti (CUSUM)</td>
+          <td><span class="m">IF+CUSUM: 0,625 recall @ 7,91 FA/sa</span><span class="d">tek geçen hücre — küçük havuz, kör testsiz</span><span class="chip mid">◐</span></td>
+          <td>—</td><td>—</td><td>—</td>
+          <td><span class="m">konum kayması %49,7</span><span class="d">gevşek bütçede; sıkıda %7,1</span><span class="chip mid">◐</span></td>
+          <td><span class="m">%70 @ 7,21 FA/sa</span><span class="d">hedef %90'dı</span><span class="chip bad">✗</span></td></tr>
+        <tr><td>Bağlamsal LSTM (tahmin ağı)</td>
+          <td>—</td><td>—</td><td>—</td><td>—</td>
+          <td><span class="m">genlik testini geçen tek ağ (ρ 0,65)</span><span class="d">ama sıkı bütçede 5 profilin 4'ünde recall &lt;%6</span><span class="chip bad">✗</span></td>
+          <td><span class="m">%100 @ 44,9 FA/sa</span><span class="d">alarm yükü aşırı; gruplar arası kararsız</span><span class="chip bad">✗</span></td></tr>
+        <tr><td>Komut→tepki / residual-FDI</td>
+          <td><span class="m">Ridge R1–R5 eğitilemedi</span><span class="d">tek bağımsız oturum; doğrudan fiziksel R6 kalıntısı KS testini geçti</span><span class="chip mid">◐</span></td>
+          <td>—</td><td>—</td>
+          <td><span class="m">Q2 motor R² 0,456</span><span class="d">Q1 0,011; Q3 0,000; Rfly S-3 satırları 4/4 ayrıştı</span><span class="chip mid">◐</span></td>
+          <td>—</td><td>—</td></tr>
+        <tr><td>Residual-FDI eşik kalibrasyonu</td>
+          <td><span class="m">0,169 / 2 saat</span><span class="d">11,8× normal maruziyet açığı</span><span class="chip bad">✗</span></td>
+          <td>—</td><td>—</td>
+          <td><span class="m">0,786 / 4 saat</span><span class="d">5,1× normal maruziyet açığı</span><span class="chip bad">✗</span></td>
+          <td>—</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="tiny">Operasyonel hedef (önceden ilan edilmiş, sonuç görülmeden dondurulmuş): kritik ≥ 0,30 recall @ ≤ 2 FA/sa · uyarı ≥ 0,50 recall @ ≤ 12 FA/sa · ADS-B'de daha sıkı: 100 uçuş-saatinde 0,1–5 alarm.</p>
+  <p class="tiny"><b>RflyMAD boşluğu kapatıldı:</b> 20 Temmuz'da LSTM-AE, Dense-AE ve USAD temiz bir <code>rfly_dl</code> hattında; 35 kanal, 50 örnek pencere, train-only RobustScaler + ±10 kırpma, normal-validation erken durdurma ve aynı threshold/K-of-N/CUSUM cetveliyle 5 split çalıştırıldı. Üçü de yüksek recall'a ancak 128–146 FA/sa alarm seliyle çıktı; 15/15 model-split genlik/rastgele-init denetiminde bayraklandı. Bu nedenle yeni sonuç, önceki “koşulmadı” eksikliğini kapattı fakat NO-GO hükmünü değiştirmedi.</p>
+
+  <h3 style="margin-top:1.6rem">Ortak cetvel — bütün operasyonel adaylar aynı iki eksende</h3>
+  <p class="muted tiny">Yalnız hem yakalama oranı hem saatlik yanlış alarm ölçülmüş konfigürasyonlar. Uyarı hedefi: recall ≥ %50 <b>ve</b> FA ≤ 12/sa (GNSS deneyinde recall hedefi %90'dı). Alt çubukta kesikli çizgi = 12 FA/sa bütçesi. Bir satırın "geçmesi" için üst çubuğun uzun, alt çubuğun çizginin solunda olması gerekir — bunu yalnız ilk satır başardı.</p>
+  <div class="card" style="max-width:900px">
+    <div class="bars" style="gap:.9rem">
+      <div class="bar"><span class="n"><b>ALFA · IF+CUSUM</b> (tek geçen)</span><div class="track" style="height:8px"><div class="fill g" style="width:62.5%"></div></div><span class="v num">%62,5</span></div>
+      <div class="bar"><span class="n tiny" style="padding-left:1em">↳ FA/sa</span><div class="track" style="height:8px"><div class="fill" style="width:5.3%"></div><div class="refline" style="left:8%" data-l="12/sa"></div></div><span class="v num">7,91 ✓</span></div>
+      <div class="bar"><span class="n"><b>GNSS prova · LSTM</b></span><div class="track" style="height:8px"><div class="fill g" style="width:100%"></div></div><span class="v num">%100</span></div>
+      <div class="bar"><span class="n tiny" style="padding-left:1em">↳ FA/sa</span><div class="track" style="height:8px"><div class="fill c" style="width:29.9%"></div><div class="refline" style="left:8%" data-l=""></div></div><span class="v num">44,86 ✗</span></div>
+      <div class="bar"><span class="n"><b>GNSS prova · otopilot göstergeleri</b></span><div class="track" style="height:8px"><div class="fill g" style="width:90%"></div></div><span class="v num">%90</span></div>
+      <div class="bar"><span class="n tiny" style="padding-left:1em">↳ FA/sa</span><div class="track" style="height:8px"><div class="fill c" style="width:19.2%"></div><div class="refline" style="left:8%" data-l=""></div></div><span class="v num">28,86 ✗</span></div>
+      <div class="bar"><span class="n"><b>GNSS prova · CUSUM</b></span><div class="track" style="height:8px"><div class="fill w" style="width:70%"></div></div><span class="v num">%70 (hedef 90)</span></div>
+      <div class="bar"><span class="n tiny" style="padding-left:1em">↳ FA/sa</span><div class="track" style="height:8px"><div class="fill" style="width:4.8%"></div><div class="refline" style="left:8%" data-l=""></div></div><span class="v num">7,21 ✓</span></div>
+      <div class="bar"><span class="n"><b>RflyMAD · LSTM-AE + CUSUM</b></span><div class="track" style="height:8px"><div class="fill g" style="width:74.1%"></div></div><span class="v num">%74,1</span></div>
+      <div class="bar"><span class="n tiny" style="padding-left:1em">↳ FA/sa</span><div class="track" style="height:8px"><div class="fill c" style="width:97.2%"></div><div class="refline" style="left:8%" data-l=""></div></div><span class="v num">145,81 ✗</span></div>
+      <div class="bar"><span class="n"><b>RflyMAD · itki komutu</b></span><div class="track" style="height:8px"><div class="fill g" style="width:52.6%"></div></div><span class="v num">%52,6</span></div>
+      <div class="bar"><span class="n tiny" style="padding-left:1em">↳ FA/sa</span><div class="track" style="height:8px"><div class="fill c" style="width:14.9%"></div><div class="refline" style="left:8%" data-l=""></div></div><span class="v num">22,28 ✗</span></div>
+      <div class="bar"><span class="n"><b>SEAD · iki-kanallı alarm</b></span><div class="track" style="height:8px"><div class="fill w" style="width:29.1%"></div></div><span class="v num">%29,1</span></div>
+      <div class="bar"><span class="n tiny" style="padding-left:1em">↳ FA/sa</span><div class="track" style="height:8px"><div class="fill c" style="width:29.8%"></div><div class="refline" style="left:8%" data-l=""></div></div><span class="v num">44,70 ✗</span></div>
+      <div class="bar"><span class="n"><b>SEAD · en iyi klasik birleşim</b></span><div class="track" style="height:8px"><div class="fill w" style="width:22.2%"></div></div><span class="v num">%22,2</span></div>
+      <div class="bar"><span class="n tiny" style="padding-left:1em">↳ FA/sa</span><div class="track" style="height:8px"><div class="fill c" style="width:17.2%"></div><div class="refline" style="left:8%" data-l=""></div></div><span class="v num">25,83 ✗</span></div>
+      <div class="bar"><span class="n"><b>SEAD+RflyMAD havuzu</b></span><div class="track" style="height:8px"><div class="fill w" style="width:14.9%"></div></div><span class="v num">%14,9</span></div>
+      <div class="bar"><span class="n tiny" style="padding-left:1em">↳ FA/sa</span><div class="track" style="height:8px"><div class="fill c" style="width:20%"></div><div class="refline" style="left:8%" data-l=""></div></div><span class="v num">30,00 ✗</span></div>
+      <div class="bar"><span class="n"><b>SEAD · veri büyütme sonrası</b></span><div class="track" style="height:8px"><div class="fill w" style="width:12.6%"></div></div><span class="v num">%12,6</span></div>
+      <div class="bar"><span class="n tiny" style="padding-left:1em">↳ FA/sa</span><div class="track" style="height:8px"><div class="fill" style="width:6.6%"></div><div class="refline" style="left:8%" data-l=""></div></div><span class="v num">9,95 ✓ ama recall yok</span></div>
+    </div>
+    <p class="tiny" style="margin-top:.7rem">FA ekseni yeni Rfly DL alarm selini gösterebilmek için 0–150/sa aralığına ölçekli. ALFA satırının yıldızı da sınırlı: 10 normal uçuşluk küçük, tek-platform havuz; kazanç modelden değil karar katmanından; bağımsız kör testle hiç doğrulanmadı. ADS-B bağlamsal modeli bu tabloya giremiyor çünkü bütçesi başka birimde (100 uçuş-saatinde 0,1–5 alarm ≈ 0,001–0,05 FA/sa) — eşik bilinçli gevşetildiğinde %74–92 recall'a çıkıyor ama ~9 FA/sa üretiyor, yani kendi bütçesinin ~200 katı.</p>
+  </div>
+</section>
+
+<!-- ============ 02 DATASETS ============ -->
+<section id="veri">
+  <div class="sec-head"><span class="no">02</span><h2>Veri kümeleri — boyut, sınıf dağılımı, ön-işleme</h2><span class="sub">"data'ya ne yapıldı" özetleri</span></div>
+  <div class="cards">
+
+    <div class="card">
+      <h3><span class="tag">D1</span> ALFA — sabit kanat, gerçek arızalar</h3>
+      <div class="facts num">54 uçuş (47 resmî arşiv + 7 ham kayıttan kurtarılan) · 73→85 el yapımı özellik</div>
+      <div class="bars">
+        <div class="bar"><span class="n">Motor arızası</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="v num">23</span></div>
+        <div class="bar"><span class="n">Normal</span><div class="track"><div class="fill" style="width:65%"></div></div><span class="v num">15</span></div>
+        <div class="bar"><span class="n">Dümen (rudder)</span><div class="track"><div class="fill c" style="width:17%"></div></div><span class="v num">4</span></div>
+        <div class="bar"><span class="n">İrtifa dümeni</span><div class="track"><div class="fill c" style="width:9%"></div></div><span class="v num">2</span></div>
+        <div class="bar"><span class="n">Kanatçık+dümen</span><div class="track"><div class="fill c" style="width:4.5%"></div></div><span class="v num">1</span></div>
+      </div>
+      <p class="tiny">Kırmızı sınıflarda her "yakalama oranı" 1–4 uçuşa dayanır — istatistiksel genelleme yapılamaz.</p>
+      <div class="hr"></div><div class="cap">Ön-işleme</div>
+      <ul>
+        <li>Küresel konum tablosu zaman omurgası; konu tabloları ~0,5 sn toleransla en-yakın-zaman birleştirme</li>
+        <li>İstenen–ölçülen farkları (roll/pitch/yaw/hız); koordineli dönüş fiziği kalıntısı</li>
+        <li><b>Bulunan hata:</b> hız kolonu %100 boştu — kolon adı eşleme hatası; düzeltilince boşluk %9,3</li>
+        <li>6 tip kontrollü sentetik bozulma (donma/sapma/kayma/gürültü/GPS rampası/kesinti) — yalnız değerlendirmede</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3><span class="tag">D2</span> UAV Attack — GPS saldırı kayıtları</h3>
+      <div class="facts num">19 uçuş kaydı · 767 CSV · 683,9 MB</div>
+      <div class="bars">
+        <div class="bar"><span class="n">Normal</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="v num">6</span></div>
+        <div class="bar"><span class="n">GPS aldatma</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="v num">6</span></div>
+        <div class="bar"><span class="n">Hizmet engelleme</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="v num">6</span></div>
+        <div class="bar"><span class="n">Sinyal karıştırma</span><div class="track"><div class="fill c" style="width:17%"></div></div><span class="v num">1</span></div>
+      </div>
+      <div class="hr"></div><div class="cap">Ön-işleme</div>
+      <ul>
+        <li>4 otopilot konusu; ~200 ms toleransla birleştirme; quaternion→Euler dönüşümü</li>
+        <li>Aşağı-pozitif dikey hız → yukarı-pozitif çevrimi; batarya akımındaki −1 "bilinmiyor" işareti maskelendi</li>
+        <li><b>En değerli türetim:</b> bildirilen GPS hızı ile konumdan hesaplanan hız farkı — gizli aldatmayı yakaladı</li>
+        <li><b>Yapısal sınır:</b> DoS kayıtlarının 4/6'sında saldırı hiçbir sensöre yansımıyor — tespit fiziksel olarak imkânsız</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3><span class="tag">D3</span> UAV-SEAD — geniş çok-rotor havuzu</h3>
+      <div class="facts num">1.044 geliştirme uçuşu · ayrıca 200 hiç açılmayan kör test · +141 belirsiz etiketli uçuş bilinçli dışarıda</div>
+      <div class="bars">
+        <div class="bar"><span class="n">Geliştirme · normal</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="v num">899</span></div>
+        <div class="bar"><span class="n">Geliştirme · tek-sınıf anomali</span><div class="track"><div class="fill c" style="width:16.1%"></div></div><span class="v num">145</span></div>
+        <div class="bar"><span class="n">Mühürlü kör test</span><div class="track"><div class="fill g" style="width:22.2%"></div></div><span class="v num">200</span></div>
+        <div class="bar"><span class="n">Belirsiz etiket — dışarıda</span><div class="track"><div class="fill w" style="width:15.7%"></div></div><span class="v num">141</span></div>
+      </div>
+      <p class="tiny"><b>Kümelenme sorunu:</b> 398 normal uçuş yalnızca 64 bağımsız oturuma ait (geliştirme: 324 uçuş / 49 oturum; en kalabalık oturum 21 uçuş) — gerçek bağımsız örneklem uçuş sayısının çok altında.</p>
+      <div class="hr"></div><div class="cap">Ön-işleme</div>
+      <ul>
+        <li>ULog ayrıştırma; iç mekân uçuşlarında GPS yok → yerel konuma geri düşüş (sahte GPS üretilmedi)</li>
+        <li>Bölme oturum tarihine göre; normal+arıza karışık oturumlar karantinada</li>
+        <li><b>Yapısal boşluk:</b> irtifa-arıza uçuşlarında yerel-irtifa kalıntısı %0, barometre %7 dolulukta</li>
+        <li><b>Az bilinen:</b> "normal" etiketli en az 1 uçuşta donmuş GPS + hata sentineli (≈25000) bulundu — şüpheli etiket</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3><span class="tag">D4</span> RflyMAD — gerçek motor/sensör arızaları</h3>
+      <div class="facts num">490 gerçek uçuş · 5 çelişkili-etiketli uçuş sonuç görülmeden dışlandı</div>
+      <div class="bars">
+        <div class="bar"><span class="n">Motor arızası</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="v num">242</span></div>
+        <div class="bar"><span class="n">Sensör arızası</span><div class="track"><div class="fill" style="width:81.4%"></div></div><span class="v num">197</span></div>
+        <div class="bar"><span class="n">Arızasız</span><div class="track"><div class="fill w" style="width:21%"></div></div><span class="v num">51</span></div>
+      </div>
+      <p class="tiny">Arızasız uçuş azlığı (51) sonradan eşik-kalibrasyonunun önündeki asıl duvar oldu — resmî kaynağın tamamı (84) bile açığı kapatamıyor.</p>
+      <div class="hr"></div><div class="cap">Ön-işleme</div>
+      <ul>
+        <li><b>Büyük etiket düzeltmesi:</b> "uçuşun tamamı arızalı" varsayımı → kontrol mesajlarından gerçek arıza aralığı (başlangıç–bitiş) çıkarıldı</li>
+        <li><b>"Hayalet sensör" düzeltmesi:</b> bir platformda hiç olmayan kolonun başka platform medyanıyla doldurulması engellendi</li>
+      </ul>
+      <div class="hr"></div><div class="cap">Gerçekte çalıştırılan dört Rfly hattı</div>
+      <ul>
+        <li><b>Doğrudan arıza hattı:</b> 9 fizik modüllü Isolation Forest füzyonları ile <code>itki_komutu</code> skoru; threshold, K-of-N ve CUSUM kararları 5 tohumda çalıştırıldı. Füzyonlar 0 olay recall'da kaldı; en iyi hücre itki+CUSUM ile 0,526 recall / 22,28 FA/sa oldu.</li>
+        <li><b>Doğrudan DL hattı:</b> LSTM-AE, Dense-AE ve USAD; 35 telemetri kanalı, 50 örnek pencere, ±10 kırpılmış train-only robust ölçek ve 5 split ile çalıştırıldı. En iyi LSTM hücresi 0,741 recall verdi fakat 145,81 FA/sa üretti; üç mimarinin 15/15 denetimi genlik/rastgele-init baskınlığına takıldı.</li>
+        <li><b>GNSS alt-deneyi:</b> RflyMAD gerçek uçuşlarından ayrı rol manifesti kurularak PX4 göstergeleri, Page-CUSUM ve bağlamsal LSTM karşılaştırıldı. Bu çalışma genel motor/sensör arızası değil, GNSS bütünlüğü hedefledi.</li>
+        <li><b>Residual-FDI:</b> komut→tepki ridge kanalları Q1–Q3, komut ablasyonu, genlik denetimi ve arıza-öncesi/sonrası KS ayrımı çalıştırıldı; sinyal bulundu fakat normal saat yetersizliğinde eşik yazılmadan duruldu.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3><span class="tag">D5</span> ADS-B — büyük ölçekli gerçek trafik</h3>
+      <div class="facts num">3 tam gün · 256.155.009 satır · ~542.000 uçuş · ~497.571 uçuş-saati · etiketsiz</div>
+      <div class="cap">Alan doluluk oranları</div>
+      <div class="bars">
+        <div class="bar"><span class="n">Konum</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="v num">%100</span></div>
+        <div class="bar"><span class="n">Hız</span><div class="track"><div class="fill" style="width:98.1%"></div></div><span class="v num">%98,1</span></div>
+        <div class="bar"><span class="n">Yön</span><div class="track"><div class="fill" style="width:95.2%"></div></div><span class="v num">%95,2</span></div>
+        <div class="bar"><span class="n">İrtifa / dikey hız</span><div class="track"><div class="fill" style="width:89.4%"></div></div><span class="v num">%89,4</span></div>
+        <div class="bar"><span class="n">Hava hızı (IAS)</span><div class="track"><div class="fill w" style="width:29.7%"></div></div><span class="v num">%29,7</span></div>
+        <div class="bar"><span class="n">Yatış açısı</span><div class="track"><div class="fill w" style="width:28.4%"></div></div><span class="v num">%28,4</span></div>
+      </div>
+      <div class="hr"></div><div class="cap">Ön-işleme</div>
+      <ul>
+        <li>Akış hâlinde (streaming) ayrıştırma; birim çevrimleri (ft→m, kn→m/s); ileri-doldurma YOK</li>
+        <li>1.800 sn boşluk kuralıyla uçuş bölütleme; yerdeyken irtifa null</li>
+        <li><b>Bulunan hata:</b> sıfır-MAD kanallara epsilon verme → normal pencerelerin %93,8'i pozitif skor; kanallar dışlanınca düzeldi</li>
+        <li><b>Etiket v2:</b> "enjeksiyon aktif" ≠ "gözlemde değişim var" ayrımı — 666.739 aktif satırın yalnız 570.666'sı gerçekten gözlemlenebilirdi; eski etiket AUC'ye yapay ~0,75 tavanı koyuyordu</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3><span class="tag">D6</span> GNSS bütünlük deneyi — veri rolleri</h3>
+      <div class="facts num">RflyMAD gerçek uçuşlarından kurgulandı · rol ayrımı dosya düzeyinde kilitli</div>
+      <div class="bars">
+        <div class="bar"><span class="n">Model öğrenme (fit)</span><div class="track"><div class="fill" style="width:87%"></div></div><span class="v num">20</span></div>
+        <div class="bar"><span class="n">Eşik ayarı</span><div class="track"><div class="fill" style="width:43%"></div></div><span class="v num">10</span></div>
+        <div class="bar"><span class="n">Geliştirme</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="v num">23</span></div>
+        <div class="bar"><span class="n">Prova</span><div class="track"><div class="fill" style="width:65%"></div></div><span class="v num">15</span></div>
+        <div class="bar"><span class="n">Mühürlü kör test</span><div class="track"><div class="fill g" style="width:87%"></div></div><span class="v num">20</span></div>
+        <div class="bar"><span class="n">Karantina</span><div class="track"><div class="fill w" style="width:26%"></div></div><span class="v num">6</span></div>
+      </div>
+      <ul>
+        <li>"GPS klasöründe" olmak GPS arızası sayılmadı: 6 kayıt aslında manyetometre arızası çıktı → karantina</li>
+        <li>Öğrenme/eşik yalnız arızasız uçuşlardan; arızalı uçuşların arıza-öncesi bölümü bile öğrenmeye sokulmadı</li>
+        <li>Kalıntılar belirsizliğe bölünerek normalize edildi; yalnız geçmişe bakan birleştirme, ileri-doldurma yok</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 MODEL INPUT ============ -->
+<section id="giris">
+  <div class="sec-head"><span class="no">03</span><h2>Modele ne, nasıl girdi?</h2><span class="sub">pencere · ölçekleme · eğitim verisi · skor</span></div>
+  <div class="twrap">
+    <table>
+      <thead><tr><th>Model ailesi</th><th>Girdi biçimi</th><th>Ölçekleme</th><th>Neyle eğitildi</th><th>Skor tanımı</th></tr></thead>
+      <tbody>
+        <tr><td>Isolation Forest (modüler)</td><td>Özellikler fizik gruplarına bölündü (navigasyon / dinamik / aktüatör / veri kalitesi)</td><td>Grup başına ayrı; doğrulama-normaline göre normalize füzyon</td><td>Yalnız normal uçuşlar</td><td>Grupların birleşik aykırılık skoru; uçuş skoru = pencere maksimumu</td></tr>
+        <tr><td>Otokodlayıcılar (LSTM/Dense/USAD)</td><td>Kayan zaman pencereleri</td><td>RobustScaler — <b>kırpmasız</b> (genlik yanılsamasının kök nedeni çıktı)</td><td>Yalnız normal, uçuş-bazlı bölme, 5 tohum</td><td>Yeniden-üretim hatası</td></tr>
+        <tr><td>RflyMAD doğrudan DL</td><td>35 hareket/tutum/kontrol/EKF/aktüatör/titreşim kanalı; 50 örnek pencere, 5 örnek stride, boşluk ≤2 s</td><td>Yalnız train-normal RobustScaler, NaN maske, ±10 kırpma</td><td>Split başına 27 normal train + 12 normal validation; 303 arızalı + 12 normal test; 5 split</td><td>Validation-CDF reconstruction skoru → threshold/K-of-N/CUSUM</td></tr>
+        <tr><td>ADS-B derin modeller</td><td>Pencere 12 adım, kaydırma 6, geçmiş 8; boşluk &gt;60 sn pencere kesilir; 8 fizik-kalıntı kanalı</td><td>Yalnız eğitim-verisinden robust ölçek, ±5 kırpma</td><td>60/638 parça, 15 epoch, yığın 512</td><td>Yeniden-üretim / tahmin hatası</td></tr>
+        <tr><td>LightGBM</td><td>10 sn'lik nedensel pencerelerden kanal başına ~20 istatistiksel tanımlayıcı</td><td>Sınıf-dengeli ağırlık</td><td>Etiketli pencereler; denetimli bölme, oturum izolasyonlu</td><td>Sınıf olasılığı</td></tr>
+        <tr><td>Chronos (hazır model)</td><td>Ham kanal serisi, sıfır-eğitim tahmin</td><td>—</td><td>Eğitilmedi (önceden eğitilmiş)</td><td>Tahmin − ölçüm farkı</td></tr>
+        <tr><td>Bağlamsal LSTM (ADS-B)</td><td>12 geçmiş adım + uçuş fazı + yön sin/cos + gerçek Δt + veri-temposu + doluluk maskeleri = 19 girdi</td><td>Eğitim-normalinden robust</td><td>2.929 uçuş / 1,27 M satır, 5 epoch</td><td>|ölçüm − tahmin| / tahmin-belirsizliği (skor genlikten arındırılmış)</td></tr>
+        <tr><td>Komut→tepki modeli (ridge)</td><td>Komut kanalları: gecikme pencereli özet (son değer + 3 üçgen pencere + 1 sn fark); bağlam kanalları: yalnız son değer — <b>tepki geçmişi asla girmez</b> (sızıntı koruması kodda)</td><td>Eğitim-normal medyan/MAD</td><td>Arıza başlangıcından ≥10 sn önceki satırlar; oturum-gruplu çapraz doğrulama (≥2 oturum şartı)</td><td>Ölçülen tepki − tahmin edilen tepki (kalıntı)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 04 VALIDATION ============ -->
+<section id="dogrulama">
+  <div class="sec-head"><span class="no">04</span><h2>Test &amp; doğrulama disiplini</h2><span class="sub">bölme birimi · tohum · kör test</span></div>
+  <div class="twrap">
+    <table>
+      <thead><tr><th>Veri kümesi</th><th>Bölme birimi</th><th class="num">Tekrar (tohum)</th><th>Kör test</th><th>Not</th></tr></thead>
+      <tbody>
+        <tr><td>ALFA</td><td>Uçuş</td><td class="num">5</td><td><span class="chip ok">kapalı</span></td><td>Aynı uçuş asla hem eğitim hem testte değil; normalizasyon yalnız eğitim verisinden öğrenildi</td></tr>
+        <tr><td>UAV-SEAD</td><td>Oturum (tarih)</td><td class="num">5</td><td><span class="chip ok">200 uçuş — hiç açılmadı</span></td><td>Oturum-bazlı bölme tohum oynaklığını ±0,212'den ±0,012'ye indirdi; adil satır-ROC 0,474→0,799 (kazanç modelden değil, bölme disiplininden)</td></tr>
+        <tr><td>RflyMAD</td><td>Vaka kimliği (oturum)</td><td class="num">5</td><td><span class="chip mid">132 uçuş DL testinde dışarıda; körlük iddiası yok</span></td><td>Arıza aralığı gerçek zaman damgalarından; development'taki 4 çelişkili uçuş dışarıda. Yeni DL runnerı holdout satırı okumadı; daha önceki toplu portföy incelemesi nedeniyle “hiç açılmadı” denmiyor</td></tr>
+        <tr><td>ADS-B</td><td>Gün + dosya + uçuş rolü</td><td class="num">—</td><td><span class="chip mid">kısmî</span></td><td>3 gün fit / eşik / geliştirme / prova rollerine kilitli; tam kör aşamaya kriter geçilemediği için hiç gelinmedi. Sentetik veri asla eğitime/eşiğe girmez (kodda zorlanır)</td></tr>
+        <tr><td>GNSS deneyi</td><td>Uçuş rolleri (tablo D6)</td><td class="num">—</td><td><span class="chip ok">20 uçuş — mühürlü kaldı</span></td><td>Geliştirme VE prova birlikte geçilmeden kör test açılmaz kuralı uygulandı — açılmadı</td></tr>
+        <tr><td>Komut→tepki modeli</td><td>Oturum-gruplu CV</td><td class="num">tohum 11</td><td><span class="chip ok">kapalı</span></td><td>&lt;2 oturumlu kanal eğitilmez (otomatik ret); eşik dosyası yazılamadan süreç güvenli durdu; ilk deneme eşikleri "KULLANMA" işaretli</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note good"><b>Dondurma disiplini:</b> her kayıtlı değerlendirme koşusunun eşiği ve parametreleri, o koşunun sonucu görüldükten sonra değiştirilmedi. Gerekli düzeltme veya yeni hipotez, eski çıktının üzerine yazılmadan yeni manifest/ADR ve yeni koşu olarak yürütüldü. Mühürlü son holdout yalnız geliştirme ve prova birlikte geçerse açılacaktı; bu koşul oluşmadı.</div>
+</section>
+
+<!-- ============ 05 CONFUSION ============ -->
+<section id="karisiklik">
+  <div class="sec-head"><span class="no">05</span><h2>Karışıklık matrisleri — dört hat</h2><span class="sub">satır = gerçek · sütun = tahmin</span></div>
+
+  <h3>ALFA &amp; UAV-SEAD — uçuş düzeyi kararlar</h3>
+  <div class="cm-grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+    <div class="cm"><h4>ALFA · LSTM-AE (aşırı-muhafazakâr eşik)</h4><div class="auc num">uçuş-ROC 0,750 · eşik: yalnız 2 doğrulama-normal uçuşun %99 dilimi</div>
+      <div class="cm-tbl">
+        <div></div><div class="h">alarm yok</div><div class="h">alarm</div>
+        <div class="rl">normal</div><div class="cm-cell q5"><b class="num">4</b><span>%100</span></div><div class="cm-cell q1"><b class="num">0</b><span>%0</span></div>
+        <div class="rl">arızalı</div><div class="cm-cell q6"><b class="num">35</b><span>%92,1</span></div><div class="cm-cell q1"><b class="num">3</b><span>%7,9</span></div>
+      </div>
+      <p class="tiny" style="margin:.55rem 0 0">Çelişki değil: model sıralamada sinyal taşıyor (ROC 0,75) ama eşik yalnızca <b>iki</b> normal uçuştan seçilince aşırı sıkı çıktı — hiç yanlış alarm yok, ama 38 arızalı uçuşun 35'i kaçıyor. "Küçük normal havuz = kararsız eşik" probleminin ders kitabı örneği.</p>
+    </div>
+    <div class="cm"><h4>UAV-SEAD · IF-füzyon + CUSUM (uyarı eşiği)</h4><div class="auc num">5 tohumun toplam geliştirme kararları · uçuş-ROC ort. 0,557</div>
+      <div class="cm-tbl">
+        <div></div><div class="h">alarm yok</div><div class="h">alarm</div>
+        <div class="rl">normal</div><div class="cm-cell q4"><b class="num">543</b><span>%58,8</span></div><div class="cm-cell q2"><b class="num">380</b><span>%41,2</span></div>
+        <div class="rl">arızalı</div><div class="cm-cell q3"><b class="num">364</b><span>%46,7</span></div><div class="cm-cell q4"><b class="num">416</b><span>%53,3</span></div>
+      </div>
+      <p class="tiny" style="margin:.55rem 0 0">ALFA'nın tam tersi mod: eşik gevşek, arızalıların %53'ü yakalanıyor ama normal uçuşların da %41'i alarm alıyor. Normal ve arıza skorları gerçekten örtüşüyor — aynı eşikte iki hücreyi birden düzeltmek bu veriyle mümkün olmadı.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:1.4rem">Aynı iki model — bu sefer arıza <em>türü</em> bazında</h3>
+  <p class="muted tiny">Yukarıdaki ikili (normal/arızalı) matrislerin arkasında hangi sınıfın daha çok kaçtığı gizleniyordu — burada açılıyor. Her satırın altında, o türü tek başına en çok ayıran 3 sütun ve tekil AUC'si var (küçük n'ler işaretli).</p>
+  <div class="cm-grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+    <div class="cm">
+      <h4>ALFA — tür bazlı (n=42 uçuş, LSTM-AE)</h4>
+      <div class="twrap" style="margin:.35rem 0"><table style="min-width:0">
+        <thead><tr><th>Tür (n)</th><th class="num">Alarm verildi</th><th class="num">Sessiz kaldı</th></tr></thead>
+        <tbody>
+          <tr><td>rudder (3)</td><td class="hc q3 num" style="border-radius:3px">1 (%33)</td><td class="num">2</td></tr>
+          <tr><td>aileron (7)</td><td class="hc q1 num" style="border-radius:3px">1 (%14)</td><td class="num">6</td></tr>
+          <tr><td>engine (25)</td><td class="hc q1 num" style="border-radius:3px">1 (%4)</td><td class="num">24</td></tr>
+          <tr><td>elevator (2)</td><td class="hc q1 num" style="border-radius:3px">0 (%0)</td><td class="num">2</td></tr>
+          <tr><td>aileron+rudder (1)</td><td class="hc q1 num" style="border-radius:3px">0 (%0)</td><td class="num">1</td></tr>
+          <tr><td style="color:var(--ink-3)">normal (4)</td><td class="hc q1 num" style="border-radius:3px">0 yanlış alarm</td><td class="num">4 sessiz ✓</td></tr>
+        </tbody>
+      </table></div>
+      <div class="cap" style="margin-top:.5rem">En çok etkileyen sütunlar</div>
+      <div class="bars" style="gap:.3rem">
+        <div class="bar" style="grid-template-columns:96px 1fr 46px"><span class="n tiny">engine</span><div class="track"><div class="fill" style="width:91.3%"></div></div><span class="v num">wp_dist 0,913</span></div>
+        <div class="bar" style="grid-template-columns:96px 1fr 46px"><span class="n tiny">aileron/elev.</span><div class="track"><div class="fill" style="width:94.5%"></div></div><span class="v num">|hız hatası| 0,94+</span></div>
+        <div class="bar" style="grid-template-columns:96px 1fr 46px"><span class="n tiny">rudder</span><div class="track"><div class="fill" style="width:91.5%"></div></div><span class="v num">yatış enerjisi 0,915</span></div>
+      </div>
+      <p class="tiny" style="margin-top:.4rem">n=1–3 satırlarda (aileron+rudder, elevator, rudder) yüzdeler tek uçuşa dayanır — genelleme yok.</p>
+    </div>
+    <div class="cm">
+      <h4>UAV-SEAD — tür bazlı (n=1.703 değerlendirme, 5 tohum, IF+CUSUM)</h4>
+      <div class="twrap" style="margin:.35rem 0"><table style="min-width:0">
+        <thead><tr><th>Tür (n)</th><th class="num">Alarm verildi</th><th class="num">Sessiz kaldı</th></tr></thead>
+        <tbody>
+          <tr><td>global konum (110)</td><td class="hc q7 num" style="border-radius:3px">99 (%90)</td><td class="num">11</td></tr>
+          <tr><td>dış konum (225)</td><td class="hc q6 num" style="border-radius:3px">199 (%88)</td><td class="num">26</td></tr>
+          <tr><td>mekanik (150)</td><td class="hc q3 num" style="border-radius:3px">58 (%39)</td><td class="num">92</td></tr>
+          <tr><td>irtifa (295)</td><td class="hc q2 num" style="border-radius:3px">60 (%20)</td><td class="num">235</td></tr>
+          <tr><td style="color:var(--ink-3)">normal (923)</td><td class="hc q3 num" style="border-radius:3px">380 yanlış alarm (%41)</td><td class="num">543 sessiz ✓</td></tr>
+        </tbody>
+      </table></div>
+      <div class="cap" style="margin-top:.5rem">En çok etkileyen sütunlar <span class="tiny" style="font-weight:400;text-transform:none">(≈ eşleme, ince-taneli anotasyon kategorisi)</span></div>
+      <div class="bars" style="gap:.3rem">
+        <div class="bar" style="grid-template-columns:96px 1fr 60px"><span class="n tiny">irtifa</span><div class="track"><div class="fill" style="width:99.6%"></div></div><span class="v num">baro kalıntısı 0,996</span></div>
+        <div class="bar" style="grid-template-columns:96px 1fr 60px"><span class="n tiny">konum X/dış</span><div class="track"><div class="fill" style="width:89%"></div></div><span class="v num">GPS hız kalıntısı 0,890</span></div>
+        <div class="bar" style="grid-template-columns:96px 1fr 60px"><span class="n tiny">mekanik</span><div class="track"><div class="fill" style="width:98.3%"></div></div><span class="v num">itki komutu 0,983</span></div>
+      </div>
+      <p class="tiny" style="margin-top:.4rem">İrtifa satırının en güçlü sütunu (baro kalıntısı, AUC 0,996) arızalı uçuşların yalnız <b>%7'sinde dolu</b> — yüksek AUC'ye rağmen ürün kanalı olamayan klasik tuzak (bkz. §04).</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:1.4rem">ADS-B — sentetik bozulmalar (eşik: 0,95 güven)</h3>
+  <p class="muted">Öğrenmesiz kural-bazlı fizik skorunun beş bozulma tipindeki gerçek hücre sayıları (705.787 temiz + 705.787 bozuk satır/senaryo). Bu ölçüm, sonradan düzeltilen eski etiketle yapıldı — o etiketin AUC tavanı ~0,75 (yani buradaki AUC'ler tavana göre okunmalı).</p>
+  <div class="cm-grid">
+    <div class="cm"><h4>Hız sapması</h4><div class="auc num">AUC 0,727 — en kolay senaryo</div>
+      <div class="cm-tbl">
+        <div></div><div class="h">temiz ↓</div><div class="h">bozuk ↓</div>
+        <div class="rl">temiz</div><div class="cm-cell q4"><b class="num">451.100</b><span>%63,9</span></div><div class="cm-cell q2"><b class="num">254.687</b><span>%36,1</span></div>
+        <div class="rl">bozuk</div><div class="cm-cell q2"><b class="num">240.363</b><span>%34,1</span></div><div class="cm-cell q4"><b class="num">465.424</b><span>%65,9</span></div>
+      </div></div>
+    <div class="cm"><h4>Yön donması</h4><div class="auc num">AUC 0,679</div>
+      <div class="cm-tbl">
+        <div></div><div class="h">temiz ↓</div><div class="h">bozuk ↓</div>
+        <div class="rl">temiz</div><div class="cm-cell q4"><b class="num">451.100</b><span>%63,9</span></div><div class="cm-cell q2"><b class="num">254.687</b><span>%36,1</span></div>
+        <div class="rl">bozuk</div><div class="cm-cell q2"><b class="num">281.178</b><span>%39,8</span></div><div class="cm-cell q4"><b class="num">424.609</b><span>%60,2</span></div>
+      </div></div>
+    <div class="cm"><h4>Dikey hız donması</h4><div class="auc num">AUC 0,579</div>
+      <div class="cm-tbl">
+        <div></div><div class="h">temiz ↓</div><div class="h">bozuk ↓</div>
+        <div class="rl">temiz</div><div class="cm-cell q4"><b class="num">451.100</b><span>%63,9</span></div><div class="cm-cell q2"><b class="num">254.687</b><span>%36,1</span></div>
+        <div class="rl">bozuk</div><div class="cm-cell q3"><b class="num">361.232</b><span>%51,2</span></div><div class="cm-cell q3"><b class="num">344.555</b><span>%48,8</span></div>
+      </div></div>
+    <div class="cm"><h4>Sinsi konum kayması</h4><div class="auc num">AUC 0,519 — rastgeleye yakın</div>
+      <div class="cm-tbl">
+        <div></div><div class="h">temiz ↓</div><div class="h">bozuk ↓</div>
+        <div class="rl">temiz</div><div class="cm-cell q4"><b class="num">451.100</b><span>%63,9</span></div><div class="cm-cell q2"><b class="num">254.687</b><span>%36,1</span></div>
+        <div class="rl">bozuk</div><div class="cm-cell q4"><b class="num">433.649</b><span>%61,4</span></div><div class="cm-cell q2"><b class="num">272.138</b><span>%38,6</span></div>
+      </div></div>
+    <div class="cm"><h4>İrtifa verisi kaybı</h4><div class="auc num">AUC 0,494 — rastgeleden kötü</div>
+      <div class="cm-tbl">
+        <div></div><div class="h">temiz ↓</div><div class="h">bozuk ↓</div>
+        <div class="rl">temiz</div><div class="cm-cell q4"><b class="num">451.100</b><span>%63,9</span></div><div class="cm-cell q2"><b class="num">254.687</b><span>%36,1</span></div>
+        <div class="rl">bozuk</div><div class="cm-cell q4"><b class="num">455.838</b><span>%64,6</span></div><div class="cm-cell q2"><b class="num">249.949</b><span>%35,4</span></div>
+      </div></div>
+  </div>
+
+  <h3 style="margin-top:1.4rem">Aynı eşikte üç sinir ağı + kural — yakalama oranı (TPR) ısı tablosu</h3>
+  <p class="muted tiny">Her modelin kendi temiz-veri yanlış-pozitif oranı (FPR) son satırda. Bir modelin TPR'ı kendi FPR'ına eşitse, model o bozulmayı hiç ayırt etmiyor demektir.</p>
+  <div class="twrap">
+    <table class="heat">
+      <thead><tr><th>Senaryo (TPR %)</th><th class="num">Kural-bazlı</th><th class="num">Dense-AE</th><th class="num">LSTM-AE</th><th class="num">LSTM-tahminci</th></tr></thead>
+      <tbody>
+        <tr><td>Hız sapması</td><td class="hc q4 num" style="color:#fff">65,9</td><td class="hc q4 num" style="color:#fff">59,9</td><td class="hc q4 num" style="color:#fff">62,0</td><td class="hc q3 num">42,9</td></tr>
+        <tr><td>Yön donması</td><td class="hc q4 num" style="color:#fff">60,2</td><td class="hc q1 num">23,3</td><td class="hc q1 num">24,1</td><td class="hc q2 num">26,6</td></tr>
+        <tr><td>Dikey hız donması</td><td class="hc q3 num">48,8</td><td class="hc q2 num">37,9</td><td class="hc q2 num">37,7</td><td class="hc q2 num">29,9</td></tr>
+        <tr><td>Sinsi konum kayması</td><td class="hc q2 num">38,6</td><td class="hc q1 num">22,5</td><td class="hc q1 num">24,4</td><td class="hc q2 num">26,1</td></tr>
+        <tr><td>İrtifa kaybı</td><td class="hc q2 num">35,4</td><td class="hc q1 num">19,7</td><td class="hc q1 num">20,6</td><td class="hc q2 num">25,9</td></tr>
+        <tr><td style="color:var(--ink-3)">Temiz veride FPR (referans)</td><td class="num" style="text-align:center">36,1</td><td class="num" style="text-align:center">22,1</td><td class="num" style="text-align:center">24,0</td><td class="num" style="text-align:center">26,1</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note bad"><b>Okuma:</b> sinir ağlarında yön-donması / konum-kayması / irtifa-kaybı satırlarındaki TPR, modelin kendi FPR'ıyla neredeyse aynı — yani bu üç bozulmada ağlar <b>hiçbir ayrım yapmıyor</b>, yalnızca temel gürültü oranında "bozuk" diyor. Kural-bazlı skor tek istisna; o da temiz veride %36 yanlış pozitifle — operasyonel değil.</div>
+
+  <h3 style="margin-top:1.4rem">RflyMAD — aynı skor, üç karar mekanizması</h3>
+  <p class="muted tiny">RflyMAD'de 2×2 uçuş matrisi yerine olay başlangıcı recall'ı ve normal maruziyette alarm-olayı/saati kullanıldı. Aşağıdaki değerler gerçek arıza aralığı düzeltmesinden sonra, 5 tohum ortalamasıdır.</p>
+  <div class="twrap">
+    <table>
+      <thead><tr><th>Skor / karar</th><th>Hedef seviyesi</th><th class="num">Olay recall</th><th class="num">FA/sa</th><th>Okuma</th></tr></thead>
+      <tbody>
+        <tr><td>9 modüllü IF-füzyonları</td><td>kritik + uyarı</td><td class="num">0,000</td><td class="num">0,000–0,065</td><td><span class="chip bad">✗ aşırı sessiz</span></td></tr>
+        <tr><td>İtki komutu + threshold</td><td>kritik</td><td class="num">0,406</td><td class="num">17,28</td><td><span class="chip bad">✗ FA</span></td></tr>
+        <tr><td>İtki komutu + K-of-N</td><td>kritik</td><td class="num">0,394</td><td class="num">14,09</td><td><span class="chip bad">✗ FA</span></td></tr>
+        <tr><td>İtki komutu + CUSUM</td><td>kritik</td><td class="num">0,442</td><td class="num">9,23</td><td><span class="chip bad">✗ kritik bütçe 2/sa</span></td></tr>
+        <tr><td>İtki komutu + threshold</td><td>uyarı</td><td class="num">0,461</td><td class="num">28,74</td><td><span class="chip bad">✗ iki hedef de kaçtı</span></td></tr>
+        <tr><td>İtki komutu + K-of-N</td><td>uyarı</td><td class="num">0,451</td><td class="num">30,14</td><td><span class="chip bad">✗ iki hedef de kaçtı</span></td></tr>
+        <tr><td>İtki komutu + CUSUM</td><td>uyarı</td><td class="num">0,526</td><td class="num">22,28</td><td><span class="chip mid">◐ recall geçti, FA geçmedi</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><b>Rfly sonucu:</b> yöntem hiç çalıştırılmadı değil; fizik modülleri, IF füzyonları ve üç karar katmanı tam 5-tohumlu hatta çalıştırıldı. Sorun iki uçtaydı: çok-kanallı füzyon neredeyse hiç alarm vermedi, görünür itki kanalı ise yakalama kazancını yüksek yanlış alarm karşılığında sağladı.</div>
+
+  <h3 style="margin-top:1.4rem">RflyMAD — doğrudan derin öğrenme “last dance” sonucu</h3>
+  <p class="muted tiny">Aşağıdaki sayılar 5 split ortalamasıdır. Her split 27 normal eğitim, 12 normal validation ve 303 gerçek-arızalı + 12 normal test uçuşu kullandı. Model, scaler ve eşik split içinde yeniden fit edildi; test hiçbir fit işlemine girmedi.</p>
+  <div class="twrap">
+    <table>
+      <thead><tr><th>Model / karar</th><th>Hedef</th><th class="num">Olay recall</th><th class="num">FA/sa</th><th class="num">Motor recall</th><th class="num">Sensör recall</th><th>Sonuç</th></tr></thead>
+      <tbody>
+        <tr><td>LSTM-AE + threshold</td><td>kritik</td><td class="num">0,337</td><td class="num">31,21</td><td class="num">—</td><td class="num">—</td><td><span class="chip bad">✗ FA 15,6×</span></td></tr>
+        <tr><td>LSTM-AE + K-of-N</td><td>kritik</td><td class="num">0,337</td><td class="num">31,60</td><td class="num">—</td><td class="num">—</td><td><span class="chip bad">✗ FA 15,8×</span></td></tr>
+        <tr><td>LSTM-AE + CUSUM</td><td>kritik</td><td class="num">0,497</td><td class="num">64,02</td><td class="num">—</td><td class="num">—</td><td><span class="chip bad">✗ FA 32,0×</span></td></tr>
+        <tr><td><b>LSTM-AE + CUSUM</b></td><td>uyarı</td><td class="num"><b>0,741</b></td><td class="num" style="color:var(--crit)"><b>145,81</b></td><td class="num">0,784</td><td class="num">0,680</td><td><span class="chip bad">✗ FA 12,2×</span></td></tr>
+        <tr><td>Dense-AE + CUSUM</td><td>uyarı</td><td class="num">0,683</td><td class="num" style="color:var(--crit)">135,94</td><td class="num">0,743</td><td class="num">0,598</td><td><span class="chip bad">✗ FA 11,3×</span></td></tr>
+        <tr><td>USAD + CUSUM</td><td>uyarı</td><td class="num">0,669</td><td class="num" style="color:var(--crit)">128,46</td><td class="num">0,739</td><td class="num">0,570</td><td><span class="chip bad">✗ FA 10,7×</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="cards" style="margin-top:1rem">
+    <div class="card">
+      <h4>Uçuş düzeyi confusion — seçilen CUSUM/uyarı satırları</h4>
+      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/confusion_matrices.png" alt="RflyMAD DL uçuş düzeyi confusion matrisleri" style="width:100%;height:auto">
+      <p class="tiny">Beş split toplamı; aynı uçuş her seed'de yeniden değerlendirildiği için pozitif payda 303×5=1.515, normal payda 12×5=60'tır. LSTM: TP 1.123 / FN 392 / FP 47 / TN 13; Dense: 1.035 / 480 / 46 / 14; USAD: 1.014 / 501 / 44 / 16.</p>
+    </div>
+    <div class="card">
+      <h4>Recall–alarm yükü</h4>
+      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/recall_vs_false_alarm.png" alt="RflyMAD DL recall ve yanlış alarm karşılaştırması" style="width:100%;height:auto">
+      <p class="tiny">Validation'da 2/12 FA-saat bütçesine fit edilen eşikler testte taşınmadı. Hiçbir model × karar × bütçe satırı iki şartı birlikte sağlamadı.</p>
+    </div>
+  </div>
+  <div class="cards" style="margin-top:1rem">
+    <div class="card">
+      <h4>Model × karar × bütçe ısı haritası</h4>
+      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/decision_heatmaps.png" alt="RflyMAD DL recall ve yanlış alarm ısı haritaları" style="width:100%;height:auto">
+      <p class="tiny">18 çalışma noktası tek cetvelde: eşik/K-of-N/CUSUM ile kritik/uyarı birlikte görülüyor. Recall yükselen hücrelerin tamamında yanlış alarm da bütçenin çok üstüne çıkıyor.</p>
+    </div>
+    <div class="card">
+      <h4>Beş split boyunca kararlılık</h4>
+      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/split_stability.png" alt="RflyMAD DL split bazında recall ve yanlış alarm değişimi" style="width:100%;height:auto">
+      <p class="tiny">CUSUM/uyarı çizgileri her split'te recall hedefinin üstüne yaklaşabiliyor; fakat 12 FA/sa çizgisinin hiçbir split'te yanına dahi gelemiyor. Sorun tek bir kötü tohum değil.</p>
+    </div>
+  </div>
+  <div class="cards" style="margin-top:1rem">
+    <div class="card">
+      <h4>Motor–sensör arızası kıyası</h4>
+      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/fault_group_recall.png" alt="RflyMAD DL motor ve sensör arızası recall kıyası" style="width:100%;height:auto">
+      <p class="tiny">Motor arızaları her üç modelde daha görünür: LSTM 0,784 / 0,680; Dense 0,743 / 0,598; USAD 0,739 / 0,570 motor/sensör recall. Hata çubukları split standart sapmasıdır.</p>
+    </div>
+    <div class="card">
+      <h4>Yakalanan olaylarda alarm gecikmesi</h4>
+      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/detection_delay_distributions.png" alt="RflyMAD DL motor ve sensör arızası tespit gecikmesi kutu grafikleri" style="width:100%;height:auto">
+      <p class="tiny">Kutu grafik yalnız yakalanan olayları içerir; kaçırılan olayları görünmez kılar. Bu yüzden düşük medyan gecikme tek başına başarı değildir ve recall ile birlikte okunmalıdır.</p>
+    </div>
+  </div>
+  <div class="cards" style="margin-top:1rem">
+    <div class="card">
+      <h4>Normal uçuş alarm yükü</h4>
+      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/normal_alarm_burden.png" alt="RflyMAD DL normal uçuş başına yanlış alarm yükü" style="width:100%;height:auto">
+      <p class="tiny">Normal test-değerlendirmelerinin LSTM'de %78,3'ü, Dense'de %76,7'si, USAD'da %73,3'ü en az bir alarm aldı. Uçuş düzeyindeki operasyonel yük böylece doğrudan görünür.</p>
+    </div>
+    <div class="card">
+      <h4>Eşiksiz pencere ayrışması</h4>
+      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/window_metrics_by_split.png" alt="RflyMAD DL split bazında pencere AUROC ve AUPRC" style="width:100%;height:auto">
+      <p class="tiny">AUROC çizgileri 0,5 çevresinde, AUPRC çizgileri %40,3 prevalans tabanına yakın. Yüksek event recall'ın güçlü skor ayrışmasından gelmediğini destekliyor.</p>
+    </div>
+  </div>
+  <div class="note bad"><b>DL kararı:</b> LSTM daha çok olay yakaladı ama 60 normal test-değerlendirmesinin 47'sini alarmlı yaptı. Dense ve USAD da aynı alarm-seli rejiminde kaldı. Pencere AUROC ortalamaları yalnız 0,588 / 0,573 / 0,540; AUPRC'ler 0,475 / 0,463 / 0,435 ve pozitif-prevalans tabanı 0,403'tü. Dolayısıyla yüksek event recall, güçlü ve taşınabilir bir ayrımdan değil gevşek/sürekli alarm davranışından geldi.</div>
+
+  <h3 style="margin-top:1.4rem">GNSS deneyi — olay düzeyinde yakalanan / kaçan</h3>
+  <p class="muted tiny">Olaylar ve normal uçuşlar farklı birimler olduğu için tek 2×2'ye zorlanmadı: sol iki sütun gerçek arıza olaylarını (geliştirmede 17, provada 10 olay), sağ sütun aynı eşiğin normal uçuşlardaki alarm yükünü gösterir.</p>
+  <div class="twrap">
+    <table>
+      <thead><tr><th>Grup · yöntem (uyarı sözleşmesi)</th><th class="num">Yakalanan olay (TP)</th><th class="num">Kaçan olay (FN)</th><th class="num">Normal uçuşta FA/sa</th><th>Sonuç</th></tr></thead>
+      <tbody>
+        <tr><td>Geliştirme · otopilot göstergeleri</td><td class="num">10</td><td class="num">7</td><td class="num">19,58</td><td><span class="chip bad">✗</span></td></tr>
+        <tr><td>Geliştirme · CUSUM</td><td class="num">9</td><td class="num">8</td><td class="num">0,00</td><td><span class="chip bad">✗ recall düşük</span></td></tr>
+        <tr><td>Geliştirme · bağlamsal LSTM</td><td class="num">14</td><td class="num">3</td><td class="num" style="color:var(--crit)">101,60</td><td><span class="chip bad">✗ alarm seli</span></td></tr>
+        <tr><td>Prova · otopilot göstergeleri</td><td class="num">9</td><td class="num">1</td><td class="num">28,86</td><td><span class="chip bad">✗</span></td></tr>
+        <tr><td>Prova · CUSUM</td><td class="num">7</td><td class="num">3</td><td class="num">7,21</td><td><span class="chip bad">✗ hedef %90'dı</span></td></tr>
+        <tr><td>Prova · bağlamsal LSTM</td><td class="num">10</td><td class="num">0</td><td class="num" style="color:var(--crit)">44,86</td><td><span class="chip bad">✗ alarm yükü</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="tiny">Kritik sözleşmede (5 sn içinde tespit) tablo daha da sert: CUSUM her iki grupta 0/17 ve 0/10 yakaladı (sonlu eşik bile bulunamadı); LSTM provada 9/10 yakalayıp geliştirmede 8/17'ye düştü — gruplar arası kararsızlık deneyin ret gerekçelerinden biri.</p>
+</section>
+
+<!-- ============ 06 CORRELATION ============ -->
+<section id="korelasyon">
+  <div class="sec-head"><span class="no">06</span><h2>En önemli korelasyon bulgusu — "model mi öğrendi, sayı mı büyük?"</h2><span class="sub">eğitilmiş skor ↔ ham sinyal genliği (Spearman ρ)</span></div>
+  <p class="muted">Her modelin skoru, hiç eğitilmemiş rastgele bir ağın ve/veya ham sinyal büyüklüğünün skoruyla karşılaştırıldı. Önceden ilan edilen 0,80 sınırının üzeri "genlik baskınlığı" olarak işaretlendi. Sınırın altında kalmak yalnız bu belirli hata modunun görülmediğini söyler; tek başına anomali öğrenildiğini veya tespit başarısını kanıtlamaz.</p>
+  <div class="legend">
+    <span class="k"><span class="sw" style="background:var(--crit)"></span> ✗ yanılsama (ρ ≥ 0,80)</span>
+    <span class="k"><span class="sw" style="background:var(--good)"></span> ✓ genlik denetimi PASS (ρ &lt; 0,80; tespit kanıtı değil)</span>
+  </div>
+  <div class="card" style="max-width:860px">
+    <div class="bars" style="gap:.5rem">
+      <div class="bar"><span class="n">Isolation Forest (ADS-B)</span><div class="track"><div class="fill c" style="width:99.6%"></div><div class="refline" style="left:80%" data-l="0,80 eşik"></div></div><span class="v num">0,996 ✗</span></div>
+      <div class="bar"><span class="n">LSTM-AE / Dense-AE / USAD (SEAD)</span><div class="track"><div class="fill c" style="width:96.4%"></div><div class="refline" style="left:80%" data-l=""></div></div><span class="v num">0,964 ✗</span></div>
+      <div class="bar"><span class="n">LSTM-tahminci (ADS-B)</span><div class="track"><div class="fill c" style="width:92%"></div><div class="refline" style="left:80%" data-l=""></div></div><span class="v num">0,92 ✗</span></div>
+      <div class="bar"><span class="n">Dense-AE (ADS-B)</span><div class="track"><div class="fill c" style="width:90%"></div><div class="refline" style="left:80%" data-l=""></div></div><span class="v num">0,90 ✗</span></div>
+      <div class="bar"><span class="n">LSTM-AE (ADS-B)</span><div class="track"><div class="fill c" style="width:89%"></div><div class="refline" style="left:80%" data-l=""></div></div><span class="v num">0,89 ✗</span></div>
+      <div class="bar"><span class="n">USAD (RflyMAD doğrudan)</span><div class="track"><div class="fill c" style="width:99.9%"></div><div class="refline" style="left:80%" data-l=""></div></div><span class="v num">0,999 ✗</span></div>
+      <div class="bar"><span class="n">Dense-AE (RflyMAD doğrudan)</span><div class="track"><div class="fill c" style="width:94.3%"></div><div class="refline" style="left:80%" data-l=""></div></div><span class="v num">0,943 ✗</span></div>
+      <div class="bar"><span class="n">LSTM-AE (RflyMAD doğrudan)</span><div class="track"><div class="fill c" style="width:93.3%"></div><div class="refline" style="left:80%" data-l=""></div></div><span class="v num">0,933 ✗</span></div>
+      <div class="bar"><span class="n">GNSS bağlamsal LSTM</span><div class="track"><div class="fill g" style="width:69%"></div><div class="refline" style="left:80%" data-l=""></div></div><span class="v num">0,69 ✓</span></div>
+      <div class="bar"><span class="n">ADS-B bağlamsal LSTM</span><div class="track"><div class="fill g" style="width:65%"></div><div class="refline" style="left:80%" data-l=""></div></div><span class="v num">0,65 ✓</span></div>
+      <div class="bar"><span class="n">Komut→tepki kalıntısı (sabit kanat kanalı)</span><div class="track"><div class="fill g" style="width:47%"></div><div class="refline" style="left:80%" data-l=""></div></div><span class="v num">0,47 ✓</span></div>
+      <div class="bar"><span class="n">Komut→tepki kalıntısı (motor kanalları)</span><div class="track"><div class="fill g" style="width:14%"></div><div class="refline" style="left:80%" data-l=""></div></div><span class="v num">0,14 / 0,02 ✓</span></div>
+    </div>
+    <p class="tiny" style="margin-top:.6rem">Kapanış bulgusu: SEAD'de genlik bağımlılığı skor katmanında giderilince (bağıl hata, ρ 0,96→0,15–0,55) yakalama oranı &lt;0,06'ya düştü. Yeni Rfly turunda ±10 kırpma uygulanmasına rağmen eğitilmiş skorun rastgele-init/genlik korelasyonu model ortalamasında LSTM 0,933, Dense 0,943, USAD 0,999 oldu ve 15/15 split bayraklandı. Yani kırpma tek başına kestirme öğrenmeyi çözmedi.</p>
+  </div>
+  <div class="cards" style="margin-top:1rem">
+    <div class="card"><h3>Ters korelasyon: EKF güven oranları</h3><p class="facts">Anomali sırasında otopilot kestirimcisi ölçümü <b>reddediyor</b> → reddedilen ölçüm sapma üretmiyor → arıza "temiz" görünüyor. Yalnız-EKF modülü satır-ROC <b class="num">0,354</b> (rastgeleden kötü, yön ters). Modül füzyondan bilinçli çıkarıldı.</p></div>
+    <div class="card"><h3>Domain karışması: simülasyon vs canlı</h3><p class="facts">Sinyal-kalitesi modülü UAV Attack'ta sistematik ters (ROC <b class="num">0,292</b>): simülasyon kayıtlarında GPS sağlık alanları sabit-sıfır, canlı kayıtlarda gerçek gürültü var — canlı normal uçuş, simülasyon saldırısından daha "anormal" skorlanıyor.</p></div>
+    <div class="card"><h3>Şiddet taraması tamamlanmadı</h3><p class="facts">2 m/s'lik sinsi GPS kayması tek-satır skorunda görünmedi; 2→20 m/s taraması için preflight hazırlandı ancak tam deney çalıştırılmadı. Bu nedenle sonuç yalnız ölçülen 2 m/s profili ve daha sonra kurulan birikimli CUSUM koşulları için geçerlidir; tüm şiddetlere genellenemez.</p></div>
+  </div>
+
+  <h3 style="margin-top:1.6rem">Kolon kıyası — her arıza sınıfını tek başına en iyi ayıran sütun</h3>
+  <p class="muted tiny">Keşif analizi (model seçimi değil): her sütun tek başına bir sınıflandırıcı gibi puanlandı. Yüksek AUC her zaman kullanılabilir demek değil — doluluk ve örnek sayısı sütunlarına bak.</p>
+  <div class="twrap">
+    <table>
+      <thead><tr><th>Veri · arıza sınıfı</th><th>En ayırıcı sütun</th><th class="num">Tekil AUC</th><th class="num">Arızalıda doluluk</th><th>Uyarı</th></tr></thead>
+      <tbody>
+        <tr><td>ALFA · kanatçık</td><td>|hava hızı hatası|</td><td class="num">0,943</td><td class="num">%100</td><td>uçuş profiliyle karışabilir</td></tr>
+        <tr><td>ALFA · irtifa dümeni</td><td>|hava hızı hatası|</td><td class="num">0,947</td><td class="num">%100</td><td>sınıfta yalnız 2 uçuş var</td></tr>
+        <tr><td>ALFA · motor</td><td>yol-noktası mesafesi</td><td class="num">0,913</td><td class="num">%70</td><td>arıza fiziğini değil, arıza sonrası eve-dönüş rotasını yakalıyor olabilir</td></tr>
+        <tr><td>ALFA · dümen</td><td>yatış spektral enerjisi (5 sn)</td><td class="num">0,915</td><td class="num">%99</td><td>n=4 uçuş — keşif sonucu</td></tr>
+        <tr><td>UAV Attack · sinyal karıştırma</td><td>dikey konum belirsizliği (EPV)</td><td class="num">1,000</td><td class="num">%100</td><td>n=1 kayıt; kolay kalite imzası olabilir</td></tr>
+        <tr><td>UAV Attack · GPS aldatma</td><td>GPS sağlık verisi eksikliği</td><td class="num">0,648</td><td class="num">%100</td><td>zayıf — sinsi kayma normal varyasyonla örtüşüyor</td></tr>
+        <tr><td>UAV Attack · hizmet engelleme</td><td>tutum verisi eksikliği</td><td class="num">0,680</td><td class="num">%100</td><td>dolaylı imza; 6 kaydın 4'ünde hiç iz yok</td></tr>
+        <tr><td>SEAD · aktüatör (motor)</td><td>itki komutu</td><td class="num">0,996</td><td class="num">%100</td><td>16 sütunlu modülde seyreliyordu → tek-özellik modeli bu bulgudan doğdu</td></tr>
+        <tr><td>SEAD · konum X</td><td>GPS hız tutarlılık kalıntısı</td><td class="num">0,890</td><td class="num">%79</td><td>fiziksel olarak açıklanabilir, sağlam</td></tr>
+        <tr><td>SEAD · konum Z (irtifa)</td><td>barometre kalıntısı (5 sn maks)</td><td class="num" style="color:var(--crit)">0,996</td><td class="num" style="color:var(--crit)">≈%0</td><td><b>tuzak:</b> muhteşem AUC, ama sütun arızalı uçuşların neredeyse hiçbirinde dolu değil — ürün kanalı olamaz</td></tr>
+        <tr><td>SEAD · hız</td><td>konum test-oranı (5 sn ort.)</td><td class="num">0,997</td><td class="num">%100</td><td>sınıfta yalnız 2 olay — genelleme yok</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><b>Bu tablonun iki dersi:</b> (1) "En iyi sütun" çoğu sınıfta fizik kalıntısı ya da veri-eksikliği imzası — ham sensör değeri değil. (2) Yüksek AUC üç ayrı tuzakla birlikte gelebiliyor: küçük n (1–4 örnek), sıfır doluluk (Konum Z) ve nedensel karışma (motor arızası ↔ eve dönüş rotası).</div>
+
+  <h3 style="margin-top:1.6rem">Sütunlar birbirinin kopyası mı? — bilgi tekrarı sayımı</h3>
+  <div class="cards">
+    <div class="card">
+      <div class="cap">|ρ| &gt; 0,9 olan sütun çifti sayısı</div>
+      <div class="bars">
+        <div class="bar"><span class="n">UAV Attack (49 sütun)</span><div class="track"><div class="fill c" style="width:100%"></div></div><span class="v num">103 çift</span></div>
+        <div class="bar"><span class="n">UAV-SEAD (133 sütun)</span><div class="track"><div class="fill w" style="width:67%"></div></div><span class="v num">69 çift</span></div>
+        <div class="bar"><span class="n">ALFA (85 sütun)</span><div class="track"><div class="fill" style="width:9.7%"></div></div><span class="v num">10 çift</span></div>
+      </div>
+      <p class="tiny">UAV Attack'ta 49 sütunun 103 çifti neredeyse kopya — "daha çok sütun = daha çok bilgi" varsayımının çöktüğü yer. Tam-kopya (ρ=1,000) örnekler: konumdan hesaplanan hız ↔ kayıttaki GPS hızı; yerel-XY sıfırlama sayacı ↔ hız sıfırlama sayacı; ham EPh ↔ EPv.</p>
+    </div>
+    <div class="card">
+      <div class="cap">Veri kümelenmesi (PCA/t-SNE keşfi)</div>
+      <div class="twrap" style="margin:.3rem 0"><table style="min-width:0">
+        <thead><tr><th>Veri</th><th class="num">Nokta</th><th class="num">Uçuş</th><th class="num">Sütun</th><th class="num">PCA-2 varyans</th></tr></thead>
+        <tbody>
+          <tr><td>ALFA</td><td class="num">10.262</td><td class="num">53</td><td class="num">85</td><td class="num">%21,9</td></tr>
+          <tr><td>UAV Attack</td><td class="num">3.800</td><td class="num">19</td><td class="num">49</td><td class="num">%60,2</td></tr>
+          <tr><td>UAV-SEAD</td><td class="num">30.000</td><td class="num">480</td><td class="num">133</td><td class="num">%40,0</td></tr>
+        </tbody>
+      </table></div>
+      <p class="tiny">Kritik bulgu SEAD'de: t-SNE adaları normal/arıza etiketini değil <b>oturum/görev ailesini</b> izliyor — yani bir model en kolay öğreneceği şeyi (hangi oturum?) öğrenip "arıza tespiti" gibi raporlayabilir. Oturum-bazlı bölme disiplininin asıl gerekçesi bu görüntü.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 LABEL FIXES ============ -->
+<section id="duzeltme">
+  <div class="sec-head"><span class="no">07</span><h2>Ölçüm dürüstlüğü — düzeltmeler sayıları nasıl değiştirdi</h2><span class="sub">önce → sonra</span></div>
+  <div class="cards">
+    <div class="card">
+      <h3>Uçuş-geneli etiket → gerçek arıza aralığı (RflyMAD)</h3>
+      <div class="bars">
+        <div class="bar"><span class="n">Önce (hatalı)</span><div class="track"><div class="fill c" style="width:74.9%"></div></div><span class="v num">%74,9</span></div>
+        <div class="bar"><span class="n">Sonra (gerçek)</span><div class="track"><div class="fill" style="width:52.6%"></div></div><span class="v num">%52,6</span></div>
+      </div>
+      <p class="tiny">Yakalama oranı.</p>
+      <p class="tiny"><b>Ne yapıldı:</b> "klasörü arızalıysa uçuşun tamamı arızalı" varsayımı terk edildi. Uçuş kaydındaki <code>rfly_ctrl_lxl</code> kontrol mesajından arıza komutunun fiilen aktif olduğu başlangıç–bitiş aralığı çıkarıldı: 439 arızalı uçuşun 434'ünde aralık bulundu. Klasör etiketi "motor arızası" dediği hâlde kontrol mesajında hiç aktif arıza görünmeyen 5 uçuş, sonuç görülmeden belirsiz/geçersiz olarak dışlandı; yerelde bulunmayan deney föyüyle aralık uydurulmadı.</p>
+    </div>
+    <div class="card">
+      <h3>Olay-öncesi alarmı saymama (ALFA)</h3>
+      <div class="bars">
+        <div class="bar"><span class="n">Önce</span><div class="track"><div class="fill c" style="width:59.4%"></div></div><span class="v num">%59,4</span></div>
+        <div class="bar"><span class="n">Sonra</span><div class="track"><div class="fill" style="width:19.4%"></div></div><span class="v num">%19,4–22,4</span></div>
+      </div>
+      <p class="tiny"><b>Ne yapıldı:</b> "tespit" tanımı değiştirildi — yalnız arıza başlangıcından <i>sonra</i> açılan yeni alarm sayılır. Eski ölçüm, olaydan önce zaten açık olan bir alarmın arıza aralığına taşmasını da başarı sayıyordu; bu, literatürdeki "point-adjust" şişirmesinin birebir karşılığıydı.</p>
+    </div>
+    <div class="card">
+      <h3>Gelecek bilgisi sızıntısı (ALFA irtifa kanalı)</h3>
+      <div class="bars">
+        <div class="bar"><span class="n">Önce</span><div class="track"><div class="fill c" style="width:87.8%"></div></div><span class="v num">0,878</span></div>
+        <div class="bar"><span class="n">Sonra (nedensel)</span><div class="track"><div class="fill" style="width:61.1%"></div></div><span class="v num">0,611</span></div>
+      </div>
+      <p class="tiny">AUC. "En güçlü sinyal" sanılan kanal, yalnız geçmişe bakan hesapla sıradanlaştı; gerçek en güçlü tekil sinyal rota-sapması (0,751) çıktı.</p>
+      <p class="tiny"><b>Ne yapıldı:</b> birikimli skorun merkez/eşik parametrelerinin tüm seriden (yani gelecekten) etkilenmesi engellendi — taban çizgisi yalnız eğitim-normal verisinden dondurulur oldu, hesap yalnız geçmişe bakar hâle getirildi ve "serinin başını kessen sonuç değişmemeli" (önek-değişmezlik) testi zorunlu kılındı.</p>
+    </div>
+    <div class="card">
+      <h3>Sentetik etiket tavanı (ADS-B)</h3>
+      <div class="bars">
+        <div class="bar"><span class="n">Eski etiketle tavan</span><div class="track"><div class="fill w" style="width:75%"></div></div><span class="v num">~0,75</span></div>
+        <div class="bar"><span class="n">Yeni etiketle kural</span><div class="track"><div class="fill" style="width:76.5%"></div></div><span class="v num">0,765</span></div>
+      </div>
+      <p class="tiny"><b>Ne yapıldı:</b> tek "anomali" kolonu üç ayrı kolona bölündü — (1) enjeksiyon kodu o anda aktif mi, (2) modelin gördüğü gözlemde <i>gerçekten</i> değişim oluştu mu, (3) satır değerlendirmeye uygun mu. Skorlama yalnız gözlemlenebilir satırlarda yapıldı (örnek: 666.739 aktif kesinti satırının yalnız 570.666'sı gözlemlenebilirdi). Eski etiket, mükemmel dedektörün bile geçemeyeceği yapay bir ~0,75 AUC tavanı koyuyordu; ayrım gelince tavan kalktı.</p>
+    </div>
+  </div>
+  <h3 style="margin-top:1.4rem">Veri ve uygulama düzeltmeleri — yalnız metrik değil, girdi de onarıldı</h3>
+  <div class="twrap">
+    <table>
+      <thead><tr><th>Hat</th><th>Bulunan problem</th><th>Uygulanan düzeltme</th><th>Ölçülen etkisi</th></tr></thead>
+      <tbody>
+        <tr><td>ALFA</td><td>Hız kolonu ad eşleme hatası nedeniyle %100 boştu</td><td><code>nav_info-velocity</code> alanları gerçek <code>meas_x/des_x</code> isimlerine eşlendi</td><td>Boşluk %100 → %9,3; hız ve dönüş kalıntıları yeniden kullanılabilir oldu</td></tr>
+        <tr><td>UAV Attack</td><td>Dosya adı regex'i topic'i yanlış bölüyor, Ping-DoS satırları etiketsiz kalıyordu</td><td>Bilinen topic adlarına tam eşleşme ve yol tabanlı ping/dos etiketi eklendi</td><td>19 kayıt doğru kaynak/etiketle yeniden kuruldu; DoS'un 4/6 kayıtta fiziksel izi olmadığı ayrıştırıldı</td></tr>
+        <tr><td>UAV-SEAD</td><td>Aynı oturumdaki uçuşlar farklı bölmelere düşerek görev/oturum bilgisini sızdırıyordu</td><td>Uçuş yerine tarih/oturum bazlı grup bölmesi uygulandı</td><td>Tohum oynaklığı ±0,212 → ±0,012; 0,474→0,799 değişimi model kazancı değil daha adil bölme olarak kaydedildi</td></tr>
+        <tr><td>RflyMAD</td><td>Bir kaynakta hiç olmayan kolon, başka kaynak medyanıyla dolduruluyordu</td><td>Kaynak-özel kolon maskesi getirildi; yapısal olarak olmayan kanal füzyona sokulmadı</td><td>"Hayalet sensör" sinyali ve kaynak kimliği sızıntısı kapatıldı</td></tr>
+        <tr><td>ADS-B</td><td>MAD=0 kanala epsilon vermek kuantize irtifa kanalını saç tetiğe çevirdi</td><td>MAD tam sıfır olan kanallar floor'lanmak yerine manifestle dışlandı</td><td>Normal pencerelerin %93,8'ine ceza yazan yapay kanal kaldırıldı</td></tr>
+        <tr><td>Tüm zamansal hatlar</td><td>Boşluk üzerinden pencere kurma ve ileri bilgi kullanma riski</td><td>Gap sınırı, geçmişe-bakan birleştirme, train-only ölçekleme ve önek-değişmezlik testleri uygulandı</td><td>Gelecek sızıntılı ALFA sonucu 0,878 → nedensel 0,611 olarak dürüstçe revize edildi</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><b>Ortak ders:</b> yaklaşık/vekil etiketler ve veri-hattı hataları üç ayrı veri kümesinde parlak sonuçları aşağı revize etti. Bu bulgu yalnız bu proje için kanıtlanmıştır; başka çalışmalar hakkında aynı denetim yapılmadan genelleme yapılmaz.</div>
+</section>
+
+<!-- ============ 08 LAST TWO ============ -->
+<section id="son-deneyler">
+  <div class="sec-head"><span class="no">08</span><h2>En son iki kontrollü deney — hap özet</h2><span class="sub">ikisi de disiplinli NO-GO</span></div>
+  <div class="cards">
+    <div class="card">
+      <h3><span class="tag">E1</span> GNSS bütünlük tespiti</h3>
+      <div class="facts">3 yöntem × 2 veri grubu × 2 hedef seviyesi = 12 hücre → <b>12/12 başarısız</b></div>
+      <div class="twrap" style="margin:.5rem 0"><table style="min-width:0">
+        <thead><tr><th>Yöntem (uyarı hedefi: ≥%90 @ ≤12 FA/sa)</th><th class="num">Yakalama</th><th class="num">FA/sa</th></tr></thead>
+        <tbody>
+          <tr><td>Otopilot göstergeleri</td><td class="num">%90,0</td><td class="num" style="color:var(--crit)">28,86</td></tr>
+          <tr><td>Ardışık değişim (CUSUM)</td><td class="num" style="color:var(--crit)">%70,0</td><td class="num">7,21</td></tr>
+          <tr><td>Bağlamsal LSTM</td><td class="num">%100,0</td><td class="num" style="color:var(--crit)">44,86</td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li>Sessiz olan yeterince yakalamıyor; yakalayan alarmla boğuyor — aynı tahterevalli</li>
+        <li>Rüzgâr/ortam stresi altında en iyi iki yöntemin yükü 20,5–22,6 FA/sa'ya fırladı</li>
+        <li>LSTM genlik-baskınlığı denetimini geçti (ρ 0,69); buna rağmen gruplar arası alarm yükü taşınmadı — PASS yalnız bir artefaktı eledi, tespit başarısını göstermedi</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="tag">E2</span> Komut→tepki fiziksel modeli</h3>
+      <div class="facts">Sinyal <b>kanıtlandı</b>, eşik <b>kurulamadı</b> — farklı türde bir NO-GO</div>
+      <div class="twrap" style="margin:.5rem 0"><table style="min-width:0">
+        <thead><tr><th>Kanal (öğrenilen ilişki)</th><th class="num">CV R²</th><th>Durum</th></tr></thead>
+        <tbody>
+          <tr><td>Motor güç dağılımı</td><td class="num">0,456</td><td><span class="chip ok">✓ güçlü</span></td></tr>
+          <tr><td>Tutum komut-tepkisi</td><td class="num">0,011</td><td><span class="chip bad">zayıf</span></td></tr>
+          <tr><td>Toplam güç → dikey ivme</td><td class="num">0,000</td><td><span class="chip bad">sinyalsiz</span></td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li>Arıza öncesi/sonrası kalıntı dağılımları <b>3 headline sınıfın 3'ünde de</b> istatistiksel ayrık (5/5 pooled satır-düzeyi KS testi, p&lt;0,01); bu, her olayın yakalandığı anlamına gelmez</li>
+        <li>Komut bilgisi modelden çekilince performans gerçekten düşüyor → ezber değil, gerçek ilişki</li>
+        <li><b>Duvar:</b> eşik ayarı için sabit kanatta ~10 dk arızasız kayıt var, 2 saat gerekli (11,8×); çok-rotorda ~47 dk var, 4 saat gerekli (5,1×). Mevcut corpusla toplam ihtiyaç ≈168 ek normal uçuş; resmî kaynaktaki kalan 33 adayın tamamı alınsa bile ayrıca ≈135 yeni uçuş daha gerekir</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 09 LESS KNOWN ============ -->
+<section id="az-bilinen">
+  <div class="sec-head"><span class="no">09</span><h2>Raporlarda az geçen bulgular</h2><span class="sub">arşiv kayıtlarından çıkarıldı</span></div>
+  <div class="cards">
+    <div class="card"><h3>8 çok-etiketli uçuş ayrı problem</h3><p class="facts">SEAD'de birden fazla arıza sınıfı taşıyan 8 uçuş tek-sınıf değerlendirmesine sokulmadı. Bunlar mekanik sayacına doğrudan eklenemez; çok-etiketli hedef ve ayrı metrik sözleşmesi gerektirir. Bu kapsam çalışılmadı.</p></div>
+    <div class="card"><h3>Batarya gücü %96 boş</h3><p class="facts">Akım alanı çoğunlukla −1 "bilinmiyor" değeri; mevcut kolonla batarya-sağlığı modeli savunulamaz. Önce ayrı veri-kalitesi/ölçüm kapsamı çalışması ve gerçek akım telemetrisi gerekir.</p></div>
+    <div class="card"><h3>Tek geçen hücrenin gerçek sahibi</h3><p class="facts">ALFA'daki 0,625 recall @ 7,91 FA/sa sonucu modelin değil, skorun üzerine oturan <b>karar katmanının</b> (birikimli eşik + önyükleme) başarısı. Raporlarda bu ayrım karıştırılmamalı.</p></div>
+    <div class="card"><h3>Sıfır-MAD kanal tuzağı</h3><p class="facts">Değişintisi sıfır olan kanala küçük epsilon verilince normal pencerelerin %93,8'i pozitif skor aldı — kanal tamamen dışlanınca düzeldi. Eğitim penceresi sıfır-oranı artık raporlanıyor (0,31).</p></div>
+    <div class="card"><h3>Foundation model kurulamadı</h3><p class="facts">MOMENT modeli bu makinede (Python 3.14) bağımlılık çakışması yüzünden hiç kurulamadı; Chronos kuruldu ve denendi. Yani "foundation model denenmedi" değil, "biri denendi, biri kurulamadı".</p></div>
+    <div class="card"><h3>Uçuş bölütleme kesin değil</h3><p class="facts">ADS-B'de 1.800 sn boşluk kuralıyla üretilen uçuş sınırlarının sağlayıcının kendi "yeni bacak" bayrağıyla uyumu yalnız %60,4 — uçuş sınırı tek başına kesin doğruluk kaynağı değil.</p></div>
+  </div>
+</section>
+
+<!-- ============ 10 CLOSE ============ -->
+<section id="kapanis">
+  <div class="sec-head"><span class="no">10</span><h2>Kapanış</h2></div>
+  <div class="verdict">
+    <div class="t">Nihai hüküm</div>
+    <p>Mevcut veri, etiket kalitesi ve sensör kapsamıyla genel amaçlı, platformlar-arası, düşük yanlış-alarmlı bir anomali tespit ürünü <b>doğrulanamadı</b>. Kanıt üç bağımsız hattan geliyor: (1) bu kapsamda değerlendirilen başlıca istatistiksel, fiziksel, klasik ML ve derin öğrenme ailelerinin hiçbiri aynı dondurulmuş eşikte hedefi geçmedi; (2) ölçülen kök nedenler veri kapsamı, etiket doğruluğu, oturum bağımsızlığı ve kalibrasyon maruziyetinde toplandı; (3) veri büyütme, özellik mühendisliği, denetimli öğrenme, hazır model, mimari ve kalibrasyon kolları makası kapatmadı. Bu hüküm "hiçbir yöntem gelecekte çalışamaz" değil, <b>mevcut kanıtla ürün fizibilitesi gösterilemedi</b> hükmüdür.</p>
+  </div>
+  <div class="cards">
+    <div class="card"><h3>Gerçekten çalışan şeyler</h3><ul>
+      <li>Kural-bazlı fizik skoru bu ADS-B kurulumunda 3 sinir ağını geçti; karmaşıklığın kendiliğinden kazanç getirmediğini gösterdi</li>
+      <li>Genlik-yanılsaması teşhis protokolü — yeniden kullanılabilir, başka projelerin sahte başarısını da yakalar</li>
+      <li>Vekil-etiket düzeltme metodolojisi (3 veri kümesinde aynı hata sınıfı)</li>
+      <li>Taşınabilir eşik kalibrasyonu: model taşınır, eşik platforma göre yeniden ayarlanır (0,375→0,783)</li>
+      <li>Konum-kayması CUSUM'u: dar sentetik profilde izlenebilir araştırma adayı (%49,7 recall); mevcut doğal-alarm sözleşmesinde ürün adayı değildir</li>
+    </ul></div>
+    <div class="card"><h3>Devam edilecekse önkoşullar</h3><ul>
+      <li>Tek platform + tek arıza ailesi; olay başına başlangıç/bitiş damgalı <b>gerçek</b> etiketli veri</li>
+      <li>Alarm bütçesi operasyon ekibiyle <i>işe başlamadan</i> dondurulmalı</li>
+      <li>DoS için ağ katmanı, aldatma için bağımsız konum referansı — eksik sensör önce</li>
+      <li>Yüzlerce bağımsız oturumlu normal havuz (uçuş sayısı değil, oturum sayısı)</li>
+      <li>Kör test en başta ayrılır, yalnız en sonda bir kez açılır</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ============ 11 EVIDENCE ============ -->
+<section id="kanit">
+  <div class="sec-head"><span class="no">11</span><h2>Kanıt dizini — sayı nereden geliyor?</h2><span class="sub">yerel repo yolları · salt-okunur doğrulama</span></div>
+  <p class="muted tiny">Bu bağlantılar HTML repo içinden açıldığında çalışır. Dosya tek başına başka bir sisteme yüklenirse yollar metin olarak yine hangi artefaktın denetlenmesi gerektiğini gösterir.</p>
+  <div class="twrap">
+    <table>
+      <thead><tr><th>Konu</th><th>Birincil kanıt</th><th>Ne doğrular?</th></tr></thead>
+      <tbody>
+        <tr><td>ALFA / Attack / SEAD görsel sayımları</td><td><a href="../archive/2026-07-10_legacy_non_adsb_ml/artifacts/viz/alfa/viz_manifest.json"><code>viz/alfa/viz_manifest.json</code></a><br><a href="../archive/2026-07-10_legacy_non_adsb_ml/artifacts/viz/uav_attack/viz_manifest.json"><code>viz/uav_attack/viz_manifest.json</code></a><br><a href="../archive/2026-07-10_legacy_non_adsb_ml/artifacts/viz/uav_sead/viz_manifest.json"><code>viz/uav_sead/viz_manifest.json</code></a></td><td>Confusion matrix, sınıf/oturum sayımı, PCA ve tek-özellik bulguları</td></tr>
+        <tr><td>Tek-özellik ve korelasyon tabloları</td><td><a href="../archive/2026-07-10_legacy_non_adsb_ml/artifacts/viz/alfa/s3_features/feature_auc_matrix.csv"><code>alfa/feature_auc_matrix.csv</code></a><br><a href="../archive/2026-07-10_legacy_non_adsb_ml/artifacts/viz/uav_attack/s3_features/feature_auc_matrix.csv"><code>uav_attack/feature_auc_matrix.csv</code></a><br><a href="../archive/2026-07-10_legacy_non_adsb_ml/artifacts/viz/uav_sead/s3_features/feature_auc_matrix.csv"><code>uav_sead/feature_auc_matrix.csv</code></a></td><td>Feature AUC, örnek sayısı ve doluluk oranı</td></tr>
+        <tr><td>RflyMAD gerçek aralık sonucu</td><td><a href="../archive/2026-07-10_legacy_non_adsb_ml/artifacts/rfly1/interval_truth_report.json"><code>rfly1/interval_truth_report.json</code></a><br><a href="../archive/2026-07-10_legacy_non_adsb_ml/artifacts/rfly0/rflymad/official_full_interval_excluding_invalid/summary.json"><code>official_full_interval_excluding_invalid/summary.json</code></a></td><td>434 aralık, 5 belirsiz uçuş; threshold/K-of-N/CUSUM 5-tohum ortalamaları</td></tr>
+        <tr><td>RflyMAD doğrudan DL</td><td><a href="../artifacts/rfly_dl/direct_v1_5split_20260720/summary.json"><code>rfly_dl/summary.json</code></a><br><a href="../artifacts/rfly_dl/direct_v1_5split_20260720/summary_table.csv"><code>summary_table.csv</code></a><br><a href="../artifacts/rfly_dl/direct_v1_5split_20260720/window_diagnostics.csv"><code>window_diagnostics.csv</code></a><br><a href="RFLY_DL_DOGRUDAN_DEGERLENDIRME_PLANI.md"><code>ön-kayıt planı</code></a></td><td>LSTM/Dense/USAD 5-split recall–FA sonuçları, AUROC/AUPRC ve 15/15 genlik denetimi</td></tr>
+        <tr><td>ADS-B eski ve düzeltilmiş truth</td><td><a href="../artifacts/adsb/models/rule_scorer_report.json"><code>rule_scorer_report.json</code></a><br><a href="../artifacts/adsb/runs/20260713_step3_corrected_rule_v1/summary.json"><code>step3_corrected_rule_v1/summary.json</code></a><br><a href="../artifacts/adsb/runs/20260715_contextual_physics_v1_truth_v2_eval_v1/truth_v2_eval_report.json"><code>truth_v2_eval_report.json</code></a></td><td>Confusion hücreleri, truth-v2 AUROC/AUPRC ve olay recall'ları</td></tr>
+        <tr><td>GNSS geliştirme / prova</td><td><a href="../artifacts/uav_gnss_integrity_v1/development_result.json"><code>development_result.json</code></a><br><a href="../artifacts/uav_gnss_integrity_v1/rehearsal_result.json"><code>rehearsal_result.json</code></a></td><td>TP/FN, normal alarm yükü ve 12/12 NO-GO</td></tr>
+        <tr><td>Residual-FDI</td><td><a href="../artifacts/residual_v1/phase_e_handout_20260717/SUMMARY_FOR_CLAUDE.json"><code>phase_e_handout/SUMMARY_FOR_CLAUDE.json</code></a><br><a href="RESIDUAL_V1_KALIBRASYON_NOGO_RAPORU.md"><code>RESIDUAL_V1_KALIBRASYON_NOGO_RAPORU.md</code></a></td><td>R², S-4/S-1/S-3 kapıları ve 11,8× / 5,1× kalibrasyon açığı</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <span>Anomali Tespiti — Hap Bilgi Atlası · bütün sayılar depo kayıtlarından (karar günlüğü, koşu çıktıları, arşiv bulgu dosyaları) derlendi</span>
+  <span>20 Temmuz 2026</span>
+</footer>
+
+</div>
+</body>
+</html>

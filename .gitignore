@@ -34,6 +34,7 @@ __pycache__/
 .pytest_tmp_*/
 .pytest_contextual_*/
 /artifacts/pytest_tmp_*/
+/artifacts/rfly_dl/smoke_*/
 .tmp_pdf_reader/
 .ipynb_checkpoints/
 .idea/

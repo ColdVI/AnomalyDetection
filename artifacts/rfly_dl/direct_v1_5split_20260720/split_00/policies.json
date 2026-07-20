@@ -1,0 +1,164 @@
+{
+  "lstm_ae": {
+    "critical:threshold": {
+      "kind": "threshold",
+      "threshold": 0.993847874720358,
+      "fa_budget_per_hour": 2.0,
+      "calibration_fa_per_hour": 1.431980906921241
+    },
+    "critical:k_of_n": {
+      "kind": "k_of_n",
+      "k": 2,
+      "n": 3,
+      "threshold": 0.9916107382550335,
+      "fa_budget_per_hour": 2.0,
+      "calibration_fa_per_hour": 1.431980906921241
+    },
+    "critical:cusum": {
+      "kind": "cusum",
+      "mu_normal": -0.004788223679637384,
+      "sigma_normal": 1.7874465147056857,
+      "k": 0.5,
+      "h": 59.78125,
+      "refractory_seconds": 30.0,
+      "stride_seconds": 1.0,
+      "bootstrap_hours": 50.0,
+      "fa_budget_per_hour": 2.0,
+      "calibration_fa_per_hour": 2.0
+    },
+    "advisory:threshold": {
+      "kind": "threshold",
+      "threshold": 0.0016778523489932886,
+      "fa_budget_per_hour": 12.0,
+      "calibration_fa_per_hour": 9.307875894988067
+    },
+    "advisory:k_of_n": {
+      "kind": "k_of_n",
+      "k": 2,
+      "n": 3,
+      "threshold": 0.0016778523489932886,
+      "fa_budget_per_hour": 12.0,
+      "calibration_fa_per_hour": 9.307875894988067
+    },
+    "advisory:cusum": {
+      "kind": "cusum",
+      "mu_normal": -0.004788223679637384,
+      "sigma_normal": 1.7874465147056857,
+      "k": 0.5,
+      "h": 12.66796875,
+      "refractory_seconds": 30.0,
+      "stride_seconds": 1.0,
+      "bootstrap_hours": 50.0,
+      "fa_budget_per_hour": 12.0,
+      "calibration_fa_per_hour": 12.0
+    }
+  },
+  "dense_ae": {
+    "critical:threshold": {
+      "kind": "threshold",
+      "threshold": 0.9916107382550335,
+      "fa_budget_per_hour": 2.0,
+      "calibration_fa_per_hour": 1.431980906921241
+    },
+    "critical:k_of_n": {
+      "kind": "k_of_n",
+      "k": 2,
+      "n": 3,
+      "threshold": 0.988255033557047,
+      "fa_budget_per_hour": 2.0,
+      "calibration_fa_per_hour": 1.431980906921241
+    },
+    "critical:cusum": {
+      "kind": "cusum",
+      "mu_normal": -0.006632833517754669,
+      "sigma_normal": 1.7849474129206193,
+      "k": 0.5,
+      "h": 62.734375,
+      "refractory_seconds": 30.0,
+      "stride_seconds": 1.0,
+      "bootstrap_hours": 50.0,
+      "fa_budget_per_hour": 2.0,
+      "calibration_fa_per_hour": 2.0
+    },
+    "advisory:threshold": {
+      "kind": "threshold",
+      "threshold": 0.0016778523489932886,
+      "fa_budget_per_hour": 12.0,
+      "calibration_fa_per_hour": 9.307875894988067
+    },
+    "advisory:k_of_n": {
+      "kind": "k_of_n",
+      "k": 2,
+      "n": 3,
+      "threshold": 0.0016778523489932886,
+      "fa_budget_per_hour": 12.0,
+      "calibration_fa_per_hour": 9.307875894988067
+    },
+    "advisory:cusum": {
+      "kind": "cusum",
+      "mu_normal": -0.006632833517754669,
+      "sigma_normal": 1.7849474129206193,
+      "k": 0.5,
+      "h": 12.39453125,
+      "refractory_seconds": 30.0,
+      "stride_seconds": 1.0,
+      "bootstrap_hours": 50.0,
+      "fa_budget_per_hour": 12.0,
+      "calibration_fa_per_hour": 12.0
+    }
+  },
+  "usad": {
+    "critical:threshold": {
+      "kind": "threshold",
+      "threshold": 0.9904921700223713,
+      "fa_budget_per_hour": 2.0,
+      "calibration_fa_per_hour": 1.431980906921241
+    },
+    "critical:k_of_n": {
+      "kind": "k_of_n",
+      "k": 2,
+      "n": 3,
+      "threshold": 0.9848993288590604,
+      "fa_budget_per_hour": 2.0,
+      "calibration_fa_per_hour": 1.431980906921241
+    },
+    "critical:cusum": {
+      "kind": "cusum",
+      "mu_normal": -0.005036683400216587,
+      "sigma_normal": 1.7876651740936433,
+      "k": 0.5,
+      "h": 62.25,
+      "refractory_seconds": 30.0,
+      "stride_seconds": 1.0,
+      "bootstrap_hours": 50.0,
+      "fa_budget_per_hour": 2.0,
+      "calibration_fa_per_hour": 2.0
+    },
+    "advisory:threshold": {
+      "kind": "threshold",
+      "threshold": 0.0016778523489932886,
+      "fa_budget_per_hour": 12.0,
+      "calibration_fa_per_hour": 9.307875894988067
+    },
+    "advisory:k_of_n": {
+      "kind": "k_of_n",
+      "k": 2,
+      "n": 3,
+      "threshold": 0.0016778523489932886,
+      "fa_budget_per_hour": 12.0,
+      "calibration_fa_per_hour": 9.307875894988067
+    },
+    "advisory:cusum": {
+      "kind": "cusum",
+      "mu_normal": -0.005036683400216587,
+      "sigma_normal": 1.7876651740936433,
+      "k": 0.5,
+      "h": 13.859375,
+      "refractory_seconds": 30.0,
+      "stride_seconds": 1.0,
+      "bootstrap_hours": 50.0,
+      "fa_budget_per_hour": 12.0,
+      "calibration_fa_per_hour": 12.0
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "status": "complete_five_split",
+  "models": [
+    "lstm_ae",
+    "dense_ae",
+    "usad"
+  ],
+  "evaluated_splits": [
+    "split_00",
+    "split_01",
+    "split_02",
+    "split_03",
+    "split_04"
+  ],
+  "operational_gate_status": "failed",
+  "operational_rule": "any model x decision: critical recall>=0.30 at FA/h<=2 or advisory recall>=0.50 at FA/h<=12, five splits",
+  "best_by_model": [
+    {
+      "model": "dense_ae",
+      "decision": "cusum",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.6831683168316831,
+      "mean_false_alarms_per_hour": 135.9428101420239,
+      "mean_median_detection_delay_s": 10.8983373,
+      "seed_count": 5,
+      "passed_operational_gate": false
+    },
+    {
+      "model": "lstm_ae",
+      "decision": "cusum",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.7412541254125411,
+      "mean_false_alarms_per_hour": 145.81431364106896,
+      "mean_median_detection_delay_s": 9.823203399999992,
+      "seed_count": 5,
+      "passed_operational_gate": false
+    },
+    {
+      "model": "usad",
+      "decision": "cusum",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.6693069306930692,
+      "mean_false_alarms_per_hour": 128.45599028727685,
+      "mean_median_detection_delay_s": 11.630444100000005,
+      "seed_count": 5,
+      "passed_operational_gate": false
+    }
+  ],
+  "magnitude_flagged_model_splits": 15,
+  "magnitude_audits": 15,
+  "historical_holdout": {
+    "excluded_from_runner": true,
+    "runner_rows_read": false,
+    "n_flights": 132,
+    "blindness_claim_for_new_track": false,
+    "reason": "aggregate full-parquet schema/count inspection occurred on 2026-07-20 before the runner; holdout remains excluded but is not claimed unread"
+  },
+  "invalid_no_active_fault_exclusions": 4
+}
