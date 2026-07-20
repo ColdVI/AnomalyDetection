@@ -99,6 +99,17 @@ def test_read_parquet_object_round_trips_write_bronze(fake_minio_client):
     assert read_back.equals(source)
 
 
+def test_read_parquet_object_columns_prunes_to_requested_subset(fake_minio_client):
+    source = pd.DataFrame({"a": [1, 2], "b": ["x", "y"], "c": [1.5, 2.5]})
+    uri = write_bronze(source, "alfa", client=fake_minio_client)
+    object_name = uri.removeprefix("s3://bronze/")
+
+    read_back = read_parquet_object(fake_minio_client, "bronze", object_name, columns=["a", "c"])
+
+    assert list(read_back.columns) == ["a", "c"]
+    assert read_back["a"].tolist() == [1, 2]
+
+
 def test_read_layer_concatenates_all_objects_for_source_type(fake_minio_client):
     write_bronze(pd.DataFrame({"a": [1], "b": ["only-in-first"]}), "alfa", client=fake_minio_client)
     write_bronze(pd.DataFrame({"a": [2], "c": ["only-in-second"]}), "alfa", client=fake_minio_client)

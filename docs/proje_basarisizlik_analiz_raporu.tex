@@ -1,0 +1,1128 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\usepackage[turkish,shorthands=off]{babel}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+
+\newcommand{\etal}{\emph{vd.}}
+
+\title{İnsansız Hava Aracı Telemetrisi ve ADS-B Hava Trafiği Verisinde\\
+Anomali Tespiti: Yöntemler, Deneysel Sonuçlar ve\\
+Kapsamlı Başarısızlık Analizi}
+\author{Anomali Tespiti Projesi --- Neden--Sonuç Raporu}
+\date{17 Temmuz 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Bu rapor, insansız hava aracı (İHA) uçuş telemetrisi ve geniş alanlı ADS-B hava
+trafiği verisi üzerinde yürütülen anomali tespiti projesinin neden hedeflenen
+operasyonel başarıya ulaşamadığını, veri seti, kolon, yöntem ve ölçülmüş skor
+düzeyinde belgeler. Beş etiketli İHA veri seti ve 2.76 milyar satırlık etiketsiz
+bir ADS-B külliyatı üzerinde dokuz yöntem ailesi (Isolation Forest, gradyan
+artırma, yoğun ve LSTM otokodlayıcılar, USAD, LSTM öngörücü, sıfır-atış temel
+model, kural-bazlı fizik artıkları ve bağlamsal olasılıksal LSTM; karar
+katmanında CUSUM ve conformal kalibrasyon) denenmiştir. Araştırma metriklerinde
+literatürle uyumlu sonuçlar elde edilmiştir (örn.\ ALFA veri setinde LSTM-AE ile
+AUPRC 0.872); buna karşın \textbf{hiçbir konfigürasyon, dondurulmuş eşikle
+birlikte ölçülen olay-yakalama + saatlik yanlış alarm bütçesi biçimindeki
+operasyonel kabul ölçütünü hiçbir veri setinde karşılayamamıştır}. Başarısızlığın
+kök nedenleri; değerlendirme çıtası uyumsuzluğu, yapısal olarak yetersiz normal
+uçuş maruziyeti, heterojen normal havuzlarında yenilik-tespitinin çökmesi,
+yeniden-kurma tabanlı modellerdeki genlik-baskınlığı artefaktı, etiket
+granülerliği uyumsuzluğu, fiziksel gözlenebilirlik boşlukları ve alan (domain)
+kayması olarak tespit edilmiş ve her biri ölçülmüş sayılarla kanıtlanmıştır.
+Kritik ayrım şudur: son iki çalışmada sinyalin \emph{varlığı} eşikten bağımsız
+istatistiksel testlerle kanıtlanmış, fakat operasyonel eşik, kalibrasyon için
+gereken bağımsız normal uçuş-saatinin veri setlerinde mevcut olmaması nedeniyle
+kurulamamıştır. Yani sonuç ``sinyal yok'' değil, ``sinyal var; mevcut veriyle
+operasyonel karar sınırı kalibre edilemez'' biçimindedir.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Yönetici Özeti}
+
+Projenin amacı, İHA uçuş telemetrisinde (sensör/aktüatör arızaları, GNSS
+bütünlük bozulmaları, siber saldırılar) ve ticari hava trafiği yayınlarında
+(ADS-B) anomalileri, operasyonel olarak kabul edilebilir bir yanlış alarm
+yüküyle tespit eden bir sistem kurmaktı. Sonuç, tek cümleyle:
+
+\begin{quote}
+\textbf{Denenen hiçbir yöntem--veri seti kombinasyonu, ``dondurulmuş tek bir
+eşikle, aynı anda ölçülen olay-yakalama oranı ve saatlik yanlış alarm bütçesi''
+biçimindeki operasyonel kabul ölçütünü karşılayamadı.} Buna karşılık,
+literatürün raporladığı eşikten-bağımsız sıralama metriklerinde (AUROC/AUPRC)
+sonuçlar yayınlanmış çalışmalarla aynı ligdedir.
+\end{quote}
+
+Bu iki cümlenin birlikte okunması raporun ana tezidir: başarısızlık, yöntemlerin
+literatürdeki hâllerinin ``çalıştırılamaması'' değildir. Literatürün genellikle
+\emph{ölçmediği} bir büyüklüğe --- dondurulmuş eşikte saatlik yanlış alarm
+yüküne --- hedef konmuş; küçük ve heterojen akademik veri setleri bu hedefi
+istatistiksel olarak taşıyamamıştır. Nihai iki çalışma (GNSS bütünlük pilotu ve
+komut$\to$tepki artık modeli) disiplinli birer NO-GO kararıyla kapanmış; her
+ikisinde de kör test kümeleri hiç açılmamış, eşikler sonuca bakılarak
+gevşetilmemiştir.
+
+Sayısal özet:
+
+\begin{itemize}[itemsep=2pt]
+  \item 5 etiketli İHA veri seti (ALFA, UAV Attack, UAV-SEAD, RflyMAD ve
+        RflyMAD'in GNSS alt-kümesi) + 1 etiketsiz ADS-B külliyatı
+        (2.762.067.817 satır, 386.779 uçak, $\sim$11 ay).
+  \item 9 yöntem ailesi, $\sim$50'nin üzerinde konfigürasyon.
+  \item Araştırma metriği örneği: ALFA'da LSTM-AE ile AUPRC \textbf{0.872}
+        (Isolation Forest ile 0.858, LightGBM ile 0.843); literatürle uyumlu
+        düzey.
+  \item Operasyonel metrik örneği: en iyi tekil kanal (itki komutu artığı,
+        RflyMAD) \textbf{0.526} olay-yakalama sağladı ama \textbf{22.28 yanlış
+        alarm/uçuş-saati} üretti; bütçe 12 idi. Kritik bütçe (2/saat) hiçbir
+        yerde yaklaşılamadı.
+  \item Nihai kalibrasyon analizi: yanlış alarm bütçesini güvenilir çözmek için
+        gereken bağımsız normal uçuş-saatinin yalnızca $1/11.8$'i (sabit kanat)
+        ve $1/5.1$'i (çok-rotor) veri setlerinde mevcuttur; resmî külliyat
+        tavanları bu açığı matematiksel olarak kapatamamaktadır.
+\end{itemize}
+
+\section{Problem Tanımı ve Başarı Ölçütleri}
+\label{sec:olcut}
+
+\subsection{İki metrik ailesi}
+
+Zaman serisi anomali tespitinde iki farklı soru vardır ve proje boyunca ikisi
+bilinçli olarak ayrı tutulmuştur:
+
+\begin{enumerate}[itemsep=2pt]
+  \item \textbf{Araştırma sorusu (eşikten bağımsız sıralama):} skor, anomalili
+        örnekleri normallerden ne kadar iyi ayırıyor? Metrikler: AUROC, AUPRC.
+        Literatürdeki ``\%95 başarı'' raporlarının büyük kısmı bu ailedendir.
+  \item \textbf{Operasyonel soru (dondurulmuş eşikte eşzamanlı çift metrik):}
+        eşik, sonuç görülmeden \emph{önce} yalnız normal veriden kalibre edilip
+        dondurulduğunda, (a) etiketli arıza olaylarının ne kadarı zamanında
+        yakalanıyor ve (b) normal uçuşlarda saatte kaç yanlış alarm üretiliyor?
+        Bu iki sayı \emph{aynı eşikle, aynı anda} raporlanır; asla ayrı ayrı
+        değil.
+\end{enumerate}
+
+Projenin kabul ölçütleri baştan şöyle donduruldu (sonuç görülmeden):
+
+\begin{center}
+\small
+\begin{tabular}{lccc}
+\toprule
+Sözleşme & Olay-yakalama (recall) & Yanlış alarm bütçesi & Gecikme hedefi \\
+\midrule
+Kritik   & $\geq 0.30$ & $\leq 2$ alarm/uçuş-saati  & $\leq 5$ s \\
+Uyarı (advisory) & $\geq 0.50$ & $\leq 12$ alarm/uçuş-saati & $\leq 15$ s \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Neden bu ölçüt? Literatürdeki ölçütün bilinen kusurları}
+
+Bu seçim keyfî değildir; zaman serisi anomali tespiti değerlendirme
+literatürünün son yıllardaki iki temel eleştirisine dayanır:
+
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{Point-adjust şişirmesi:} olay içinde tek bir noktayı yakalamayı
+        ``bütün olay yakalandı'' saymak, rastgele skorları bile başarılı
+        gösterebilir \cite{kim2022rigorous}. Projede bu düzeltme kendi
+        sonuçlarımıza uygulandığında olay-başlangıcı yakalama oranı
+        $0.594 \to 0.194\text{--}0.224$'e düşmüştür (\S\ref{sec:alfa-sonuc}).
+  \item \textbf{Kusurlu kıyas kümeleri:} yaygın akademik kıyas kümelerinin
+        önemsiz (trivial) çözülebilirlik ve etiket hataları içerdiği
+        gösterilmiştir \cite{wu2021flawed}. Kapsamlı karşılaştırmalar, tek bir
+        yöntemin genel üstünlüğü olmadığını bulmaktadır \cite{schmidl2022eval}.
+\end{itemize}
+
+Saatlik yanlış alarm bütçesi ise operasyonel izleme pratiğinin standart
+büyüklüğüdür: alarm üreten ama operatörünü alarm yağmuruna boğan bir dedektör
+sahada kapatılır. Raporun geri kalanında görüleceği gibi, \emph{proje dört
+etiketli veri setinde de hep aynı duvara --- bu bütçeye --- toslamıştır};
+eşikten bağımsız metrikler çoğu zaman makul, hatta iyiydi.
+
+\section{Veri Setleri: İçerik, Kolon Envanteri ve Kolon-Bazında Uygulanan
+Operasyonlar}
+\label{sec:veri}
+
+Tablo~\ref{tab:veri-ozet} kullanılan altı veri kaynağını özetler. Kolon
+bileşimleri ağırlıkla \textbf{sensör verisi}dir: yüksek frekanslı ataletsel
+ölçümler (jiroskop, ivmeölçer), otopilot komut/ölçüm çiftleri, aktüatör PWM
+çıkışları, GNSS konum/hız ve --- ADS-B tarafında --- uçağın kendi yayınladığı
+kinematik durum vektörü ile bütünlük meta-verisi.
+
+\begin{table}[h]
+\centering\small
+\caption{Veri setlerinin özeti.}
+\label{tab:veri-ozet}
+\begin{tabular}{p{2.4cm}p{2.6cm}p{3.4cm}p{2.9cm}p{3.2cm}}
+\toprule
+Veri seti & Platform & Anomali türleri & Hacim & Normal havuz \\
+\midrule
+ALFA \cite{keipour2021alfa} & Sabit kanat İHA, gerçek uçuş & Motor durması,
+kumanda yüzeyi (rudder, elevator, aileron) arızaları & 47 uçuş (sabit resmî
+külliyat) & \textbf{11 normal uçuş} \\
+\addlinespace[2pt]
+UAV Attack \cite{whelan2020uav} & PX4 çok-rotor & GPS spoofing, GPS jamming,
+ağ-katmanı DoS & $\sim$78 bin satır & \textbf{6 normal log} \\
+\addlinespace[2pt]
+UAV-SEAD & Çok-rotor, ağırlıkla simülasyon & GPS spoofing; irtifa, mekanik,
+konum anomalileri & $\sim$1396 uçuş & 398 normal $\approx$ \textbf{64 bağımsız
+oturum} (sonradan 899 normale büyütüldü) \\
+\addlinespace[2pt]
+RflyMAD \cite{rflymad} & Çok-rotor; gerçek + SIL/HIL & Motor ve sensör
+arızaları & 490 gerçek uçuş (242 motor, 197 sensör) & \textbf{51 arızasız uçuş}
+(resmî tavan 84) \\
+\addlinespace[2pt]
+ADS-B (adsb.lol) \cite{adsblol} & Ticari hava trafiği & Etiketsiz; sentetik
+bozulma senaryolarıyla değerlendirme & \textbf{2.76 milyar satır}, 386.779
+uçak, $\sim$11 ay & Etiketsiz (doğal trafik) \\
+\addlinespace[2pt]
+GNSS alt-çalışması & RflyMAD GPS alt-kümesi + SIL/HIL rüzgâr & GNSS gürültü ve
+ölçek-faktörü arızaları & 94 uçuş (rol ayrımlı) + 886 rüzgâr vakası & Fit 20 +
+kalibrasyon 10 uçuş \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Aşağıdaki alt bölümler, her veri setinin kolonlarını ve \emph{her kolon grubuna
+uygulanan somut operasyonları} verir. Bu envanter raporun en önemli
+bölümlerinden biridir, çünkü başarısızlık nedenlerinin birkaçı doğrudan kolon
+düzeyindeki özelliklerden (örneklem hızı uyuşmazlığı, sıfır-varyanslı alanlar,
+etiket granülerliği) doğmuştur.
+
+\subsection{ALFA --- sabit kanat İHA arıza veri seti}
+\label{sec:alfa-veri}
+
+ALFA \cite{keipour2021alfa}, Carnegie Mellon Üniversitesi'nin yayımladığı,
+gerçek uçuşta kontrollü arıza enjeksiyonu içeren 47 uçuşluk sabit bir
+külliyattır. Sınıf dağılımı ciddi biçimde dengesizdir: motor arızası çoğunluk
+sınıfıdır; rudder $n{=}4$, elevator $n{=}2$, aileron+rudder $n{=}1$ ve yalnız
+\textbf{11 normal uçuş} vardır. Kolonlar tamamen uçuş kontrol sensörü
+ağırlıklıdır:
+
+\begin{table}[h]
+\centering\small
+\caption{ALFA kolon envanteri ve uygulanan operasyonlar.}
+\label{tab:alfa-kolon}
+\begin{tabular}{p{3.6cm}p{3.1cm}p{1cm}p{6.6cm}}
+\toprule
+Kolon grubu & Fiziksel anlam & $\sim$Hz & Uygulanan operasyonlar \\
+\midrule
+Otopilot komut/ölçüm çiftleri (istenen ve ölçülen roll, pitch, yaw, hava hızı) &
+Komut$\to$tepki artıklarının ana hammaddesi & 20--25 & Açı farkları sarım-duyarlı
+($\operatorname{atan2}$) hesaplandı; komut--tepki artığı türetildi; medyan/MAD
+ile sağlam ölçekleme + kırpma \\
+\addlinespace[2pt]
+Ataletsel ölçümler (jiroskop, ivmeölçer, kuaterniyon) & En yüksek hızlı gerçek
+dinamik; referans saat & 45--50 & Kuaterniyon işaret sürekliliği düzeltmesi
+($q \leftrightarrow -q$ aynı duruş); ivme türevlenmedi, bağlam olarak kullanıldı \\
+\addlinespace[2pt]
+Aktüatör PWM çıkışları (servo, gaz) & Fiilî aktüatör komutu & 20 & Uçuşlar arası
+kalibrasyon kayması nedeniyle uçuş-içi trim medyanına göre normalize edildi \\
+\addlinespace[2pt]
+Küresel/yerel konum, yer hızı, irtifa & Konum/kinematik & 5--10 & GPS irtifa
+sıçramalarına karşı aralık kapıları; yer hızı ile hava hızı ayrı kanallar olarak
+tutuldu (rüzgâr nedeniyle asla birbirinin yerine kullanılmadı) \\
+\addlinespace[2pt]
+Yörünge sapması (çapraz-iz hatası) & Planlanan rotadan yanal sapma & 10 &
+Nedensel ölçümde en güçlü tekil kanal; yol-noktası geçişindeki yapısal sıçrama
+için $\pm 2$ s maske; V-dönüşü olayları için altı-parametreli maske (32 uçuşta 9
+olay, 697 satır maskelendi) \\
+\addlinespace[2pt]
+Arıza durumu (yalnız arıza aktifken yayınlanır) & Etiket & olay & Başlangıç
+(onset) = ilk yayın; öncesindeki 10 s koruma bandı eğitimden dışlandı \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Hijyen kuralları (tüm kolonlara):} $\Delta t \leq 0$ satırlar atıldı ve
+sayıldı; $\Delta t > 5\times$medyan boşluk olarak işaretlendi; 2 s boyunca
+değişmeyen yüksek-hızlı kanal ``bayat'' (stale) bayrağı aldı ve o pencerede
+artık hesaplanmadı; fiziksel aralık ihlali ($|\text{roll}| \leq 180^\circ$,
+hava hızı 0--60 m/s vb.) olan uçuşlar karantinaya alındı; sessiz kırpma
+yapılmadı.
+
+\textbf{Kritik metodolojik dönüş (interpolasyon):} projenin ilk turlarında tüm
+kanallar 50 Hz'e doğrusal interpole edilmişti. Bu, iki zarar üretti: (i) 5 Hz'lik
+GNSS kanalını 50 Hz'e interpole etmek ardışık 10 örneği yapay bir doğru üzerine
+dizer ve model bu yapay pürüzsüzlüğü öğrenir; (ii) veri kesintisi sırasında
+interpolant iki uzak nokta arasında köprü kurarak tam anomali anını
+pürüzsüzleştirir. Son turda interpolasyon tamamen kaldırıldı; her kanal kendi
+doğal hızında tutulup hizalama geçmişe-bakan asof birleştirmeyle
+(\texttt{merge\_asof}, backward) yapıldı ve her düşük hızlı kanala bir bayatlık
+(staleness) kolonu eşlik etti.
+
+\subsection{UAV Attack --- çok-rotor siber saldırı veri seti}
+
+Whelan \etal{} \cite{whelan2020uav} tarafından yayımlanan bu set, PX4 tabanlı
+çok-rotorlara GPS spoofing, GPS jamming ve ağ-katmanı DoS saldırıları içerir.
+Kolonlar PX4 telemetrisidir (konum, hız, ataletsel ölçümler, EKF durumları).
+Uygulanan operasyonlar: kanal bazında fiziksel artık türetimi (örn.\ GPS hız
+artığı), sağlam ölçekleme, pencere özetleri.
+
+Bu setin iki yapısal sınırı ölçümle kanıtlandı:
+
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{Gözlenebilirlik boşluğu:} ağ-katmanı DoS saldırısı fiziksel
+        telemetriye \emph{hiç yansımıyor} --- 6 saldırı logundan 4'ü hiçbir
+        kanalda tespit edilemedi. Ağ katmanındaki bir imzayı uçuş fiziği
+        kolonlarında aramak kategori hatasıdır; bu, yöntem değil veri--problem
+        eşleşmesi başarısızlığıdır.
+  \item \textbf{Sinsi saldırı ölçeği:} 2 m/s'lik kademeli GPS kayması, GPS hız
+        artığını ancak normal doğrulama maksimumu düzeyinde oynatmaktadır;
+        yani bu şiddette spoofing, artık uzayında normal varyasyondan
+        ayrılamamaktadır.
+  \item \textbf{Normal havuzu 6 log:} saatlik yanlış alarm bütçesi gibi bir
+        büyüklüğü 6 normal kayıtla kalibre etmek istatistiksel olarak
+        anlamsızdır.
+\end{itemize}
+
+\subsection{UAV-SEAD --- simülasyon ağırlıklı çok-rotor anomali seti}
+
+$\sim$1396 uçuşluk, GPS spoofing ile irtifa/mekanik/konum anomalileri içeren,
+ağırlıkla simülasyon kaynaklı bir settir. Görünürde 398 normal uçuş vardır;
+ancak oturum analizi bunların yalnız \textbf{$\sim$64 bağımsız oturumdan}
+geldiğini göstermiştir --- aynı oturumun uçuşları güçlü biçimde koreledir ve
+etkin örneklem, görünenden çok daha küçüktür. Kolonlar: konum (X, Y, Z),
+aktüatör komutları (motor itki komutları dahil), duruş ve türetilmiş kinematik.
+
+Uygulanan operasyonlar: pencere-bazlı özet özellikler (ilk turlarda 73--85
+özellik); kategoriye özgü fiziksel kanallar (dikey tutarlılık: konum-Z ile
+tırmanma dinamiği; motor simetrisi: aktüatör çıkışları arası denge; itki
+komutu); CUSUM ve K-of-N kalıcılık karar katmanları; oturum-bazlı bölme ve 5
+tohumlu tekrar. Sonradan normal havuz 899 uçuşa büyütüldü; \S\ref{sec:sead-sonuc}'da
+görüleceği gibi bu büyütme operasyonel sonucu kurtarmadı.
+
+\subsection{RflyMAD --- gerçek çok-rotor arıza veri seti}
+\label{sec:rfly-veri}
+
+RflyMAD \cite{rflymad}, Beihang Üniversitesi'nin çok-rotor arıza veri setidir;
+projede yalnız \emph{gerçek} uçuş alt-kümesi kullanıldı: 490 uçuş (242 motor
+arızası, 197 sensör arızası, 51 arızasız; resmî sayfada arızasız tavanı 84).
+Kayıtlar PX4 ULog biçimindedir:
+
+\begin{table}[h]
+\centering\small
+\caption{RflyMAD kolon envanteri ve uygulanan operasyonlar.}
+\label{tab:rfly-kolon}
+\begin{tabular}{p{3.6cm}p{3.6cm}p{7cm}}
+\toprule
+Kolon grubu (ULog konusu) & Fiziksel anlam & Uygulanan operasyonlar \\
+\midrule
+Aktüatör çıkışları (4 motor PWM) & Fiilî motor komutları & Motorlar arası
+dağılım/asimetri kanalı türetildi (toplam itki ve duruş komutuna koşullu);
+medyan/MAD ölçekleme \\
+\addlinespace[2pt]
+Duruş + duruş hedefi (setpoint) & Komut$\to$tepki çifti & Hedef--ölçüm artığı;
+sarım-duyarlı açı farkları \\
+\addlinespace[2pt]
+Yerel konum/hız & Kinematik & Konum hedefi$\to$hız tepkisi kanalı; geçmişe-bakan
+asof hizalama, ileri-doldurma YOK \\
+\addlinespace[2pt]
+Batarya durumu & Voltaj çökmesi motor arızasını taklit edebilir & Yalnız bağlam
+değişkeni olarak alındı; dedektör kanalı yapılmadı \\
+\addlinespace[2pt]
+ESC durumu (RPM, akım, voltaj, sıcaklık) & Motor sağlığının doğrudan ölçümü &
+\textbf{Kullanılamadı:} incelenen tüm uçuşlarda bu alanlar sabit sıfır ---
+şema var, veri yok. Motor-sağlığı pilotu bu nedenle hiç açılmadı (gözlenebilirlik
+sözleşmesi ihlal edilmeden yürütülemezdi) \\
+\addlinespace[2pt]
+Arıza aralığı gerçek-referansı & Olay bazlı etiket (başlangıç/bitiş) & Uçuş-düzeyi
+vekil etiket yerine aralık etiketi kullanıldı; klasör etiketiyle çelişen 5 uçuş
+ve yanlış arıza kimliği taşıyan 6 kayıt karantinaya alındı \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Bu setteki en öğretici düzeltme} etiket granülerliğidir: ilk değerlendirme
+``uçuşun tamamı arızalı'' vekil etiketiyle 0.749 olay-yakalama gösteriyordu.
+Gerçek arıza \emph{aralığı} etiketine geçilince aynı yöntem
+$0.526$'ya düştü (\S\ref{sec:rfly-sonuc}). Kolay soruya verilmiş doğru cevap,
+zor sorunun cevabı değildir.
+
+\subsection{ADS-B (adsb.lol) --- geniş alanlı hava trafiği külliyatı}
+\label{sec:adsb-veri}
+
+adsb.lol \cite{adsblol} topluluk ağının günlük tam-ağ arşivlerinden 30 anlık
+görüntü ($\sim$11 aylık pencere) işlendi: \textbf{2.762.067.817 satır, 386.779
+benzersiz uçak}. Veri, uçakların kendi yayınladığı durum vektörüdür; kolon
+bileşimi kinematik-ağırlıklıdır ve bütünlük meta-verisi içerir:
+
+\begin{table}[h]
+\centering\small
+\caption{ADS-B kolon envanteri ve uygulanan operasyonlar.}
+\label{tab:adsb-kolon}
+\begin{tabular}{p{3.4cm}p{3.4cm}p{7.4cm}}
+\toprule
+Kolon & Anlam & Uygulanan operasyonlar \\
+\midrule
+Zaman damgası & Mesaj zamanı & $\Delta t$ hesaplandı; $\log(1+\Delta t)$ model
+girdisi; ardışık mesaj arası $> 60$ s ise pencere üretimi kesildi; $\Delta t
+\leq 0$ atıldı \\
+\addlinespace[2pt]
+Enlem/boylam & Konum & Ardışık konumdan hız vektörü ve büyük-daire kerterizi
+türetildi; hız/yön artıklarının referansı \\
+\addlinespace[2pt]
+Barometrik irtifa & İrtifa & $\Delta\text{irtifa}/\Delta t$ türetildi (dikey hız
+artığının referansı); \texttt{"ground"} değeri sayı değil bayrağa çevrildi \\
+\addlinespace[2pt]
+Geometrik irtifa & GNSS irtifası & Barometrik--geometrik fark türevi kanal adayıydı;
+fit verisinde MAD tam sıfır çıktığı için \emph{yapay taban verilmeden dışlandı}
+(aktif kanal sayısı 6 değil 5 kaldı) \\
+\addlinespace[2pt]
+Yer hızı & Yayınlanan hız & Hız artığı = yayınlanan hız $-$ konumdan türetilen
+hız \\
+\addlinespace[2pt]
+Yer izi (track) & Yayınlanan yön & $\sin/\cos$ kodlaması (dairesel süreklilik);
+yön artığı = yayınlanan track $-$ konum kerterizi (sarım-duyarlı) \\
+\addlinespace[2pt]
+Dikey hız & Yayınlanan tırmanma/alçalma & Dikey hız artığı = yayınlanan değer $-$
+$\Delta\text{irtifa}/\Delta t$ \\
+\addlinespace[2pt]
+Doğu/kuzey hız bileşenleri & Hız vektörü & Bileşen bazında hız-vektörü artıkları
+(sinsi konum kayması için birincil kanıt kanalı) \\
+\addlinespace[2pt]
+Squawk (transponder kodu) & Pilot beyanı & Kural kanalı: acil kodlar
+(7500/7600/7700) doğrudan, öğrenmesiz sinyal \\
+\addlinespace[2pt]
+NIC / NACp / SIL & Yayınlanan bütünlük/doğruluk kategorileri & Kural-bazlı
+``beyan edilen kalite düşüşü'' sinyali; sinir ağına karıştırılmadı \\
+\addlinespace[2pt]
+Uçuş fazı, kadans & Türetilmiş bağlam & Faz yalnız geçmiş satırlardan çıkarıldı
+(sızıntısız); kadans kovaları girdiye eklendi; her girdiye kullanılabilirlik
+maskesi eşlik etti \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Tüm artık kanalları, fit-normal medyan/MAD ile ölçeklenip $[-5,5]$'te kırpıldı:
+\[
+z = \operatorname{clip}\!\big((r - \operatorname{med})/\operatorname{MAD},\,
+-5,\, 5\big).
+\]
+Pencereler uçuş sınırını asla geçmedi.
+
+\textbf{Etiketsizlik ve değerlendirme:} gerçek anomali etiketi olmadığından
+değerlendirme, doğal veriye enjekte edilen beş sentetik bozulma senaryosuyla
+yapıldı: yer hızı sapması (bias), dikey hız donması, track donması, sinsi konum
+rampası, irtifa kesintisi. Ayrıca pencere-düzeyi vekil etiketlemenin yapısal bir
+AUC tavanı ($\sim$0.75) olduğu ölçüldü: mükemmel bir dedektör bile bu
+etiketlemeyle 0.75 civarında görünür. Bu tavan, sonuçların yorumunda hep dikkate
+alındı.
+
+\subsection{GNSS bütünlük alt-çalışması (RflyMAD GPS alt-kümesi)}
+\label{sec:gnss-veri}
+
+Projenin sondan bir önceki çalışması, dar ve ön-kayıtlı bir soruya indirgendi:
+``RflyMAD gerçek uçuşlarındaki GNSS gürültü ve ölçek-faktörü arızaları, kabul
+edilebilir operatör yüküyle zamanında tespit edilebilir mi?'' Veri rolleri
+baştan ayrıldı ve hiç ihlal edilmedi: fit 20, kalibrasyon 10, geliştirme 23,
+prova 15, \emph{mühürlü kör test 20} (hiç açılmadı), karantina 6 uçuş.
+
+Kolonlar ve operasyonlar:
+
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{EKF yenilik (innovation) değerleri} ($\sim$2 Hz temel eksen):
+        GPS yatay konum, yatay hız ve dikey hız yenilikleri, ilgili yenilik
+        varyansının kareköküne bölünerek normalize edildi --- literatürdeki
+        model-bazlı arıza tespitinin (FDI) standart büyüklüğü
+        \cite{willsky1976survey,isermann2006fdi}.
+  \item \textbf{EKF test oranı, bayrak/sıfırlama durumları; GPS fix tipi, yatay/dikey
+        konum belirsizliği (EPh/EPv), HDOP/VDOP, uydu sayısı, gürültü ve jamming
+        göstergeleri; yerel hız:} geçmişe-bakan asof birleştirmeyle eklendi;
+        \emph{ileri doldurma yapılmadı} (arıza anını normal veriyle örtmemek
+        için).
+  \item Alan-kayması stres testi için 886 SIL/HIL rüzgâr vakası ayrıca işlendi;
+        bunlar GNSS arızası içermez, yalnız dondurulmuş dedektörlerin çevresel
+        bozucudaki alarm yükünü ölçer.
+\end{itemize}
+
+\section{Yöntemler}
+\label{sec:yontem}
+
+Denenen yöntemler, literatürdeki dört ana aileyi kapsar. Hepsi ``yalnız
+normalden öğren, sapanı işaretle'' (novelty detection) veya zayıf-gözetimli
+kurulumla çalıştırıldı; kör test kümelerine hiçbir aşamada bakılmadı.
+
+\subsection{Sıra dışılık skorlayıcıları}
+
+\begin{enumerate}[itemsep=3pt]
+  \item \textbf{Isolation Forest} \cite{liu2008iforest}: satır- ve
+        pencere-düzeyi izolasyon derinliği skoru; hem monolitik hem kanal-bazlı
+        (modüler füzyon) varyantları.
+  \item \textbf{Gradyan artırma (LightGBM)} \cite{ke2017lightgbm}:
+        pencere özellikleri üzerinde zayıf-gözetimli sınıflandırma.
+  \item \textbf{Yoğun (dense) otokodlayıcı}: yeniden-kurma hatası skoru.
+  \item \textbf{LSTM otokodlayıcı} \cite{malhotra2016lstm}: sıralı
+        yeniden-kurma; literatürde çok-sensörlü telemetri için standart temel
+        yöntem.
+  \item \textbf{USAD} \cite{audibert2020usad}: çekişmeli (adversarial) eğitimli
+        otokodlayıcı.
+  \item \textbf{LSTM öngörücü (forecaster)}: bir-adım-ileri tahmin hatası
+        skoru.
+  \item \textbf{Sıfır-atış temel model (Chronos)} \cite{ansari2024chronos}:
+        önceden eğitilmiş zaman serisi temel modelinin tahmin artıkları;
+        alan-içi eğitim yapılmadan kullanıldı.
+  \item \textbf{Kural-bazlı fizik tutarlılık skorlayıcı}: \S\ref{sec:adsb-veri}'deki
+        fiziksel artıklar üzerinde el yapımı ceza kuralları; öğrenme yok.
+  \item \textbf{Bağlamsal olasılıksal LSTM}: ham sinyali yeniden kurmak yerine,
+        uçuşun önceki 12 satırından her artık kanalı için beklenen merkez
+        $\mu$ ve normal oynaklık $\sigma$ tahmin eder; eğitim kaybı maskeli
+        Gauss negatif log-olabilirliğidir:
+        \[
+        \mathrm{NLL}_{c,t} = \log \sigma_{c,t} +
+        \tfrac{1}{2}\Big(\tfrac{z_{c,t}-\mu_{c,t}}{\sigma_{c,t}}\Big)^{2},
+        \qquad
+        S_{c,t} = \frac{|z_{c,t}-\mu_{c,t}|}{\sigma_{c,t}} .
+        \]
+        Skor $S$, kanal/faz/kadans koşullu conformal $p$-değerine
+        \cite{vovk2005conformal} çevrilecek şekilde tasarlandı. Tepki
+        değişkeninin kendi kısa geçmişi girdiye \emph{bilinçli olarak}
+        verilmedi (otoregresif kopyacılık tuzağına karşı, \S\ref{sec:kn-artefakt}).
+  \item \textbf{Komut$\to$tepki artık modeli (model-bazlı FDI çerçevesi)}
+        \cite{willsky1976survey,isermann2006fdi}: her fiziksel kanal için kanal
+        başına ridge regresyon --- girdi: komutun son 1 s'lik üçgen-ağırlıklı
+        özeti + bağlam ($V$, $V^2$, uçuş fazı, $V\times$komut etkileşimi);
+        hedef: tepkinin gelecek 0.5 s ortalaması. Ridge seçiminin gerekçesi
+        performans değil \emph{teşhis edilebilirlik}tir: katsayılar fiziksel
+        yorum taşır. Sabit kanatta 6 kanal (aileron$\to$roll hızı,
+        elevator$\to$pitch hızı, rudder+roll$\to$yaw hızı,
+        gaz$\to$hava hızı türevi, pitch+gaz$\to$tırmanma hızı, çapraz-iz hatası);
+        çok-rotorda 4 kanal (duruş hedefi$\to$duruş hızı, motor PWM dağılımı,
+        toplam PWM$\to$dikey ivme, konum hedefi$\to$hız tepkisi).
+\end{enumerate}
+
+\subsection{Karar katmanı}
+
+Anlık skorlar doğrudan alarma çevrilmedi; literatürdeki değişim-noktası tespiti
+çerçevesi kullanıldı \cite{page1954cusum,basseville1993detection}: kanal başına
+çift yönlü Page CUSUM,
+\[
+S^{+}_{t} = \max\big(0,\; S^{+}_{t-1} + z_t - k\big), \qquad
+S^{-}_{t} = \max\big(0,\; S^{-}_{t-1} - z_t - k\big),
+\]
+eşikler \emph{yalnız normal verideki doğal alarm yükünden} (blok-bootstrap ile)
+kalibre edilip donduruldu; alarm sonrası 60 s yenileme (refractory) penceresi ve
+olay-birleştirme uygulandı. K-of-N kalıcılık kuralları alternatif karar katmanı
+olarak denendi.
+
+\subsection{Sağlama (sanity) kapıları}
+\label{sec:sanity}
+
+Projenin ikinci yarısında, her aday skor kalibrasyona girmeden önce dört
+eşikten-bağımsız sağlama testinden geçirildi. Bu kapılar, ilk yarıda yaşanan ve
+\S\ref{sec:kn-artefakt}'te anlatılan artefaktın tekrarını önlemek için kondu:
+
+\begin{enumerate}[itemsep=2pt]
+  \item \textbf{Genlik testi:} skor ile ham girdi normu $\lVert x\rVert$
+        arasındaki Spearman korelasyonu $\rho < 0.5$ olmalı (skor, genliğin
+        kopyası olmamalı).
+  \item \textbf{Eğitilmemiş-eş testi:} eğitilmiş modelin skor sıralaması, aynı
+        mimarinin rastgele-ağırlıklı kopyasıyla $\rho < 0.7$--$0.8$ olmalı
+        (eğitim gerçekten bir şey katmalı).
+  \item \textbf{Başlangıç ayrışması (KS) testi:} etiketli olaylarda artık
+        büyüklüğünün başlangıç-sonrası dağılımı, başlangıç-öncesinden
+        Kolmogorov--Smirnov testiyle ayrışmalı ($p<0.01$). Bu test sinyalin
+        \emph{varlığını} eşikten bağımsız ölçer; sinyal-yokluğu ile
+        eşik-yanlışlığını birbirinden ayırır.
+  \item \textbf{Komut-ablasyon testi:} komut girdileri çıkarılıp yalnız
+        bağlamla eğitilen ``sakat'' model, tam modele yakın performans
+        veriyorsa model komutu değil bir sızıntıyı öğreniyordur
+        (varyans oranı $\geq 1.15$ şartı).
+\end{enumerate}
+
+\section{Deneysel Sonuçlar --- Veri Seti Bazında Ölçülmüş Skorlar}
+\label{sec:sonuc}
+
+\subsection{ALFA}
+\label{sec:alfa-sonuc}
+
+\begin{table}[h]
+\centering\small
+\caption{ALFA --- ana sonuçlar. FA = yanlış alarm.}
+\label{tab:alfa-sonuclar}
+\begin{tabular}{p{5.2cm}p{3.4cm}p{2.6cm}p{3.4cm}}
+\toprule
+Yöntem/kanal & Metrik & Değer & Sonuç \\
+\midrule
+Monolitik satır-bazlı Isolation Forest & ROC & 0.50 & Rastgele; başarısız \\
+LSTM-AE (uçuş düzeyi) & uçuş-ROC & 0.731 & IF-füzyonun (0.833) altında \\
+LSTM-AE / IF / LightGBM & AUPRC & \textbf{0.872} / 0.858 / 0.843 &
+Literatürle uyumlu, iyi \\
+İrtifa hatası + CUSUM (nedensel olmayan ilk ölçüm) & uçuş-ROC & 0.878 &
+Yanıltıcı (aşağıya bkz.) \\
+Aynı kanal, \emph{nedensel} yeniden ölçüm & uçuş-ROC & \textbf{0.611} &
+``En güçlü sinyal'' sanılan kanal çöktü \\
+Olay-başlangıcı yakalama, point-adjust benzeri şişirme düzeltmesi öncesi/sonrası &
+recall & 0.594 $\to$ \textbf{0.194--0.224} & Literatürdeki şişirme etkisinin
+kendi verimizdeki ölçümü \\
+USAD (sürüklenme/sapma/donma enjeksiyonu) & recall & 0.45 / 0.53 & LSTM-AE'nin
+altında; elendi \\
+CUSUM, rudder sınıfı ($n{=}4$) & ``1.00 tespit'' & $n{=}1$'e dayalı &
+İstatistiksel olarak anlamsız; raporlamadan çıkarıldı \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Ana sonuçlar Tablo~\ref{tab:alfa-sonuclar}'tedir. ALFA'nın öğrettiği iki şey:
+(i) araştırma metriğinde literatür seviyesi
+yakalanabiliyor (AUPRC 0.872); (ii) nedensellik ve olay-bazlı ölçüm
+sıkılaştırıldığında görünür başarının büyük kısmı buharlaşıyor. Küçük sınıflar
+($n{=}1$--$4$) üzerinde yüzde raporlamak reddedildi; bu sınıflar yalnız vaka
+analiziyle ele alındı.
+
+\subsection{UAV Attack}
+
+Ana bulgular \S3.2'de verildi: ağ-katmanı DoS 6 logdan 4'ünde fiziksel
+telemetride görünmez; 2 m/s sinsi GPS kayması artık uzayında normal
+varyasyondan ayrılamaz; kalibrasyonsuz model transferi normal uçuşlarda
+\textbf{1.00 yanlış alarm oranı} üretti (her normal uçuş alarm aldı). Monolitik
+Isolation Forest bu sette ROC \textbf{0.21} verdi --- rastgeleden kötü; bunun
+nedeni sonradan simülasyon/gerçek log karışımının sinyali sistematik ters
+çevirmesi olarak teşhis edildi (\S\ref{sec:kn-domain}).
+
+\subsection{UAV-SEAD}
+\label{sec:sead-sonuc}
+
+\begin{table}[h]
+\centering\small
+\caption{UAV-SEAD --- seçilmiş sonuçlar. Hedefler: uyarı $\geq 0.50$ recall @
+$\leq 12$ FA/saat; kritik $\geq 0.30$ @ $\leq 2$.}
+\label{tab:sead-sonuclar}
+\begin{tabular}{p{5.6cm}p{3.2cm}p{3.2cm}p{2.6cm}}
+\toprule
+Yöntem & Recall & FA/uçuş-saati & Sonuç \\
+\midrule
+IF-füzyon, adil satır ölçümü & ROC 0.474 & --- & Sinyalsiz \\
+EKF test-oranı kanalı & korelasyon \emph{ters} (0.354) & --- & Arızada ölçüm
+reddi sinyali bastırıyor \\
+LightGBM pencere & AUPRC 0.349 (IF 0.385) & --- & İyileşme yok \\
+Dikey tutarlılık kanalı & $+0.021$ recall farkı & --- & Eşik altı ($<0.05$) \\
+Motor simetrisi kanalı & $+0.024$ (2/5 tohum) & --- & Kararsız \\
+Chronos sıfır-atış, motor kanalı & 0.205 $\to$ \textbf{0.390} & --- &
+Gerçek yöntemsel iyileşme \\
+İtki komutu kanalı (tek özellik) & 0.205 $\to$ \textbf{0.459} & \textbf{38.1} &
+En iyi kanal; FA bütçenin 3 katı \\
+Tüm-kanal füzyonları (3 ayrı tur) & 0.213--0.222 & 23.7--25.8 & Bütçe aşımı \\
+İki-kanal ağırlıklı varyant & 0.217 $\to$ 0.291 & 23.70 $\to$ \textbf{44.70} &
+Kazanım FA şişirilerek satın alındı \\
+Normal havuz 899'a büyütüldükten sonra & 0.126 & 9.95 & Bütçeye girdi ama
+recall çöktü \\
+Derin modeller (LSTM-AE / Dense-AE / USAD), genlik düzeltmesi sonrası &
+$<0.06$ & --- & Bkz.\ \S\ref{sec:kn-artefakt} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Tablo~\ref{tab:sead-sonuclar}'daki örüntü tipiktir ve projenin ana duvarını
+gösterir: \emph{her recall
+kazancı, yanlış alarm bütçesini aşarak satın alınabiliyor; bütçeye girildiğinde
+recall hedefin altına düşüyor.} Heterojen ve etkin-örneklemi küçük ($\sim$64
+oturum) normal havuzda, yenilik-tespiti net bir ``normal'' referansı kuramıyor.
+
+\subsection{RflyMAD}
+\label{sec:rfly-sonuc}
+
+Tablo~\ref{tab:rfly-sonuclar}, \S\ref{sec:rfly-veri}'te anlatılan etiket
+granülerliği düzeltmesinin sayısal etkisini ve havuzlamanın maliyetini
+gösterir: uçuş-düzeyi vekil etiketle parlak görünen sonuç, gerçek olay-aralığı
+etiketiyle operasyonel bütçenin dışına düşer; iki veri setini havuzlamak ise
+en iyi kanalı da bozar.
+
+\begin{table}[h]
+\centering\small
+\caption{RflyMAD --- etiket düzeltmesi öncesi/sonrası.}
+\label{tab:rfly-sonuclar}
+\begin{tabular}{p{6cm}p{2.6cm}p{3cm}p{3cm}}
+\toprule
+Konfigürasyon & Recall & FA/uçuş-saati & Sonuç \\
+\midrule
+İtki komutu kanalı, uçuş-düzeyi \emph{vekil} etiket & 0.749 & --- &
+\textbf{Geçersiz} (kolay soru) \\
+Aynı kanal, gerçek \emph{aralık} etiketi (uyarı) & 0.526 & 22.28 & Recall iyi,
+FA bütçenin $\sim$2 katı \\
+Aynı kanal, kritik sözleşme & 0.442 & 9.23 & Kritik bütçe ($\leq 2$) aşıldı \\
+İki set havuzlanınca (SEAD+RflyMAD) & \textbf{0.149} & 30.00 & Havuzlama ciddi
+kötüleştiriyor \\
+Havuzlanmış füzyon, bütçe içi varyant & 0.066 & 9.39 & Recall anlamsız düzeyde \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{ADS-B}
+\label{sec:adsb-sonuc}
+
+İlk tur, üç sinir ağını kural-bazlı fizik skorlayıcıyla aynı protokolde
+yarıştırdı (Tablo~\ref{tab:adsb-auc}):
+
+\begin{table}[h]
+\centering\small
+\caption{ADS-B --- sentetik bozulma senaryolarında AUC. Vekil pencere
+etiketlemesinin yapısal tavanı $\sim$0.75'tir.}
+\label{tab:adsb-auc}
+\begin{tabular}{lcccc}
+\toprule
+Senaryo & Kural-bazlı & Dense-AE & LSTM-AE & LSTM öngörücü \\
+\midrule
+Havuzlanmış (tümü) & \textbf{0.600} & 0.572 & 0.568 & 0.552 \\
+Yer hızı sapması & --- & 0.737 & 0.743 & 0.648 \\
+Dikey hız donması & --- & 0.600 & 0.579 & 0.552 \\
+Track donması & --- & 0.523 & 0.521 & 0.551 \\
+Sinsi konum rampası & --- & 0.513 & 0.519 & 0.513 \\
+İrtifa kesintisi & --- & 0.489 & 0.480 & 0.498 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Üç sonuç öne çıkar: (i) \textbf{öğrenmesiz kural-bazlı skorlayıcı üç sinir ağını
+da geçti}; (ii) sinir ağları yalnız büyük-genlikli bozulmayı (hız sapması)
+yakaladı, sinsi senaryolarda rastgeleden ayrışamadı; (iii) üç sinir ağı da
+genlik-baskınlığı bayrağı aldı (eğitilmiş--rastgele $\rho$ 0.84--0.94,
+\S\ref{sec:kn-artefakt}).
+
+Kural katmanı, düzeltilmiş olay-aralığı etiketleriyle yeniden ölçüldüğünde
+güçlü ayrışma gösterdi: \textbf{AUROC 0.765, AUPRC 0.883}; yer hızı olaylarında
+0.964 olay-yakalama (medyan gecikme 19.3 s), track olaylarında 0.952 (56.8 s).
+Ancak operasyonel tablo yine kapanmadı:
+
+\begin{itemize}[itemsep=2pt]
+  \item Sinsi rampa senaryosunda olay-yakalama 0.801 \emph{görünse de}, olay
+        süresi boyunca aktif kapsama yalnız \textbf{0.184} --- olaya bir kez
+        dokunmak ile olay boyunca alarmda kalmak aynı şey değildir.
+  \item Doğal (temiz) trafikte alarm yükü \textbf{4.81 olay/saat}; CUSUM karar
+        katmanı eklendiğinde skorlanabilir uçuşların $\sim$\%99'u alarm aldı
+        (alarm doygunluğu) --- operatör açısından kullanılamaz.
+  \item Sonradan tasarlanan bağlamsal olasılıksal LSTM sağlıklı eğitildi (2.929
+        uçuş, 1.27 milyon satır; Gauss NLL $0.795 \to 0.709$, $\sim$\%10.9
+        düşüş; 9.546 parametre) ve genlik kapılarını geçti
+        ($\rho = 0.650/0.654 < 0.8$); ancak karar katmanı dondurulamadan hat
+        kapandı: doğal alarm doygunluğu aşılamadı ve dondurulmuş skor
+        kaynağının bit-düzeyi yeniden üretimi sağlanamadığı için değerlendirme
+        temkinli biçimde (fail-closed) durduruldu. Bu model için olay-yakalama
+        sayısı raporlamak, ölçülmemiş bir sayı uydurmak olurdu; raporlanmadı.
+\end{itemize}
+
+\subsection{GNSS bütünlük alt-çalışması}
+\label{sec:gnss-sonuc}
+
+Üç yöntem (PX4-yerleşik yenilik/test-oranı kuralları; çok-kanallı CUSUM;
+bağlamsal LSTM) iki rol (geliştirme, prova) ve iki sözleşme (kritik, uyarı)
+üzerinde, kalibrasyonda dondurulan eşiklerle değerlendirildi. \textbf{On iki
+konfigürasyonun tamamı başarısız oldu} (Tablo~\ref{tab:gnss-sonuclar}):
+
+\begin{table}[h]
+\centering\small
+\caption{GNSS --- dondurulmuş eşiklerle sonuçlar. Bütçeler: kritik $\leq 2$,
+uyarı $\leq 12$ alarm/saat; recall hedefi kritik/uyarı için zamanında yakalama.}
+\label{tab:gnss-sonuclar}
+\begin{tabular}{llrrl}
+\toprule
+Rol & Yöntem (sözleşme) & Recall & Alarm/saat & Başarısızlık nedeni \\
+\midrule
+Geliştirme & PX4-yerleşik (kritik) & \%58.8 & 19.58 & Alarm yükü $\sim$10 kat \\
+Geliştirme & CUSUM (kritik) & \%0.0 & 0.00 & Bütçeyi sağlayan sonlu eşik yok \\
+Geliştirme & LSTM (kritik) & \%47.1 & 20.32 & Alarm yükü \\
+Geliştirme & PX4-yerleşik (uyarı) & \%58.8 & 19.58 & Alarm yükü \\
+Geliştirme & CUSUM (uyarı) & \%52.9 & 0.00 & Recall hedefi altı \\
+Geliştirme & LSTM (uyarı) & \%82.4 & \textbf{101.60} & Aşırı alarm yükü \\
+Prova & PX4-yerleşik (kritik) & \%90.0 & 28.86 & Alarm yükü \\
+Prova & CUSUM (kritik) & \%0.0 & 0.00 & Eşik sonsuz \\
+Prova & LSTM (kritik) & \%90.0 & 0.00 & Geliştirmeye genellemiyor \\
+Prova & PX4-yerleşik (uyarı) & \%90.0 & 28.86 & Alarm yükü \\
+Prova & CUSUM (uyarı) & \%70.0 & 7.21 & \%90 hedefi altı \\
+Prova & LSTM (uyarı) & \%100.0 & 44.86 & Alarm yükü \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Dikkat çeken örüntü LSTM satırlarındadır: prova kümesinde \%90 recall / sıfır
+alarm gibi görünen model, \emph{aynı dondurulmuş kararla} geliştirme kümesinde
+\%47.1 recall / 20.32 alarm/saat üretmiştir. Bu, kalibrasyon kümesine özgü
+başarı ve dağılım kararsızlığıdır; ürün genellemesi değildir. Rüzgâr stres
+testinde (886 SIL/HIL vakası) dondurulmuş dedektörler simülasyonda bütçe içinde
+kalırken (8.27/6.88 alarm/saat) donanım-döngüde bütçeyi aştı
+(\textbf{20.53/22.61} $> 12$): çevresel alan kaymasına aşırı hassasiyet.
+Kritik CUSUM eşiğinin ``sonsuz'' kalması yazılım hatası değildir: kalibrasyon
+kümesinde 2 alarm/saat bütçesini sağlayan sonlu eşik \emph{bulunamamış}, güvenli
+davranış ``hiç alarm üretme'' olmuştur. Karar: \textbf{NO-GO --- mevcut veri ve
+enstrümantasyonla ürün adayı elde edilemez}; kör test hiç açılmadı.
+
+\subsection{Komut$\to$tepki artık modeli (son çalışma)}
+\label{sec:residual-sonuc}
+
+Projenin son çalışması, anomaliyi ham telemetride değil \emph{öğrenilmiş uçuş
+dinamiği modelinin yeniliğinde} arayan klasik model-bazlı FDI çerçevesine
+döndü. Kanal başına ridge sonuçları Tablo~\ref{tab:ridge}'dedir:
+
+\begin{table}[h]
+\centering\small
+\caption{Kanal başına ridge regresyon --- çapraz doğrulama $R^2$.}
+\label{tab:ridge}
+\begin{tabular}{p{5.6cm}rrp{4.6cm}}
+\toprule
+Kanal & CV $R^2$ & Train $R^2$ & Durum \\
+\midrule
+Sabit kanat: 5 komut$\to$tepki kanalı & --- & --- & Eğitilemedi (bölme için
+$\geq 2$ oturum gerekir; 1 var) \\
+Sabit kanat: çapraz-iz hatası & \multicolumn{2}{c}{öğrenmesiz kanal} &
+Kullanıldı \\
+Çok-rotor: duruş hedefi$\to$duruş hızı & 0.011 & 0.364 & Zayıf; aşırı uyum \\
+Çok-rotor: motor PWM dağılımı & \textbf{0.456} & 0.711 & En güçlü öğrenilmiş
+kanal \\
+Çok-rotor: toplam PWM$\to$dikey ivme & 0.000 & 0.009 & Sinyalsiz \\
+Çok-rotor: konum hedefi$\to$hız tepkisi & --- & --- & Uygun satır yok \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Sağlama kapıları (\S\ref{sec:sanity}) bu kez \emph{tasarımın parçasıydı} ve
+çalıştı: komut-ablasyonu iki kanalın komutu gerçekten kullandığını doğruladı
+(varyans oranları 1.199 ve 2.497), üçüncü kanalı elemeye yaradı (1.008);
+genlik testi üç aktif kanalda geçti ($\rho = 0.472, 0.140, 0.018 < 0.5$).
+En önemlisi, \textbf{başlangıç-ayrışması (KS) testi üç başlık sınıfının
+üçünde de geçti}:
+
+\begin{center}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccc}
+\toprule
+Sınıf / kanal & KS & $p$ & Öncesi medyan $|z|$ & Sonrası medyan $|z|$ \\
+\midrule
+Sabit kanat motor / çapraz-iz & 0.165 & $5.5\times10^{-18}$ & 1.13 & 1.81 \\
+Çok-rotor motor / duruş kanalı & 0.177 & $\approx 0$ & 0.98 & 1.50 \\
+Çok-rotor motor / motor PWM dağılımı & \textbf{0.570} & $\approx 0$ & 1.10 &
+\textbf{5.79} \\
+Çok-rotor sensör / duruş kanalı & 0.274 & $\approx 0$ & 0.88 & 1.59 \\
+Çok-rotor sensör / motor PWM dağılımı & 0.034 & $2.3\times10^{-91}$ & 0.95 &
+1.02 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Yani \emph{sinyal eşikten bağımsız olarak vardır}. Buna rağmen çalışma NO-GO
+ile kapandı, çünkü eşik kalibrasyonu aşamasında şu ölçüldü: hedef yanlış alarm
+oranında tek bir alarmı dahi güvenilir çözebilmek için gereken bağımsız normal
+uçuş maruziyeti mevcut değil:
+
+\begin{center}
+\small
+\begin{tabular}{lrrr}
+\toprule
+Veri & Mevcut normal maruziyet & Gerekli asgari & Açık \\
+\midrule
+Sabit kanat (ALFA) & 0.169 saat & 2.0 saat & \textbf{11.8$\times$} \\
+Çok-rotor (RflyMAD) & 0.786 saat & 4.0 saat & \textbf{5.1$\times$} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Bootstrap mevcut blokları yeniden örnekleyebilir ama \emph{yeni bağımsız
+uçuş-saati yaratamaz}. Veri tavanı analizi de kapıyı kapattı: ALFA'nın resmî
+külliyatı 47 uçuşta sabittir (11 normal; en iyimser yeniden dağıtım $+\%22$
+sağlar, 11.8$\times$ açığı kapatmaz); RflyMAD'in resmî arızasız tavanı 84'tür
+(projede 51; kalan en iyimser 33 aday eklense bile 1.42 saate ulaşılır, 4.0
+saat hedefinin 2.58 saat altında --- açığı kapatmak $\sim$135 ek normal uçuş
+gerektirir). Eşikler yazılmadı, kör test açılmadı, yanlış alarm hedefi sonuca
+bakılarak gevşetilmedi.
+
+\section{Kök Neden Analizi: Proje Neden Başarısız Oldu?}
+\label{sec:kokneden}
+
+Yukarıdaki sonuçlar yedi kök nedene indirgenebilir. Her biri için kanıt,
+önceki bölümlerin ölçülmüş sayılarıdır.
+
+\subsection{KN-1: Değerlendirme çıtası uyumsuzluğu --- literatürün ölçmediği
+bir büyüklüğe hedef kondu}
+
+Literatürdeki ``\%90+'' sonuçların büyük çoğunluğu AUROC/AUPRC/F1 ailesindendir
+ve dondurulmuş eşikte saatlik yanlış alarm yükü \emph{genellikle hiç
+raporlanmaz} \cite{wu2021flawed,kim2022rigorous}. Proje bu metriklerde
+literatürü yakalamıştır (ALFA AUPRC 0.872; ADS-B kural katmanı AUROC 0.765 /
+AUPRC 0.883). Takılınan nokta, literatürün ölçmediği operasyonel çift metrik
+oldu. Bu bir teselli cümlesi değil, planlama hatasının tespitidir:
+\emph{operasyonel bir çıta, ancak o çıtayı istatistiksel olarak taşıyabilecek
+veri kampanyasıyla birlikte anlamlıdır.} Araştırma-kalitesi küçük veriyle
+operasyonel-dağıtım seviyesi bir iddia kanıtlanmaya çalışıldı.
+
+\subsection{KN-2: Normal uçuş maruziyeti yapısal olarak yetersiz}
+
+Saatte $\leq 2$ yanlış alarm gibi bir bütçeyi kalibre etmek, tanımı gereği çok
+sayıda bağımsız normal uçuş-saati gerektirir. Mevcut havuzlar: ALFA 11 normal
+uçuş ($0.169$ saat kullanılabilir maruziyet), UAV Attack 6 log, UAV-SEAD
+$\sim$64 bağımsız oturum, RflyMAD 51 arızasız uçuş ($0.786$ saat). Son
+çalışmanın kalibrasyon analizi açığı kesinleştirdi: gereken maruziyetin
+$1/11.8$'i ve $1/5.1$'i mevcuttu ve resmî külliyat tavanları (47 / 84 uçuş) bu
+açığı \emph{matematiksel olarak} kapatamıyordu. Etiketli akademik setler
+``hangi uçuş arızalı'' sorusu için tasarlanmıştır; ``normal uçuşta saatte kaç
+kez boşa öteriz'' sorusu için değil.
+
+\subsection{KN-3: Heterojen normal havuzunda yenilik-tespitinin çökmesi}
+
+``Yalnız normali öğren, sapanı işaretle'' yaklaşımı, normalin kendisi
+dağınıksa bozulur; anomali tespiti literatürü bu olguyu (swamping/masking,
+normallik tanımının belirsizliği) bilinen bir zorluk olarak kaydeder
+\cite{ruff2021unifying}. Dört etiketli sette de normal havuz hem küçük hem
+heterojendi. Ölçülen belirtiler: her recall kazanımının FA şişmesiyle gelmesi
+(UAV-SEAD: recall $+0.074$ için FA $1.89\times$; K-of-N varyantında
+$3.83\times$), normal havuz 899 uçuşa büyütüldüğünde recall'un 0.126'ya
+çökmesi (veri artışı, heterojenliği de artırdı), iki seti havuzlamanın en iyi
+kanalı 0.526'dan 0.149'a düşürmesi.
+
+\subsection{KN-4: Genlik-baskınlığı artefaktı --- yeniden-kurma tabanlı
+modellerin gerçek teknik hatası}
+\label{sec:kn-artefakt}
+
+Projenin en önemli \emph{teknik} bulgusu şudur: üç farklı derin mimari
+(LSTM-AE, Dense-AE, USAD) UAV-SEAD üzerinde neredeyse aynı skorları üretti ve
+teşhis testleri nedenini gösterdi --- eğitilmiş modellerin skor sıralaması,
+aynı mimarinin \emph{rastgele-ağırlıklı} kopyasıyla $\rho = 0.964$, ham girdi
+enerjisiyle ($\lVert x\rVert^2$) $\rho = 0.965$ korelasyondaydı. Yani modeller
+örüntü değil, \textbf{genlik} öğrenmişti; kırpılmamış sağlam-ölçekleme, bir
+avuç aşırı-genlikli pencerenin skoru domine etmesine izin vermişti. Göreli-hata
+düzeltmesi uygulandığında korelasyonlar kırıldı ($\rho = 0.13$--$0.23$) ama
+altından operasyonel sinyal çıkmadı: recall $<0.06$. ADS-B'deki üç sinir ağı da
+aynı bayrağı aldı ($\rho = 0.84$--$0.94$).
+
+Bu artefaktın literatürdeki karşılığı, sığ/derin anomali yöntemlerinin
+``kestirme öğrenme'' (shortcut learning) davranışı ve kusurlu kıyaslarda
+önemsiz çözülebilirlik bulgusudur \cite{wu2021flawed,ruff2021unifying}.
+Projede bu hata \emph{yakalandı, raporlandı ve sonraki tüm modellere zorunlu
+sağlama kapısı yapıldı} (\S\ref{sec:sanity}); nitekim sonradan tasarlanan
+bağlamsal LSTM ($\rho = 0.650$) ve komut$\to$tepki artıkları ($\rho \leq
+0.472$) bu kapıları geçti. Ancak ilk yarıdaki derin-model sonuçlarının
+tamamını geçersizleştirmesi, projeye ciddi zaman kaybettirdi.
+
+\subsection{KN-5: Etiket granülerliği uyumsuzluğu --- kolay soruya doğru cevap}
+
+Uçuş-düzeyi etiketle ölçmek (``bu uçuşta arıza var mı'') ile olay-aralığı
+etiketiyle ölçmek (``arıza hangi saniyede başladı, ne kadarını kapsadın'')
+arasındaki fark projede iki kez sayısallaştı: RflyMAD'de 0.749 $\to$ 0.526;
+ALFA'da point-adjust benzeri şişirme düzeltmesiyle 0.594 $\to$ 0.194--0.224.
+Literatür bu şişirmeyi sistematik olarak belgelemiştir \cite{kim2022rigorous}.
+ADS-B tarafında vekil pencere etiketlemesinin $\sim$0.75'lik yapısal AUC tavanı
+da aynı ailedendir: \emph{etiketin sorduğu soru ile operasyonel soru aynı
+değilse, metrik ne kadar parlaksa yorum o kadar yanıltıcıdır.}
+
+\subsection{KN-6: Fiziksel gözlenebilirlik boşlukları --- sinyal sensörde yoksa
+modelde de yoktur}
+
+Dört ayrı ölçüm, bazı anomali türlerinin mevcut kolonlarda \emph{ilkesel
+olarak} görünmez olduğunu gösterdi: (i) ağ-katmanı DoS, uçuş fiziği kolonlarına
+yansımıyor (6 logdan 4'ünde tespit edilemez); (ii) RflyMAD'de ESC telemetrisi
+(RPM/akım/voltaj/sıcaklık) şemada var ama tüm uçuşlarda sabit sıfır --- motor
+sağlığı pilotu bu yüzden hiç açılamadı; (iii) ADS-B'de barometrik--geometrik
+irtifa farkı kanalının fit MAD'ı tam sıfır; (iv) 2 m/s sinsi GPS kayması artık
+uzayında normal varyasyon içinde kalıyor ve sinsi rampada olay-içi aktif
+kapsama 0.184'te tıkanıyor. Bu vakalarda başarısızlık modelin değil,
+\emph{enstrümantasyonun} sınırıdır; hiçbir yöntem ailesi bu boşluğu
+kapatamazdı.
+
+\subsection{KN-7: Alan (domain) kayması ve genellemesizlik}
+\label{sec:kn-domain}
+
+Simülasyon/gerçek karışımı UAV Attack'te sinyali sistematik ters çevirdi
+(ROC 0.21; EKF test-oranı kanalında ters korelasyon --- arıza sırasında ölçüm
+reddi mekanizması yenilik sinyalini bastırıyor). GNSS çalışmasında aynı
+dondurulmuş LSTM kararı prova kümesinde \%90 / sıfır alarm, geliştirme
+kümesinde \%47.1 / 20.32 alarm-saat üretti; rüzgâr stresinde simülasyon bütçe
+içi, donanım-döngü bütçe dışı (20.53/22.61 $>$ 12) çıktı. İki veri setini
+havuzlamak en iyi kanalı 0.526'dan 0.149'a düşürdü. Küçük veri + heterojen
+koşullar altında öğrenilen karar sınırları roller/alanlar arasında taşınmadı.
+
+\subsection{Kök nedenlerin etkileşimi}
+
+Bu yedi neden bağımsız değildir; birbirini besledi. Küçük normal havuz (KN-2)
+heterojenliği görünmez kıldı (KN-3); heterojenlik derin modelleri genlik
+kestirmesine itti (KN-4); parlak görünen uçuş-düzeyi metrikler (KN-5) bu
+artefaktın geç fark edilmesine yol açtı; operasyonel çıta (KN-1) ise tüm bu
+zincirin en zayıf halkasını --- kalibrasyon maruziyetini --- sürekli test etti
+ve her seferinde kırdı. Son iki çalışmanın katkısı, bu zinciri ayrıştırıp
+``sinyal var mı'' (evet; KS testleri) ile ``eşik kurulabilir mi'' (hayır;
+maruziyet açığı) sorularını ayrı ayrı, eşikten bağımsız biçimde
+cevaplamasıdır.
+
+\section{Neler Çalıştı --- Dürüst Pozitifler}
+
+Başarısızlık raporunun simetrik yükümlülüğü, neyin çalıştığını da kaydetmektir:
+
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{Fizik-tutarlılık artıkları + kural katmanı}, ADS-B'de üç sinir
+        ağını da geçti (AUC 0.600 > 0.552--0.572) ve düzeltilmiş etiketlerle
+        AUROC 0.765 / AUPRC 0.883'e ulaştı; bariz senaryolarda olay-yakalama
+        0.95+ idi. Basit ve teşhis edilebilir yöntemin karmaşık olanı yendiği
+        bu bulgu, literatürdeki ``tek kazanan yok'' sonucuyla tutarlıdır
+        \cite{schmidl2022eval}.
+  \item \textbf{Sıfır-atış temel model} (Chronos), alan-içi eğitim olmadan
+        motor kanalında 0.205 $\to$ 0.390 iyileşme sağladı --- projedeki nadir
+        gerçek yöntemsel kazanımlardan biri \cite{ansari2024chronos}.
+  \item \textbf{Sağlama kapıları mimarisi} (genlik, eğitilmemiş-eş, ablasyon,
+        KS) ölümcül bir artefaktı yakaladı ve tekrarını önledi; sonraki
+        modeller bu kapılardan geçerek eğitildi.
+  \item \textbf{Model-bazlı FDI dönüşü} sinyalin varlığını eşikten bağımsız
+        kanıtladı (motor PWM dağılım kanalında KS 0.570; başlangıç sonrası
+        medyan $|z|$ 1.10 $\to$ 5.79) ve en güçlü öğrenilmiş kanalı üretti
+        (CV $R^2$ 0.456).
+  \item \textbf{Metodolojik disiplin}: kör test kümeleri hiç açılmadı; eşikler
+        sonuca bakılarak gevşetilmedi; şüpheli etiketli uçuşlar sonuç
+        görülmeden dışlandı; her NO-GO sayısal gerekçeyle belgelendi.
+        Sonuç tablosundaki ``başarısız'' satırlarının bir kısmı, hile yapan bir
+        değerlendirmenin parlak göstereceği konfigürasyonlardır.
+\end{itemize}
+
+\section{Dersler ve Öneriler}
+
+\begin{enumerate}[itemsep=3pt]
+  \item \textbf{Operasyonel çıta, veri kampanyasıyla birlikte tasarlanmalı.}
+        ``$\leq \lambda$ yanlış alarm/saat'' iddiası için gereken bağımsız
+        normal uçuş-saati \emph{deney başlamadan} hesaplanabilir ve
+        hesaplanmalıdır; mevcut açık 5--12 kat idi. Bu ölçekte açık, yöntem
+        seçimiyle kapanmaz.
+  \item \textbf{Olay-aralığı etiketi olmayan veri setiyle operasyonel iddia
+        kurulmamalı.} Uçuş-düzeyi etiket yalnız araştırma metriği taşır;
+        point-adjust ve vekil etiket şişirmeleri kendi verimizde 2--3 kat
+        fark yarattı.
+  \item \textbf{Sağlama kapıları en başa konmalı.} Genlik ve eğitilmemiş-eş
+        testleri ilk turda mevcut olsaydı, derin-model turlarının tamamına
+        yakını daha ilk hafta geçersiz sayılacaktı.
+  \item \textbf{Yeniden-kurma tabanlı otokodlayıcılar, manevralı İHA
+        telemetrisi için uygun varsayılan değil.} Manevra genliği ile anomali
+        genliği aynı eksende yarışıyor; komut$\to$tepki artığı (model-bazlı
+        FDI) manevrayı yapısal olarak skordan düşürüyor. Devam edilecekse
+        buradan devam edilmeli.
+  \item \textbf{Gözlenebilirlik denetimi model işinden önce gelir.} Kolon
+        şemasının varlığı, sinyalin varlığı değildir (sıfır-varyanslı ESC
+        alanları; telemetriye yansımayan ağ saldırıları). Her hedef anomali
+        türü için ``hangi kolonda, hangi fizikle görünür?'' sorusu yazılı
+        cevaplanmalı.
+  \item \textbf{İnterpolasyon Silver katmanına sokulmamalı}; her kanal doğal
+        hızında tutulup geçmişe-bakan hizalama ve bayatlık kolonlarıyla
+        işlenmeli.
+  \item \textbf{Yeniden açma koşulları} (her ikisi de veri kararıdır, yöntem
+        kararı değil): (a) kontrollü yeni normal-uçuş kampanyası (çok-rotor
+        için $\sim$135+ ek normal uçuş ölçeğinde) ve fiziksel olarak
+        belgelenmiş arıza enjeksiyonu; veya (b) yanlış alarm bütçesinin ayrı
+        bir ön-kayıtla, yeni bir deney sözleşmesi olarak yeniden müzakeresi.
+\end{enumerate}
+
+\section{Sonuç}
+
+Proje, hedeflediği operasyonel anomali dedektörünü üretememiştir; bu rapor
+bunun nedenlerini sayı sayı belgelemiştir. Bununla birlikte nihai tablo
+``hiçbir şey öğrenilemedi'' değildir: eşikten bağımsız testler en az üç
+sınıfta gerçek sinyal kanıtlamış; genlik-baskınlığı artefaktı gibi literatürde
+de yaygın bir değerlendirme tuzağı yakalanıp kapatılmış; ve başarısızlığın ana
+kaynağının yöntem ailesi değil, \emph{operasyonel çıta ile akademik veri
+setlerinin taşıma kapasitesi arasındaki yapısal uyumsuzluk} olduğu
+gösterilmiştir. Projenin son hâli iki cümleyle özetlenir: \textbf{sinyal var;
+mevcut veriyle operasyonel karar sınırı kurulamaz.} Bu ayrımın kendisi ---
+ve onu kuran eşikten-bağımsız sağlama/kalibrasyon metodolojisi --- projenin
+aktarılabilir ana çıktısıdır.
+
+\begin{thebibliography}{99}\small
+
+\bibitem{keipour2021alfa}
+A.~Keipour, M.~Mousaei, S.~Scherer,
+``ALFA: A Dataset for UAV Fault and Anomaly Detection,''
+\emph{The International Journal of Robotics Research}, 40(2--3), 2021.
+arXiv:1907.06268.
+
+\bibitem{whelan2020uav}
+J.~Whelan, T.~Sangarapillai, O.~Minawi, A.~Almehmadi, K.~El-Khatib,
+``Novelty-based Intrusion Detection of Sensor Attacks on Unmanned Aerial
+Vehicles,'' \emph{Proc.\ ACM Q2SWinet}, 2020 (UAV Attack Dataset, IEEE
+DataPort).
+
+\bibitem{rflymad}
+Rfly-OpenHA proje ekibi (Beihang Üniversitesi),
+``RflyMAD: A Dataset for Multicopter Fault Detection and Health Assessment,''
+resmî veri dokümantasyonu:
+\url{https://rfly-openha.github.io/documents/4_resources/dataset.html}.
+
+\bibitem{adsblol}
+adsb.lol topluluk ADS-B ağı, günlük tam-ağ arşivleri.
+\url{https://www.adsb.lol}.
+
+\bibitem{liu2008iforest}
+F.~T.~Liu, K.~M.~Ting, Z.-H.~Zhou,
+``Isolation Forest,'' \emph{Proc.\ IEEE ICDM}, 2008.
+
+\bibitem{ke2017lightgbm}
+G.~Ke \etal{},
+``LightGBM: A Highly Efficient Gradient Boosting Decision Tree,''
+\emph{NeurIPS}, 2017.
+
+\bibitem{malhotra2016lstm}
+P.~Malhotra, A.~Ramakrishnan, G.~Anand, L.~Vig, P.~Agarwal, G.~Shroff,
+``LSTM-based Encoder-Decoder for Multi-sensor Anomaly Detection,''
+\emph{ICML Anomaly Detection Workshop}, 2016. arXiv:1607.00148.
+
+\bibitem{audibert2020usad}
+J.~Audibert, P.~Michiardi, F.~Guyard, S.~Marti, M.~A.~Zuluaga,
+``USAD: UnSupervised Anomaly Detection on Multivariate Time Series,''
+\emph{Proc.\ ACM KDD}, 2020.
+
+\bibitem{ansari2024chronos}
+A.~F.~Ansari \etal{},
+``Chronos: Learning the Language of Time Series,''
+\emph{Transactions on Machine Learning Research}, 2024. arXiv:2403.07815.
+
+\bibitem{page1954cusum}
+E.~S.~Page, ``Continuous Inspection Schemes,''
+\emph{Biometrika}, 41(1--2), 1954.
+
+\bibitem{basseville1993detection}
+M.~Basseville, I.~V.~Nikiforov,
+\emph{Detection of Abrupt Changes: Theory and Application},
+Prentice Hall, 1993.
+
+\bibitem{vovk2005conformal}
+V.~Vovk, A.~Gammerman, G.~Shafer,
+\emph{Algorithmic Learning in a Random World}, Springer, 2005.
+
+\bibitem{willsky1976survey}
+A.~S.~Willsky,
+``A Survey of Design Methods for Failure Detection in Dynamic Systems,''
+\emph{Automatica}, 12(6), 1976.
+
+\bibitem{isermann2006fdi}
+R.~Isermann, \emph{Fault-Diagnosis Systems: An Introduction from Fault
+Detection to Fault Tolerance}, Springer, 2006.
+
+\bibitem{kim2022rigorous}
+S.~Kim, K.~Choi, H.-S.~Choi, B.~Lee, S.~Yoon,
+``Towards a Rigorous Evaluation of Time-Series Anomaly Detection,''
+\emph{Proc.\ AAAI}, 2022.
+
+\bibitem{wu2021flawed}
+R.~Wu, E.~Keogh,
+``Current Time Series Anomaly Detection Benchmarks are Flawed and are
+Misleading the Community,''
+\emph{IEEE Transactions on Knowledge and Data Engineering}, 2021.
+
+\bibitem{ruff2021unifying}
+L.~Ruff \etal{},
+``A Unifying Review of Deep and Shallow Anomaly Detection,''
+\emph{Proceedings of the IEEE}, 109(5), 2021.
+
+\bibitem{schmidl2022eval}
+S.~Schmidl, P.~Wenig, T.~Papenbrock,
+``Anomaly Detection in Time Series: A Comprehensive Evaluation,''
+\emph{Proceedings of the VLDB Endowment}, 15(9), 2022.
+
+\end{thebibliography}
+
+\end{document}

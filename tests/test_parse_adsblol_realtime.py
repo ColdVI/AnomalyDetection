@@ -16,59 +16,92 @@ from src.silver.parse_adsblol_realtime import (
     run,
 )
 
+# 2026-07-18: Dashboard/codes/uav_producer.py'nin GERCEKTEN Kafka'ya/Bronze'a
+# yazdigi, normalize edilmis (_normalize_common) sema -- ham adsb.lol `ac`
+# semasi (hex, alt_baro, gs, baro_rate, dbFlags...) DEGIL. Bkz. modul
+# docstring'i (parse_adsblol_realtime.py) -- eski testler yanlis/hayali bir
+# semayi test ediyordu.
 SAMPLE_AC = {
-    "hex": "4b1234",
+    "icao24": "4b1234",
+    "ts": "2026-07-01T12:00:00.500000+00:00",
+    "cycle_id": 7,
+    "signal_age_sec": 0.3,
+    "source": "adsblol",
     "lat": 41.0,
     "lon": 28.5,
-    "alt_baro": 35000,
-    "alt_geom": 35100,
-    "gs": 450,
+    "alt": 10668.0,
+    "velocity": 231.5,
     "track": 90.5,
-    "baro_rate": -500,
-    "geom_rate": -480,
-    "ias": 440,
-    "tas": 455,
-    "roll": 2.1,
-    "flight": "THY123  ",
-    "r": "TC-ABC",
-    "t": "B738",
+    "vertical_rate": -2.54,
+    "is_ground": False,
+    "is_military": False,
+    "callsign": "THY123  ",
     "category": "A3",
     "squawk": "2112",
-    "nic": 8,
-    "seen": 1.2,
-    "seen_pos": 0.8,
+    "emergency": None,
 }
 
 GROUND_AC = {
-    "hex": "4bffff",
+    "icao24": "4bffff",
+    "ts": "2026-07-01T12:00:01.000000+00:00",
+    "cycle_id": 7,
+    "signal_age_sec": 0.5,
+    "source": "adsblol",
     "lat": 40.0,
     "lon": 29.0,
-    "alt_baro": "ground",
-    "gs": 0,
-    "track": 180,
-    "baro_rate": 0,
+    "alt": 0.0,
+    "velocity": 0.0,
+    "track": 180.0,
+    "vertical_rate": 0.0,
+    "is_ground": True,
+    "is_military": False,
+    "callsign": None,
+    "category": None,
+    "squawk": None,
+    "emergency": None,
 }
 
 
-def test_parse_ac_record_unit_conversions():
+def test_parse_ac_record_fields_pass_through_without_reconversion():
+    """alt/velocity/vertical_rate zaten SI birimlerinde geliyor (uav_producer.py
+    ceviriyor) -- Silver bunlari TEKRAR donusturmemeli, oldugu gibi almali."""
     rec = _parse_ac_record(SAMPLE_AC, batch_ts=1_700_000_000.0)
 
     assert rec["source_type"] == "adsblol_realtime"
     assert rec["source_id"] == "4b1234"
     assert rec["on_ground"] is False
-    assert rec["alt"] == pytest.approx(35000 * 0.3048, abs=0.2)
-    assert rec["alt_geom_m"] == pytest.approx(35100 * 0.3048, abs=0.2)
-    assert rec["ground_speed_ms"] == pytest.approx(450 * 0.5144, abs=0.01)
-    assert rec["vertical_rate_ms"] == pytest.approx(-500 * 0.00508, abs=0.001)
-    assert rec["indicated_airspeed_ms"] == pytest.approx(440 * 0.5144, abs=0.01)
+    assert rec["alt"] == 10668.0
+    assert rec["ground_speed_ms"] == 231.5
+    assert rec["vertical_rate_ms"] == -2.54
+    assert rec["track_deg"] == 90.5
     assert rec["flight_callsign"] == "THY123"
+    assert rec["is_military"] is False
     assert rec["label"] is None
+    assert rec["signal_age_sec"] == 0.3
+    assert rec["source"] == "adsblol"
+    assert rec["cycle_id"] == 7
 
 
 def test_parse_ac_record_on_ground():
     rec = _parse_ac_record(GROUND_AC, batch_ts=None)
     assert rec["on_ground"] is True
-    assert rec["alt"] is None
+    assert rec["flight_callsign"] is None
+
+
+def test_parse_ac_record_prefers_precise_record_ts_over_batch_ts():
+    rec = _parse_ac_record(SAMPLE_AC, batch_ts=1_700_000_000.0)
+    from datetime import datetime
+
+    expected = datetime.fromisoformat(SAMPLE_AC["ts"]).timestamp()
+    assert rec["timestamp_utc"] == pytest.approx(expected)
+    assert rec["timestamp_utc"] != 1_700_000_000.0
+
+
+def test_parse_ac_record_falls_back_to_batch_ts_when_ts_missing():
+    rec_no_ts = dict(SAMPLE_AC)
+    rec_no_ts.pop("ts")
+    rec = _parse_ac_record(rec_no_ts, batch_ts=1_700_000_000.0)
+    assert rec["timestamp_utc"] == 1_700_000_000.0
 
 
 def test_batch_timestamp_extraction():
@@ -90,21 +123,20 @@ def test_parse_jsonl_bytes():
     assert (df["source_type"] == "adsblol_realtime").all()
 
 
-@pytest.mark.parametrize("db_flags,expected", [
-    (1, True),      # bit 1 set -- askeri
-    (3, True),      # bit 1 + baska bir bit -- yine askeri
-    (0, False),     # hicbir bit yok
-    (2, False),     # SADECE farkli bir bit -- askeri degil
-    (None, False),  # alan hic gelmemis
-    ("garbage", False),  # sayiya cevrilemeyen deger -- crash yerine guvenli varsayilan
+@pytest.mark.parametrize("is_military,expected", [
+    (True, True),
+    (False, False),
 ])
-def test_parse_ac_record_is_military_bit_flag(db_flags, expected):
+def test_parse_ac_record_is_military_passthrough(is_military, expected):
     rec = dict(SAMPLE_AC)
-    if db_flags is None:
-        rec.pop("dbFlags", None)
-    else:
-        rec["dbFlags"] = db_flags
+    rec["is_military"] = is_military
     assert _parse_ac_record(rec, batch_ts=None)["is_military"] == expected
+
+
+def test_parse_ac_record_is_military_defaults_false_when_missing():
+    rec = dict(SAMPLE_AC)
+    rec.pop("is_military", None)
+    assert _parse_ac_record(rec, batch_ts=None)["is_military"] is False
 
 
 def test_parse_jsonl_bytes_skips_malformed_lines_without_crashing():
@@ -164,3 +196,4 @@ def test_run_writes_silver(fake_minio_client: FakeMinioClient):
     assert len(df) == 2
     assert "_source_type" in df.columns
     assert (df["_source_type"] == "adsblol_realtime").all()
+    assert set(df["source_id"]) == {"4b1234", "4bffff"}

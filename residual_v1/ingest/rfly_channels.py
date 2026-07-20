@@ -1,0 +1,45 @@
+"""Pre-registered RflyMAD-Real channel inventory."""
+
+from residual_v1.schema import ChannelSpec
+
+
+CHANNELS: tuple[ChannelSpec, ...] = (
+    ChannelSpec("attitude_qw", "vehicle_attitude", "unitless", -1.000001, 1.000001, 50.0, False, "response"),
+    ChannelSpec("attitude_qx", "vehicle_attitude", "unitless", -1.000001, 1.000001, 50.0, False, "response"),
+    ChannelSpec("attitude_qy", "vehicle_attitude", "unitless", -1.000001, 1.000001, 50.0, False, "response"),
+    ChannelSpec("attitude_qz", "vehicle_attitude", "unitless", -1.000001, 1.000001, 50.0, False, "response"),
+    ChannelSpec("roll_sp", "vehicle_attitude_setpoint", "rad", -3.141593, 3.141593, 25.0, True, "command"),
+    ChannelSpec("pitch_sp", "vehicle_attitude_setpoint", "rad", -1.570797, 1.570797, 25.0, True, "command"),
+    ChannelSpec("yaw_sp", "vehicle_attitude_setpoint", "rad", -3.141593, 3.141593, 25.0, True, "command"),
+    ChannelSpec("roll_rate_sp", "vehicle_rates_setpoint", "rad_s", -20.0, 20.0, 50.0, False, "command"),
+    ChannelSpec("pitch_rate_sp", "vehicle_rates_setpoint", "rad_s", -20.0, 20.0, 50.0, False, "command"),
+    ChannelSpec("yaw_rate_sp", "vehicle_rates_setpoint", "rad_s", -20.0, 20.0, 50.0, False, "command"),
+    ChannelSpec("roll_rate", "vehicle_angular_velocity", "rad_s", -20.0, 20.0, 100.0, False, "response"),
+    ChannelSpec("pitch_rate", "vehicle_angular_velocity", "rad_s", -20.0, 20.0, 100.0, False, "response"),
+    ChannelSpec("yaw_rate", "vehicle_angular_velocity", "rad_s", -20.0, 20.0, 100.0, False, "response"),
+    ChannelSpec("accel_x", "sensor_combined", "m_s2", -100.0, 100.0, 50.0, False, "response"),
+    ChannelSpec("accel_y", "sensor_combined", "m_s2", -100.0, 100.0, 50.0, False, "response"),
+    ChannelSpec("accel_z", "sensor_combined", "m_s2", -100.0, 100.0, 50.0, False, "response"),
+    ChannelSpec("local_x", "vehicle_local_position", "m", -100000.0, 100000.0, 10.0, False, "response"),
+    ChannelSpec("local_y", "vehicle_local_position", "m", -100000.0, 100000.0, 10.0, False, "response"),
+    ChannelSpec("local_z", "vehicle_local_position", "m", -100000.0, 100000.0, 10.0, False, "response"),
+    ChannelSpec("local_vx", "vehicle_local_position", "m_s", -100.0, 100.0, 10.0, False, "response"),
+    ChannelSpec("local_vy", "vehicle_local_position", "m_s", -100.0, 100.0, 10.0, False, "response"),
+    ChannelSpec("local_vz", "vehicle_local_position", "m_s", -100.0, 100.0, 10.0, False, "response"),
+    ChannelSpec("local_ax", "vehicle_local_position", "m_s2", -100.0, 100.0, 10.0, False, "response"),
+    ChannelSpec("local_ay", "vehicle_local_position", "m_s2", -100.0, 100.0, 10.0, False, "response"),
+    ChannelSpec("local_az", "vehicle_local_position", "m_s2", -100.0, 100.0, 10.0, False, "response"),
+    ChannelSpec("position_sp_x", "vehicle_local_position_setpoint", "m", -100000.0, 100000.0, 10.0, False, "command"),
+    ChannelSpec("position_sp_y", "vehicle_local_position_setpoint", "m", -100000.0, 100000.0, 10.0, False, "command"),
+    ChannelSpec("position_sp_z", "vehicle_local_position_setpoint", "m", -100000.0, 100000.0, 10.0, False, "command"),
+    ChannelSpec("velocity_sp_x", "vehicle_local_position_setpoint", "m_s", -100.0, 100.0, 10.0, False, "command"),
+    ChannelSpec("velocity_sp_y", "vehicle_local_position_setpoint", "m_s", -100.0, 100.0, 10.0, False, "command"),
+    ChannelSpec("velocity_sp_z", "vehicle_local_position_setpoint", "m_s", -100.0, 100.0, 10.0, False, "command"),
+    ChannelSpec("thrust_sp", "vehicle_attitude_setpoint", "ratio", -1.5, 1.5, 25.0, False, "command"),
+    ChannelSpec("motor_pwm_0", "actuator_outputs", "pwm", 500.0, 2500.0, 100.0, False, "command"),
+    ChannelSpec("motor_pwm_1", "actuator_outputs", "pwm", 500.0, 2500.0, 100.0, False, "command"),
+    ChannelSpec("motor_pwm_2", "actuator_outputs", "pwm", 500.0, 2500.0, 100.0, False, "command"),
+    ChannelSpec("motor_pwm_3", "actuator_outputs", "pwm", 500.0, 2500.0, 100.0, False, "command"),
+    ChannelSpec("battery_voltage", "battery_status", "v", 0.0, 100.0, 2.0, False, "context"),
+)
+

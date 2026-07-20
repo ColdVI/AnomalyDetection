@@ -1,5 +1,5 @@
-# Proje genelinde TEK requirements dosyasi -- src/ pipeline, Dashboard/ ve
-# adsb/ ML modelleri hepsi bunu kullanir (Dashboard/requirements.txt ayri
+# Proje genelinde TEK requirements dosyasi -- src/ pipeline, Dashboard/,
+# adsb/ ve residual_v1/ modelleri hepsi bunu kullanir (Dashboard/requirements.txt ayri
 # bir dosyaydi, buraya birlestirildi -- 2026-07-15).
 #
 # Surumler bu makinede fiilen kurulu/dogrulanmis olanlardir (pip freeze ile
@@ -7,7 +7,7 @@
 # kurulu degil (gercek ADS-B egitimi ayri bir makinede yapiliyor) -- surumu
 # dogrulanamadi, mevcut pin korundu.
 #
-# pydeck, openpyxl, pyulog, rosbags, lightgbm, chronos-forecasting kaldirildi:
+# pydeck, openpyxl, rosbags, lightgbm, chronos-forecasting kaldirildi:
 # aktif kodda (src/, Dashboard/, adsb/) hicbir yerde import edilmiyorlar,
 # sadece archive/2026-07-10_legacy_non_adsb_ml/ altindaki dondurulmus eski
 # ML kodu kullaniyordu (bkz. archive/README.md -- "Arsiv aktif dependency
@@ -20,6 +20,8 @@ minio==7.2.20
 pandas==3.0.3
 numpy==2.5.0
 pyarrow==24.0.0
+pyulog==1.2.3
+matplotlib==3.11.0
 scikit-learn==1.9.0
 fastapi==0.138.2
 uvicorn[standard]==0.49.0

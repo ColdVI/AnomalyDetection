@@ -1,0 +1,637 @@
+<title>İHA Telemetrisinde Anomali Tespiti — Yönetici Raporu</title>
+<style>
+  :root{
+    --bg:#EEF1F2; --surface:#FFFFFF; --surface-2:#E3E9EA;
+    --ink:#101A1D; --ink-soft:#4E6165; --ink-faint:#7C8B8E; --rule:#C9D2D3;
+    --accent:#0E6E77; --accent-ink:#FFFFFF; --accent-soft:#DCEEEF;
+    --pass:#2E7D5B; --pass-soft:#DEEEE5;
+    --flag:#A9711F; --flag-soft:#F2E4CB;
+    --fail:#A2413A; --fail-soft:#F3DEDB;
+    --font-display:"Bahnschrift SemiBold","Bahnschrift","SF Compact Display","Segoe UI Semibold","Segoe UI",system-ui,sans-serif;
+    --font-body:"Sitka Text","Iowan Old Style","Georgia","Noto Serif","Times New Roman",serif;
+    --font-mono:"Cascadia Mono","Cascadia Code","SF Mono","JetBrains Mono",Consolas,"Courier New",monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0A0F12; --surface:#10171A; --surface-2:#182228;
+      --ink:#E7EEEE; --ink-soft:#9BB0B2; --ink-faint:#6D8082; --rule:#263236;
+      --accent:#4FC7CE; --accent-ink:#04191B; --accent-soft:#142B2D;
+      --pass:#59B98B; --pass-soft:#133024;
+      --flag:#D9A24B; --flag-soft:#2E2413;
+      --fail:#E08B82; --fail-soft:#331C19;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A0F12; --surface:#10171A; --surface-2:#182228;
+    --ink:#E7EEEE; --ink-soft:#9BB0B2; --ink-faint:#6D8082; --rule:#263236;
+    --accent:#4FC7CE; --accent-ink:#04191B; --accent-soft:#142B2D;
+    --pass:#59B98B; --pass-soft:#133024;
+    --flag:#D9A24B; --flag-soft:#2E2413;
+    --fail:#E08B82; --fail-soft:#331C19;
+    color-scheme: dark;
+  }
+  :root[data-theme="light"]{
+    --bg:#EEF1F2; --surface:#FFFFFF; --surface-2:#E3E9EA;
+    --ink:#101A1D; --ink-soft:#4E6165; --ink-faint:#7C8B8E; --rule:#C9D2D3;
+    --accent:#0E6E77; --accent-ink:#FFFFFF; --accent-soft:#DCEEEF;
+    --pass:#2E7D5B; --pass-soft:#DEEEE5;
+    --flag:#A9711F; --flag-soft:#F2E4CB;
+    --fail:#A2413A; --fail-soft:#F3DEDB;
+    color-scheme: light;
+  }
+
+  *{box-sizing:border-box;}
+  @media (prefers-reduced-motion: reduce){ *{animation:none!important; transition:none!important;} }
+
+  .page{
+    background:var(--bg); color:var(--ink);
+    font-family:var(--font-body);
+    font-size:1.05rem; line-height:1.68;
+    max-width:1180px; margin:0 auto; padding:3.5rem 1.5rem 6rem;
+  }
+  h1,h2,h3,h4{font-family:var(--font-display); font-weight:600; text-wrap:balance; color:var(--ink);}
+  p{margin:0 0 1rem;}
+  a{color:var(--accent);}
+  strong{font-weight:700;}
+  .num, table, .stat-num, .bar-label, .bar-value{font-variant-numeric:tabular-nums;}
+
+  /* ---- masthead ---- */
+  .masthead{
+    border-bottom:1px solid var(--rule); padding-bottom:2rem; margin-bottom:2.5rem;
+  }
+  .masthead .eyebrow{
+    font-family:var(--font-mono); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:.9rem; display:flex; gap:.6em; align-items:center;
+  }
+  .masthead .eyebrow::before{content:"";width:1.6em;height:1px;background:var(--accent);display:inline-block;}
+  .masthead h1{font-size:clamp(2rem,4.4vw,2.9rem); line-height:1.08; margin:0 0 .7rem; letter-spacing:-.01em;}
+  .masthead .deck{font-family:var(--font-body); font-style:italic; color:var(--ink-soft); font-size:1.18rem; max-width:52rem; margin:0 0 1.4rem;}
+  .masthead .meta{
+    display:flex; flex-wrap:wrap; gap:1.6rem; font-family:var(--font-mono); font-size:.78rem; color:var(--ink-faint);
+  }
+  .masthead .meta b{color:var(--ink-soft); font-weight:600;}
+
+  /* ---- layout ---- */
+  .layout{display:grid; grid-template-columns:200px minmax(0,1fr); gap:3rem; align-items:start;}
+  @media (max-width:920px){ .layout{grid-template-columns:1fr;} .rail{display:none;} }
+
+  .rail{position:sticky; top:2rem;}
+  .rail ol{list-style:none; margin:0; padding:0; border-left:1px solid var(--rule);}
+  .rail li{margin:0;}
+  .rail a{
+    display:block; padding:.42rem 0 .42rem 1rem; margin-left:-1px; border-left:1px solid transparent;
+    font-family:var(--font-mono); font-size:.76rem; color:var(--ink-faint); text-decoration:none;
+    line-height:1.35;
+  }
+  .rail a:hover{color:var(--accent); border-left-color:var(--accent);}
+
+  main{min-width:0;}
+  section{margin-bottom:3.4rem; scroll-margin-top:1.5rem;}
+  .section-head{display:flex; align-items:baseline; gap:.8rem; margin-bottom:1.2rem; border-bottom:1px solid var(--rule); padding-bottom:.55rem;}
+  .section-head .idx{font-family:var(--font-mono); color:var(--accent); font-size:.85rem;}
+  .section-head h2{font-size:1.5rem; margin:0;}
+  h3{font-size:1.12rem; margin:1.6rem 0 .7rem;}
+  .lede{color:var(--ink-soft); font-size:1.02rem; max-width:62ch;}
+
+  /* ---- verdict box ---- */
+  .verdict{
+    background:var(--surface); border:1px solid var(--rule); border-left:4px solid var(--fail);
+    padding:1.6rem 1.8rem; border-radius:3px; margin:1.4rem 0 2rem;
+  }
+  .verdict .tag{font-family:var(--font-mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--fail); margin-bottom:.6rem; display:block;}
+  .verdict p{font-size:1.08rem; margin:0; max-width:64ch;}
+  .verdict p + p{margin-top:.8rem;}
+
+  /* ---- stat strip ---- */
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--rule); border:1px solid var(--rule); margin:1.6rem 0 2rem; border-radius:3px; overflow:hidden;}
+  @media (max-width:700px){ .stats{grid-template-columns:repeat(2,1fr);} }
+  .stat{background:var(--surface); padding:1.2rem 1.1rem;}
+  .stat .stat-num{font-family:var(--font-mono); font-size:2rem; font-weight:700; color:var(--accent); line-height:1;}
+  .stat .stat-label{font-size:.82rem; color:var(--ink-soft); margin-top:.5rem; line-height:1.3;}
+
+  /* ---- integrity aside ---- */
+  .aside{background:var(--accent-soft); border:1px solid var(--rule); padding:1.1rem 1.3rem; border-radius:3px; font-size:.94rem; color:var(--ink-soft); margin:1.6rem 0;}
+  .aside b{color:var(--ink);}
+
+  /* ---- dataset cards ---- */
+  .card-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1rem; margin:1.2rem 0;}
+  .card{background:var(--surface); border:1px solid var(--rule); border-radius:3px; padding:1.15rem 1.25rem;}
+  .card h4{font-size:.98rem; margin:0 0 .5rem; display:flex; align-items:center; gap:.5rem;}
+  .card h4 .n{font-family:var(--font-mono); font-size:.72rem; color:var(--accent); border:1px solid var(--accent); border-radius:2px; padding:.05rem .35rem;}
+  .card p{font-size:.9rem; color:var(--ink-soft); margin:0 0 .55rem;}
+  .card .lesson{font-size:.86rem; border-top:1px dashed var(--rule); padding-top:.55rem; margin-top:.6rem;}
+  .card .lesson b{font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); display:block; margin-bottom:.25rem;}
+
+  /* ---- method tiers ---- */
+  .tier{display:grid; grid-template-columns:170px minmax(0,1fr); gap:1.1rem; margin:1rem 0 1.6rem; align-items:start;}
+  @media (max-width:700px){ .tier{grid-template-columns:1fr;} }
+  .tier .tier-label{font-family:var(--font-mono); font-size:.74rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-faint); padding-top:.2rem;}
+  .method{border-left:2px solid var(--rule); padding:.15rem 0 .15rem 1rem; margin-bottom:.9rem;}
+  .method:last-child{margin-bottom:0;}
+  .method .name{font-family:var(--font-display); font-weight:600; font-size:.98rem;}
+  .method .desc{font-size:.9rem; color:var(--ink-soft); margin-top:.15rem;}
+
+  /* ---- tables ---- */
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--rule); border-radius:3px; margin:1rem 0 1.6rem;}
+  table{border-collapse:collapse; width:100%; font-size:.88rem; min-width:520px;}
+  thead th{
+    font-family:var(--font-mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--ink-faint); text-align:left; padding:.6rem .8rem; background:var(--surface-2); border-bottom:1px solid var(--rule);
+    white-space:nowrap;
+  }
+  tbody td{padding:.6rem .8rem; border-bottom:1px solid var(--rule); vertical-align:top; color:var(--ink-soft);}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody td:first-child{color:var(--ink); font-weight:600;}
+  td.num, th.num{font-family:var(--font-mono); text-align:right; white-space:nowrap;}
+  tbody tr:hover{background:var(--surface-2);}
+
+  /* ---- figure / chart shell ---- */
+  .figure{background:var(--surface); border:1px solid var(--rule); border-radius:3px; padding:1.3rem 1.4rem 1rem; margin:1.3rem 0 1.8rem;}
+  .figure .fig-title{font-family:var(--font-display); font-weight:600; font-size:.95rem; margin-bottom:.2rem;}
+  .figure .fig-note{font-size:.82rem; color:var(--ink-faint); margin-bottom:1rem;}
+  .figure .fig-caption{
+    font-family:var(--font-mono); font-size:.74rem; color:var(--ink-faint); border-top:1px solid var(--rule);
+    margin-top:1rem; padding-top:.7rem; line-height:1.5;
+  }
+
+  /* ---- paired tradeoff bars ---- */
+  .tradeoff{display:flex; flex-direction:column; gap:1.05rem;}
+  .trow{display:grid; grid-template-columns:168px minmax(0,1fr); gap:1rem; align-items:center;}
+  @media (max-width:640px){ .trow{grid-template-columns:1fr;} }
+  .trow .tname{font-size:.86rem; color:var(--ink);}
+  .trow .tname small{display:block; font-size:.74rem; color:var(--ink-faint); margin-top:.1rem;}
+  .tbars{display:flex; flex-direction:column; gap:.4rem;}
+  .tbar-line{display:grid; grid-template-columns:64px minmax(0,1fr) 68px; gap:.6rem; align-items:center;}
+  .tbar-line .tlabel{font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-faint);}
+  .track{position:relative; height:9px; background:var(--surface-2); border-radius:1px; overflow:visible;}
+  .fill{position:absolute; left:0; top:0; height:100%; border-radius:1px;}
+  .fill.recall{background:var(--accent);}
+  .fill.cost{background:var(--flag);}
+  .fill.gap{background:var(--fail);}
+  .refline{position:absolute; top:-3px; bottom:-3px; width:1px; background:var(--ink-faint);}
+  .refline::after{content:attr(data-label); position:absolute; top:-1.15rem; left:50%; transform:translateX(-50%); font-family:var(--font-mono); font-size:.62rem; color:var(--ink-faint); white-space:nowrap;}
+  .tbar-line .tval{font-family:var(--font-mono); font-size:.78rem; text-align:right; color:var(--ink);}
+
+  /* ---- simple horizontal bar list (AUC / rates) ---- */
+  .barlist{display:flex; flex-direction:column; gap:.65rem;}
+  .brow{display:grid; grid-template-columns:180px minmax(0,1fr) 58px; gap:.7rem; align-items:center;}
+  @media (max-width:640px){ .brow{grid-template-columns:110px minmax(0,1fr) 50px;} }
+  .brow .bname{font-size:.85rem; color:var(--ink);}
+  .brow .bval{font-family:var(--font-mono); font-size:.8rem; text-align:right; color:var(--ink);}
+
+  /* ---- status chips ---- */
+  .chip{display:inline-flex; align-items:center; gap:.4em; font-family:var(--font-mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; padding:.22rem .55rem; border-radius:2px; font-weight:600;}
+  .chip.pass{background:var(--pass-soft); color:var(--pass);}
+  .chip.flag{background:var(--flag-soft); color:var(--flag);}
+  .chip.fail{background:var(--fail-soft); color:var(--fail);}
+  .chip::before{content:""; width:.5em; height:.5em; border-radius:50%; background:currentColor;}
+
+  /* ---- deep-dive log cards ---- */
+  .deepdive{background:var(--surface); border:1px solid var(--rule); border-radius:4px; margin:1.5rem 0 2.2rem; overflow:hidden;}
+  .deepdive .dd-head{padding:1.3rem 1.5rem; border-bottom:1px solid var(--rule); background:var(--surface-2);}
+  .deepdive .dd-head .dd-eyebrow{font-family:var(--font-mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin-bottom:.35rem;}
+  .deepdive .dd-head h3{margin:0; font-size:1.28rem;}
+  .dd-body{padding:1.5rem;}
+  .dd-row{display:grid; grid-template-columns:130px minmax(0,1fr); gap:1.2rem; margin-bottom:1.1rem;}
+  @media (max-width:640px){ .dd-row{grid-template-columns:1fr; gap:.3rem;} }
+  .dd-row .dd-label{font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); padding-top:.2rem;}
+  .dd-row .dd-text{font-size:.94rem;}
+  .dd-verdict{margin-top:1.3rem; padding-top:1.2rem; border-top:1px dashed var(--rule);}
+
+  /* ---- final verdict / numbered path ---- */
+  .path{counter-reset:step; list-style:none; margin:1rem 0; padding:0; display:flex; flex-direction:column; gap:.75rem;}
+  .path li{counter-increment:step; display:grid; grid-template-columns:2rem minmax(0,1fr); gap:.8rem; font-size:.94rem;}
+  .path li::before{content:counter(step); font-family:var(--font-mono); font-weight:700; color:var(--accent); font-size:.85rem; border:1px solid var(--accent); border-radius:50%; width:1.7rem; height:1.7rem; display:flex; align-items:center; justify-content:center;}
+
+  .grantable{display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin:1.2rem 0;}
+  @media (max-width:700px){ .grantable{grid-template-columns:1fr;} }
+  .grantable .box{background:var(--surface); border:1px solid var(--rule); border-radius:3px; padding:1.1rem 1.25rem;}
+  .grantable .box h4{font-size:.88rem; text-transform:uppercase; letter-spacing:.05em; font-family:var(--font-mono); color:var(--ink-faint); margin:0 0 .7rem;}
+  .grantable .box ul{margin:0; padding-left:1.1rem; font-size:.88rem; color:var(--ink-soft);}
+  .grantable .box li{margin-bottom:.4rem;}
+
+  /* ---- FAQ ---- */
+  .faq-item{border-bottom:1px solid var(--rule); padding:1.1rem 0;}
+  .faq-item:first-child{padding-top:0;}
+  .faq-item .q{font-family:var(--font-display); font-weight:600; font-size:1rem; margin-bottom:.4rem;}
+  .faq-item .a{font-size:.92rem; color:var(--ink-soft); max-width:66ch;}
+
+  /* ---- glossary ---- */
+  .gloss{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:.9rem 1.6rem; margin:1rem 0;}
+  .gloss dt{font-family:var(--font-mono); font-weight:700; font-size:.86rem; color:var(--accent);}
+  .gloss dd{margin:.2rem 0 0; font-size:.86rem; color:var(--ink-soft);}
+
+  footer{margin-top:3rem; padding-top:1.4rem; border-top:1px solid var(--rule); font-family:var(--font-mono); font-size:.72rem; color:var(--ink-faint); display:flex; justify-content:space-between; flex-wrap:wrap; gap:.6rem;}
+
+  @media print{
+    .rail{display:none;}
+    .layout{grid-template-columns:1fr;}
+    .page{max-width:100%;}
+  }
+</style>
+
+<div class="page">
+
+  <div class="masthead">
+    <div class="eyebrow">Yönetici ve mentör değerlendirmesi için hazırlanmıştır</div>
+    <h1>İHA Telemetrisinde Anomali Tespiti</h1>
+    <p class="deck">Beş veri kümesi, on ikiden fazla yöntem ailesi, tek soru: gerçek arızaları güvenilir biçimde yakalayan, az sayıda yanlış alarm üreten bir tespit sistemi kurulabilir mi? Bu rapor ne denendiğini, hangi sayının çıktığını ve neden yetmediğini anlatır.</p>
+    <div class="meta">
+      <span><b>Hazırlayan</b> Anıl Keskin</span>
+      <span><b>Tarih</b> 17 Temmuz 2026</span>
+      <span><b>Kapsam</b> Veri hazırlama → özellik mühendisliği → modelleme → doğrulama → nihai karar</span>
+    </div>
+  </div>
+
+  <div class="layout">
+    <nav class="rail">
+      <ol>
+        <li><a href="#ozet">01 — Yönetici özeti</a></li>
+        <li><a href="#amac">02 — Amaç</a></li>
+        <li><a href="#veri">03 — Veri kümeleri</a></li>
+        <li><a href="#yontem">04 — Denenen yöntemler</a></li>
+        <li><a href="#sonuclar">05 — Sonuçlar</a></li>
+        <li><a href="#oruntu">06 — Merkezi örüntü</a></li>
+        <li><a href="#nedenler">07 — Neden yetmedi</a></li>
+        <li><a href="#derinlemesine">08 — İki son deney</a></li>
+        <li><a href="#hukum">09 — Nihai hüküm</a></li>
+        <li><a href="#sss">10 — Sık sorulanlar</a></li>
+        <li><a href="#terimler">11 — Terimler</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <!-- 01 ================================================= -->
+      <section id="ozet">
+        <div class="section-head"><span class="idx">01</span><h2>Yönetici özeti</h2></div>
+
+        <div class="verdict">
+          <span class="tag">Nihai karar</span>
+          <p>Mevcut veride, etiketlerde ve sensör kapsamında; <strong>farklı İHA platformlarında çalışan, gerçek arızaları yeterli oranda yakalarken az sayıda yanlış alarm üreten genel amaçlı bir anomali tespit sistemi kurulamadı.</strong></p>
+          <p>Bu, "hiçbir şey öğrenilemedi" anlamına gelmiyor. Birkaç dar senaryoda gerçek ve ölçülebilir sinyal bulundu, hatta bazı sonuçlar bağımsız istatistiksel testlerle doğrulandı. Ancak yakalama oranını yükselten her ayar yanlış alarmı kullanılamaz seviyeye çıkardı; alarmı azaltan her ayar gerçek arızaların çoğunu kaçırdı. Bu denge — hiçbir veri kümesinde, hiçbir yöntemle — aynı anda kurulamadı.</p>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><div class="stat-num">5</div><div class="stat-label">farklı veri kümesi üzerinde çalışıldı</div></div>
+          <div class="stat"><div class="stat-num">12+</div><div class="stat-label">yöntem ailesi test edildi</div></div>
+          <div class="stat"><div class="stat-num">0</div><div class="stat-label">konfigürasyon operasyonel hedefi tam karşıladı</div></div>
+          <div class="stat"><div class="stat-num">2</div><div class="stat-label">en titiz son denemede sinyal kanıtlandı, güvenli eşik kurulamadı</div></div>
+        </div>
+
+        <p class="lede">Aşağıdaki bölümler sırasıyla: neyin hedeflendiğini, hangi uçuş verilerinin kullanıldığını, hangi model ailelerinin denendiğini, her birinin gerçek sayılarını, tekrar eden asıl örüntüyü, kök nedenleri, en son iki titiz denemeyi ve nihai hükmü anlatıyor.</p>
+
+        <div class="aside"><b>Güvenilirlik notu —</b> Bu raporda hiçbir sayı, sonucu gördükten sonra eşik değiştirilerek "iyileştirilmedi". Bazı erken sonuçlar aslında etiket hatası veya sayısal yanılsamaydı; düzeltilince düştüler — bu bir başarısızlık değil, sonucun artık gerçek olması demektir. Son değerlendirme (kör test) verisi hâlâ hiç açılmadı.</div>
+      </section>
+
+      <!-- 02 ================================================= -->
+      <section id="amac">
+        <div class="section-head"><span class="idx">02</span><h2>Amaç</h2></div>
+        <p class="lede">Başlangıç hedefi: İHA telemetrisindeki alışılmadık davranışları, her arıza türü için ayrı bir kural yazmaya gerek kalmadan kendiliğinden fark edebilen bir sistem kurmaktı. Beklenen sistemin:</p>
+        <div class="card-grid">
+          <div class="card"><p style="margin:0;font-size:.92rem;">Normal uçuş davranışını öğrenmesi</p></div>
+          <div class="card"><p style="margin:0;font-size:.92rem;">Sensör, aktüatör veya navigasyon kaynaklı sapmaları fark etmesi</p></div>
+          <div class="card"><p style="margin:0;font-size:.92rem;">Mümkünse farklı uçuş ve araçlarda çalışması</p></div>
+          <div class="card"><p style="margin:0;font-size:.92rem;">Gerçek arızaları yakalarken az sayıda yanlış alarm üretmesi</p></div>
+        </div>
+        <p>Bu dört madde bir arada — işte tam olarak kurulamayan şey budur. Raporun geri kalanı bu dört maddenin ayrı ayrı nerede tutunduğunu, birlikte nerede çöktüğünü gösteriyor.</p>
+      </section>
+
+      <!-- 03 ================================================= -->
+      <section id="veri">
+        <div class="section-head"><span class="idx">03</span><h2>Kullanılan veri kümeleri</h2></div>
+        <p class="lede">Beş farklı veri ailesi kullanıldı — her biri farklı bir uçak tipi, farklı bir arıza sınıfı ve farklı bir ders sağladı.</p>
+        <div class="card-grid">
+          <div class="card">
+            <h4><span class="n">01</span> ALFA</h4>
+            <p>Gerçek sabit kanatlı İHA uçuşları; motor ve kumanda yüzeyi arızaları. 47 uçuşluk sabit bir arşiv — bazı arıza türlerinde yalnızca 1–4 uçuş var.</p>
+            <div class="lesson"><b>Ders</b>Zengin özellik çıkarımıyla derin öğrenme belirli bir platformda gerçekten güçlü ayrışma sağlayabiliyor — projenin en iyi tekil sonucu burada çıktı.</div>
+          </div>
+          <div class="card">
+            <h4><span class="n">02</span> UAV Attack</h4>
+            <p>Çok rotorlu İHA; GPS aldatma (spoofing), sinyal karıştırma (jamming) ve hizmet-engelleme (DoS) kayıtları.</p>
+            <div class="lesson"><b>Ders</b>Bir saldırı fiziksel olarak sensörde iz bırakmıyorsa (DoS kayıtlarının çoğunda olduğu gibi) hiçbir model bunu göremez — bu bir algoritma sınırı değil, veri/sensör sınırı.</div>
+          </div>
+          <div class="card">
+            <h4><span class="n">03</span> UAV-SEAD</h4>
+            <p>Daha geniş bir çok-rotorlu havuzu; GPS, irtifa, mekanik ve dış-konum anomalileri. 1.244 uçuş (899'u normal).</p>
+            <div class="lesson"><b>Ders</b>Normal veri miktarını artırmak bazen yanlış alarmı azalttı, ama gerçek arıza yakalama oranı da onunla birlikte düştü.</div>
+          </div>
+          <div class="card">
+            <h4><span class="n">04</span> RflyMAD</h4>
+            <p>Gerçek çok-rotorlu motor/sensör arıza uçuşları. 490 uçuş.</p>
+            <div class="lesson"><b>Ders</b>Bir uçuşun tamamını "arızalı" saymak (gerçek arıza aralığı yerine) sonucu yapay olarak şişiriyordu; düzeltilince gerçek performans belirgin biçimde düştü.</div>
+          </div>
+          <div class="card">
+            <h4><span class="n">05</span> ADS-B</h4>
+            <p>Gerçek, çok büyük ölçekli fakat etiketsiz hava trafiği — 256 milyon telemetri satırı, ~497.571 uçuş-saati.</p>
+            <div class="lesson"><b>Ders</b>Küçük etiketli verilerde iyi görünen bir yöntemin doğal trafikte ne kadar alarm üreteceğini test etmenin tek yolu gerçekten büyük veri üzerinde denemekti.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 04 ================================================= -->
+      <section id="yontem">
+        <div class="section-head"><span class="idx">04</span><h2>Denenen yöntemler</h2></div>
+        <p class="lede">Modelden veriden mi, etiketten mi, yoksa sensörün kendisinden mi kaynaklandığını ayırmak için üç farklı aileden yöntem karşılaştırıldı.</p>
+
+        <div class="tier">
+          <div class="tier-label">Fiziksel / istatistiksel</div>
+          <div>
+            <div class="method"><div class="name">Fiziksel sapma (residual) skorlayıcısı</div><div class="desc">Ölçülen değer ile fiziksel olarak beklenen değer arasındaki farkı izler — örneğin bildirilen hız ile konumdan hesaplanan hız arasındaki fark. Öğrenme yok, tamamen açıklanabilir.</div></div>
+            <div class="method"><div class="name">Ardışık değişim tespiti</div><div class="desc">Küçük ama kalıcı sapmaları zaman içinde biriktirerek yakalar; ani gürültüyü değil, sürekli kaymayı hedefler.</div></div>
+          </div>
+        </div>
+
+        <div class="tier">
+          <div class="tier-label">Klasik öğrenme</div>
+          <div>
+            <div class="method"><div class="name">Isolation Forest</div><div class="desc">Etiket gerektirmeden, normal davranıştan uzak noktaları bulan ağaç-tabanlı bir yöntem. Projenin çoğu yerinde referans/başlangıç modeli olarak kullanıldı.</div></div>
+            <div class="method"><div class="name">LightGBM</div><div class="desc">Etiketli örneklerden öğrenen bir karar-ağacı sınıflandırıcısı. Etiketli veri az/dengesiz olduğu her yerde referans modelin gerisinde kaldı.</div></div>
+          </div>
+        </div>
+
+        <div class="tier">
+          <div class="tier-label">Derin öğrenme / bağlamsal</div>
+          <div>
+            <div class="method"><div class="name">Otokodlayıcı (Dense / LSTM)</div><div class="desc">Normal veriyi sıkıştırıp yeniden üretmeyi öğrenen sinir ağı; yeniden üretemediği şeyi anomali sayar.</div></div>
+            <div class="method"><div class="name">USAD</div><div class="desc">İki modülün birbirine karşı çalıştığı, daha keskin ayrım vaat eden bir otokodlayıcı türü.</div></div>
+            <div class="method"><div class="name">Hazır zaman-serisi tahmin modeli</div><div class="desc">Önceden eğitilmiş, sıfırdan öğrenmeye ihtiyaç duymayan bir tahmin modeli (foundation model).</div></div>
+            <div class="method"><div class="name">Bağlama duyarlı tahmin ağı</div><div class="desc">Uçuş fazı ve geçmiş örnekleme örüntüsünden bir sonraki beklenen değeri tahmin eden, ham sinyal büyüklüğüne daha az bağımlı bir sinir ağı.</div></div>
+            <div class="method"><div class="name">Komut–tepki fiziksel modeli</div><div class="desc">Pilotun/otopilotun verdiği komuttan (ör. gaz, dümen açısı) beklenen fiziksel tepkiyi istatistiksel olarak tahmin eder; tahminden sapmayı inceler. Projenin en son ve en titiz denemesi (bkz. §08).</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 05 ================================================= -->
+      <section id="sonuclar">
+        <div class="section-head"><span class="idx">05</span><h2>Sonuçlar — veri kümesi başına</h2></div>
+        <p class="lede">Her veri kümesi için en açıklayıcı sayılar. AUC 0,5 rastgele tahmin seviyesidir; 1,0 kusursuz sıralamadır. Yakalama oranı (recall) ile saatlik yanlış alarm her zaman birlikte okunmalı — biri diğerini gizleyebilir.</p>
+
+        <h3>ALFA — sabit kanat, gerçek motor/kumanda arızaları</h3>
+        <div class="figure">
+          <div class="fig-title">Yöntem ailesine göre ayrışma gücü (uçuş düzeyinde AUC)</div>
+          <div class="fig-note">Kesikli çizgi: rastgele tahmin seviyesi (0,5)</div>
+          <div class="barlist">
+            <div class="brow"><div class="bname">Tek-satır Isolation Forest</div><div class="track"><div class="fill recall" style="width:49.7%"></div><div class="refline" style="left:50%" data-label="0,5"></div></div><div class="bval">0,497</div></div>
+            <div class="brow"><div class="bname">Dense Otokodlayıcı</div><div class="track"><div class="fill recall" style="width:62.2%"></div><div class="refline" style="left:50%" data-label=""></div></div><div class="bval">0,622</div></div>
+            <div class="brow"><div class="bname">Modüler Isolation Forest</div><div class="track"><div class="fill recall" style="width:83.3%"></div><div class="refline" style="left:50%" data-label=""></div></div><div class="bval">0,833</div></div>
+            <div class="brow"><div class="bname">LSTM Otokodlayıcı (ilk)</div><div class="track"><div class="fill recall" style="width:73.1%"></div><div class="refline" style="left:50%" data-label=""></div></div><div class="bval">0,731</div></div>
+            <div class="brow"><div class="bname">LSTM Otokodlayıcı (veri büyütülmüş)</div><div class="track"><div class="fill recall" style="width:91.8%"></div><div class="refline" style="left:50%" data-label=""></div></div><div class="bval">0,918</div></div>
+          </div>
+          <div class="fig-caption">Normal uçuş verisi büyütülünce LSTM Otokodlayıcı 0,731 → 0,918'e çıktı — bu, projedeki tek net "daha fazla veri gerçekten yardım etti" örneğidir.</div>
+        </div>
+        <p>En iyi <em>operasyonel</em> kombinasyon (fiziksel skorlayıcı + ardışık değişim tespiti): <strong>%62,5 yakalama, saatte 7,91 yanlış alarm</strong> — kategori içinde en iyi sonuç, fakat çok küçük ve tek platforma özel bir havuzda elde edildi, bağımsız son testte doğrulanmadı.</p>
+
+        <h3>UAV Attack — GPS aldatma / karıştırma / hizmet-engelleme</h3>
+        <div class="card-grid">
+          <div class="card"><h4>GPS aldatma &amp; karıştırma</h4><p style="margin:0;font-size:1.3rem;font-family:var(--font-mono);color:var(--pass);">AUC ≈ 1,00</p><p style="margin-top:.4rem;">Güçlü, açık fiziksel iz — sensörde net biçimde görünüyor.</p></div>
+          <div class="card"><h4>Hizmet-engelleme (DoS)</h4><p style="margin:0;font-size:1.3rem;font-family:var(--font-mono);color:var(--fail);">AUC ≈ 0,53</p><p style="margin-top:.4rem;">Rastgele seviyesine yakın — kayıtların çoğunda saldırının kayıtlı sensörlerde hiç izi yok.</p></div>
+        </div>
+
+        <h3>UAV-SEAD — geniş çok-rotorlu anomali havuzu</h3>
+        <div class="figure">
+          <div class="fig-title">Yakalama oranı arttırılınca yanlış alarm ne kadar arttı?</div>
+          <div class="fig-note">Sol: yakalama oranı (recall) · Sağ: saatlik yanlış alarm sayısı</div>
+          <div class="tradeoff">
+            <div class="trow">
+              <div class="tname">İki-kanallı alarm mimarisi<small>uzman kanala ayrı bütçe verildi</small></div>
+              <div class="tbars">
+                <div class="tbar-line"><span class="tlabel">Yakalama</span><div class="track"><div class="fill recall" style="width:29.1%"></div></div><span class="tval">%21,7→%29,1</span></div>
+                <div class="tbar-line"><span class="tlabel">Alarm/sa</span><div class="track"><div class="fill cost" style="width:89.4%"></div></div><span class="tval">23,7→44,7</span></div>
+              </div>
+            </div>
+            <div class="trow">
+              <div class="tname">Tek-özellikli ince model<small>en güçlü tek sinyal yalnız bırakıldı</small></div>
+              <div class="tbars">
+                <div class="tbar-line"><span class="tlabel">Yakalama</span><div class="track"><div class="fill recall" style="width:45.9%"></div></div><span class="tval">%20,5→%45,9</span></div>
+                <div class="tbar-line"><span class="tlabel">Alarm/sa</span><div class="track"><div class="fill cost" style="width:76.2%"></div></div><span class="tval">38,1</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="fig-caption">Her iki denemede de yakalama oranındaki kazanç, yanlış alarmı orantısız biçimde şişirerek "satın alındı" — bu örüntü rapor boyunca tekrar ediyor (bkz. §06).</div>
+        </div>
+        <p>Ayrıca: etiketli veriyle eğitilen model (LightGBM, AUPRC 0,349) etiket kullanmayan referans modeli (Isolation Forest, 0,385) geçemedi. Ve üç ayrı derin-öğrenme mimarisi (iki otokodlayıcı türü + USAD), eğitilmemiş/rastgele ağırlıklı hâlleriyle neredeyse aynı sırayı üretti (korelasyon 0,964) — yani "öğrenme" büyük ölçüde ham sinyal büyüklüğüne tepki vermekten ibaretti. Bu etki düzeltilince gerçek yakalama oranı %6'nın altına düştü.</p>
+
+        <h3>RflyMAD — gerçek motor/sensör arızaları</h3>
+        <div class="figure">
+          <div class="fig-title">Etiket düzeltmesinin sonuca maliyeti</div>
+          <div class="fig-note">İlk ölçüm, arızalı uçuşun TAMAMINI arızalı sayıyordu; düzeltme gerçek arıza aralığını kullandı</div>
+          <div class="barlist">
+            <div class="brow"><div class="bname">İlk (hatalı) ölçüm</div><div class="track"><div class="fill cost" style="width:74.9%"></div></div><div class="bval">%74,9</div></div>
+            <div class="brow"><div class="bname">Düzeltilmiş ölçüm</div><div class="track"><div class="fill recall" style="width:52.6%"></div></div><div class="bval">%52,6</div></div>
+          </div>
+          <div class="fig-caption">Düzeltilmiş yakalama oranı (%52,6) saatte 22,3 yanlış alarmla geldi — hedefin yaklaşık iki katı. Farklı veri kümeleriyle havuzlanınca yakalama oranı %14,9'a çöktü.</div>
+        </div>
+
+        <h3>ADS-B — büyük ölçekli doğal hava trafiği</h3>
+        <p>Etiketli gerçek saldırı yok; değerlendirme kontrollü sentetik sapmalarla yapıldı. Fiziksel kural-tabanlı skorlayıcı AUROC 0,765 / AUPRC 0,883 ile üç ayrı sinir ağını geçti — ama aynı eşikle çalıştırıldığında doğal trafikte saatte 4,81 alarm üretti ve uçuşların <strong>%89,2'sinde</strong> en az bir alarm oluştu. Yüksek ayrışma gücü, kullanılabilir bir ürün anlamına gelmedi.</p>
+        <div class="figure">
+          <div class="fig-title">Sapma türüne göre ayrışma gücü (AUC)</div>
+          <div class="fig-note">Kesikli çizgi: rastgele tahmin seviyesi (0,5)</div>
+          <div class="barlist">
+            <div class="brow"><div class="bname">Hız sapması</div><div class="track"><div class="fill recall" style="width:97.4%"></div><div class="refline" style="left:50%" data-label="0,5"></div></div><div class="bval">0,974</div></div>
+            <div class="brow"><div class="bname">Yön donması</div><div class="track"><div class="fill recall" style="width:89.0%"></div><div class="refline" style="left:50%" data-label=""></div></div><div class="bval">0,890</div></div>
+            <div class="brow"><div class="bname">Dikey hız donması</div><div class="track"><div class="fill recall" style="width:69.6%"></div><div class="refline" style="left:50%" data-label=""></div></div><div class="bval">0,696</div></div>
+            <div class="brow"><div class="bname">İrtifa verisi kaybı</div><div class="track"><div class="fill recall" style="width:56.7%"></div><div class="refline" style="left:50%" data-label=""></div></div><div class="bval">0,567</div></div>
+            <div class="brow"><div class="bname">Konum kayması (sinsi)</div><div class="track"><div class="fill recall" style="width:55.9%"></div><div class="refline" style="left:50%" data-label=""></div></div><div class="bval">0,559</div></div>
+          </div>
+          <div class="fig-caption">Ani/büyük sapmalar (hız, yön) kolayca yakalanıyor; yavaş ve örtük sapmalar (konum kayması, irtifa kaybı) rastgele seviyesine yakın kalıyor.</div>
+        </div>
+        <p style="font-size:.9rem;color:var(--ink-soft);">Ayrıca, veri kalitesinden kaynaklanan (arıza olmayan) doğal uyarı nedenleri ölçüldü — en sık görüleni mesaj boşluğu (saatte 2,89), ardından konum-güven sınıfı bilinmiyor (0,53/saat) ve konum-doğruluğu bilgisi eksik (0,20/saat). Bunlar arıza sinyali değil, veri akışının kendi doğal aksaklıklarıdır.</p>
+        <p>Büyüklüğe daha az bağımlı, bağlama duyarlı bir tahmin ağı da denendi — ilk kez bir sinir ağı "sadece büyük sayıyı görüyor" testinden geçti. Ancak hedeflenen (çok sıkı) alarm bütçesi altında, test edilen beş sapma türünün dördünde gerçek yakalama oranı %6'nın altında kaldı; yalnızca konum-kayması kanalı, en gevşek bütçede %49,7'ye ulaşabildi.</p>
+      </section>
+
+      <!-- 06 ================================================= -->
+      <section id="oruntu">
+        <div class="section-head"><span class="idx">06</span><h2>Merkezi örüntü — aynı tahterevalli, her seferinde</h2></div>
+        <p class="lede">GNSS bütünlüğü çalışmasından alınan bu üçlü, projenin baştan sona tekrar eden asıl bulgusunu tek bir kontrollü karşılaştırmada gösteriyor: <strong>aynı veri, aynı görev, üç farklı yöntem</strong> — yakalama oranı yükseldikçe alarm yükü neredeyse doğrusal artıyor.</p>
+        <div class="figure">
+          <div class="fig-title">Yakalama oranı ile yanlış-alarm yükü aynı anda hiç düşük olmadı</div>
+          <div class="fig-note">Kabul edilebilir üst sınır olarak alınan bütçe: saatte 12 alarm (kesikli çizgi)</div>
+          <div class="tradeoff">
+            <div class="trow">
+              <div class="tname">Ardışık değişim tespiti<small>istatistiksel, öğrenmesiz yöntem</small></div>
+              <div class="tbars">
+                <div class="tbar-line"><span class="tlabel">Yakalama</span><div class="track"><div class="fill recall" style="width:70%"></div></div><span class="tval">%70,0</span></div>
+                <div class="tbar-line"><span class="tlabel">Alarm/sa</span><div class="track"><div class="fill cost" style="width:14.4%"></div><div class="refline" style="left:24%" data-label="12/sa"></div></div><span class="tval">7,21</span></div>
+              </div>
+            </div>
+            <div class="trow">
+              <div class="tname">Otopilotun kendi göstergeleri<small>PX4 dahili güven sinyalleri</small></div>
+              <div class="tbars">
+                <div class="tbar-line"><span class="tlabel">Yakalama</span><div class="track"><div class="fill recall" style="width:90%"></div></div><span class="tval">%90,0</span></div>
+                <div class="tbar-line"><span class="tlabel">Alarm/sa</span><div class="track"><div class="fill cost" style="width:57.7%"></div><div class="refline" style="left:24%" data-label=""></div></div><span class="tval">28,86</span></div>
+              </div>
+            </div>
+            <div class="trow">
+              <div class="tname">Bağlama duyarlı sinir ağı<small>geçmiş bağlamdan tahmin</small></div>
+              <div class="tbars">
+                <div class="tbar-line"><span class="tlabel">Yakalama</span><div class="track"><div class="fill recall" style="width:100%"></div></div><span class="tval">%100,0</span></div>
+                <div class="tbar-line"><span class="tlabel">Alarm/sa</span><div class="track"><div class="fill cost" style="width:89.7%"></div><div class="refline" style="left:24%" data-label=""></div></div><span class="tval">44,86</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="fig-caption">Aynı prova uçuşları, aynı GNSS-bütünlük görevi. Yakalama oranı %70 → %90 → %100 çıkarken alarm yükü 7,2 → 28,9 → 44,9/saate çıkıyor. Sessiz kalan yöntem yeterince yakalamıyor; iyi yakalayan yöntem operatörü alarmla boğuyor.</div>
+        </div>
+        <p>Bu üçlü tek bir örnek değil — raporun her bölümünde aynı şekil farklı sayılarla tekrar ediyor: eşik gevşetildiğinde yakalama oranı yükseliyor ama yanlış alarm daha hızlı artıyor; eşik sıkılaştırıldığında alarm azalıyor ama gerçek arızaların çoğu kaçıyor. İki hedef — yüksek yakalama ve düşük alarm — mevcut veriyle hiçbir konfigürasyonda aynı anda karşılanamadı.</p>
+      </section>
+
+      <!-- 07 ================================================= -->
+      <section id="nedenler">
+        <div class="section-head"><span class="idx">07</span><h2>Neden yetmedi — ölçülen kök nedenler</h2></div>
+        <p class="lede">Bunlar tahmin değil; her biri ayrı ayrı ölçüldü, izole edildi ve mümkün olduğunca düzeltildi.</p>
+        <div class="card-grid">
+          <div class="card"><h4>Etiket kalitesi</h4><p>"Bu uçuşta bir yerde arıza var" bilgisi tüm uçuşa yayılınca sonuçlar yapay olarak şişiyordu. Gerçek arıza aralığı kullanılınca sayılar düştü — beklenen ve gerekli bir düzeltme.</p></div>
+          <div class="card"><h4>Küçük ve dengesiz örneklem</h4><p>Bazı arıza türlerinde yalnızca 1–4 bağımsız uçuş var. Bu ölçekte "yakalama oranı" tek bir uçuşun sonucuna bağlı kalabiliyor.</p></div>
+          <div class="card"><h4>Büyüklük yanılsaması</h4><p>Bazı sinir ağları aslında öğrenmiyor, yalnızca "büyük sayı = anomali" kısayolunu buluyordu. Eğitilmemiş, rastgele ağırlıklı bir ağla neredeyse aynı sonucu üretmeleri (korelasyon ~%96-99) bunu ortaya çıkardı.</p></div>
+          <div class="card"><h4>Platformlar arası farklılık</h4><p>Bir platformda iyi çalışan eşik başka platformda hemen bozuluyordu — çünkü normal hız, titreşim ve komut ölçeği her araçta farklı.</p></div>
+          <div class="card"><h4>Sensörde görünmeyen olaylar</h4><p>Bazı saldırı/arıza türleri kayıtlı sensörlerde fiziksel olarak hiç iz bırakmıyor. Model görmediği bir şeyi tespit edemez — bu bir algoritma sınırı değil.</p></div>
+          <div class="card"><h4>Yakalama/alarm makası</h4><p>Rapor boyunca tekrar eden asıl örüntü (§06): iki hedef aynı anda karşılanamadı.</p></div>
+        </div>
+      </section>
+
+      <!-- 08 ================================================= -->
+      <section id="derinlemesine">
+        <div class="section-head"><span class="idx">08</span><h2>İki son deney — en titiz, en dürüst denemeler</h2></div>
+        <p class="lede">Genel amaçlı yaklaşımın sınırları görüldükten sonra, kapsam kasıtlı olarak daraltılarak iki bağımsız, önceden kural konmuş deney yürütüldü.</p>
+
+        <div class="deepdive">
+          <div class="dd-head">
+            <div class="dd-eyebrow">Deney 1 — GNSS bütünlüğü</div>
+            <h3>Gerçek uçuşlarda GPS/navigasyon bozulması zamanında yakalanabilir mi?</h3>
+          </div>
+          <div class="dd-body">
+            <div class="dd-row"><div class="dd-label">Neden bu konu</div><div class="dd-text">Motor arızası için gereken sensör kanalları (RPM, akım, sıcaklık) kayıtlarda hep sıfırdı — yani doğrulanamazdı. GNSS tarafında ise konum, hız ve otopilot kestirim verisi gerçekten mevcuttu.</div></div>
+            <div class="dd-row"><div class="dd-label">Karşılaştırma</div><div class="dd-text">Üç bağımsız yöntem aynı prova uçuşlarında test edildi: otopilotun kendi dahili güven göstergeleri, istatistiksel ardışık-sapma birikimi ve geçmiş uçuş bağlamından tahmin yapan bir sinir ağı (yukarıdaki §06 grafiği).</div></div>
+            <div class="dd-row"><div class="dd-label">Ek gözlem</div><div class="dd-text">Rüzgârlı/aşırı ortam koşullarında en iyi iki yöntemin bile alarm yükü saatte 20–23'e fırladı — yöntemler ortam değiştiğinde kırılgan çıktı.</div></div>
+            <div class="dd-verdict">
+              <span class="chip fail">NO-GO</span>
+              <p style="margin-top:.6rem;">Hiçbir yöntem, geliştirme VE prova verisinde aynı anda hedefi tutturamadı. Bu yüzden son kör test hiç açılmadı — sonuca bakıp eşiği ayarlamamak için.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="deepdive">
+          <div class="dd-head">
+            <div class="dd-eyebrow">Deney 2 — Komut–tepki fiziksel modeli</div>
+            <h3>Verilen komuttan beklenen tepkiyi tahmin edip sapmayı yakalamak mümkün mü?</h3>
+          </div>
+          <div class="dd-body">
+            <div class="dd-row"><div class="dd-label">Fikir</div><div class="dd-text">Önceki modellerin "büyük sayı = anomali" tuzağına düşmemesi için farklı bir tasarım: pilotun/otopilotun verdiği komuttan (gaz, dümen açısı, hedef irtifa gibi) beklenen fiziksel tepkiyi (motor gücü dağılımı, yatış açısı, yükselme hızı gibi) istatistiksel olarak tahmin eden bir model kuruldu. Gerçek tepki bu tahminden anormal şekilde saparsa uyarı verilecekti.</div></div>
+            <div class="dd-row"><div class="dd-label">İki bağımsız kontrol</div><div class="dd-text">(1) Komut bilgisi modelden çıkarılınca performans gerçekten düşüyor mu — yoksa model komutu görmeden de aynı tahmini mi yapıyor? İki kanalda evet, gerçekten düştü (gerçek bir ilişki öğrenilmiş). (2) Tahmin hatası, arıza öncesi ve arıza benzetimi sonrası dönemde istatistiksel olarak gerçekten farklı mı? <strong>Üç arıza kategorisinin üçünde de evet</strong> — beş ayrı istatistiksel testin beşi de bunu doğruladı. Bu, projedeki nadir "sinyal kesin olarak kanıtlandı" anlarından biri.</div></div>
+            <div class="dd-row"><div class="dd-label">Asıl engel</div><div class="dd-text">Sinyal kanıtlanmış olsa da, güvenli bir alarm eşiği kurmak için gereken sakin/arızasız uçuş süresi mevcut kayıtlarda çok az çıktı.</div></div>
+          </div>
+          <div class="dd-body" style="padding-top:0;">
+            <div class="figure" style="margin:0;">
+              <div class="fig-title">Eşik kurmak için gereken sakin uçuş süresi — elde olan / gereken</div>
+              <div class="barlist">
+                <div class="brow"><div class="bname">Sabit kanat platformu</div><div class="track"><div class="fill gap" style="width:8.4%"></div></div><div class="bval">~10 dk</div></div>
+                <div class="brow"><div class="bname">Çok-rotorlu platform</div><div class="track"><div class="fill gap" style="width:19.7%"></div></div><div class="bval">~47 dk</div></div>
+              </div>
+              <div class="fig-caption">Sabit kanat: ~10 dakika kayıtlı sakin uçuş var, hedef 2 saat (11,8 kat açık). Çok-rotorlu: ~47 dakika var, hedef 4 saat (5,1 kat açık). Çok-rotorlu kaynağın kalan TÜM ek uçuşları (33 uçuş) eklense bile toplam yalnızca ~1 saat 25 dakikaya çıkardı — hedefin en az 168 ek uçuş gerektirdiği hesaplandı; bu, kaynağın sunabileceğinden fazlasıdır.</div>
+            </div>
+          </div>
+          <div class="dd-body" style="padding-top:0;">
+            <div class="dd-verdict">
+              <span class="chip flag">NO-GO — veri yetersizliği</span>
+              <p style="margin-top:.6rem;">Bu, "model bir şey öğrenmedi" NO-GO'su değil; "eşik kuracak kadar sakin uçuş kaydı yok" NO-GO'su. Sabit kanat verisi zaten sabit, akademik bir arşiv (büyütülemez); çok-rotorlu kaynağın gerçek arızasız-uçuş envanteri de matematiksel olarak açığı kapatamıyor. Kör test hiç açılmadı, hedef bütçe değiştirilmedi.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 09 ================================================= -->
+      <section id="hukum">
+        <div class="section-head"><span class="idx">09</span><h2>Nihai hüküm</h2></div>
+
+        <div class="verdict">
+          <span class="tag">Mevcut kapsam için karar</span>
+          <p>Mevcut veri setleri, etiket kalitesi ve sensör kapsamıyla; genel amaçlı, platformlar arası çalışan ve operasyonel alarm yükünü karşılayan bir anomali tespit ürünü <strong>gerçekleştirilebilir olarak doğrulanamadı.</strong></p>
+        </div>
+
+        <h3>Gerekçeler</h3>
+        <div class="card-grid">
+          <div class="card"><p style="margin:0;font-size:.9rem;">Gerçek ve doğru zamanlı arıza örneği sınırlı — bazı türlerde yalnızca 1–4 uçuş.</p></div>
+          <div class="card"><p style="margin:0;font-size:.9rem;">Bazı arızalar kayıtlı sensörlerde fiziksel olarak hiç görünmüyor.</p></div>
+          <div class="card"><p style="margin:0;font-size:.9rem;">Platform/görev/hava koşulu değişimi normal davranışı ciddi biçimde değiştiriyor.</p></div>
+          <div class="card"><p style="margin:0;font-size:.9rem;">Bazı "başarılı" sonuçlar sonradan etiket hatası veya sayısal yanılsama çıktı.</p></div>
+          <div class="card"><p style="margin:0;font-size:.9rem;">En titiz iki denemede sinyal kanıtlandı ama güvenli eşik kurulacak veri yoktu.</p></div>
+        </div>
+
+        <h3>Neler hâlâ mümkün</h3>
+        <div class="grantable">
+          <div class="box">
+            <h4>Dar kapsamlı, gerçekçi</h4>
+            <ul>
+              <li>Belirli platform + belirli arıza ailesi için özel/dar model</li>
+              <li>Konum sapması için fiziksel tutarlılık kontrolü + ardışık-değişim tespiti destekli yardımcı uyarı</li>
+              <li>Veri kalitesi / donma / kayıp sinyal için deterministik, öğrenmesiz izleme kuralları</li>
+              <li>Doğru sensörlerle donatılmış yeni bir kontrollü veri kampanyası sonrası motor/aktüatör odaklı yeniden değerlendirme</li>
+            </ul>
+          </div>
+          <div class="box">
+            <h4>Devam kararı verilirse önerilen sıra</h4>
+            <ol class="path" style="margin:0;">
+              <li>Tek platform + tek arıza ailesi seçilmeli</li>
+              <li>Arızanın hangi sensörde, ne gecikmeyle görüneceği önceden tanımlanmalı</li>
+              <li>Arıza başlangıç/bitiş kontrollü deneyle kayıt edilmeli</li>
+              <li>Alarm bütçesi işe başlamadan önce dondurulmalı</li>
+              <li>Önce fiziksel kural, öğrenen model yalnız ek katkı sağlıyorsa eklenmeli</li>
+              <li>Kör test en başta ayrılmalı, yalnız sonda bir kez açılmalı</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10 ================================================= -->
+      <section id="sss">
+        <div class="section-head"><span class="idx">10</span><h2>Sık sorulanlar</h2></div>
+
+        <div class="faq-item">
+          <div class="q">Neden bu kadar çok farklı yöntem denendi?</div>
+          <div class="a">Her yöntem farklı bir olasılığı sınadı: basit istatistik mi yeterli, zaman örüntüsü öğrenen bir sinir ağı mı gerekli, yoksa sorun modelde değil veri/etiket/sensör kapsamında mı? Amaç mümkün olduğunca çok model denemek değil, başarısızlığın gerçek kaynağını ayırmaktı.</div>
+        </div>
+        <div class="faq-item">
+          <div class="q">Bazı yerlerde yüksek AUC görüyorum — o zaman neden başarısız?</div>
+          <div class="a">AUC yalnızca bir modelin anomalik örnekleri normalden daha yüksek puanlayıp puanlamadığını gösterir; hangi eşikte kaç yanlış alarm üretileceğini göstermez. ADS-B'de AUC 0,765 iken aynı model uçuşların %89'unda en az bir alarm üretmişti — bu operasyonel olarak kullanılamaz demektir.</div>
+        </div>
+        <div class="faq-item">
+          <div class="q">Eşiği gevşetseydiniz yakalama oranı artmaz mıydı?</div>
+          <div class="a">Artardı — defalarca ölçtük: yakalama oranı %70–100'e çıktığında yanlış alarm saatte 7'den 100'e kadar fırladı. Bu düzeyde sıklık operatör tarafından hızla göz ardı edilir. Sorun bir ayar hatası değil; iki hedefin mevcut veriyle aynı anda karşılanamamasıdır (§06).</div>
+        </div>
+        <div class="faq-item">
+          <div class="q">Daha fazla veri toplasaydınız çözülmez miydi?</div>
+          <div class="a">Bir veri kümesinde (ALFA) gerçekten işe yaradı — normal uçuş verisi artırılınca projenin en iyi tekil sonucu ortaya çıktı. Ama başka bir veri kümesinde (UAV-SEAD) tam tersi oldu: daha fazla ve çeşitli normal uçuş eklenince yanlış alarm azaldı ama gerçek arıza yakalama oranı da onunla birlikte düştü. "Daha fazla veri her zaman iyileştirir" varsayımı doğrulanmadı.</div>
+        </div>
+        <div class="faq-item">
+          <div class="q">Bu çalışma tamamen başarısız mı?</div>
+          <div class="a">Ürün hedefi açısından sonuç hayırdır. Ama mühendislik açısından: neden çalışmadığı ölçüldü, yanıltıcı sonuçlar bulunup düzeltildi, hangi dar kapsamların anlamlı olabileceği gösterildi. Bu, bundan sonraki bir yatırım kararının yanlış sayılara dayanmasını engelleyen somut bir çıktı.</div>
+        </div>
+      </section>
+
+      <!-- 11 ================================================= -->
+      <section id="terimler">
+        <div class="section-head"><span class="idx">11</span><h2>Terimler</h2></div>
+        <dl class="gloss">
+          <div><dt>AUC / AUROC</dt><dd>Bir modelin anomalik örnekleri normalden genel olarak daha yüksek puanlayıp puanlamadığının ölçüsü. 0,5 = rastgele seviye, 1,0 = kusursuz sıralama. Tek başına "ürün hazır" anlamına gelmez.</dd></div>
+          <div><dt>Yakalama oranı (recall)</dt><dd>Gerçek arızaların/olayların ne kadarının tespit edildiği.</dd></div>
+          <div><dt>Yanlış alarm / saat</dt><dd>Normal (arızasız) uçuşta bir saatte üretilen gereksiz uyarı sayısı.</dd></div>
+          <div><dt>Otokodlayıcı</dt><dd>Normal veriyi sıkıştırıp yeniden üretmeyi öğrenen; yeniden üretemediği şeyi anomali sayan bir sinir ağı türü.</dd></div>
+          <div><dt>LSTM</dt><dd>Zaman sıralı veride geçmiş bilgiyi hatırlayabilen bir sinir ağı yapısı.</dd></div>
+          <div><dt>Ardışık değişim tespiti</dt><dd>Küçük ama kalıcı sapmaları zaman içinde biriktirerek yakalayan istatistiksel yöntem (CUSUM).</dd></div>
+          <div><dt>Eşik / kalibrasyon</dt><dd>Bir skorun "alarm" sayılacağı sınır değer; yalnızca sakin (arızasız) uçuş verisine bakılarak belirlenir.</dd></div>
+          <div><dt>Kör test</dt><dd>Model ve eşik kararları tamamen bitene kadar hiç açılmayan, yalnızca en sonda kullanılan son değerlendirme verisi.</dd></div>
+        </dl>
+      </section>
+
+      <footer>
+        <span>İHA Telemetrisinde Anomali Tespiti — Yönetici Raporu</span>
+        <span>17 Temmuz 2026 · Anıl Keskin</span>
+      </footer>
+
+    </main>
+  </div>
+</div>

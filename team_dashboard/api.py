@@ -30,6 +30,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from src.common.minio_io import get_minio_client, read_parquet_object
+from team_dashboard.country_lookup import ADSBLOL_DATASETS, load_country_lookup
 from team_dashboard.layer_index import (
     load_columns_catalog,
     load_index,
@@ -43,12 +44,20 @@ logger = logging.getLogger(__name__)
 # net bir hata mesajiyla REDDEDILIR (sessizce kesilmez).
 MAX_EXPORT_ROWS = 5_000_000
 
-app = FastAPI(title="ADS-B Silver/Gold Veri Dışa Aktarma")
+app = FastAPI(title="Veri Dışa Aktarım Paneli")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 _client = None
 _index_cache: pd.DataFrame | None = None
 _catalog_cache: dict | None = None
+_country_lookup_cache: dict[str, str] | None = None
+
+
+def _get_country_lookup() -> dict[str, str]:
+    global _country_lookup_cache
+    if _country_lookup_cache is None:
+        _country_lookup_cache = load_country_lookup()
+    return _country_lookup_cache
 
 
 def _get_client():
@@ -125,25 +134,70 @@ def get_meta(layer: str = Query(...), dataset: str = Query(...)):
         "max_date": datetime.fromtimestamp(max_ts, tz=timezone.utc).date().isoformat(),
         "total_rows": int(subset["row_count"].sum()),
         "max_export_rows": MAX_EXPORT_ROWS,
+        "supports_country_filter": dataset in ADSBLOL_DATASETS,
     }
 
 
 @app.get("/api/estimate")
-def estimate(layer: str = Query(...), dataset: str = Query(...), start: date = Query(...), end: date = Query(...)):
-    """Gercek veriye HIC dokunmadan, sadece indeksten tahmini satir sayisi --
-    frontend indirme butonuna basmadan once kullaniciyi uyarabilsin diye.
-    Tahmin, kesisen parcanin TOPLAM satir sayisini sayar (parcanin ne kadari
-    istenen aralikla ortustugune bakmadan) -- yani GERCEK sayidan HER ZAMAN
-    buyuk-esit bir ust sinirdir, asla kucuk cikmaz (guvenli tarafta abartili)."""
+def estimate(
+    layer: str = Query(...),
+    dataset: str = Query(...),
+    start: date = Query(...),
+    end: date = Query(...),
+    country: str | None = Query(None, min_length=2, max_length=2, description="ISO_A2 ulke kodu, ör. TR"),
+):
+    """Ulke secilmemisse: gercek veriye HIC dokunmadan, sadece indeksten
+    tahmini satir sayisi -- frontend indirme butonuna basmadan once
+    kullaniciyi uyarabilsin diye. Bu tahmin, kesisen parcanin TOPLAM satir
+    sayisini sayar (parcanin ne kadari istenen aralikla ortustugune
+    bakmadan) -- yani GERCEK sayidan HER ZAMAN buyuk-esit bir ust sinirdir.
+
+    Ulke SECILMISSE: bu ust-sinir yaklasimi yaniltici olurdu (ekrandaki sayi
+    ulke degistirilince hic degismezdi, kullanici "neden azalmiyor" diye
+    sorar) -- bu durumda kesisen parcalar GERCEKTEN okunup export'takiyle
+    AYNI maskeyle (tarih + ulke) sayilir. Daha yavas ama dogru; maliyeti
+    export'un kendisiyle ayni mertebede (zaten okunacak parcalar)."""
     _validate_layer_dataset(layer, dataset)
     if end < start:
         raise HTTPException(400, "Bitis tarihi baslangictan once olamaz")
+    if country is not None and dataset not in ADSBLOL_DATASETS:
+        raise HTTPException(
+            400,
+            f"Ülke filtresi sadece adsb.lol kaynaklı dataset'lerde ({sorted(ADSBLOL_DATASETS)}) çalışır.",
+        )
+
     start_ts, end_ts = _day_to_epoch(start), _day_to_epoch(end, end_of_day=True)
     overlap = parts_overlapping(_get_index(), layer, dataset, start_ts, end_ts)
+
+    if country is None:
+        return {
+            "estimated_rows": int(overlap["row_count"].sum()),
+            "parts_to_scan": len(overlap),
+            "exceeds_limit": int(overlap["row_count"].sum()) > MAX_EXPORT_ROWS,
+        }
+
+    country_norm = country.upper()
+    country_hex_map = _get_country_lookup()
+    client = _get_client()
+    bucket = os.getenv("MINIO_SILVER_BUCKET" if layer == "silver" else "MINIO_GOLD_BUCKET",
+                        "silver" if layer == "silver" else "gold")
+    # Sadece maskeleme icin gereken 3 kolonu oku -- Gold/Silver satiri 10+
+    # kolon tasiyor, tahmin hicbirini DONDURMUYOR, sadece sayiyor. Parquet
+    # sutun-bazli oldugu icin bu gercek bir I/O tasarrufu (disk/agdan daha
+    # az veri cekilir), sadece bellek degil.
+    scan_cols = ["timestamp_utc", "source_id"] + (["source_type"] if layer == "gold" else [])
+    total = 0
+    for object_name in overlap["object_name"]:
+        df = read_parquet_object(client, bucket, object_name, columns=scan_cols)
+        mask = (df["timestamp_utc"] >= start_ts) & (df["timestamp_utc"] <= end_ts)
+        if layer == "gold":
+            mask &= df["source_type"] == dataset
+        mask &= df["source_id"].map(country_hex_map) == country_norm
+        total += int(mask.sum())
     return {
-        "estimated_rows": int(overlap["row_count"].sum()),
+        "estimated_rows": total,
         "parts_to_scan": len(overlap),
-        "exceeds_limit": int(overlap["row_count"].sum()) > MAX_EXPORT_ROWS,
+        "exceeds_limit": total > MAX_EXPORT_ROWS,
     }
 
 
@@ -155,10 +209,19 @@ def export(
     end: date = Query(...),
     columns: str = Query(..., description="Virgulle ayrilmis kolon adlari"),
     fmt: str = Query("parquet", pattern="^(parquet|csv)$"),
+    country: str | None = Query(None, min_length=2, max_length=2, description="ISO_A2 ulke kodu, ör. TR"),
 ):
     _validate_layer_dataset(layer, dataset)
     if end < start:
         raise HTTPException(400, "Bitis tarihi baslangictan once olamaz")
+
+    if country is not None and dataset not in ADSBLOL_DATASETS:
+        raise HTTPException(
+            400,
+            f"Ülke filtresi sadece adsb.lol kaynaklı dataset'lerde ({sorted(ADSBLOL_DATASETS)}) "
+            f"çalışır -- '{dataset}' için uçak menşei tespiti (ICAO24 hex) anlamlı değil.",
+        )
+    country_norm = country.upper() if country else None
 
     available_cols = _get_catalog()[layer][dataset]
     requested_cols = [c.strip() for c in columns.split(",") if c.strip()]
@@ -172,6 +235,8 @@ def export(
     # source_type DEGERI -- okurken ayrica bu kolona gore filtrelenmeli.
     if layer == "gold" and "source_type" not in read_cols:
         read_cols.append("source_type")
+    if country_norm and "source_id" not in read_cols:
+        read_cols.append("source_id")
 
     start_ts, end_ts = _day_to_epoch(start), _day_to_epoch(end, end_of_day=True)
     index_df = _get_index()
@@ -187,8 +252,11 @@ def export(
     if overlap.empty:
         raise HTTPException(404, "Secilen tarih araliginda veri bulunamadi")
 
-    logger.info("Export: %s/%s %s->%s, %d parca, tahmini %d satir",
-                layer, dataset, start, end, len(overlap), estimated_rows)
+    logger.info("Export: %s/%s %s->%s, %d parca, tahmini %d satir%s",
+                layer, dataset, start, end, len(overlap), estimated_rows,
+                f", ulke={country_norm}" if country_norm else "")
+
+    country_hex_map = _get_country_lookup() if country_norm else None
 
     client = _get_client()
     bucket = os.getenv("MINIO_SILVER_BUCKET" if layer == "silver" else "MINIO_GOLD_BUCKET",
@@ -196,10 +264,26 @@ def export(
     frames = []
     total = 0
     for object_name in overlap["object_name"]:
-        df = read_parquet_object(client, bucket, object_name)
+        # read_cols zaten TAM olarak gereken sutunlari tasiyor (istenen
+        # cikti kolonlari + filtreleme icin zorunlu eklenenler) -- Parquet'in
+        # kendi sutun-bazli okumasindan yararlanip gereksiz kolonlari hic
+        # diskten/agdan cekmeyelim. Silver'da (Gold'un aksine) sema teorik
+        # olarak parca-parca driftlenebilir -- boyle bir uyumsuzluk cikarsa
+        # (pyarrow "column not found" hatasi) TUM kolonlari okuyup eskisi
+        # gibi post-hoc filtrelemeye geri dus.
+        try:
+            df = read_parquet_object(client, bucket, object_name, columns=read_cols)
+        except Exception as exc:
+            logger.warning("Sutun-budamali okuma basarisiz (%s), tum kolonlarla tekrar deneniyor: %s",
+                            object_name, exc)
+            df = read_parquet_object(client, bucket, object_name)
         mask = (df["timestamp_utc"] >= start_ts) & (df["timestamp_utc"] <= end_ts)
         if layer == "gold":
             mask &= df["source_type"] == dataset
+        if country_hex_map is not None:
+            # source_id (ICAO24 hex) bulunamayan/onbellekte olmayan ucaklar
+            # NaN doner, karsilastirma otomatik False olur -- filtrede elenir.
+            mask &= df["source_id"].map(country_hex_map) == country_norm
         chunk = df.loc[mask, [c for c in read_cols if c in df.columns]]
         if chunk.empty:
             continue

@@ -1681,3 +1681,31 @@ rol #7 (üçlü kör holdout) hâlâ başlamadı; holdout ayrı bir unseal karar
 
 Artifact'lar: `artifacts/adsb/runs/20260715_contextual_physics_v1_rehearsal_v1/rehearsal_report.json`,
 `artifacts/adsb/runs/20260715_contextual_physics_v1_truth_v2_eval_v1/truth_v2_eval_report.json`.
+
+## ADR-043: RESIDUAL-V1 — sinyal PASS, kalibrasyon maruziyetinde NO-GO
+
+- Durum: NO-GO — mevcut development-normal maruziyetle elde edilemez
+- Tarih: 2026-07-17
+
+**Karar:** RESIDUAL-V1'in ALFA/engine (R6) ve RFLY/motor-sensor (Q1, Q2) kollarında
+test/holdout değerlendirmesine geçilmeyecek; Görev 5.4 tamamlanmış sayılmayacaktır.
+Yeniden açılış yalnız yeni normal-uçuş verisi veya ayrı ön-kayıtla hedef sözleşmesinin
+yeniden müzakeresi için insan onayıyla mümkündür.
+
+**Bu genel bir dedektör başarısızlığı değildir:** K5 tamamlandı; S-4'te Q1/Q2 PASS,
+Q3 FLAGGED oldu; robust ölçekleme ve bağımsız R6 manevra vekilli S-1 üç aktif kanalda
+PASS verdi. S-3, ALFA/engine, RFLY/motor ve RFLY/sensor sınıflarının üçünde de ayrı
+threshold-bağımsız ayrışma gösterdi. Sinyal kapısı geçildi; tıkanma kalibrasyon
+çözünürlüğündedir.
+
+**Sayısal gerekçe:** ALFA'da 0.168846/2.0 saat (11.845×), RFLY'de
+0.786237/4.0 saat (5.088×) maruziyet vardır. ALFA'nın sabit corpus'unda toplam 11
+normal uçuş bulunur. RflyMAD'ın resmî kaynağındaki 84 Real-No_Fault uçuşun projedeki
+51'e göre kalan en çok 33 adayı tümüyle kullanılabilse bile RFLY maruziyeti yalnız
+yaklaşık 1.419 saate çıkar; yaklaşık 2.581 saat/~135 uçuş açık kalır. Redistribution
+ve mevcut kaynaktan ingest matematiksel olarak yetersizdir.
+
+**İzolasyon:** Kör holdout/test açılmadı. İlk eşikler DO_NOT_USE olarak kaldı; korumalı
+koşu thresholds_frozen.json yazmadı. configs/residual_v1_cusum.json değiştirilmedi
+(SHA-256 627948fbfd060aa39f881f72c25cf359694642d546b2e02ee6a0a2e4d0777584).
+Ana rapor: docs/RESIDUAL_V1_KALIBRASYON_NOGO_RAPORU.md.

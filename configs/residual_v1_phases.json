@@ -1,0 +1,22 @@
+{
+  "alfa": {
+    "ground_speed_max_mps": 3.0,
+    "ground_climb_abs_max_mps": 0.3,
+    "maneuver_roll_abs_min_deg": 25.0,
+    "maneuver_roll_rate_abs_min_deg_s": 15.0,
+    "takeoff_climb_min_mps": 0.8,
+    "landing_climb_max_mps": -0.5,
+    "transition_altitude_agl_max_m": 60.0,
+    "boundary_buffer_s": 1.0
+  },
+  "rfly": {
+    "ground_speed_max_mps": 0.5,
+    "ground_climb_abs_max_mps": 0.2,
+    "maneuver_roll_abs_min_deg": 25.0,
+    "maneuver_roll_rate_abs_min_deg_s": 15.0,
+    "takeoff_climb_min_mps": 0.5,
+    "landing_climb_max_mps": -0.4,
+    "transition_altitude_agl_max_m": 20.0,
+    "boundary_buffer_s": 1.0
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "response_window_s": 1.0,
+  "command_delta_thresholds": {
+    "aileron_cmd": 75.0,
+    "elevator_cmd": 75.0,
+    "rudder_cmd": 75.0
+  },
+  "response_stationary_thresholds": {
+    "roll_rate": 0.12,
+    "pitch_rate": 0.12,
+    "yaw_rate": 0.12
+  },
+  "coordinated_turn_error_band_rad_s": 0.35,
+  "throttle_high_ratio": 0.6,
+  "minimum_expected_airspeed_accel_m_s2": -0.1,
+  "airspeed_accel_error_band_m_s2": 0.2
+}

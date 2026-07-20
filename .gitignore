@@ -33,6 +33,7 @@ __pycache__/
 .tmp_pytest*/
 .pytest_tmp_*/
 .pytest_contextual_*/
+/artifacts/pytest_tmp_*/
 .tmp_pdf_reader/
 .ipynb_checkpoints/
 .idea/
@@ -41,6 +42,10 @@ influx_token.txt
 start_all.bat
 start_all_docker.bat
 artifacts/rflymad/
+
+# RESIDUAL-V1 generated Silver/features/runs/handouts. These remain on disk for
+# local audit tools (including Claude) but are not source files.
+/artifacts/residual_v1/
 
 # ADS-B generated training/evaluation outputs.  Reproducible evidence is
 # summarized in docs/decisions.md and docs/codex_checkpoint_2026-07-13.md;

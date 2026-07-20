@@ -4,7 +4,14 @@ import pandas as pd
 import pytest
 
 from src.common.minio_io import list_layer_objects, write_silver
-from src.gold.unify import GOLD_COLUMNS, GOLD_NAME, clear_gold_before_unify, stream_unify, unify
+from src.gold.unify import (
+    GOLD_COLUMNS,
+    GOLD_NAME,
+    clear_gold_before_unify,
+    clear_gold_source_before_unify,
+    stream_unify,
+    unify,
+)
 
 
 def _alfa_silver_df() -> pd.DataFrame:
@@ -174,3 +181,57 @@ def test_stream_unify_rerun_does_not_double_count_rows(fake_minio_client):
         if name.startswith(f"{GOLD_NAME}/")
     )
     assert total_rows_in_bucket == 2
+
+
+def test_stream_unify_partitions_gold_parts_by_source_type(fake_minio_client):
+    """2026-07-18: Gold parcalari artik unified/<source_type>/ alt-onekinde
+    yaziliyor (duz unified/part-*.parquet DEGIL) -- bu, tek bir source_type'i
+    digerlerine dokunmadan hedefli temizleyip yeniden yazabilmenin temeli."""
+    write_silver(_alfa_silver_df(), "alfa", client=fake_minio_client)
+
+    stream_unify(fake_minio_client, source_types=("alfa",))
+
+    names = list_layer_objects(fake_minio_client, "gold", GOLD_NAME)
+    assert len(names) == 1
+    assert names[0].startswith(f"{GOLD_NAME}/alfa/")
+
+
+def test_stream_unify_refresh_only_leaves_other_source_types_untouched(fake_minio_client):
+    """Asil ozellik: adsblol_realtime'i (ya da herhangi bir tek kaynagi)
+    yeniden yazarken alfa/uav_attack gibi DEGISMEMIS kaynaklarin Gold
+    parcalari SILINMEMELI/yeniden ISLENMEMELI."""
+    write_silver(_alfa_silver_df(), "alfa", client=fake_minio_client)
+    write_silver(_uav_attack_silver_df(), "uav_attack", client=fake_minio_client)
+    stream_unify(fake_minio_client, source_types=("alfa", "uav_attack"))
+
+    alfa_names_before = sorted(
+        n for n in list_layer_objects(fake_minio_client, "gold", GOLD_NAME) if n.startswith(f"{GOLD_NAME}/alfa/")
+    )
+    assert len(alfa_names_before) == 1
+
+    # uav_attack'e YENI bir Silver parcasi eklendi (1 satir daha) -- SADECE onu yenile.
+    write_silver(_uav_attack_silver_df().iloc[[0]], "uav_attack", client=fake_minio_client)
+    total = stream_unify(fake_minio_client, refresh_only=("uav_attack",))
+
+    # uav_attack'in TUM Silver parcalari (eski 2 satir + yeni 1 satir) islendi,
+    # alfa'ya HIC dokunulmadi (Silver'i tekrar okunmadi).
+    assert total == 3
+    all_names = list_layer_objects(fake_minio_client, "gold", GOLD_NAME)
+    alfa_names_after = sorted(n for n in all_names if n.startswith(f"{GOLD_NAME}/alfa/"))
+    uav_names_after = [n for n in all_names if n.startswith(f"{GOLD_NAME}/uav_attack/")]
+    # alfa'nin parca ADI (ayni immutable dosya) HIC degismedi -- yeniden yazilmadi
+    assert alfa_names_after == alfa_names_before
+    assert len(uav_names_after) == 2  # 2 Silver parcasi -> 2 Gold parcasi (dosya-basina yazma)
+
+
+def test_clear_gold_source_before_unify_only_removes_matching_source_type(fake_minio_client):
+    write_silver(_alfa_silver_df(), "alfa", client=fake_minio_client)
+    write_silver(_uav_attack_silver_df(), "uav_attack", client=fake_minio_client)
+    stream_unify(fake_minio_client, source_types=("alfa", "uav_attack"))
+
+    removed = clear_gold_source_before_unify(fake_minio_client, "uav_attack")
+
+    assert removed == 1
+    remaining = list_layer_objects(fake_minio_client, "gold", GOLD_NAME)
+    assert len(remaining) == 1
+    assert remaining[0].startswith(f"{GOLD_NAME}/alfa/")

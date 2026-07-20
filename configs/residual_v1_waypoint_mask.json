@@ -1,0 +1,8 @@
+{
+  "maximum_turn_distance_m": 25,
+  "trend_window_s": 2,
+  "minimum_approach_excursion_m": 10,
+  "minimum_departure_excursion_m": 10,
+  "minimum_event_separation_s": 5,
+  "mask_buffer_s": 2
+}

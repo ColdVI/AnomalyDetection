@@ -13,9 +13,10 @@ bu klasörü silmek yeterli, ana projeyi etkilemez.
   velocity, heading, callsign, source`). 1.304.711 satır, 11.222 benzersiz hex.
   **Git'e dahil DEĞİL** (~124MB, GitHub'ın 100MB limitini aşıyor + zaten "veri",
   kod değil) — Drive'dan ayrıca indirilip bu klasöre (`data/`) konmalı.
-- `data/ICAOHexRange.csv`: `rikgale/ICAOList` reposundan indirilen ICAO
-  Annex 10 hex-blok → ülke tahsis tablosu (200 aralık, iç içe/nested bloklar
-  dahil). Küçük/sabit referans tablo olduğu için git'te kalıyor.
+- `ICAOHexRange.csv` ve onu okuyan `hex_country.py`, 2026-07-18'de
+  `src/common/` altına taşındı (team_dashboard'un ülke-bazlı export
+  filtresiyle paylaşılıyor) — `from src.common.hex_country import
+  HexCountryLookup` şeklinde import edilir, bu klasörde artık kopyası yok.
 - `data/ne_50m_admin_0_countries.geojson`: Natural Earth 50m ülke sınırları
   (110m değil — küçük ülkeler, ör. Bahreyn/Malta/Singapur, 110m'de yok).
   Git'e dahil değil (`.gitignore`'daki `**/data/*.geojson` kuralı) — gerekirse
