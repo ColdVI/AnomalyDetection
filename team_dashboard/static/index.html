@@ -287,6 +287,8 @@ function selectedColumns() {
   return [...document.querySelectorAll("#colsBox input:checked")].map(el => el.value);
 }
 
+let estimatePollGeneration = 0;
+
 async function refreshEstimate() {
   if (!currentDataset) return;
   const start = document.getElementById("startDate").value;
@@ -295,17 +297,59 @@ async function refreshEstimate() {
   const btn = document.getElementById("downloadBtn");
   if (!start || !end) return;
 
-  const countryParam = selectedCountryIso2 ? `&country=${selectedCountryIso2}` : "";
-  box.textContent = countryParam ? "Ülkeye göre hesaplanıyor…" : "Hesaplanıyor…";
-  const res = await fetch(`${API}/api/estimate?layer=${currentLayer}&dataset=${currentDataset}&start=${start}&end=${end}${countryParam}`);
-  if (!res.ok) { box.textContent = "Tahmin alınamadı."; return; }
-  const data = await res.json();
-  const label = countryParam ? "Tam olarak" : "Tahmini ~";
-  box.textContent = `${label}${data.estimated_rows.toLocaleString("tr-TR")} satır (${data.parts_to_scan} parça tarandı)`;
-  box.className = data.exceeds_limit ? "warn" : "";
-  btn.disabled = data.exceeds_limit || selectedColumns().length === 0;
-  if (data.exceeds_limit) {
-    box.textContent += ` — limiti (${META.max_export_rows.toLocaleString("tr-TR")}) aşıyor, tarih aralığını daraltın.`;
+  const myGeneration = ++estimatePollGeneration; // onceki (varsa) devam eden poll'u gecersiz kilar
+
+  if (!selectedCountryIso2) {
+    box.textContent = "Hesaplanıyor…";
+    const res = await fetch(`${API}/api/estimate?layer=${currentLayer}&dataset=${currentDataset}&start=${start}&end=${end}`);
+    if (myGeneration !== estimatePollGeneration) return; // bu arada baska bir secim yapildi
+    if (!res.ok) { box.textContent = "Tahmin alınamadı."; return; }
+    const data = await res.json();
+    box.textContent = `Tahmini ~${data.estimated_rows.toLocaleString("tr-TR")} satır (${data.parts_to_scan} parça tarandı)`;
+    box.className = data.exceeds_limit ? "warn" : "";
+    btn.disabled = data.exceeds_limit || selectedColumns().length === 0;
+    if (data.exceeds_limit) {
+      box.textContent += ` — limiti (${META.max_export_rows.toLocaleString("tr-TR")}) aşıyor, tarih aralığını daraltın.`;
+    }
+    return;
+  }
+
+  // Ulke seciliyken: gercek veri okunmasi gerektigi icin (bkz. backend) tek
+  // cevaplik degil, job+polling -- ekranda gercek %ilerleme gosterilir.
+  box.className = "";
+  box.textContent = "Ülkeye göre hesaplanıyor… %0";
+  btn.disabled = true;
+
+  const startRes = await fetch(
+    `${API}/api/estimate/country?layer=${currentLayer}&dataset=${currentDataset}&start=${start}&end=${end}&country=${selectedCountryIso2}`
+  );
+  if (myGeneration !== estimatePollGeneration) return;
+  if (!startRes.ok) { box.textContent = "Tahmin alınamadı."; return; }
+  const { job_id, total_parts } = await startRes.json();
+
+  while (true) {
+    if (myGeneration !== estimatePollGeneration) return; // baska bir secim/tarih degisikligi devreye girdi
+    await new Promise(r => setTimeout(r, 400));
+    const statusRes = await fetch(`${API}/api/estimate/country/status?job_id=${job_id}`);
+    if (myGeneration !== estimatePollGeneration) return;
+    if (!statusRes.ok) { box.textContent = "Tahmin alınamadı."; return; }
+    const job = await statusRes.json();
+
+    if (job.error) { box.textContent = "Tahmin sırasında hata oluştu."; return; }
+
+    const pct = total_parts > 0 ? Math.round((job.scanned_parts / total_parts) * 100) : 100;
+    if (!job.done) {
+      box.textContent = `Ülkeye göre hesaplanıyor… %${pct} (${job.scanned_parts}/${total_parts} parça)`;
+      continue;
+    }
+
+    box.textContent = `Tam olarak ${job.estimated_rows.toLocaleString("tr-TR")} satır (${total_parts} parça tarandı)`;
+    box.className = job.exceeds_limit ? "warn" : "";
+    btn.disabled = job.exceeds_limit || selectedColumns().length === 0;
+    if (job.exceeds_limit) {
+      box.textContent += ` — limiti (${META.max_export_rows.toLocaleString("tr-TR")}) aşıyor, tarih aralığını daraltın.`;
+    }
+    return;
   }
 }
 

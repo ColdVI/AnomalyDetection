@@ -20,6 +20,9 @@ from __future__ import annotations
 import io
 import logging
 import os
+import threading
+import time
+import uuid
 from datetime import date, datetime, timezone
 from pathlib import Path
 
@@ -43,6 +46,15 @@ logger = logging.getLogger(__name__)
 # tarayici indirmesi kontrolsuz buyumesin diye ust sinir -- asilirsa istek
 # net bir hata mesajiyla REDDEDILIR (sessizce kesilmez).
 MAX_EXPORT_ROWS = 5_000_000
+
+# 2026-07-20: ulke-filtreli tahmin, index-only yol gibi ani DONMEZ -- bircok
+# parcayi gercekten okuyup saymasi gerekir (bkz. estimate() docstring'i). Bu
+# suresince frontend'e "%kac tarandi" gosterebilmek icin senkron tek-cevaplik
+# bir istek yerine, arka planda ilerleyen bir "job" olarak calistiriyoruz --
+# bkz. /api/estimate/country ve /api/estimate/country/status.
+_estimate_jobs: dict[str, dict] = {}
+_estimate_jobs_lock = threading.Lock()
+_ESTIMATE_JOB_TTL_SECS = 600  # eski job'lar bellekte sonsuza kadar birikmesin
 
 app = FastAPI(title="Veri Dışa Aktarım Paneli")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -144,23 +156,84 @@ def estimate(
     dataset: str = Query(...),
     start: date = Query(...),
     end: date = Query(...),
-    country: str | None = Query(None, min_length=2, max_length=2, description="ISO_A2 ulke kodu, ör. TR"),
 ):
-    """Ulke secilmemisse: gercek veriye HIC dokunmadan, sadece indeksten
-    tahmini satir sayisi -- frontend indirme butonuna basmadan once
-    kullaniciyi uyarabilsin diye. Bu tahmin, kesisen parcanin TOPLAM satir
-    sayisini sayar (parcanin ne kadari istenen aralikla ortustugune
-    bakmadan) -- yani GERCEK sayidan HER ZAMAN buyuk-esit bir ust sinirdir.
+    """Gercek veriye HIC dokunmadan, sadece indeksten tahmini satir sayisi --
+    frontend indirme butonuna basmadan once kullaniciyi uyarabilsin diye. Bu
+    tahmin, kesisen parcanin TOPLAM satir sayisini sayar (parcanin ne kadari
+    istenen aralikla ortustugune bakmadan) -- yani GERCEK sayidan HER ZAMAN
+    buyuk-esit bir ust sinirdir, asla kucuk cikmaz.
 
-    Ulke SECILMISSE: bu ust-sinir yaklasimi yaniltici olurdu (ekrandaki sayi
-    ulke degistirilince hic degismezdi, kullanici "neden azalmiyor" diye
-    sorar) -- bu durumda kesisen parcalar GERCEKTEN okunup export'takiyle
-    AYNI maskeyle (tarih + ulke) sayilir. Daha yavas ama dogru; maliyeti
-    export'un kendisiyle ayni mertebede (zaten okunacak parcalar)."""
+    Ulke filtresi icin bu endpoint KULLANILMAZ (2026-07-20'den once buraya
+    entegreydi) -- o senkron/tek-cevaplik yaklasim, ekranda ilerleme
+    gosterilemedigi icin "donuk" hissettiriyordu. Bkz. /api/estimate/country
+    (job-tabanli, ilerleme raporlayan versiyon)."""
     _validate_layer_dataset(layer, dataset)
     if end < start:
         raise HTTPException(400, "Bitis tarihi baslangictan once olamaz")
-    if country is not None and dataset not in ADSBLOL_DATASETS:
+
+    start_ts, end_ts = _day_to_epoch(start), _day_to_epoch(end, end_of_day=True)
+    overlap = parts_overlapping(_get_index(), layer, dataset, start_ts, end_ts)
+    return {
+        "estimated_rows": int(overlap["row_count"].sum()),
+        "parts_to_scan": len(overlap),
+        "exceeds_limit": int(overlap["row_count"].sum()) > MAX_EXPORT_ROWS,
+    }
+
+
+def _prune_old_estimate_jobs() -> None:
+    now = time.time()
+    stale = [jid for jid, job in _estimate_jobs.items() if now - job["started_at"] > _ESTIMATE_JOB_TTL_SECS]
+    for jid in stale:
+        del _estimate_jobs[jid]
+
+
+def _run_country_estimate_job(job_id: str, layer: str, dataset: str, start_ts: float, end_ts: float,
+                               country_norm: str, object_names: list[str]) -> None:
+    country_hex_map = _get_country_lookup()
+    client = _get_client()
+    bucket = os.getenv("MINIO_SILVER_BUCKET" if layer == "silver" else "MINIO_GOLD_BUCKET",
+                        "silver" if layer == "silver" else "gold")
+    scan_cols = ["timestamp_utc", "source_id"] + (["source_type"] if layer == "gold" else [])
+    total = 0
+    try:
+        for i, object_name in enumerate(object_names):
+            df = read_parquet_object(client, bucket, object_name, columns=scan_cols)
+            mask = (df["timestamp_utc"] >= start_ts) & (df["timestamp_utc"] <= end_ts)
+            if layer == "gold":
+                mask &= df["source_type"] == dataset
+            mask &= df["source_id"].map(country_hex_map) == country_norm
+            total += int(mask.sum())
+            with _estimate_jobs_lock:
+                _estimate_jobs[job_id]["scanned_parts"] = i + 1
+                _estimate_jobs[job_id]["estimated_rows"] = total
+        with _estimate_jobs_lock:
+            _estimate_jobs[job_id]["done"] = True
+            _estimate_jobs[job_id]["exceeds_limit"] = total > MAX_EXPORT_ROWS
+    except Exception as exc:
+        logger.exception("Ulke tahmini job'i basarisiz: %s", job_id)
+        with _estimate_jobs_lock:
+            _estimate_jobs[job_id]["done"] = True
+            _estimate_jobs[job_id]["error"] = str(exc)
+
+
+@app.get("/api/estimate/country")
+def estimate_country_start(
+    layer: str = Query(...),
+    dataset: str = Query(...),
+    start: date = Query(...),
+    end: date = Query(...),
+    country: str = Query(..., min_length=2, max_length=2, description="ISO_A2 ulke kodu, ör. TR"),
+):
+    """Ulke-filtreli tahmini bir ARKA PLAN JOB'U olarak baslatir, hemen
+    job_id + toplam parca sayisiyla doner -- gercek sayim /api/estimate/
+    country/status ile POLLING edilir (frontend'de %ilerleme gostermek
+    icin). Bu, tek-cevaplik /api/estimate'in aksine -- o burada KULLANILMAZ,
+    cunku gercek veri okumasi (bazen milyonlarca satir) saniyeler degil
+    dakikalar surebilir."""
+    _validate_layer_dataset(layer, dataset)
+    if end < start:
+        raise HTTPException(400, "Bitis tarihi baslangictan once olamaz")
+    if dataset not in ADSBLOL_DATASETS:
         raise HTTPException(
             400,
             f"Ülke filtresi sadece adsb.lol kaynaklı dataset'lerde ({sorted(ADSBLOL_DATASETS)}) çalışır.",
@@ -168,37 +241,38 @@ def estimate(
 
     start_ts, end_ts = _day_to_epoch(start), _day_to_epoch(end, end_of_day=True)
     overlap = parts_overlapping(_get_index(), layer, dataset, start_ts, end_ts)
+    object_names = list(overlap["object_name"])
 
-    if country is None:
-        return {
-            "estimated_rows": int(overlap["row_count"].sum()),
-            "parts_to_scan": len(overlap),
-            "exceeds_limit": int(overlap["row_count"].sum()) > MAX_EXPORT_ROWS,
+    job_id = uuid.uuid4().hex
+    with _estimate_jobs_lock:
+        _prune_old_estimate_jobs()
+        _estimate_jobs[job_id] = {
+            "started_at": time.time(),
+            "total_parts": len(object_names),
+            "scanned_parts": 0,
+            "estimated_rows": 0,
+            "done": False,
+            "exceeds_limit": False,
+            "error": None,
         }
 
-    country_norm = country.upper()
-    country_hex_map = _get_country_lookup()
-    client = _get_client()
-    bucket = os.getenv("MINIO_SILVER_BUCKET" if layer == "silver" else "MINIO_GOLD_BUCKET",
-                        "silver" if layer == "silver" else "gold")
-    # Sadece maskeleme icin gereken 3 kolonu oku -- Gold/Silver satiri 10+
-    # kolon tasiyor, tahmin hicbirini DONDURMUYOR, sadece sayiyor. Parquet
-    # sutun-bazli oldugu icin bu gercek bir I/O tasarrufu (disk/agdan daha
-    # az veri cekilir), sadece bellek degil.
-    scan_cols = ["timestamp_utc", "source_id"] + (["source_type"] if layer == "gold" else [])
-    total = 0
-    for object_name in overlap["object_name"]:
-        df = read_parquet_object(client, bucket, object_name, columns=scan_cols)
-        mask = (df["timestamp_utc"] >= start_ts) & (df["timestamp_utc"] <= end_ts)
-        if layer == "gold":
-            mask &= df["source_type"] == dataset
-        mask &= df["source_id"].map(country_hex_map) == country_norm
-        total += int(mask.sum())
-    return {
-        "estimated_rows": total,
-        "parts_to_scan": len(overlap),
-        "exceeds_limit": total > MAX_EXPORT_ROWS,
-    }
+    thread = threading.Thread(
+        target=_run_country_estimate_job,
+        args=(job_id, layer, dataset, start_ts, end_ts, country.upper(), object_names),
+        daemon=True,
+    )
+    thread.start()
+
+    return {"job_id": job_id, "total_parts": len(object_names)}
+
+
+@app.get("/api/estimate/country/status")
+def estimate_country_status(job_id: str = Query(...)):
+    with _estimate_jobs_lock:
+        job = _estimate_jobs.get(job_id)
+        if job is None:
+            raise HTTPException(404, "Bilinmeyen job_id (suresi dolmus olabilir)")
+        return dict(job)
 
 
 @app.get("/api/export")
