@@ -1,0 +1,146 @@
+{
+  "kind": "train_normal_robust_scaler",
+  "clip": 10.0,
+  "columns": {
+    "gps_speed_calc_mps": {
+      "center": 0.7362667263088666,
+      "scale": 1.9872891786241897
+    },
+    "gps_accel_mps2": {
+      "center": -0.004236559068848553,
+      "scale": 0.19295498135446004
+    },
+    "vertical_rate_calc": {
+      "center": -0.001222237032475775,
+      "scale": 0.15444278721235
+    },
+    "local_alt_m": {
+      "center": 10.507679462432861,
+      "scale": 8.64207911491394
+    },
+    "local_vertical_rate_mps": {
+      "center": -0.002183278789743781,
+      "scale": 0.19452759809792042
+    },
+    "gps_speed_residual": {
+      "center": 0.028003176425590137,
+      "scale": 0.04584250004366158
+    },
+    "vertical_rate_residual": {
+      "center": 0.04180788494286225,
+      "scale": 0.07730556859713664
+    },
+    "roll_deg": {
+      "center": -1.6295465230941772,
+      "scale": 2.6494219601154327
+    },
+    "roll_rate": {
+      "center": -0.012885557528162034,
+      "scale": 1.5081234803515087
+    },
+    "pitch_deg": {
+      "center": -2.3546336889266968,
+      "scale": 3.650228261947632
+    },
+    "pitch_rate": {
+      "center": -0.03639765342818285,
+      "scale": 1.5358179918926615
+    },
+    "yaw_rate": {
+      "center": 0.005165045223629264,
+      "scale": 2.17917421538365
+    },
+    "roll_setpoint_error": {
+      "center": 0.29700705789547044,
+      "scale": 0.5253075520054082
+    },
+    "roll_rate_error": {
+      "center": 1.8184518953476176,
+      "scale": 3.1917421656811493
+    },
+    "pitch_setpoint_error": {
+      "center": 0.44217631665576107,
+      "scale": 1.0512774361388963
+    },
+    "pitch_rate_error": {
+      "center": 2.829312984787979,
+      "scale": 6.475838652913911
+    },
+    "yaw_rate_error": {
+      "center": 1.0772993939121898,
+      "scale": 1.8760810922471625
+    },
+    "attitude_error_mag": {
+      "center": 0.7096537507629197,
+      "scale": 1.3714998325307894
+    },
+    "actuator_roll_cmd": {
+      "center": 0.0018419664702378213,
+      "scale": 0.017258336767554283
+    },
+    "actuator_pitch_cmd": {
+      "center": -0.04109649360179901,
+      "scale": 0.034269595984369516
+    },
+    "actuator_yaw_cmd": {
+      "center": 0.004560062661767006,
+      "scale": 0.01086619148554746
+    },
+    "actuator_thrust_cmd": {
+      "center": 0.3315139412879944,
+      "scale": 0.035000868141651154
+    },
+    "actuator_effort": {
+      "center": 0.04766234740336426,
+      "scale": 0.034215763491218056
+    },
+    "control_strain": {
+      "center": 0.03328186106147823,
+      "scale": 0.06885321493576058
+    },
+    "vel_test_ratio": {
+      "center": 0.027577412314713,
+      "scale": 0.02804030617699027
+    },
+    "pos_test_ratio": {
+      "center": 0.017248728312551975,
+      "scale": 0.027119690319523215
+    },
+    "hgt_test_ratio": {
+      "center": 0.011109227314591408,
+      "scale": 0.019818270346149802
+    },
+    "mag_test_ratio": {
+      "center": 0.03882678784430027,
+      "scale": 0.04989633336663246
+    },
+    "actuator_output_std": {
+      "center": 34.48459801128614,
+      "scale": 24.67959494707992
+    },
+    "actuator_output_range": {
+      "center": 84.0,
+      "scale": 57.0
+    },
+    "pos_horiz_accuracy": {
+      "center": 0.29398053884506226,
+      "scale": 0.024842984974384308
+    },
+    "pos_vert_accuracy": {
+      "center": 0.38596653938293457,
+      "scale": 0.30872292071580887
+    },
+    "vibe_0": {
+      "center": 4.956176837822568e-07,
+      "scale": 8.858800484290441e-07
+    },
+    "vibe_1": {
+      "center": 0.001367542427033186,
+      "scale": 0.0007147685682866722
+    },
+    "vibe_2": {
+      "center": 0.013802534900605679,
+      "scale": 0.009230055613443255
+    }
+  }
+}
