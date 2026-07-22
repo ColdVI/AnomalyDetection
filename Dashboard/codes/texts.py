@@ -130,6 +130,9 @@ TEXTS = {
         "map_style_street": "Sokak",
         "map_style_satellite": "Uydu",
         "map_style_dark": "Karanlık",
+        "cluster_mode_label": "Uçak Görünümü",
+        "cluster_mode_individual": "Ayrı Ayrı",
+        "cluster_mode_clustered": "Kümelenmiş",
         "signal_staleness_label": "Sinyal Yaşı Eşiği",
     },
     "en": {
@@ -207,6 +210,9 @@ TEXTS = {
         "map_style_street": "Street",
         "map_style_satellite": "Satellite",
         "map_style_dark": "Dark",
+        "cluster_mode_label": "Aircraft View",
+        "cluster_mode_individual": "Individual",
+        "cluster_mode_clustered": "Clustered",
         "signal_staleness_label": "Signal Age Threshold",
     },
 }

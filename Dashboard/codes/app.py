@@ -528,6 +528,11 @@ def update_map(n, tz_name, lang, show_civil, show_military, show_ground, replay_
                 color=color,
                 opacity=round(opacity, 2),
                 track=track,
+                # ONEMLI (dead reckoning): formatlanmis "speed_text"in
+                # (asagida) YANINDA HAM sayisal deger de gerekiyor --
+                # clientside_callback'teki dead-reckoning projeksiyonu
+                # (tick basina "hiz * gecen_sure" mesafesi) bunu kullaniyor.
+                velocity=f.get("velocity"),
                 subtitle=subtitle,
                 alt_text=f"{f.get('alt', 0):.0f} m",
                 speed_text=(f"{f.get('velocity'):.0f} m/s"
@@ -626,6 +631,11 @@ def select_or_close(geojson_clicks, close_clicks, feature):
     prevent_initial_call=True,
 )
 def search_by_callsign(n_clicks, n_submit, query, lang, current_zoom):
+    # ONEMLI: "map"/"viewport" burada allow_duplicate=True DEGIL --
+    # bu Output'un TEK/PRIMARY tanimi budur. select_from_emergency_row
+    # de ayni Output'u yazdigi icin O taraf allow_duplicate=True TASIYOR
+    # (Dash kurali: bir Output birden fazla callback'te kullanilinca,
+    # ILAVE olanlar allow_duplicate=True olmali).
     """Cagri koduna gore arama -- tiklama secimiyle AYNI Output'u
     (aircraft-select) yazdigi icin allow_duplicate=True gerekiyor (Dash,
     ayni Output'u birden fazla callback'in yazmasina bunu isaretlersen
@@ -808,15 +818,21 @@ def update_emergency_badge(rows):
     [Input("emergency-alerts-data", "data"), Input("language-setting", "data")],
 )
 def update_emergency_list(rows, lang):
-    """emergency-alerts-data'yi (update_map dolduruyor) salt-okunur bir
-    listeye ceviriyor -- bilgi amacli, TIKLANAMAZ (bkz. auto_focus_new_emergency:
-    ilgili ucak zaten ILK GORULDUGUNDE otomatik seciliyor, ayrica tiklama
-    gerekmiyor -- eskiden buton+n_clicks vardi ama bu liste her tick'te
-    yeniden kuruldugu icin n_clicks 0'a sifirlaniyor, bu da Dash'te
-    "tiklama" gibi algilanip kullanici paneli kapatsa bile ucagi TEKRAR
-    seciyordu -- kullanici geri bildirimi: "kapatsak bile yeniden
-    açılıyor". Kok neden buydu, en saglam cozum tiklamayi TAMAMEN
-    kaldirmak oldu)."""
+    """emergency-alerts-data'yi (update_map dolduruyor) tiklanabilir bir
+    listeye ceviriyor -- bir satira tiklamak, callsign aramasiyla AYNI
+    sekilde ilgili ucagi secip haritayi ona kaydiriyor (bkz.
+    select_from_emergency_row).
+
+    ONEMLI (regresyon uyarisi): bu liste her tick'te (15sn) YENIDEN
+    kuruluyor, yani her satirin n_clicks'i HER SEFERINDE 0'a sifirlaniyor.
+    Daha once TAM OLARAK bu yuzden bir hata yasanmisti -- callback,
+    "tetiklendim" ile "GERCEKTEN tiklandim"i ayirt etmeden calisiyordu, bu
+    da kullanici paneli kapatsa bile ucagin KENDILIGINDEN tekrar
+    secilmesine yol aciyordu ("kapatsak bile yeniden açılıyor" geri
+    bildirimi). O zamanki cozum tiklamayi tamamen kaldirmakti; simdi geri
+    getiriyoruz ama select_from_emergency_row'da GERCEK tiklamayi (n_clicks
+    degeri sifirdan farkli) ayirt eden bir kontrolle -- bkz. o callback'in
+    docstring'i."""
     t = TEXTS.get(lang, TEXTS[DEFAULT_LANGUAGE])
     if not rows:
         return html.Div(t["no_emergency"], style={"color": "#666", "fontSize": "13px"})
@@ -829,10 +845,54 @@ def update_emergency_list(rows, lang):
                 html.Div(f"{r['label']}  ·  squawk {r['squawk']}  ·  {r['ts']}",
                         style={"fontSize": "11px", "color": "#ffb3ba", "marginTop": "2px"}),
             ],
-            style={**EMERGENCY_ROW_STYLE, "cursor": "default"},
+            id={"type": "emergency-row", "index": r["icao24"]},
+            n_clicks=0,
+            style=EMERGENCY_ROW_STYLE,
         )
         for r in rows
     ]
+
+
+@app_dash.callback(
+    [Output("aircraft-select", "data", allow_duplicate=True),
+     Output("map", "viewport", allow_duplicate=True)],
+    Input({"type": "emergency-row", "index": ALL}, "n_clicks"),
+    State("map", "zoom"),
+    prevent_initial_call=True,
+)
+def select_from_emergency_row(n_clicks_list, current_zoom):
+    """Acil durum listesindeki bir satira tiklaninca, callsign aramasiyla
+    (search_by_callsign) BIREBIR AYNI davranisi tetikler: ucagi secer ve
+    harita varsa oraya "flyTo" ile kayar.
+
+    ONEMLI (bkz. update_emergency_list'teki regresyon uyarisi): liste her
+    tick'te YENIDEN kuruldugu icin bu pattern-matching (ALL) Input, GERCEK
+    bir tiklama olmadan da (liste yeniden kurulunca satirlarin hepsi
+    n_clicks=0 ile YENIDEN mount edildiginde) tetikleniyor. Bunu ayirt
+    etmenin yolu: ctx.triggered[0]["value"] -- yani GERCEKTEN tetikleyen
+    prop'un degeri. Rebuild'de bu deger 0/None olur (satir YENI mount
+    edildi, hic tiklanmadi); GERCEK bir tiklamada ise en az 1 olur. Deger
+    sifirsa/None ise hicbir sey yapmadan dash.no_update donuyoruz -- bu
+    kontrol olmadan auto_focus_new_emergency'nin daha once yasadigi
+    "kapatsak bile yeniden aciliyor" hatasi BURADA da tekrarlanirdi."""
+    ctx = dash.callback_context
+    print(f"[DEBUG emergency-row] triggered={ctx.triggered!r} triggered_id={ctx.triggered_id!r}")
+    if not ctx.triggered or not ctx.triggered[0]["value"]:
+        print("[DEBUG emergency-row] rebuild/bos tetikleyici sayildi, no_update donuluyor")
+        return dash.no_update, dash.no_update
+
+    icao24 = ctx.triggered_id["index"]
+    print(f"[DEBUG emergency-row] GERCEK tiklama olarak kabul edildi, icao24={icao24!r}")
+    try:
+        flights = requests.get("http://localhost:8000/api/flights", timeout=3).json()
+    except Exception:
+        flights = []
+    match = next((f for f in flights if f.get("icao24") == icao24), None)
+    if match and match.get("lat") is not None and match.get("lon") is not None:
+        zoom = max(current_zoom or 5, 8)
+        viewport = {"center": [match["lat"], match["lon"]], "zoom": zoom, "transition": "flyTo"}
+        return icao24, viewport
+    return icao24, dash.no_update
 
 
 @app_dash.callback(
@@ -986,6 +1046,48 @@ def update_map_style_buttons(style):
 
 
 @app_dash.callback(
+    Output("cluster-mode-setting", "data"),
+    [Input("cluster-mode-individual-btn", "n_clicks"),
+     Input("cluster-mode-clustered-btn", "n_clicks")],
+    prevent_initial_call=True,
+)
+def update_cluster_mode_setting(individual_clicks, clustered_clicks):
+    # map-style ile AYNI desen (bkz. update_map_style_setting) -- hangi
+    # butonun tetikledigine bakip Store'u ona gore guncelliyoruz.
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+    trigger = ctx.triggered[0]["prop_id"]
+    if trigger == "cluster-mode-individual-btn.n_clicks":
+        return False
+    if trigger == "cluster-mode-clustered-btn.n_clicks":
+        return True
+    return dash.no_update
+
+
+@app_dash.callback(
+    [Output("cluster-mode-individual-btn", "style"),
+     Output("cluster-mode-clustered-btn", "style")],
+    Input("cluster-mode-setting", "data"),
+)
+def update_cluster_mode_buttons(clustered):
+    if clustered:
+        return LANG_BTN_INACTIVE_STYLE, LANG_BTN_ACTIVE_STYLE
+    return LANG_BTN_ACTIVE_STYLE, LANG_BTN_INACTIVE_STYLE
+
+
+@app_dash.callback(
+    Output("aircraft-geojson", "cluster"),
+    Input("cluster-mode-setting", "data"),
+)
+def update_cluster_mode(clustered):
+    """Asil etki burada -- dl.GeoJSON'un "cluster" prop'u [MUTABLE] oldugu
+    icin (bkz. layout.py'deki dl.GeoJSON yorumu), harita katmanini yeniden
+    kurmadan sadece bu prop'u yazarak kumelemeyi anlik acip kapatabiliyoruz."""
+    return bool(clustered)
+
+
+@app_dash.callback(
     Output("signal-staleness-setting", "data"),
     Input("signal-staleness-dropdown", "value"),
 )
@@ -1086,6 +1188,8 @@ def update_base_tile_layer(style):
      Output("filter-ground-btn", "children"),
      Output("map-style-label", "children"), Output("map-style-street-btn", "children"),
      Output("map-style-satellite-btn", "children"), Output("map-style-dark-btn", "children"),
+     Output("cluster-mode-label", "children"), Output("cluster-mode-individual-btn", "children"),
+     Output("cluster-mode-clustered-btn", "children"),
      Output("history-start-label", "children"), Output("history-end-label", "children"),
      Output("history-start-day", "placeholder"), Output("history-end-day", "placeholder"),
      Output("history-start-hour", "placeholder"), Output("history-end-hour", "placeholder"),
@@ -1112,6 +1216,7 @@ def update_static_texts(lang):
             t["language_label"], t["aircraft_info_title"], t["history_panel_title"],
             t["filter_civil_label"], t["filter_military_label"], t["filter_ground_label"],
             t["map_style_label"], t["map_style_street"], t["map_style_satellite"], t["map_style_dark"],
+            t["cluster_mode_label"], t["cluster_mode_individual"], t["cluster_mode_clustered"],
             t["history_range_placeholder_start"], t["history_range_placeholder_end"],
             t["history_day_placeholder"], t["history_day_placeholder"],
             t["history_hour_placeholder"], t["history_hour_placeholder"],
@@ -2172,31 +2277,87 @@ def render_replay_frame(index, data, lang):
 # update_map yorumundaki iki basarisiz Python-tarafi deneme). Matematik
 # Python'daki (kaldirilan) _rotated_aircraft_polygon() ile BIREBIR AYNI
 # -- sadece JS'e tasindi.
+#
+# ONEMLI (kumeleme modu ekleyince GUNCEL): "cluster-mode-setting" de artik
+# bir Input -- ACIKKEN Polygon YERINE duz Point feature'lari uretiliyor
+# (bkz. asagidaki "if (clustered)" dali), cunku supercluster Polygon
+# geometrisini islemiyor (bkz. layout.py'deki dl.GeoJSON yorumu).
 app_dash.clientside_callback(
     """
-    function(rawData, zoom, airlineCodes, lang) {
+    function(tickN, rawData, zoom, airlineCodes, lang, clustered, selectedIcao) {
         if (!rawData || !rawData.features) {
-            return [window.dash_clientside.no_update, window.dash_clientside.no_update];
+            return [window.dash_clientside.no_update, window.dash_clientside.no_update,
+                    window.dash_clientside.no_update];
         }
         const z = (zoom === null || zoom === undefined) ? 5 : zoom;
-        // ONEMLI (firma filtresi -- bkz. AIRLINE_PREFIXES Python yorumu):
-        // secili firma YOKSA (bos liste) hicbir sey elenmez -- tabloda
-        // olmayan cagri kodlari (askeri/genel havacilik/taninmayan) da
-        // varsayilan olarak HEP gorunur kalir. Bu TAMAMEN tarayicida
-        // calisiyor -- update_map'e (sunucu) HICBIR yeni istek gitmiyor.
-        const wanted = (airlineCodes && airlineCodes.length) ? new Set(airlineCodes) : null;
-        const sourceFeatures = wanted
-            ? rawData.features.filter(function(f) {
-                const cs = (f.properties && f.properties.callsign) || "";
-                return wanted.has(cs.trim().slice(0, 3).toUpperCase());
-            })
-            : rawData.features;
-        const features = sourceFeatures.map(function(f) {
+
+        // ONEMLI (dead reckoning -- kullanici istegi: "uçaklar yeni cycle'a
+        // kadar hareketsiz kalmasin, hızlarına göre ilerlesinler"):
+        // "aircraft-raw" HER 15sn'de bir sunucudan YENIDEN geliyor, ama
+        // GERCEK adsb.lol sorgusu 60sn'de bir yapiliyor -- yani 4 tick'ten
+        // 3'unde Redis'teki veri aslinda DEGISMEMIS, sadece Python her
+        // seferinde YENI bir nesne olarak yeniden gonderiyor.
+        //
+        // REGRESYON (kullanici geri bildirimi -- "15 saniyede bir başladıkları
+        // yere dönüp tekrar hareket etmeye başlıyorlar"): ilk denemede
+        // "rawData !== window.__deadReckonBaseData" (nesne REFERANSI)
+        // karsilastirmasi kullanilmisti -- ama bu referans ICERIK AYNI
+        // kalsa bile HER 15sn'de bir degisiyor (Python her cagrida yeni bir
+        // dict donduruyor). Sonuc: referans zamani (anchor) HER 15sn'de bir
+        // YANLISLIKLA sifirlaniyor, ucaklar projekte edilmis konumdan HAM
+        // (henuz ilerletilmemis) konuma geri "zıplayip" yeniden baslıyordu.
+        //
+        // DUZELTME: referans yerine ICERIGIN GERCEKTEN degisip degismedigini
+        // ucuz bir imzayla (tum koordinatlarin toplami) kontrol ediyoruz --
+        // bu toplam SADECE konumlar gercekten degistiginde degisir, Python'un
+        // ayni veriyi yeniden sarmalamasindan ETKILENMEZ.
+        let fp = 0;
+        for (let i = 0; i < rawData.features.length; i++) {
+            const c = rawData.features[i].geometry.coordinates;
+            fp += c[0] + c[1];
+        }
+        const fingerprint = rawData.features.length + ':' + fp.toFixed(6);
+        if (fingerprint !== window.__deadReckonFingerprint) {
+            window.__deadReckonFingerprint = fingerprint;
+            window.__deadReckonBaseData = rawData;
+            window.__deadReckonAnchorTs = Date.now();
+        }
+        const elapsedSec = (Date.now() - (window.__deadReckonAnchorTs || Date.now())) / 1000;
+
+        // Son bilinen konum + hiz + yonden, gecen sureye gore TAHMINI yeni
+        // konum -- "dead reckoning". Ucak donus yapmadigi/hizini
+        // degistirmedigi VARSAYIMIYLA duz bir cizgide ilerletiyor; bir
+        // sonraki GERCEK veri gelince (yukaridaki anchor sifirlamasi)
+        // otomatik olarak dogru konuma "duzeliyor" -- gercek ucus takip
+        // sitelerinin de (tar1090 vb.) kullandigi standart, basit yontem.
+        function projectPosition(lon, lat, track, velocity, elapsed) {
+            if (!velocity || elapsed <= 0) { return [lon, lat]; }
+            const distM = velocity * elapsed;
+            const bearingRad = (track || 0) * Math.PI / 180;
+            const latRad = lat * Math.PI / 180;
+            const cosLat = Math.max(Math.abs(Math.cos(latRad)), 1e-6);
+            const dNorth = distM * Math.cos(bearingRad);
+            const dEast = distM * Math.sin(bearingRad);
+            const dLat = dNorth / 111320.0;
+            const dLon = dEast / (111320.0 * cosLat);
+            return [lon + dLon, lat + dLat];
+        }
+
+        // ONEMLI: eskiden 4 noktali basit ok/dart sekliydi -- kullanici
+        // istegi uzerine ESKI DOM/SVG ucak siluetiyle (burun+kanatlar+
+        // kuyruk) AYNI oranlarda 12 noktali sekle cevrildi (asagidaki
+        // oranlar, orijinal SVG path'in 24x24 viewBox'ndan MERKEZE
+        // GORE normalize edilerek turetildi -- bkz. proje sohbet
+        // gecmisi). Daha genis kanatlar (once ±0.55 iken simdi ±0.96)
+        // AYRICA tiklama alanini da buyutuyor. Fonksiyona cikarildi
+        // (eskiden tek yerde kullaniliyordu, artik IKI yerde: kumeleme
+        // KAPALIYKEN tum ucaklar icin, kumeleme ACIKKEN SADECE secili
+        // ucak icin -- bkz. asagidaki dongu).
+        function buildPolygonFeature(f) {
             const p = f.properties;
             const lon = f.geometry.coordinates[0];
             const lat = f.geometry.coordinates[1];
             const heading = p.track || 0;
-
             const latRad = lat * Math.PI / 180;
             const mpp = 156543.03392 * Math.cos(latRad) / Math.pow(2, z);
             // ONEMLI: 9 -> 11px hedef "yaricap" -- kullanici geri bildirimi
@@ -2204,14 +2365,6 @@ app_dash.clientside_callback(
             // tiklanabilir hem eski DOM ikonun (~11px yari-boyut) gercek
             // olcusune daha yakin.
             const unitM = 11 * mpp;
-
-            // ONEMLI: eskiden 4 noktali basit ok/dart sekliydi -- kullanici
-            // istegi uzerine ESKI DOM/SVG ucak siluetiyle (burun+kanatlar+
-            // kuyruk) AYNI oranlarda 12 noktali sekle cevrildi (asagidaki
-            // oranlar, orijinal SVG path'in 24x24 viewBox'ndan MERKEZE
-            // GORE normalize edilerek turetildi -- bkz. proje sohbet
-            // gecmisi). Daha genis kanatlar (once ±0.55 iken simdi ±0.96)
-            // AYRICA tiklama alanini da buyutuyor.
             const localPts = [
                 [0.0000 * unitM, 0.9565 * unitM],    // burun
                 [0.2609 * unitM, -0.0870 * unitM],   // burun-sag govde
@@ -2226,11 +2379,9 @@ app_dash.clientside_callback(
                 [-0.9565 * unitM, -0.5217 * unitM],  // sol kanat ucu
                 [-0.2609 * unitM, -0.0870 * unitM],  // burun-sol govde
             ];
-
             const hRad = heading * Math.PI / 180;
             const cosH = Math.cos(hRad), sinH = Math.sin(hRad);
             const cosLat = Math.max(Math.abs(Math.cos(latRad)), 1e-6);
-
             const ring = localPts.map(function(pt) {
                 const east = pt[0], north = pt[1];
                 const rEast = east * cosH + north * sinH;
@@ -2240,28 +2391,89 @@ app_dash.clientside_callback(
                 return [lon + dLon, lat + dLat];
             });
             ring.push(ring[0]);
-
             return {
                 type: 'Feature',
                 geometry: {type: 'Polygon', coordinates: [ring]},
                 properties: p,
             };
+        }
+
+        // ONEMLI (firma filtresi -- bkz. AIRLINE_PREFIXES Python yorumu):
+        // secili firma YOKSA (bos liste) hicbir sey elenmez -- tabloda
+        // olmayan cagri kodlari (askeri/genel havacilik/taninmayan) da
+        // varsayilan olarak HEP gorunur kalir. Bu TAMAMEN tarayicida
+        // calisiyor -- update_map'e (sunucu) HICBIR yeni istek gitmiyor.
+        const wanted = (airlineCodes && airlineCodes.length) ? new Set(airlineCodes) : null;
+        const sourceFeatures = wanted
+            ? rawData.features.filter(function(f) {
+                const cs = (f.properties && f.properties.callsign) || "";
+                return wanted.has(cs.trim().slice(0, 3).toUpperCase());
+            })
+            : rawData.features;
+
+        // ONEMLI (kullanici istegi -- "tıklanılan uçak kümelemeye dahil
+        // olmasın"): secili ucak, HANGI moddaysa olsun, ana koleksiyondan
+        // (features) CIKARILIP ayri bir kucuk katmana (selectedFeatures,
+        // "selected-aircraft-geojson") yazilir -- bu katman HICBIR ZAMAN
+        // kumelenmiyor (bkz. layout.py, cluster prop'u yok/varsayilan),
+        // yani secili ucak kumeleme ACIKKEN bile HER ZAMAN tam ayrintili
+        // (yon oklu) Polygon olarak, tek basina goruluyor.
+        const features = [];
+        const selectedFeatures = [];
+        sourceFeatures.forEach(function(f) {
+            const p = f.properties;
+            // ONEMLI: geometri build edilmeden ONCE dead-reckoning
+            // projeksiyonu uygulaniyor -- boylece hem Polygon hem Point
+            // (kumeleme) yolu, hem de secili-ucak yolu AYNI, ilerletilmis
+            // konumu kullaniyor, kod tekrari olmadan.
+            const projected = projectPosition(
+                f.geometry.coordinates[0], f.geometry.coordinates[1],
+                p.track, p.velocity, elapsedSec
+            );
+            const pf = {type: 'Feature', geometry: {type: 'Point', coordinates: projected}, properties: p};
+
+            if (selectedIcao && p.icao24 === selectedIcao) {
+                selectedFeatures.push(buildPolygonFeature(pf));
+                return;
+            }
+            // ONEMLI (kumeleme modu): supercluster (dl.GeoJSON'un "cluster"
+            // prop'u) SADECE Point geometrisi anliyor -- buildPolygonFeature()'in
+            // urettigi 12 noktali Polygon'u ANLAMIYOR (sessizce hicbir sey
+            // render etmiyor, "kumeleme acinca butun ucaklar kayboluyor"
+            // hatasinin kok nedeni buydu). Kumeleme ACIKKEN duz bir Point
+            // ekliyoruz -- tekil (kumelenmemis) uclarda bu Point'ler
+            // layout.py'deki "pointToLayer" (_POINT_TO_LAYER_JS) ile yon
+            // okuna donduruluyor.
+            if (clustered) {
+                features.push(pf);
+            } else {
+                features.push(buildPolygonFeature(pf));
+            }
         });
+
         // ONEMLI (kullanici geri bildirimi -- "firma filtresi bu sayiyi
         // hic etkilemiyor"): status cubugundaki "toplam" Python'da
         // hesaplaniyor (hicbir filtre yok) ama firma filtresi SADECE burada
         // (JS) uygulandigi icin "kalan/gosterilen" sayiyi da BURADA
         // yazmak zorundayiz -- sourceFeatures.length TAM OLARAK sivil/
         // askeri/yerde/irtifa (sunucuda) + firma (burada) filtrelerinin
-        // HEPSI uygulandiktan SONRAKI nihai sayidir.
+        // HEPSI uygulandiktan SONRAKI nihai sayidir (secili ucak da dahil,
+        // sadece hangi katmanda cizildigi degisiyor).
         const shownLabel = (lang === 'en') ? 'shown' : 'gösteriliyor';
         const shownText = sourceFeatures.length + ' ' + shownLabel;
-        return [{type: 'FeatureCollection', features: features}, shownText];
+        return [
+            {type: 'FeatureCollection', features: features},
+            shownText,
+            {type: 'FeatureCollection', features: selectedFeatures},
+        ];
     }
     """,
-    [Output("aircraft-geojson", "data"), Output("status-shown", "children")],
-    [Input("aircraft-raw", "data"), Input("map", "zoom"),
-     Input("airline-filter-dropdown", "value"), Input("language-setting", "data")],
+    [Output("aircraft-geojson", "data"), Output("status-shown", "children"),
+     Output("selected-aircraft-geojson", "data")],
+    [Input("dead-reckoning-tick", "n_intervals"), Input("aircraft-raw", "data"),
+     Input("map", "zoom"), Input("airline-filter-dropdown", "value"),
+     Input("language-setting", "data"), Input("cluster-mode-setting", "data"),
+     Input("aircraft-select", "data")],
 )
 
 

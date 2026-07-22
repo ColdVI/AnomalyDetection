@@ -51,7 +51,12 @@ _query_api = _influx.query_api()
 # server.py'nin KENDI dizininde arar (Dashboard/codes/assets/) ve dash_extensions'in
 # assign() ile ürettigi dashExtensions_default.js'i YANLIS yere yazar/bulamaz.
 _ASSETS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets")
-app_dash = Dash(__name__, title="Dashboard", assets_folder=_ASSETS_DIR)
+# ONEMLI (kullanici istegi): update_title=None -- Dash'in varsayilan
+# davranisi, HER callback calisirken sekme basligini gecici olarak
+# "Updating..." yapiyor (sayfa "tick" her 15sn'de bir tetiklendigi icin
+# bu surekli goruluyordu). None vermek bu davranisi tamamen kapatiyor,
+# baslik her zaman "Dashboard" olarak sabit kaliyor.
+app_dash = Dash(__name__, title="Dashboard", assets_folder=_ASSETS_DIR, update_title=None)
 
 
 # Tarayicinin varsayilan <body> kenar bosluguyla (genelde 8px) koyu tema

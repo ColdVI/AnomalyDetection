@@ -42,13 +42,23 @@ from constants import (
 # ama balon degil, GERCEK ucak gorunsun, donma olmasin" istedi -- tar1090
 # (adsb.lol'un de kullandigi arayuz) incelendi, onlarin da ayni sorunu
 # CANVAS/WebGL tabanli render ile (DOM marker DEGIL) cozdugu goruldu
-# (bkz. proje sohbet gecmisi). Bu yuzden kumeleme TAMAMEN KALDIRILDI --
-# her ucak artik GERCEK bir GeoJSON Polygon (kucuk, heading'e gore
-# ONCEDEN Python'da dondurulmus bir ok/dart sekli, bkz.
+# (bkz. proje sohbet gecmisi). Bu yuzden kumeleme VARSAYILAN OLARAK
+# KAPATILDI -- her ucak artik GERCEK bir GeoJSON Polygon (kucuk, heading'e
+# gore ONCEDEN Python'da dondurulmus bir ok/dart sekli, bkz.
 # _rotated_aircraft_polygon()), TEK BIR PAYLASILAN L.canvas() renderer'a
 # atanarak (asagidaki _GEOJSON_STYLE_JS) render ediliyor -- Leaflet, ayni
 # renderer'a atanmis TUM sekilleri TEK <canvas> elemaninda birlestiriyor,
 # binlerce DOM node YERINE tek canvas + tek repaint.
+#
+# ONEMLI (3. asama, GUNCEL): kullanici isterse Ayarlar panelinden eski
+# kumelenmis gorunume GERI DONEBILIYOR -- dash-leaflet'in dl.GeoJSON
+# bileseninin "cluster" prop'u [MUTABLE] oldugu icin (bkz.
+# site-packages/dash_leaflet/GeoJSON.py), katmani yeniden kurmadan sadece
+# bu prop'u Output olarak yazarak acilip kapatilabiliyor (bkz. app.py
+# update_cluster_mode). Kumeleme ACIKKEN _GEOJSON_STYLE_JS/_ON_EACH_FEATURE_JS
+# SADECE tekil (kumelenmemis) uclardaki uçaklara uygulanir -- kume
+# baloncuklarinin kendi gorunumu supercluster'in varsayilanidir, ozel bir
+# clusterToLayer TANIMLANMADI (ileride istenirse eklenebilir).
 #
 # ONEMLI: bu iki isim (_GEOJSON_STYLE_JS / _ON_EACH_FEATURE_JS) asagidaki
 # app_dash.layout icinde KULLANILIYOR -- Python modul seviyesinde yukaridan
@@ -74,6 +84,54 @@ function(feature, context){
         color: '#07070e', weight: 0.6, opacity: opacity,
         renderer: window.__aircraftCanvasRenderer,
     };
+}
+""")
+
+# ONEMLI (kumeleme modu icin, bkz. asagidaki dl.GeoJSON'daki "pointToLayer"):
+# supercluster (dash-leaflet'in "cluster" prop'u) SADECE Point geometrisi
+# anliyor -- bizim ucak sekillerimiz ise 12 noktali bir Polygon (yon
+# gosteren siluet, bkz. app.py'deki clientside_callback). Kumeleme
+# ACIKKEN o clientside_callback Polygon YERINE duz Point gonderiyor (bkz.
+# app.py yorumu) -- Leaflet, Point feature'lari "style" ILE DEGIL, bu
+# "pointToLayer" callback'iyle bir katmana cevirir. Kumeleme KAPALIYKEN bu
+# fonksiyon hic cagrilmaz (feature'lar hep Polygon kalir).
+#
+# ONEMLI (kullanici geri bildirimi -- "uçaklar da nokta şeklinde oldu"):
+# ilk denemede duz bir L.circleMarker donduruluyordu (yon bilgisi kayboluyordu).
+# Bunun yerine, Polygon modundaki AYNI 12 noktali siluet burada da kullaniliyor
+# -- ama coğrafi (lat/lon derece) rotasyon matematigi yerine (ki bu SADECE
+# vektor katmanlarinda/Polygon'da anlamli), duz bir SVG + CSS "transform:
+# rotate()" ile piksel uzayinda donduruluyor -- CSS rotate() de saat
+# yonunde artiyor, "heading" ile AYNI yon, boylece iki mod GORSEL OLARAK
+# tutarli kaliyor. DivIcon oldugu icin (Polygon'daki L.canvas() paylasimli
+# renderer'in AKSINE) DOM tabanli -- ama kumeleme zaten cogu ucagi
+# baloncuklara topladigi icin ayni anda gorunen tekil (leaf) ucak sayisi
+# az kaliyor, performans sorunu YARATMAMASI beklenir.
+_POINT_TO_LAYER_JS = assign("""
+function(feature, latlng, context){
+    const p = feature.properties;
+    const color = p.color || '#00b4d8';
+    const opacity = (p.opacity === undefined || p.opacity === null) ? 1 : p.opacity;
+    const heading = p.track || 0;
+    const s = 9;
+    // AYNI 12 nokta/oranlar (bkz. app.py'deki localPts) -- burada
+    // svgY = -north (SVG asagi-pozitif, burun "yukari"/kuzeye baksin diye).
+    const pts = [
+        [0.0000*s, -0.9565*s], [0.2609*s, 0.0870*s], [0.9565*s, 0.5217*s],
+        [0.2609*s, 0.3478*s], [0.2609*s, 0.7391*s], [0.5652*s, 0.9130*s],
+        [0.0000*s, 0.7826*s], [-0.5652*s, 0.9130*s], [-0.2609*s, 0.7391*s],
+        [-0.2609*s, 0.3478*s], [-0.9565*s, 0.5217*s], [-0.2609*s, 0.0870*s],
+    ];
+    const pointsStr = pts.map(function(pt){ return pt[0] + ',' + pt[1]; }).join(' ');
+    const html = '<svg width="24" height="24" viewBox="-12 -12 24 24" ' +
+        'style="transform: rotate(' + heading + 'deg); overflow: visible;">' +
+        '<polygon points="' + pointsStr + '" fill="' + color + '" fill-opacity="' + opacity + '" ' +
+        'stroke="#07070e" stroke-width="0.6" stroke-opacity="' + opacity + '"/></svg>';
+    const icon = L.divIcon({
+        html: html, className: 'aircraft-cluster-leaf-icon',
+        iconSize: [24, 24], iconAnchor: [12, 12],
+    });
+    return L.marker(latlng, {icon: icon});
 }
 """)
 
@@ -138,6 +196,24 @@ def build_layout(*, build_timezone_options, build_signal_staleness_options,
         # sayfa sonunda) ile cozuldu -- sunucuya HICBIR istek gitmiyor, saat
         # tamamen tarayicida Date() ile hesaplanip yaziliyor.
         dcc.Interval(id="clock-tick", interval=1000, n_intervals=0),
+        # ONEMLI (dead reckoning -- kullanici istegi: "uçaklar yeni cycle'a
+        # kadar hareketsiz kalmasin"): 15sn'lik "tick" (gercek veri) arasinda
+        # ucaklarin son bilinen hiz+yonlerine gore TAHMINI olarak ilerlemesini
+        # saglayan, saf clientside (sunucuya istek gitmeyen) ayri bir hizli
+        # Interval -- clock-tick ile AYNI desen. Asil hesap (JS) sayfa
+        # sonundaki "aircraft-geojson" clientside_callback'inde, bkz. o
+        # callback'in yorumu.
+        #
+        # ONEMLI (denendi, GERI ALINDI -- kullanici geri bildirimi "böyle iyi
+        # olmadı"): 300ms denenmisti (canvas'i saniyede ~3.3 kez yeniden
+        # cizerek zıplama hissini azaltmak icin) ama sonuc iyi olmadi,
+        # 1000ms'e geri donuldu. Canvas'a bagli vektor sekiller CSS
+        # transition ile yumusatilamiyor (DOM elemani degil, duz piksel) --
+        # gercek akicilik icin gereken sey tick sikligini artirmak degil,
+        # daha buyuk bir mimari degisiklik (requestAnimationFrame ile
+        # Leaflet katmanini Dash'in veri-donguSunu atlayarak dogrudan
+        # yonetmek) -- bkz. proje sohbet gecmisi.
+        dcc.Interval(id="dead-reckoning-tick", interval=1000, n_intervals=0),
         dcc.Store(id="aircraft-select", data=None),  # secili ucak (gorunmez state)
         # Python'un doldurdugu HAM nokta verisi (lat/lon/track) -- gercek
         # poligon geometrisi clientside_callback'te (JS, sayfa sonunda)
@@ -184,6 +260,34 @@ def build_layout(*, build_timezone_options, build_signal_staleness_options,
                 # (Output("aircraft-geojson", "data")).
                 dl.GeoJSON(
                     id="aircraft-geojson",
+                    data={"type": "FeatureCollection", "features": []},
+                    style=_GEOJSON_STYLE_JS,
+                    pointToLayer=_POINT_TO_LAYER_JS,
+                    onEachFeature=_ON_EACH_FEATURE_JS,
+                    cluster=False,
+                    # ONEMLI (kullanici geri bildirimi -- "bu kadar kume
+                    # olmasin"): radius (piksel cinsinden birlestirme
+                    # yaricapi) 80 -> 180 -- supercluster'in varsayilani
+                    # zaten 40'ti, biz onu ikiye katlamistik ama yetersiz
+                    # kalmisti. Daha buyuk radius, birbirine yakin ucaklari
+                    # DAHA AGRESIF birlestirip daha az sayida, daha buyuk
+                    # kume baloncugu gosteriyor.
+                    superClusterOptions={"radius": 180, "maxZoom": 14},
+                ),
+                # ONEMLI (kullanici istegi -- "tıklanılan uçak kümelemeye
+                # dahil olmasın"): secili ucak icin AYRI, HICBIR ZAMAN
+                # kumelenmeyen kucuk bir katman -- "cluster" prop'u yok
+                # (varsayilan False). update_map'i besleyen clientside_callback,
+                # secili icao24'u ana "aircraft-geojson" koleksiyonundan
+                # CIKARIP burasi icin ayri, her zaman tam-ayrintili (Polygon,
+                # yon oklu) bir feature uretiyor -- bkz. app.py'deki
+                # buildPolygonFeature()/selectedFeatures. AYNI stil/tooltip
+                # fonksiyonlarini (ayni canvas renderer dahil) paylasiyor,
+                # SADECE ayri bir katmanda oldugu icin kumeleme onu
+                # etkilemiyor. Ana katmanin USTUNE (children'da SONRA)
+                # eklendi ki bir kume baloncugunun altinda kalmasin.
+                dl.GeoJSON(
+                    id="selected-aircraft-geojson",
                     data={"type": "FeatureCollection", "features": []},
                     style=_GEOJSON_STYLE_JS,
                     onEachFeature=_ON_EACH_FEATURE_JS,
@@ -611,6 +715,26 @@ def build_layout(*, build_timezone_options, build_signal_staleness_options,
                 ]),
             ]),
             html.Div(style={"marginBottom": "14px"}, children=[
+                # ONEMLI: kumeleme, dash-leaflet'in dl.GeoJSON bileseninin
+                # KENDI "cluster" prop'unu kullanarak yapiliyor -- bu prop
+                # [MUTABLE] oldugu icin (bkz. dash_leaflet/GeoJSON.py), harita
+                # katmanini yeniden KURMADAN, sadece bu Store'u degistirerek
+                # anlik olarak acilip kapatilabiliyor (bkz. update_cluster_mode).
+                # ESKIDEN (bkz. asagidaki dl.GeoJSON yorumu) kumeleme TAMAMEN
+                # kaldirilmisti, performans sorunu yarattigi icin -- simdi
+                # varsayilan KAPALI (mevcut, kanitlanmis davranis) ama
+                # kullanici isterse acabiliyor.
+                html.Label("Uçak Görünümü", id="cluster-mode-label",
+                           style={"fontSize": "12px", "color": "#888",
+                                  "display": "block", "marginBottom": "6px"}),
+                html.Div(style={"display": "flex", "gap": "6px"}, children=[
+                    html.Button("Ayrı Ayrı", id="cluster-mode-individual-btn", n_clicks=0,
+                               style=LANG_BTN_ACTIVE_STYLE),
+                    html.Button("Kümelenmiş", id="cluster-mode-clustered-btn", n_clicks=0,
+                               style=LANG_BTN_INACTIVE_STYLE),
+                ]),
+            ]),
+            html.Div(style={"marginBottom": "14px"}, children=[
                 # ONEMLI: adsb.lol/OpenSky secimi digerlerinden (dil/harita/
                 # saat dilimi) FARKLI -- pure client-side bir dcc.Store degil,
                 # AYRI BIR PROCESS'E (uav_producer.py) Redis uzerinden
@@ -667,6 +791,7 @@ def build_layout(*, build_timezone_options, build_signal_staleness_options,
         dcc.Store(id="language-setting", data=DEFAULT_LANGUAGE),
         dcc.Store(id="map-style-setting", data=DEFAULT_MAP_STYLE),
         dcc.Store(id="signal-staleness-setting", data=DEFAULT_SIGNAL_STALENESS_SEC),
+        dcc.Store(id="cluster-mode-setting", data=False),
 
         # ---------------------------------- Sol kayan panel (varsayilan gizli) --
         html.Div(id="left-panel", style={**LEFT_PANEL_BASE, "transform": "translateX(-100%)"},

@@ -119,6 +119,50 @@ def test_auto_focus_new_emergency_triggers_again_for_a_different_new_aircraft():
     assert seen == ["aaa", "ccc"]
 
 
+# ----------------------------------------------------- select_from_emergency_row --
+
+def _emergency_row_prop_id(icao24: str) -> str:
+    """Dash'in pattern-matching (dict) id'li bilesenler icin urettigi
+    GERCEK prop_id formati -- JSON (siralanmis anahtar) + '.n_clicks'."""
+    import json
+    return json.dumps({"index": icao24, "type": "emergency-row"}, sort_keys=True) + ".n_clicks"
+
+
+def test_select_from_emergency_row_real_click_selects_and_flies_to_aircraft(monkeypatch):
+    flights = [{"icao24": "ab1234", "callsign": "THY1", "lat": 41.0, "lon": 29.0}]
+    router = FakeRequestsRouter(routes={"flights": flights})
+    monkeypatch.setattr(dashapp, "requests", type("R", (), {"get": staticmethod(router)}))
+
+    with simulate_trigger(_emergency_row_prop_id("ab1234"), value=1):
+        icao, viewport = dashapp.select_from_emergency_row([1], 5)
+
+    assert icao == "ab1234"
+    assert viewport["center"] == [41.0, 29.0]
+    assert viewport["transition"] == "flyTo"
+
+
+def test_select_from_emergency_row_list_rebuild_is_not_treated_as_a_click_regression():
+    """Regresyon: emergency-panel-list her tick'te YENIDEN kuruluyor, bu da
+    pattern-matching Input'un n_clicks=0 ile YENIDEN tetiklenmesine yol
+    aciyor -- bu GERCEK bir tiklama DEGIL (bkz. update_emergency_list'teki
+    ve bu fonksiyonun docstring'indeki uyari, auto_focus_new_emergency'nin
+    daha once yasadigi 'kapatsak bile yeniden aciliyor' hatasiyla ayni
+    kok neden). value=0/None iken hicbir sey secilmemeli."""
+    with simulate_trigger(_emergency_row_prop_id("ab1234"), value=0):
+        icao, viewport = dashapp.select_from_emergency_row([0], 5)
+
+    assert icao is dashapp.dash.no_update
+    assert viewport is dashapp.dash.no_update
+
+
+def test_select_from_emergency_row_no_trigger_is_no_op():
+    with simulate_trigger(None):
+        icao, viewport = dashapp.select_from_emergency_row([], 5)
+
+    assert icao is dashapp.dash.no_update
+    assert viewport is dashapp.dash.no_update
+
+
 # -------------------------------------------------------------- search_by_callsign --
 
 def _search(monkeypatch, flights, query, zoom=5):
