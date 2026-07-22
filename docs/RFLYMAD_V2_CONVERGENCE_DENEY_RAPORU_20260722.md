@@ -192,6 +192,6 @@ Deney kökü:
   threshold-only eşikler); alarm mantığı `rfly_full.supervised.alarm_onsets`
   içinden birebir import edilir.
 
-Doğrulama sonucu: `44 passed in 2.98s`. Altı adayın her biri 5/5 rotasyon
-tamamladı; denetlenen 46 summary'de `locked_test_features_read=false`; çalışan
-Python süreci ve `archive/` değişikliği yoktur. Commit/push yapılmadı.
+Güncel ortak doğrulama sonucu: TCN development testleri dahil `50 passed`.
+Altı AE adayının her biri 5/5 rotasyon tamamladı; denetlenen 46 AE summary'de
+`locked_test_features_read=false`; `archive/` değişikliği yoktur.

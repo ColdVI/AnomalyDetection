@@ -26,6 +26,7 @@ ROBUSTNESS_ROOT = (
     / "approved_20260722_nested_v1"
 )
 R4_ROOT = ROBUSTNESS_ROOT / "candidates" / "R4"
+TCN_SWEEP_ROOT = ARTIFACT_ROOT / "supervised_tcn" / "development_5fold_20260722_v1"
 DATA_DIR = ROOT / "notebooks" / "data" / "rflymad_v2"
 NOTEBOOK_PATH = (
     ROOT / "notebooks" / "RFLYMAD_V2_TUM_DENEYLER_CALISTIRILMIS_20260722.ipynb"
@@ -69,6 +70,8 @@ def build_snapshots() -> None:
         / "run_20260722_111938"
         / "summary.json"
     )
+    tcn_development = _read_json(TCN_SWEEP_ROOT / "summary.json")
+    tcn_development_gates = _read_json(TCN_SWEEP_ROOT / "gate_summary.json")
     experiment_state = _read_json(ROBUSTNESS_ROOT / "experiment_state.json")
     final_summary = _read_json(ROBUSTNESS_ROOT / "final_summary.json")
     r4_summary = _read_json(R4_ROOT / "summary.json")
@@ -88,6 +91,15 @@ def build_snapshots() -> None:
     )
     pd.DataFrame(tcn["metrics"]).drop(columns=["confusion_flight"]).to_csv(
         DATA_DIR / "tcn_smoke_metrics.csv", index=False
+    )
+    pd.read_csv(TCN_SWEEP_ROOT / "outer_fold_metrics.csv").to_csv(
+        DATA_DIR / "tcn_development_outer_metrics.csv", index=False
+    )
+    pd.read_csv(TCN_SWEEP_ROOT / "aggregate_metrics.csv").to_csv(
+        DATA_DIR / "tcn_development_aggregate_metrics.csv", index=False
+    )
+    pd.read_csv(TCN_SWEEP_ROOT / "training_history.csv").to_csv(
+        DATA_DIR / "tcn_development_training_history.csv", index=False
     )
     pd.read_csv(ROBUSTNESS_ROOT / "candidate_comparison_by_policy.csv").to_csv(
         DATA_DIR / "candidate_comparison_by_policy.csv", index=False
@@ -194,6 +206,18 @@ def build_snapshots() -> None:
             ),
             "note": "test_flights is the development smoke fold, not the locked test",
         },
+        "tcn_development": {
+            "status": tcn_development["status"],
+            "outer_folds": tcn_development["outer_folds"],
+            "completed_outer_folds": tcn_development["completed_outer_folds"],
+            "gate_summary": tcn_development_gates,
+            "locked_test_features_read": tcn_development[
+                "locked_test_features_read"
+            ],
+            "operational_claim_allowed": tcn_development[
+                "operational_claim_allowed"
+            ],
+        },
         "robustness": {
             "status": final_summary["status"],
             "development_flights": experiment_state["development_flights"],
@@ -215,7 +239,7 @@ def build_snapshots() -> None:
             "r4_bootstrap": r4_bootstrap,
         },
         "verification": {
-            "related_tests_passed": 44,
+            "related_tests_passed": 50,
             "locked_test_features_read": False,
             "archive_changes": 0,
             "operational_claim_allowed": False,
@@ -246,9 +270,10 @@ def build_notebook() -> nbformat.NotebookNode:
             """
 # RflyMAD-Full v2 — Çalıştırılmış deney özeti
 
-**Tarih:** 22 Temmuz 2026  
+**Tarih:** 22 Temmuz 2026
 **Kapsam:** veri/parser/truth denetimleri, normal-only temporal AE, TCN development
-smoke, Wind/Real robustness adayları ve R4 convergence takibi.  
+smoke ve beş-fold development sweep, Wind/Real robustness adayları ve R4
+convergence takibi.
 **Güvenlik sınırı:** locked-test feature dosyaları okunmadı; sonuçlar yalnız
 development araştırma bulgusudur ve operasyonel iddia oluşturmaz.
 
@@ -276,6 +301,9 @@ summary = json.loads((DATA / "summary.json").read_text(encoding="utf-8"))
 manifest = pd.read_csv(DATA / "manifest_by_domain_family.csv")
 ae = pd.read_csv(DATA / "ae_sweep_summary.csv")
 tcn = pd.read_csv(DATA / "tcn_smoke_metrics.csv")
+tcn_dev_outer = pd.read_csv(DATA / "tcn_development_outer_metrics.csv")
+tcn_dev_aggregate = pd.read_csv(DATA / "tcn_development_aggregate_metrics.csv")
+tcn_dev_history = pd.read_csv(DATA / "tcn_development_training_history.csv")
 comparison = pd.read_csv(DATA / "candidate_comparison_by_policy.csv")
 r4_metrics = pd.read_csv(DATA / "r4_rotation_metrics.csv")
 convergence = pd.read_csv(DATA / "r4_convergence.csv")
@@ -381,7 +409,67 @@ plt.tight_layout(); plt.show()
         ),
         _markdown(
             """
-## 3. Wind/Real robustness deneyleri
+## 3. TCN development-only 5-fold sweep
+
+TCN, kilitli test yerine her seferinde ayrı bir development outer fold üzerinde
+değerlendirildi. Validation fold yalnız checkpoint/uzatma seçimi için kullanıldı;
+outer sonuçları epoch kararına girmedi. Başlangıç tavanı 12 epoch’tu; yalnız en iyi
+validation epoch’u son iki epoch’a dayanır ve anlamlı iyileşme sürerse 25/50’ye
+uzatma mümkündü. Bu sonuçlar development-only’dir ve operasyonel iddia değildir.
+"""
+        ),
+        _code(
+            """
+display(Markdown("**TCN development 5-fold aggregate**"))
+display(tcn_dev_aggregate.round(4))
+
+best_rows = []
+for outer_fold, group in tcn_dev_history.groupby("outer_fold"):
+    best = group.loc[group["validation_loss"].idxmin()]
+    best_rows.append({
+        "outer_fold": int(outer_fold),
+        "validation_fold": int(group["validation_fold"].iloc[0]),
+        "epoch_cap": int(group["epoch_cap"].max()),
+        "best_epoch": int(best["epoch"]),
+        "best_validation_loss": float(best["validation_loss"]),
+    })
+best_epochs = pd.DataFrame(best_rows)
+display(best_epochs.round(5))
+
+fig, axes = plt.subplots(1, 2, figsize=(15, 5))
+for outer_fold, group in tcn_dev_history.groupby("outer_fold"):
+    group = group.sort_values("epoch")
+    axes[0].plot(group["epoch"], group["train_loss"], marker=".", label=f"fold {outer_fold}")
+    axes[1].plot(group["epoch"], group["validation_loss"], marker=".", label=f"fold {outer_fold}")
+axes[0].set_title("TCN epoch başına training loss")
+axes[1].set_title("TCN epoch başına validation loss")
+for ax in axes:
+    ax.set_xlabel("Epoch"); ax.set_ylabel("Loss"); ax.legend(ncol=2); ax.grid(alpha=.25)
+plt.tight_layout(); plt.show()
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
+for policy, group in tcn_dev_outer.groupby("policy"):
+    group = group.sort_values("outer_fold")
+    axes[0].plot(group["outer_fold"], group["event_recall"]*100, "o-", label=policy)
+    axes[1].plot(group["outer_fold"], group["all_nonfault_fa_per_hour"], "o-", label=policy)
+axes[0].set_title("Outer-fold event recall"); axes[0].set_ylabel("Recall (%)")
+axes[1].set_title("Outer-fold nonfault false alarm"); axes[1].set_ylabel("Alarm / saat")
+for ax in axes:
+    ax.set_xlabel("Outer fold"); ax.set_xticks(range(5)); ax.legend(); ax.grid(alpha=.25)
+plt.tight_layout(); plt.show()
+
+tcn_gates = summary["tcn_development"]["gate_summary"]
+display(pd.DataFrame([
+    [name, gate["passed"]]
+    for name, gate in tcn_gates.items() if isinstance(gate, dict)
+], columns=["TCN development kapısı", "Geçti"]))
+print(f"Locked-test features read: {summary['tcn_development']['locked_test_features_read']}")
+print(f"Operational claim allowed: {summary['tcn_development']['operational_claim_allowed']}")
+"""
+        ),
+        _markdown(
+            """
+## 4. Wind/Real robustness deneyleri
 
 Başarı ölçütleri sonuçlardan önce donduruldu. R1, W1, W2, R2 ve R3 sekiz epoch
 bütçeli nested development adaylarıdır. R4, kullanıcının epoch bütçesi itirazı
@@ -414,7 +502,7 @@ plt.tight_layout(); plt.show()
         ),
         _markdown(
             """
-## 4. R4 convergence: epoch-başına davranış
+## 5. R4 convergence: epoch-başına davranış
 
 Sabit sekiz epoch yeterli değildi: rotasyona bağlı olarak en iyi checkpoint epoch
 1 ile 780 arasında değişti. Seçim yalnız inner Real-NoFault validation loss ile
@@ -449,7 +537,7 @@ plt.tight_layout(); plt.show()
         ),
         _markdown(
             """
-## 5. R4 rotasyon kararlılığı ve trade-off
+## 6. R4 rotasyon kararlılığı ve trade-off
 
 Convergence Real recall’ı R3’e göre artırdı; buna karşılık genel recall düştü ve
 false-alarm yükü arttı. Beş rotasyon arasındaki geniş saçılım, ortalama sonucun tek
@@ -493,11 +581,12 @@ plt.tight_layout(); plt.show()
         ),
         _markdown(
             """
-## 6. Nihai karar
+## 7. Nihai karar
 
-R4 yalnız development convergence takibidir. Real research gate, Wind ara hedefi
-ve Wind nihai hedefi geçilmedi. Locked test açılmamalı; mevcut temsil ve veriyle
-operasyonel/fizibilite iddiası kurulamaz.
+AE robustness R4 yalnız development convergence takibidir. Real research gate,
+Wind ara hedefi ve Wind nihai hedefi geçilmedi. TCN development sweep'inde de
+critical, advisory, Real ve Wind kapılarının hiçbiri geçmedi. Locked test
+açılmamalı; mevcut temsil ve veriyle operasyonel/fizibilite iddiası kurulamaz.
 """
         ),
         _code(
@@ -522,20 +611,26 @@ print(f"Real research gate: {gate['real_research_gate']['passed']}")
 print(f"Wind intermediate gate: {gate['wind_intermediate_gate']['passed']}")
 print(f"Locked-test features read: {rob['locked_test_features_read']}")
 print(f"Operational claim allowed: {rob['operational_claim_allowed']}")
+print("TCN gates:", {
+    name: gate["passed"]
+    for name, gate in summary["tcn_development"]["gate_summary"].items()
+    if isinstance(gate, dict)
+})
 """
         ),
         _markdown(
             """
-## 7. Tekrarlanabilirlik
+## 8. Tekrarlanabilirlik
 
 - Kaynak kod: `rfly_full/`
 - Çalıştırıcılar: `scripts/run_rfly_full_v2_*.py`
 - Notebook üretici: `scripts/build_rfly_full_v2_summary_notebook.py`
-- Ayrıntılı rapor: `docs/RFLYMAD_V2_CONVERGENCE_DENEY_RAPORU_20260722.md`
+- AE convergence raporu: `docs/RFLYMAD_V2_CONVERGENCE_DENEY_RAPORU_20260722.md`
+- TCN development raporu: `docs/RFLYMAD_V2_TCN_DEVELOPMENT_DENEY_RAPORU_20260722.md`
 - Kompakt notebook verisi: `notebooks/data/rflymad_v2/`
 - Ağır yerel artefakt kökü: `artifacts/rfly_full/v2/` (commit edilmez)
 
-Son doğrulama: ilgili 44 test geçti; `archive/` değişikliği yoktu. Ham model/parquet
+Son doğrulama: ilgili 50 test geçti; `archive/` değişikliği yoktu. Ham model/parquet
 dosyaları ve loglar yeniden üretilebilir yerel artefakt olarak bırakıldı.
 """
         ),

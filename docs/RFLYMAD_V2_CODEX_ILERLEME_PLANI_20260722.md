@@ -1,5 +1,9 @@
 # RflyMAD-Full v2 — Codex İlerleme Planı
 
+> **2026-07-22 durum notu:** A, B ve C tamamlandı; ardından kullanıcı onayıyla
+> AE robustness/convergence ve TCN development-only 5-fold takipleri de
+> tamamlandı. Güncel sonuç için `RFLYMAD_V2_SONRAKI_ADIMLAR_20260722.md` okunmalı.
+
 > Yazıldı: 2026-07-22 (Europe/Istanbul)
 > Hedef okuyucu: bu depoyu ilk kez açan bir kodlama ajanı (Codex).
 > Kapsam: sadece aşağıdaki 3 görev. Başka bir şeye dokunma.

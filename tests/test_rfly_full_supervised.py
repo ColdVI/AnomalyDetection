@@ -8,6 +8,7 @@ from rfly_full.supervised import (
     SAMPLE_HZ,
     TemporalFaultClassifier,
     _build_training_windows,
+    development_run_status,
     _flight_windows,
     _reservoir_update,
     _score_streaming,
@@ -50,6 +51,21 @@ def test_development_smoke_fold_must_differ_from_validation(monkeypatch):
         supervised_module.run(
             validation_fold=0, development_smoke_fold=0, epochs=1,
         )
+
+
+def test_development_run_status_never_promotes_locked_test_unread_runs():
+    assert development_run_status(
+        epochs=3, parse_complete=True, development_smoke_fold=1,
+    ) == "smoke_only"
+    assert development_run_status(
+        epochs=12, parse_complete=True, development_smoke_fold=1,
+    ) == "development_only"
+    assert development_run_status(
+        epochs=12, parse_complete=True, development_smoke_fold=None,
+    ) == "complete"
+    assert development_run_status(
+        epochs=12, parse_complete=False, development_smoke_fold=1,
+    ) == "smoke_only"
 
 
 def _fake_flight(

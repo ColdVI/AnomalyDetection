@@ -36,6 +36,17 @@ REFRACTORY_SECONDS = 30
 SEED = 20260721
 
 
+def development_run_status(
+    *, epochs: int, parse_complete: bool, development_smoke_fold: int | None,
+) -> str:
+    """Classify a run without granting development-only work an operational label."""
+    if epochs < 12 or not parse_complete:
+        return "smoke_only"
+    if development_smoke_fold is not None:
+        return "development_only"
+    return "complete"
+
+
 @dataclass(frozen=True)
 class WindowSet:
     x: np.ndarray
@@ -427,6 +438,7 @@ def _evaluate(meta: pd.DataFrame, probability: np.ndarray, threshold: float) -> 
             "fault_family": flight["fault_family"].iloc[0],
             "evaluation_role": role, "detected": hit,
             "false_alarm_events": false_count, "detection_delay_s": delay,
+            "normal_exposure_s": int((~truth).sum()),
         })
     metrics = {
         "events": events, "detected_events": detected,
@@ -626,10 +638,15 @@ def run(
         PARSE_STATE.exists()
         and json.loads(PARSE_STATE.read_text(encoding='utf-8')).get('remaining') == 0
     )
-    summary['status'] = (
-        'complete'
-        if epochs >= 12 and parse_complete and development_smoke_fold is None
-        else 'smoke_only'
+    summary['status'] = development_run_status(
+        epochs=epochs,
+        parse_complete=parse_complete,
+        development_smoke_fold=development_smoke_fold,
+    )
+    summary['evaluation_scope'] = (
+        'development_only'
+        if development_smoke_fold is not None
+        else 'locked_test'
     )
     summary['operational_claim_allowed'] = bool(
         epochs >= 12 and parse_complete and development_smoke_fold is None
@@ -648,7 +665,10 @@ def main() -> None:
     parser.add_argument("--max-val-windows", type=int, default=20_000)
     parser.add_argument(
         "--development-smoke-fold", type=int, choices=range(5),
-        help="Use this disjoint development fold for memory/integration smoke; locked test stays unread.",
+        help=(
+            "Use this disjoint development fold for evaluation; locked test stays "
+            "unread. Runs below 12 epochs remain smoke_only."
+        ),
     )
     parser.add_argument(
         '--protocol', choices=('full', 'simulation_to_real', 'real_only'),

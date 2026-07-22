@@ -1,5 +1,11 @@
 # RflyMAD-Full v2 — uygulanan deney sözleşmesi
 
+> **2026-07-22 güncel durum:** Aşağıdaki 128-uçuş smoke bölümü tarihsel kayıttır.
+> Full truth-v2 parser/audit, normal temporal AE robustness ve supervised TCN
+> development-only 5-fold sweep tamamlandı. Güncel karar ve sayılar
+> `RFLYMAD_V2_TCN_DEVELOPMENT_DENEY_RAPORU_20260722.md` ile
+> `RFLYMAD_V2_SONRAKI_ADIMLAR_20260722.md` içindedir. Locked test açılmadı.
+
 ## Karar
 
 Mevcut 1 Hz Dense Autoencoder sonucu tarihsel baseline olarak dondurulmuştur.
@@ -90,13 +96,13 @@ uçuşun yakalanması Real transfer kanıtı değildir.
 ```powershell
 .venv\Scripts\python.exe scripts\build_rfly_full_v2_manifest.py --print-summary
 .venv\Scripts\python.exe scripts\parse_rfly_full_v2_10hz.py
-.venv\Scripts\python.exe scripts\run_rfly_full_v2_supervised.py --epochs 12
+.venv\Scripts\python.exe scripts\run_rfly_full_v2_supervised_development_sweep.py
 .venv\Scripts\python.exe scripts\run_rfly_full_ae_diagnostics.py
 ```
 
-Tam veri sonrasında yapılacak zorunlu deneyler:
+Tam veri sonrasında planlanan zorunlu deneyler (1. madde 2026-07-22'de tamamlandı):
 
-1. Beş development fold'u için supervised TCN.
+1. Beş development fold'u için supervised TCN — **tamamlandı, kapılar geçmedi**.
 2. Motor, Sensor, Propeller, Voltage ve Load için leave-one-family-out.
 3. Simulation-only → Real transfer.
 4. Real-only ve simulation-pretrain + Real fine-tune karşılaştırması.

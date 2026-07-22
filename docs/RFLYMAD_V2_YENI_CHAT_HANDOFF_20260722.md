@@ -530,7 +530,8 @@ Karar:
 - Sözleşmenin durdurma kuralı uygulandı: mevcut veri/temsil ile Real transfer
   gösterilemedi; Wind robustness çözülmedi. Yeni veri veya yeni temsil sözleşmesi
   olmadan threshold/fine-tune araması sürdürülmez.
-- Convergence testi eklenmiş ilgili tam suite son çalıştırmada `44 passed` verdi;
+- TCN development sweep testleri de eklenmiş ilgili tam suite son çalıştırmada
+  `50 passed` verdi;
   çalışan Python süreci ve `archive/` değişikliği yoktur.
 
 Frozen baseline eski tek-holdout protokolündedir; yeni adaylar daha sıkı nested
@@ -559,3 +560,22 @@ recall %54,61'e düştü, tüm nonfault FA 5,24/saat ve Real FA 12,98/saat oldu.
 Sonuç: daha uzun eğitim Real sinyalini artırıyor ama transfer/FA sorununu çözmüyor;
 R4 de kapıyı geçmedi. Epoch grafikleri R4 aday klasöründedir.
 Görselli tam rapor: `docs/RFLYMAD_V2_CONVERGENCE_DENEY_RAPORU_20260722.md`.
+
+## 18. Supervised TCN development-only 5-fold — 2026-07-22
+
+Sonuçlardan önce `RFLYMAD_V2_TCN_DEVELOPMENT_SOZLESMESI_20260722.md` donduruldu.
+Beş outer fold, farklı validation foldlarıyla ve locked test okunmadan tamamlandı.
+En iyi epoch'lar `5, 5, 3, 2, 2`; hiçbir validation eğrisi 12 sınırına dayanmadığı
+için otomatik 25/50 uzatması çalışmadı.
+
+- Critical: recall `%28,87`, tüm-nonfault FA `2,87/saat`, Wind FA `6,41/saat`.
+- Advisory: recall `%67,86`, tüm-nonfault FA `12,54/saat`.
+- Critical Real macro recall `%7,56`; Sensor recall `%0,35`.
+- Critical, advisory, Real ve Wind kapılarının hiçbiri geçmedi.
+- Beş run summary'sinde `status=development_only`, locked-test read ve
+  operational claim alanları `false`.
+
+Sonuç epoch yetersizliğini desteklemiyor; training loss düşerken validation
+epoch 2–5 sonrasında bozuluyor. TCN ikinci ana deneysel aday sayılmadı.
+Görselli rapor:
+`docs/RFLYMAD_V2_TCN_DEVELOPMENT_DENEY_RAPORU_20260722.md`.

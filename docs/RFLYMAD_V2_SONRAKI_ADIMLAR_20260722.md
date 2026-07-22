@@ -1,8 +1,9 @@
-# RflyMAD-Full v2 — Sonraki Adımlar (robustness sweep sonrası)
+# RflyMAD-Full v2 — Sonraki Adımlar (robustness + TCN sweep sonrası)
 
 > Yazıldı: 2026-07-22 (Europe/Istanbul)
 > Önkoşul: bu dosyadan önce `docs/RFLYMAD_V2_ROBUSTNESS_SONUCLARI_20260722.md` ve
-> `docs/RFLYMAD_V2_CONVERGENCE_DENEY_RAPORU_20260722.md` okunmalı.
+> `docs/RFLYMAD_V2_CONVERGENCE_DENEY_RAPORU_20260722.md` ve
+> `docs/RFLYMAD_V2_TCN_DEVELOPMENT_DENEY_RAPORU_20260722.md` okunmalı.
 
 ## 0. Neredeyiz
 
@@ -31,6 +32,13 @@ truth ile development-only 3-epoch TCN sanity koşusu yapıldı
 critical recall %13,68/FA 2,43 saat, advisory recall %71,40/FA 13,59 saat,
 `status=smoke_only`. Bu sadece "sinyal var mı" testidir, kapı kararı değildir.
 
+Ardından sonuçlardan önce dondurulan sözleşmeyle TCN development-only 5-fold
+sweep tamamlandı. En iyi epoch'lar `5, 5, 3, 2, 2` olduğundan hiçbir fold
+12-epoch sınırında uzatılmadı. Critical recall/FA `%28,87 / 2,87-saat`, advisory
+`%67,86 / 12,54-saat` oldu. Critical, advisory, Real ve Wind kapılarının hiçbiri
+geçilmedi. Bu sonuç TCN'in de mevcut veri/temsil üzerinde genel çözüm olmadığını
+ve problemin yalnız AE'ye özgü olmadığını güçlendirir.
+
 ## 1. Zorunlu sınır — bunu yapma
 
 Mevcut robustness sözleşmesi kapsamında **yeni bir Real veya Wind AE
@@ -42,38 +50,25 @@ kuralı esnetmek anlamına gelir ve tam olarak bu sözleşmenin önlemeye çalı
 
 ## 2. Üç meşru ileri yol
 
-### Yol A — TCN'i development-only uzun koşuya çıkar (düşük risk, altyapı hazır)
+### Yol A — TCN development-only uzun koşu (**tamamlandı**)
 
-Bu, orijinal handoff'un zaten onaylı sırasıdır (`YENI_CHAT_HANDOFF` Bölüm 12,
-madde 9): "önce kısa 3-epoch sanity, sonra gerekirse 12+ epoch." 3-epoch
-sanity bugün tamamlandı ve makul bir sinyal gösterdi (advisory recall %71,4
-— AE'nin advisory recall'ından farklı bir profil). Yeni bir sözleşme
-gerekmez, çünkü bu zaten var olan supervised TCN deney sözleşmesinin
-(`YENI_CHAT_HANDOFF` Bölüm 5.2) bir sonraki adımıdır.
+Orijinal handoff sırası tamamlandı: 3-epoch sanity sonrasında beş disjoint
+development outer fold, validation-only checkpoint/uzatma seçimiyle çalıştırıldı.
 
 ```powershell
-.venv\Scripts\python.exe scripts\run_rfly_full_v2_supervised.py `
-  --validation-fold 0 --epochs 12 `
-  --max-train-windows 50000 --max-val-windows 20000
+.venv\Scripts\python.exe `
+  scripts\run_rfly_full_v2_supervised_development_sweep.py
 ```
 
-- Kilitli test bu koşuda da kapalı kalmalı mı yoksa 12-epoch tam-protokol
-  koşusu mu (locked test hâlâ yalnız final audit'te açılır, bu koşu yalnız
-  development+outer-rotation kullanır, `development-smoke-fold` OLMADAN)
-  — bu ayrım netleştirilmeli: 12-epoch koşu "tam development" sayılır,
-  `development_smoke_fold=None` ile çalıştırılabilir çünkü locked test split'i
-  zaten ayrı ve okunmuyor.
-- Beş dış rotasyonun hepsinde koş (supervised TCN zaten `--validation-fold`
-  parametresiyle 5-fold destekliyor).
-- Sonucu AE'nin 5-rotasyon sweep'iyle (Real/Wind dahil) yan yana raporla.
-- TCN'in Real transfer'de AE'den daha iyi/kötü olup olmadığını gözlemsel
-  olarak not et — ama TCN için de aynı disiplin: sonuçlara bakmadan önce
-  "TCN'i ikinci ana aday sayarız" eşiğini kabaca handoff'taki mevcut
-  fizibilite kapılarından (Bölüm 11) türet, sonradan bükme.
-
-**Bu yolun avantajı:** yeni veri/temsil gerektirmiyor, altyapı zaten yazıldı
-ve bellek açısından doğrulandı (1.167 MB, kapı 4.096 MB). En hızlı somut
-sonraki bilgi kazancı budur.
+- **Düzeltme:** `development_smoke_fold=None` mevcut kodda locked-test manifestini
+  seçer ve `locked_test_features_read=true` üretir; development-only koşuda
+  kullanılamaz. Sweep çalıştırıcısı beş outer fold için bu alanı zorunlu ve
+  birbirinden ayrık biçimde ayarlar.
+- Beş dış rotasyonun hepsi sonuçlardan önce dondurulan
+  `RFLYMAD_V2_TCN_DEVELOPMENT_SOZLESMESI_20260722.md` ile çalıştırılır.
+- Sonuç AE'nin 5-rotasyon sweep'iyle Real/Wind dahil yan yana raporlandı.
+- TCN hiçbir ana development kapısını geçmedi ve ikinci ana deneysel aday
+  sayılmadı.
 
 ### Yol B — Real-domain için temsil/veri değişikliği (yüksek çaba, kök nedene iner)
 
@@ -111,30 +106,24 @@ ve enerjiyi Yol A/B'ye vermek.
 
 ## 3. Önerilen sıradaki tek adım
 
-**Yol A'yı (TCN development-only 12-epoch) önce çalıştır.** Gerekçe: sıfır
-yeni sözleşme maliyeti (zaten onaylı), altyapı hazır ve doğrulanmış, veri
-toplama gerektirmiyor, ve sonucu Yol B'ye girip girmemeye karar vermek için
-kullanılabilir (TCN da Real'de başarısızsa, sorunun AE'ye özgü olmadığı,
-muhtemelen veri/temsil kaynaklı olduğu — yani doğrudan Yol B — daha güçlü
-kanıtlanır).
+Yeni model koşusu başlatmadan **development-only temsil/domain teşhisi** yap:
+Real Sensor, Real Motor, Wind ve diğer nonfault domainlerde mevcut AE/TCN skor ve
+feature dağılımlarının hangi flight-phase/özelliklerde ayrıştığını ölç. Bu analiz
+model/threshold seçmez ve yeni aday tüketmez; amacı Yol B için sonuçlardan önce
+dondurulabilecek tek bir müdahale hipotezi üretmektir.
 
-Yol B ve C, kullanıcıyla hangi alt-seçeneğin (yeni veri var mı, hangi
-temsil değişikliği önceliklendirilsin) netleştirilmeden başlatılmamalı.
+Teşhis sonunda yeni veri ihtiyacı baskınsa ek bağımsız Real-NoFault session
+toplanmadan yeni training sweep açma. Temsil kusuru baskınsa flight-phase
+normalization veya domain-invariant representation seçeneklerinden yalnız biri
+yeni yazılı sözleşmeyle seçilmeli. Wind iki-aşamalı gating ayrı araştırma hattı
+olarak kalmalı.
 
-## 4. Ev işleri (bu tur bitmeden)
+## 4. Ev işleri
 
-- Şu an arka planda çalışan python süreci yok (kontrol edildi); bu böyle
-  kalmalı — yeni bir koşu başlatılırsa süreç durumu tekrar doğrulanmalı.
-- Çalışma ağacı hâlâ tamamen untracked/kirli: `artifacts/rfly_full/` çok
-  büyük olabilir (model checkpoint'leri, parquet skorlar) ve repo kök
-  dizininde çok sayıda başıboş `.log` dosyası var
-  (`rfly_*.err.log`/`.out.log`, `rfly_full/`, vb.). Commit yapılmadan önce
-  kullanıcıyla şunlar netleştirilmeli: (a) `artifacts/` gerçekten repoya mı
-  girecek yoksa `.gitignore`'a mı alınacak, (b) kök dizindeki log
-  dosyalarının hepsi gerekli mi yoksa temizlenebilir mi. Bu, benim veya
-  Codex'in tek taraflı karar vereceği bir şey değil.
-- `tests/` altında bugünkü değişikliklerle ilgili suite'in tamamı hâlâ
-  yeşil olmalı; yeni bir koşu öncesi tekrar doğrulanmalı:
+- Yeni koşu öncesi Python süreç durumu yeniden doğrulanmalı.
+- Model checkpoint/parquet ve kök logları `.gitignore` kapsamındadır; küçük
+  CSV/JSON özetleri, rapor görselleri ve çalıştırılmış notebook yayınlanır.
+- İlgili test suite'i her yayın öncesi çalıştırılmalı:
 
 ```powershell
 .venv\Scripts\python.exe -m pytest tests\ -k rfly_full -q

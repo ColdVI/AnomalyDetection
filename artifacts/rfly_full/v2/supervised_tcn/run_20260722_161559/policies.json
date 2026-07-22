@@ -1,0 +1,52 @@
+{
+  "critical": {
+    "threshold": 0.9808339011307918,
+    "budget_fa_per_hour": 2.0,
+    "validation": {
+      "threshold": 0.9808339011307918,
+      "events": 798,
+      "detected_events": 259,
+      "event_recall": 0.32456140350877194,
+      "false_alarm_events": 17,
+      "normal_exposure_hours": 9.186388888888889,
+      "false_alarms_per_hour": 1.8505639381935834,
+      "median_detection_delay_s": 30.0,
+      "confusion_flight": {
+        "tp": 259,
+        "fn": 539,
+        "fp": 0,
+        "tn": 51
+      },
+      "flight_tp": 259,
+      "flight_fn": 539,
+      "flight_fp": 0,
+      "flight_tn": 51
+    },
+    "alarm": "4-of-6s; refractory=30s"
+  },
+  "advisory": {
+    "threshold": 0.9326216925418738,
+    "budget_fa_per_hour": 12.0,
+    "validation": {
+      "threshold": 0.9326216925418738,
+      "events": 798,
+      "detected_events": 519,
+      "event_recall": 0.650375939849624,
+      "false_alarm_events": 108,
+      "normal_exposure_hours": 9.186388888888889,
+      "false_alarms_per_hour": 11.75652384264159,
+      "median_detection_delay_s": 23.0,
+      "confusion_flight": {
+        "tp": 519,
+        "fn": 279,
+        "fp": 11,
+        "tn": 40
+      },
+      "flight_tp": 519,
+      "flight_fn": 279,
+      "flight_fp": 11,
+      "flight_tn": 40
+    },
+    "alarm": "4-of-6s; refractory=30s"
+  }
+}

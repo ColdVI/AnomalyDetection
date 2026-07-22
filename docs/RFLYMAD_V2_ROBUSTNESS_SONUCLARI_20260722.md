@@ -123,13 +123,12 @@ Bu sonuçlar “model operasyonel”, “fizibil” veya “başarılı” anlam
 
 ## Son doğrulama
 
-- İlgili RflyMAD suite: `44 passed in 2.98s`.
+- TCN development testleri dahil güncel ilgili RflyMAD suite: `50 passed`.
 - Dondurulmuş manifest: `5380/5380 development`.
 - Altı adayın her birinde `5/5` outer rotasyon tamamlandı.
 - Denetlenen 46 summary dosyasının tümünde `locked_test_features_read=false`.
 - Çalışan `python/pythonw` süreci: `0`.
 - `archive/` değişikliği: `0`.
-- Commit/push yapılmadı.
 
 ## Artefaktlar
 
