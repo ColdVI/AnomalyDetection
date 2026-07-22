@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
-from residual_v1.ingest.common import write_json
+from gecmis_calismalar.residual_v1.ingest.common import write_json
 
 DEFAULT_RUN_ROOT = Path("artifacts/residual_v1/runs")
 

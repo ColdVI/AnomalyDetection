@@ -3,13 +3,13 @@
 Bu dosya birden fazla test modulunun birlesimidir (repo sadelestirme).
 """
 
-from uav_gnss.frozen_runner import require_prior_role
+from gecmis_calismalar.uav_gnss.frozen_runner import require_prior_role
 
 import json
 
 import pytest
 
-from uav_gnss.pipeline import PilotRunner
+from gecmis_calismalar.uav_gnss.pipeline import PilotRunner
 
 
 

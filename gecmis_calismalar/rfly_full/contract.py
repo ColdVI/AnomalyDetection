@@ -19,7 +19,7 @@ from pathlib import Path, PurePosixPath
 import numpy as np
 import pandas as pd
 
-from rfly_full.pipeline import ARTIFACT_ROOT, PARSED_ROOT, _atomic_json, case_id
+from gecmis_calismalar.rfly_full.pipeline import ARTIFACT_ROOT, PARSED_ROOT, _atomic_json, case_id
 
 V2_ROOT = ARTIFACT_ROOT / "v2"
 DATASET_MANIFEST = V2_ROOT / "dataset_manifest.parquet"

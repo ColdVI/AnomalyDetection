@@ -635,48 +635,48 @@
   <div class="cards" style="margin-top:1rem">
     <div class="card">
       <h4>Uçuş düzeyi confusion — seçilen CUSUM/uyarı satırları</h4>
-      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/confusion_matrices.png" alt="RflyMAD DL uçuş düzeyi confusion matrisleri" style="width:100%;height:auto">
+      <img src="../../artifacts/rfly_dl/direct_v1_5split_20260720/confusion_matrices.png" alt="RflyMAD DL uçuş düzeyi confusion matrisleri" style="width:100%;height:auto">
       <p class="tiny">Beş split toplamı; aynı uçuş her seed'de yeniden değerlendirildiği için pozitif payda 303×5=1.515, normal payda 12×5=60'tır. LSTM: TP 1.123 / FN 392 / FP 47 / TN 13; Dense: 1.035 / 480 / 46 / 14; USAD: 1.014 / 501 / 44 / 16.</p>
     </div>
     <div class="card">
       <h4>Recall–alarm yükü</h4>
-      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/recall_vs_false_alarm.png" alt="RflyMAD DL recall ve yanlış alarm karşılaştırması" style="width:100%;height:auto">
+      <img src="../../artifacts/rfly_dl/direct_v1_5split_20260720/recall_vs_false_alarm.png" alt="RflyMAD DL recall ve yanlış alarm karşılaştırması" style="width:100%;height:auto">
       <p class="tiny">Validation'da 2/12 FA-saat bütçesine fit edilen eşikler testte taşınmadı. Hiçbir model × karar × bütçe satırı iki şartı birlikte sağlamadı.</p>
     </div>
   </div>
   <div class="cards" style="margin-top:1rem">
     <div class="card">
       <h4>Model × karar × bütçe ısı haritası</h4>
-      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/decision_heatmaps.png" alt="RflyMAD DL recall ve yanlış alarm ısı haritaları" style="width:100%;height:auto">
+      <img src="../../artifacts/rfly_dl/direct_v1_5split_20260720/decision_heatmaps.png" alt="RflyMAD DL recall ve yanlış alarm ısı haritaları" style="width:100%;height:auto">
       <p class="tiny">18 çalışma noktası tek cetvelde: eşik/K-of-N/CUSUM ile kritik/uyarı birlikte görülüyor. Recall yükselen hücrelerin tamamında yanlış alarm da bütçenin çok üstüne çıkıyor.</p>
     </div>
     <div class="card">
       <h4>Beş split boyunca kararlılık</h4>
-      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/split_stability.png" alt="RflyMAD DL split bazında recall ve yanlış alarm değişimi" style="width:100%;height:auto">
+      <img src="../../artifacts/rfly_dl/direct_v1_5split_20260720/split_stability.png" alt="RflyMAD DL split bazında recall ve yanlış alarm değişimi" style="width:100%;height:auto">
       <p class="tiny">CUSUM/uyarı çizgileri her split'te recall hedefinin üstüne yaklaşabiliyor; fakat 12 FA/sa çizgisinin hiçbir split'te yanına dahi gelemiyor. Sorun tek bir kötü tohum değil.</p>
     </div>
   </div>
   <div class="cards" style="margin-top:1rem">
     <div class="card">
       <h4>Motor–sensör arızası kıyası</h4>
-      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/fault_group_recall.png" alt="RflyMAD DL motor ve sensör arızası recall kıyası" style="width:100%;height:auto">
+      <img src="../../artifacts/rfly_dl/direct_v1_5split_20260720/fault_group_recall.png" alt="RflyMAD DL motor ve sensör arızası recall kıyası" style="width:100%;height:auto">
       <p class="tiny">Motor arızaları her üç modelde daha görünür: LSTM 0,784 / 0,680; Dense 0,743 / 0,598; USAD 0,739 / 0,570 motor/sensör recall. Hata çubukları split standart sapmasıdır.</p>
     </div>
     <div class="card">
       <h4>Yakalanan olaylarda alarm gecikmesi</h4>
-      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/detection_delay_distributions.png" alt="RflyMAD DL motor ve sensör arızası tespit gecikmesi kutu grafikleri" style="width:100%;height:auto">
+      <img src="../../artifacts/rfly_dl/direct_v1_5split_20260720/detection_delay_distributions.png" alt="RflyMAD DL motor ve sensör arızası tespit gecikmesi kutu grafikleri" style="width:100%;height:auto">
       <p class="tiny">Kutu grafik yalnız yakalanan olayları içerir; kaçırılan olayları görünmez kılar. Bu yüzden düşük medyan gecikme tek başına başarı değildir ve recall ile birlikte okunmalıdır.</p>
     </div>
   </div>
   <div class="cards" style="margin-top:1rem">
     <div class="card">
       <h4>Normal uçuş alarm yükü</h4>
-      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/normal_alarm_burden.png" alt="RflyMAD DL normal uçuş başına yanlış alarm yükü" style="width:100%;height:auto">
+      <img src="../../artifacts/rfly_dl/direct_v1_5split_20260720/normal_alarm_burden.png" alt="RflyMAD DL normal uçuş başına yanlış alarm yükü" style="width:100%;height:auto">
       <p class="tiny">Normal test-değerlendirmelerinin LSTM'de %78,3'ü, Dense'de %76,7'si, USAD'da %73,3'ü en az bir alarm aldı. Uçuş düzeyindeki operasyonel yük böylece doğrudan görünür.</p>
     </div>
     <div class="card">
       <h4>Eşiksiz pencere ayrışması</h4>
-      <img src="../artifacts/rfly_dl/direct_v1_5split_20260720/window_metrics_by_split.png" alt="RflyMAD DL split bazında pencere AUROC ve AUPRC" style="width:100%;height:auto">
+      <img src="../../artifacts/rfly_dl/direct_v1_5split_20260720/window_metrics_by_split.png" alt="RflyMAD DL split bazında pencere AUROC ve AUPRC" style="width:100%;height:auto">
       <p class="tiny">AUROC çizgileri 0,5 çevresinde, AUPRC çizgileri %40,3 prevalans tabanına yakın. Yüksek event recall'ın güçlü skor ayrışmasından gelmediğini destekliyor.</p>
     </div>
   </div>

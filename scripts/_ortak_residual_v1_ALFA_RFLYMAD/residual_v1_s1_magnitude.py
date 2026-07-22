@@ -7,12 +7,12 @@ from pathlib import Path
 
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from residual_v1.eval.sanity_gates import s1_magnitude_gate
-from residual_v1.ingest.common import write_json
-from residual_v1.run import create_run_dir, update_manifest
-from residual_v1.tracking import log_run
+from gecmis_calismalar.residual_v1.eval.sanity_gates import s1_magnitude_gate
+from gecmis_calismalar.residual_v1.ingest.common import write_json
+from gecmis_calismalar.residual_v1.run import create_run_dir, update_manifest
+from gecmis_calismalar.residual_v1.tracking import log_run
 
 
 def _read_json(path: Path) -> dict:

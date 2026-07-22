@@ -25,9 +25,9 @@ import numpy as np
 import pandas as pd
 from pyarrow.parquet import read_schema
 
-from rfly_full.contract import DATASET_MANIFEST, V2_ROOT
-from rfly_full.pipeline import _atomic_json
-from rfly_full.v2_parser import (
+from gecmis_calismalar.rfly_full.contract import DATASET_MANIFEST, V2_ROOT
+from gecmis_calismalar.rfly_full.pipeline import _atomic_json
+from gecmis_calismalar.rfly_full.v2_parser import (
     CROSSCHECK_COLUMNS,
     CROSSCHECK_ONSET_TOLERANCE_S,
     PARSE_STATE,

@@ -1,6 +1,6 @@
 import pandas as pd
 
-from rfly_full.contract import _assign_splits
+from gecmis_calismalar.rfly_full.contract import _assign_splits
 
 
 def _rows(count: int) -> pd.DataFrame:

@@ -21,8 +21,8 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
-from rfly_full.contract import DATASET_MANIFEST, V2_ROOT
-from rfly_full.normal_ae import (
+from gecmis_calismalar.rfly_full.contract import DATASET_MANIFEST, V2_ROOT
+from gecmis_calismalar.rfly_full.normal_ae import (
     BUDGETS,
     DOMAINS,
     SEED,
@@ -38,9 +38,9 @@ from rfly_full.normal_ae import (
     _train,
     _validation_loss,
 )
-from rfly_full.pipeline import _atomic_json
-from rfly_full.supervised import PARSED_10HZ_ROOT, _fit_scaler
-from rfly_full.v2_parser import V2_FEATURES
+from gecmis_calismalar.rfly_full.pipeline import _atomic_json
+from gecmis_calismalar.rfly_full.supervised import PARSED_10HZ_ROOT, _fit_scaler
+from gecmis_calismalar.rfly_full.v2_parser import V2_FEATURES
 
 
 OUTPUT_ROOT = V2_ROOT / "normal_temporal_ae" / "robustness"

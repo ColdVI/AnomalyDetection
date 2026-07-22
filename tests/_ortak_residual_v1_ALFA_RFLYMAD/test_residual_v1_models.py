@@ -7,11 +7,11 @@ import numpy as np
 
 import pandas as pd
 
-from residual_v1.models.g0_rules import command_no_response_score, score_g0
+from gecmis_calismalar.residual_v1.models.g0_rules import command_no_response_score, score_g0
 
 import pytest
 
-from residual_v1.models.g1_ridge import (
+from gecmis_calismalar.residual_v1.models.g1_ridge import (
     InsufficientSessionCoverage,
     fit_g1_channel,
     grouped_session_splits,

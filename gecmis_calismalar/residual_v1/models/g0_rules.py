@@ -9,7 +9,7 @@ from typing import Mapping
 import numpy as np
 import pandas as pd
 
-from residual_v1.features.build import augment_physics
+from gecmis_calismalar.residual_v1.features.build import augment_physics
 
 DEFAULT_CONFIG = Path("configs/residual_v1_g0.json")
 SCORE_COLUMNS = ("flight_id", "t", "channel", "z")

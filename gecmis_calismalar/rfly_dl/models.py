@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from torch import nn
 
-from rfly_dl.config import (
+from gecmis_calismalar.rfly_dl.config import (
     BATCH_SIZE,
     GRADIENT_CLIP,
     LEARNING_RATE,

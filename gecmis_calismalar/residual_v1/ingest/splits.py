@@ -9,9 +9,9 @@ from typing import Iterable, Mapping
 
 import numpy as np
 
-from residual_v1.ingest.common import write_json
-from residual_v1.ingest.profile import find_flight_roots
-from residual_v1.run import sha256_file
+from gecmis_calismalar.residual_v1.ingest.common import write_json
+from gecmis_calismalar.residual_v1.ingest.profile import find_flight_roots
+from gecmis_calismalar.residual_v1.run import sha256_file
 
 DEFAULT_SEEDS = (11, 23, 37, 41, 53)
 PARTITIONS = ("development", "test", "holdout")

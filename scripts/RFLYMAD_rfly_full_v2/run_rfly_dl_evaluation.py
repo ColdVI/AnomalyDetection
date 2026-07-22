@@ -6,12 +6,12 @@ import argparse
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from rfly_dl.config import MAX_EPOCHS, MODEL_NAMES
-from rfly_dl.experiment import run_experiment
+from gecmis_calismalar.rfly_dl.config import MAX_EPOCHS, MODEL_NAMES
+from gecmis_calismalar.rfly_dl.experiment import run_experiment
 
 
 def main() -> None:

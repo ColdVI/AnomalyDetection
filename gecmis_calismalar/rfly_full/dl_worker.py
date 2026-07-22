@@ -15,8 +15,8 @@ import pandas as pd
 import torch
 from sklearn.metrics import average_precision_score, roc_auc_score
 
-from rfly_dl.models import DenseAutoencoder, reconstruction_scores, train_model
-from rfly_full.pipeline import ARTIFACT_ROOT, FEATURES, PARSED_ROOT, _atomic_json, _k_of_n
+from gecmis_calismalar.rfly_dl.models import DenseAutoencoder, reconstruction_scores, train_model
+from gecmis_calismalar.rfly_full.pipeline import ARTIFACT_ROOT, FEATURES, PARSED_ROOT, _atomic_json, _k_of_n
 
 EXPANSION_STATE = ARTIFACT_ROOT / "expansion_state.json"
 DL_ROOT = ARTIFACT_ROOT / "dl"

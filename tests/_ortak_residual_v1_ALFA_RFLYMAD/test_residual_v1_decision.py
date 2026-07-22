@@ -7,7 +7,7 @@ import numpy as np
 
 import pandas as pd
 
-from residual_v1.decision.calibrate import (
+from gecmis_calismalar.residual_v1.decision.calibrate import (
     CalibrationConfig,
     InsufficientCalibrationExposure,
     calibrate_channel_threshold,
@@ -15,24 +15,24 @@ from residual_v1.decision.calibrate import (
 
 import pytest
 
-from residual_v1.decision.cusum import score_cusum_channel, threshold_crossing_alarms
+from gecmis_calismalar.residual_v1.decision.cusum import score_cusum_channel, threshold_crossing_alarms
 
-from residual_v1.decision.scaling import ZeroMADChannel, fit_robust_scaler, robust_z
+from gecmis_calismalar.residual_v1.decision.scaling import ZeroMADChannel, fit_robust_scaler, robust_z
 
-from scripts.residual_v1_sanity_plots import _spearman_or_none
+from scripts._ortak_residual_v1_ALFA_RFLYMAD.residual_v1_sanity_plots import _spearman_or_none
 
-from residual_v1.eval.sanity_gates import (
+from gecmis_calismalar.residual_v1.eval.sanity_gates import (
     GateError,
     require_s3_pass,
     s1_magnitude_gate,
     s3_event_separation_gate,
 )
 
-from residual_v1.eval.s4_ablation import command_ablation_report
+from gecmis_calismalar.residual_v1.eval.s4_ablation import command_ablation_report
 
-from residual_v1.features.spec import ResidualChannelSpec
+from gecmis_calismalar.residual_v1.features.spec import ResidualChannelSpec
 
-from residual_v1.viz.handout import chunked, downsample, flight_slug, split_scope
+from gecmis_calismalar.residual_v1.viz.handout import chunked, downsample, flight_slug, split_scope
 
 
 

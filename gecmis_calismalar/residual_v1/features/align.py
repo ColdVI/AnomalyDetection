@@ -7,8 +7,8 @@ from collections.abc import Mapping, Sequence
 import numpy as np
 import pandas as pd
 
-from residual_v1.ingest.alfa_channels import CHANNELS as ALFA_CHANNELS
-from residual_v1.ingest.rfly_channels import CHANNELS as RFLY_CHANNELS
+from gecmis_calismalar.residual_v1.ingest.alfa_channels import CHANNELS as ALFA_CHANNELS
+from gecmis_calismalar.residual_v1.ingest.rfly_channels import CHANNELS as RFLY_CHANNELS
 
 
 def default_tolerances(dataset: str, *, periods: float = 2.0) -> dict[str, float]:

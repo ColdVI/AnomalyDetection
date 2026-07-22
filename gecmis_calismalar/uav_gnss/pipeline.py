@@ -13,22 +13,22 @@ import pandas as pd
 import torch
 from scipy.stats import spearmanr
 
-from anomaly_core.calibration import (
+from gecmis_calismalar.anomaly_core.calibration import (
     ConditionalCalibrationConfig,
     HierarchicalConformalCalibrator,
     NATURAL_CALIBRATION_ROLE,
 )
-from anomaly_core.forecaster import (
+from gecmis_calismalar.anomaly_core.forecaster import (
     NATURAL_FIT_ROLE,
     ForecasterConfig,
     ResidualForecaster,
     score_forecaster,
     train_forecaster,
 )
-from anomaly_core.sequential import MultiChannelPageCUSUM, PageCUSUMConfig
-from uav_gnss.catalog import build_role_manifest, cases_for_role
-from uav_gnss.evaluation import deadline_event_metrics, natural_burden
-from uav_gnss.features import MODEL_INPUT_CHANNELS, Z_CHANNELS, load_role_features
+from gecmis_calismalar.anomaly_core.sequential import MultiChannelPageCUSUM, PageCUSUMConfig
+from gecmis_calismalar.uav_gnss.catalog import build_role_manifest, cases_for_role
+from gecmis_calismalar.uav_gnss.evaluation import deadline_event_metrics, natural_burden
+from gecmis_calismalar.uav_gnss.features import MODEL_INPUT_CHANNELS, Z_CHANNELS, load_role_features
 
 NAMESPACE = "uav_gnss_integrity_v1"
 

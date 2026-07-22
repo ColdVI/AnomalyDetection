@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from rfly_full.pipeline import ARTIFACT_ROOT, PARSED_ROOT, REPORT_ROOT, RUN_STATE
+from gecmis_calismalar.rfly_full.pipeline import ARTIFACT_ROOT, PARSED_ROOT, REPORT_ROOT, RUN_STATE
 
 
 def _finite_mean(values: list[float | None]) -> float | None:

@@ -7,17 +7,17 @@ from pathlib import Path
 
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from residual_v1.features.align import align_to_clock, default_tolerances, observed_tolerances
-from residual_v1.features.build import build_xy
-from residual_v1.features.phases import label_phases
-from residual_v1.features.spec import ALFA_SPECS, RFLY_SPECS, descriptor_schema_sha256
-from residual_v1.features.waypoints import load_waypoint_config
-from residual_v1.ingest.alfa import load_alfa_flight
-from residual_v1.ingest.common import write_json
-from residual_v1.run import create_run_dir, sha256_file, update_manifest
-from residual_v1.tracking import log_run
+from gecmis_calismalar.residual_v1.features.align import align_to_clock, default_tolerances, observed_tolerances
+from gecmis_calismalar.residual_v1.features.build import build_xy
+from gecmis_calismalar.residual_v1.features.phases import label_phases
+from gecmis_calismalar.residual_v1.features.spec import ALFA_SPECS, RFLY_SPECS, descriptor_schema_sha256
+from gecmis_calismalar.residual_v1.features.waypoints import load_waypoint_config
+from gecmis_calismalar.residual_v1.ingest.alfa import load_alfa_flight
+from gecmis_calismalar.residual_v1.ingest.common import write_json
+from gecmis_calismalar.residual_v1.run import create_run_dir, sha256_file, update_manifest
+from gecmis_calismalar.residual_v1.tracking import log_run
 
 
 def _stale_from_profile(path: Path | None) -> dict[str, list[dict[str, float]]]:

@@ -15,25 +15,25 @@ import numpy as np
 import pandas as pd
 import torch
 
-from rfly_dl.config import (
+from gecmis_calismalar.rfly_dl.config import (
     BATCH_SIZE, BUDGETS, CUSUM_BOOTSTRAP_HOURS, FEATURE_COLUMNS,
     LEARNING_RATE, MAX_EPOCHS, MAX_GAP_S, MIN_RECALL, MODEL_NAMES,
     PATIENCE, RHO_THRESHOLD, SCALE_CLIP, WINDOW, WINDOW_STRIDE,
 )
-from rfly_dl.data import (
+from gecmis_calismalar.rfly_dl.data import (
     GOLD_PATH, SILVER_PATH, SPLIT_PATH, align_window_scores,
     apply_robust_scaler, empirical_probability, feature_completeness,
     fit_robust_scaler, ids_sha256, load_contract, load_development,
     make_windows, sha256,
 )
-from rfly_dl.decision import fit_policies
-from rfly_dl.evaluation import (
+from gecmis_calismalar.rfly_dl.decision import fit_policies
+from gecmis_calismalar.rfly_dl.evaluation import (
     evaluate_policy, magnitude_diagnostics, window_diagnostics,
 )
-from rfly_dl.models import make_model, reconstruction_scores, train_model
-from rfly_dl.reporting import render_additional_plots
+from gecmis_calismalar.rfly_dl.models import make_model, reconstruction_scores, train_model
+from gecmis_calismalar.rfly_dl.reporting import render_additional_plots
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 ARTIFACT_ROOT = ROOT / "artifacts/rfly_dl"
 
 

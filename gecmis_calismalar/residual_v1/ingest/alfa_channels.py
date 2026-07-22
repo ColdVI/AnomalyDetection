@@ -4,7 +4,7 @@ Names are the canonical columns written by :mod:`residual_v1.ingest.alfa`;
 topics mirror the processed ALFA CSV suffixes.
 """
 
-from residual_v1.schema import ChannelSpec
+from gecmis_calismalar.residual_v1.schema import ChannelSpec
 
 
 CHANNELS: tuple[ChannelSpec, ...] = (

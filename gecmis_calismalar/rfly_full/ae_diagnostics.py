@@ -17,12 +17,12 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import average_precision_score, roc_auc_score
 
-from rfly_dl.models import reconstruction_scores
-from rfly_full.contract import taxonomy
-from rfly_full.dl_worker import (
+from gecmis_calismalar.rfly_dl.models import reconstruction_scores
+from gecmis_calismalar.rfly_full.contract import taxonomy
+from gecmis_calismalar.rfly_full.dl_worker import (
     EVAL_STRIDE, MODEL_PATH, _load_model, _normal_frames, _windows, split_of,
 )
-from rfly_full.pipeline import ARTIFACT_ROOT, PARSED_ROOT, _atomic_json, _k_of_n
+from gecmis_calismalar.rfly_full.pipeline import ARTIFACT_ROOT, PARSED_ROOT, _atomic_json, _k_of_n
 
 OUTPUT_ROOT = ARTIFACT_ROOT / "v2" / "dense_ae_diagnostics"
 

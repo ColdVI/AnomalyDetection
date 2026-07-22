@@ -22,9 +22,9 @@ import numpy as np
 import pandas as pd
 from matplotlib.backends.backend_pdf import PdfPages
 
-from residual_v1.features.physics import finite_difference
-from residual_v1.ingest.common import write_json
-from residual_v1.run import sha256_file
+from gecmis_calismalar.residual_v1.features.physics import finite_difference
+from gecmis_calismalar.residual_v1.ingest.common import write_json
+from gecmis_calismalar.residual_v1.run import sha256_file
 
 Progress = Callable[[str], None]
 MAX_PLOT_POINTS = 2_000

@@ -1,6 +1,6 @@
 import pandas as pd
 
-from rfly_full.truth_audit import _audit_flight_frame, _near_duplicate_clusters, _trajectory_fingerprint
+from gecmis_calismalar.rfly_full.truth_audit import _audit_flight_frame, _near_duplicate_clusters, _trajectory_fingerprint
 
 
 def _flight_frame(*, t_rel_s, fault_active, system_fault=True, truth_source="rfly_ctrl_lxl", disagreement=False):

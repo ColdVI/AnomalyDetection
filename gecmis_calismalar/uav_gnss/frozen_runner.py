@@ -6,9 +6,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-from uav_gnss.evaluation import natural_burden
-from uav_gnss.features import load_role_features
-from uav_gnss.pipeline import PilotRunner, write_json
+from gecmis_calismalar.uav_gnss.evaluation import natural_burden
+from gecmis_calismalar.uav_gnss.features import load_role_features
+from gecmis_calismalar.uav_gnss.pipeline import PilotRunner, write_json
 
 
 def require_prior_role(current: dict[str, Any], prior: dict[str, Any]) -> dict[str, Any]:

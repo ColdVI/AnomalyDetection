@@ -6,9 +6,9 @@ import numpy as np
 import pandas as pd
 import torch
 
-import rfly_full.robustness as robustness
+import gecmis_calismalar.rfly_full.robustness as robustness
 
-from rfly_full.robustness import (
+from gecmis_calismalar.rfly_full.robustness import (
     _combine_windows,
     _evaluation_scores,
     _gate_summary,
@@ -17,7 +17,7 @@ from rfly_full.robustness import (
     _nested_wind_split,
     select_rw1_components,
 )
-from rfly_full.normal_ae import TemporalConvAutoencoder
+from gecmis_calismalar.rfly_full.normal_ae import TemporalConvAutoencoder
 
 
 def _manifest() -> pd.DataFrame:

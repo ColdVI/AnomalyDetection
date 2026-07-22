@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass
 
 import numpy as np
 
-from rfly_dl.config import (
+from gecmis_calismalar.rfly_dl.config import (
     CUSUM_BLOCK_SECONDS,
     CUSUM_BOOTSTRAP_HOURS,
     CUSUM_K,

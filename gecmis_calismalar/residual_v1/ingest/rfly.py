@@ -11,7 +11,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from residual_v1.ingest.common import (
+from gecmis_calismalar.residual_v1.ingest.common import (
     drop_non_monotonic_timestamps,
     fix_quaternion_sign_continuity,
     write_json,

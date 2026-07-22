@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 import torch
 
-from rfly_full.normal_ae import TemporalConvAutoencoder, _normal_split
+from gecmis_calismalar.rfly_full.normal_ae import TemporalConvAutoencoder, _normal_split
 
 
 def test_temporal_autoencoder_preserves_window_and_value_shape():

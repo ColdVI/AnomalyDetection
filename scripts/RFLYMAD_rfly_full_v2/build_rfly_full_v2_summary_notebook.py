@@ -17,7 +17,7 @@ import pandas as pd
 from nbclient import NotebookClient
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 ARTIFACT_ROOT = ROOT / "artifacts" / "rfly_full" / "v2"
 ROBUSTNESS_ROOT = (
     ARTIFACT_ROOT

@@ -12,12 +12,12 @@ from pathlib import Path
 
 import psutil
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from rfly_full.contract import V2_ROOT
-from rfly_full.pipeline import _atomic_json
+from gecmis_calismalar.rfly_full.contract import V2_ROOT
+from gecmis_calismalar.rfly_full.pipeline import _atomic_json
 
 
 def _tree_rss(process: psutil.Process) -> int:

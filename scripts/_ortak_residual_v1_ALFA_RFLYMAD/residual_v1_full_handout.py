@@ -4,11 +4,11 @@ import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from residual_v1.run import create_run_dir, update_manifest
-from residual_v1.tracking import log_run
-from residual_v1.viz.handout import build_handout, create_zip
+from gecmis_calismalar.residual_v1.run import create_run_dir, update_manifest
+from gecmis_calismalar.residual_v1.tracking import log_run
+from gecmis_calismalar.residual_v1.viz.handout import build_handout, create_zip
 
 
 def main() -> None:

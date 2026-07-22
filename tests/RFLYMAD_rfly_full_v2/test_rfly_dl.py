@@ -3,10 +3,10 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from rfly_dl.config import FEATURE_COLUMNS
-from rfly_dl.data import align_window_scores, apply_robust_scaler, fit_robust_scaler
-from rfly_dl.decision import fit_k_of_n_policy, fit_threshold_policy
-from rfly_dl.models import make_model, reconstruction_scores, train_model
+from gecmis_calismalar.rfly_dl.config import FEATURE_COLUMNS
+from gecmis_calismalar.rfly_dl.data import align_window_scores, apply_robust_scaler, fit_robust_scaler
+from gecmis_calismalar.rfly_dl.decision import fit_k_of_n_policy, fit_threshold_policy
+from gecmis_calismalar.rfly_dl.models import make_model, reconstruction_scores, train_model
 
 
 def test_train_only_scaler_preserves_missing_mask_and_clips():

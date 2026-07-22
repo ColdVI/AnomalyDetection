@@ -1,6 +1,6 @@
 import pandas as pd
 
-from anomaly_core.sequential import MultiChannelPageCUSUM, PageCUSUMConfig
+from gecmis_calismalar.anomaly_core.sequential import MultiChannelPageCUSUM, PageCUSUMConfig
 
 
 def test_cusum_is_causal_and_resets_on_gap():

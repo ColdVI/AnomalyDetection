@@ -4,10 +4,10 @@ import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from residual_v1.run import update_manifest
-from residual_v1.viz.handout import create_claude_upload_set
+from gecmis_calismalar.residual_v1.run import update_manifest
+from gecmis_calismalar.residual_v1.viz.handout import create_claude_upload_set
 
 
 def main() -> None:

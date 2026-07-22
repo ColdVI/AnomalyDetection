@@ -11,11 +11,11 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from rfly_full.pipeline import _atomic_json
-from rfly_full.supervised import SUPERVISED_ROOT, run
+from gecmis_calismalar.rfly_full.pipeline import _atomic_json
+from gecmis_calismalar.rfly_full.supervised import SUPERVISED_ROOT, run
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 SWEEP_NAME = "development_5fold_20260722_v1"
 SWEEP_ROOT = SUPERVISED_ROOT / SWEEP_NAME
 CONTRACT_PATH = ROOT / "docs" / "RFLYMAD_V2_TCN_DEVELOPMENT_SOZLESMESI_20260722.md"

@@ -14,13 +14,13 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from residual_v1.features.align import align_to_clock, default_tolerances, observed_tolerances
-from residual_v1.features.physics import finite_difference
-from residual_v1.ingest.common import write_json
-from residual_v1.run import create_run_dir, update_manifest
-from residual_v1.tracking import log_run
+from gecmis_calismalar.residual_v1.features.align import align_to_clock, default_tolerances, observed_tolerances
+from gecmis_calismalar.residual_v1.features.physics import finite_difference
+from gecmis_calismalar.residual_v1.ingest.common import write_json
+from gecmis_calismalar.residual_v1.run import create_run_dir, update_manifest
+from gecmis_calismalar.residual_v1.tracking import log_run
 
 
 def _safe(value: str) -> str:

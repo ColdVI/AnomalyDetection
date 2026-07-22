@@ -3,8 +3,8 @@ import pandas as pd
 import pytest
 import torch
 
-import rfly_full.supervised as supervised_module
-from rfly_full.supervised import (
+import gecmis_calismalar.rfly_full.supervised as supervised_module
+from gecmis_calismalar.rfly_full.supervised import (
     SAMPLE_HZ,
     TemporalFaultClassifier,
     _build_training_windows,

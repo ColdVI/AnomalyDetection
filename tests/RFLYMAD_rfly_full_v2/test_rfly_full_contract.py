@@ -1,6 +1,6 @@
 import numpy as np
 
-from rfly_full.contract import domain_of, taxonomy, window_phase
+from gecmis_calismalar.rfly_full.contract import domain_of, taxonomy, window_phase
 
 
 def test_wind_is_environment_not_system_fault():

@@ -20,12 +20,12 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset, WeightedRandomSampler
 
-from rfly_full.contract import V2_ROOT
-from rfly_full.pipeline import _atomic_json
-from rfly_full.supervised import (
+from gecmis_calismalar.rfly_full.contract import V2_ROOT
+from gecmis_calismalar.rfly_full.pipeline import _atomic_json
+from gecmis_calismalar.rfly_full.supervised import (
     _available_manifest, _fit_scaler, _load_flight, _scaled_values, alarm_onsets,
 )
-from rfly_full.v2_parser import SAMPLE_HZ, V2_FEATURES
+from gecmis_calismalar.rfly_full.v2_parser import SAMPLE_HZ, V2_FEATURES
 
 
 OUTPUT_ROOT = V2_ROOT / "normal_temporal_ae"

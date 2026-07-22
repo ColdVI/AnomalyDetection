@@ -9,7 +9,7 @@ import numpy as np
 
 import pandas as pd
 
-from residual_v1.ingest.alfa import (
+from gecmis_calismalar.residual_v1.ingest.alfa import (
     fault_class_from_events,
     ingest_alfa_flight,
     normalise_alfa_topic,
@@ -19,7 +19,7 @@ from pathlib import Path
 
 from types import SimpleNamespace
 
-from residual_v1.ingest.rfly import (
+from gecmis_calismalar.residual_v1.ingest.rfly import (
     extract_rfly_events,
     infer_fault_class,
     ingest_rfly_flight,
@@ -27,13 +27,13 @@ from residual_v1.ingest.rfly import (
     read_ulog_topics,
 )
 
-from residual_v1.ingest.rfly_channels import CHANNELS
+from gecmis_calismalar.residual_v1.ingest.rfly_channels import CHANNELS
 
-from residual_v1.ingest.splits import split_flights
+from gecmis_calismalar.residual_v1.ingest.splits import split_flights
 
-from residual_v1.ingest.common import write_json
+from gecmis_calismalar.residual_v1.ingest.common import write_json
 
-from residual_v1.ingest.profile import profile_dataset, stale_segments
+from gecmis_calismalar.residual_v1.ingest.profile import profile_dataset, stale_segments
 
 
 

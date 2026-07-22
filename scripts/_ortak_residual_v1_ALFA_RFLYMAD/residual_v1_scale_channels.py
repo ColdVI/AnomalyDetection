@@ -8,16 +8,16 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from residual_v1.decision.scaling import ZeroMADChannel, fit_robust_scaler, robust_z
-from residual_v1.features.align import align_to_clock, default_tolerances, observed_tolerances
-from residual_v1.features.phases import label_phases
-from residual_v1.features.spec import ALFA_SPECS, descriptor_schema_sha256
-from residual_v1.features.waypoints import label_waypoint_boundaries
-from residual_v1.ingest.common import write_json
-from residual_v1.run import create_run_dir, sha256_file, update_manifest
-from residual_v1.tracking import log_run
+from gecmis_calismalar.residual_v1.decision.scaling import ZeroMADChannel, fit_robust_scaler, robust_z
+from gecmis_calismalar.residual_v1.features.align import align_to_clock, default_tolerances, observed_tolerances
+from gecmis_calismalar.residual_v1.features.phases import label_phases
+from gecmis_calismalar.residual_v1.features.spec import ALFA_SPECS, descriptor_schema_sha256
+from gecmis_calismalar.residual_v1.features.waypoints import label_waypoint_boundaries
+from gecmis_calismalar.residual_v1.ingest.common import write_json
+from gecmis_calismalar.residual_v1.run import create_run_dir, sha256_file, update_manifest
+from gecmis_calismalar.residual_v1.tracking import log_run
 
 R6_CHANNEL = "R6_xtrack_error"
 R6_PROXY_FORMULA = "sqrt((roll/rad(25deg))^2 + (roll_rate/rad(15deg_s))^2)"

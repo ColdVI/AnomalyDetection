@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 
-from residual_v1.features.build import build_xy
-from residual_v1.features.spec import ResidualChannelSpec
-from residual_v1.features.waypoints import label_waypoint_boundaries
+from gecmis_calismalar.residual_v1.features.build import build_xy
+from gecmis_calismalar.residual_v1.features.spec import ResidualChannelSpec
+from gecmis_calismalar.residual_v1.features.waypoints import label_waypoint_boundaries
 
 
 CONFIG = {

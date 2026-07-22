@@ -3,7 +3,7 @@
 Bu dosya birden fazla test modulunun birlesimidir (repo sadelestirme).
 """
 
-from uav_gnss.catalog import FLIGHT_MODES, _assign_balanced
+from gecmis_calismalar.uav_gnss.catalog import FLIGHT_MODES, _assign_balanced
 
 import numpy as np
 
@@ -11,7 +11,7 @@ import pandas as pd
 
 import pytest
 
-from uav_gnss.evaluation import deadline_event_metrics, natural_burden, wilson_interval
+from gecmis_calismalar.uav_gnss.evaluation import deadline_event_metrics, natural_burden, wilson_interval
 
 
 

@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from rfly_full.v2_parser import (
+from gecmis_calismalar.rfly_full.v2_parser import (
     TRUTH_SCHEMA_VERSION,
     _binned_stats,
     _control_domain,

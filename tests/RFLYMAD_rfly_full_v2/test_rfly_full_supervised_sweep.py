@@ -3,7 +3,7 @@ import json
 import pandas as pd
 import pytest
 
-from rfly_full.supervised_sweep import (
+from gecmis_calismalar.rfly_full.supervised_sweep import (
     _aggregate,
     _gate_summary,
     extension_decision,

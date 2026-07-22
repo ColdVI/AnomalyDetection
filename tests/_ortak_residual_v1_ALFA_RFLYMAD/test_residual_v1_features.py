@@ -7,19 +7,19 @@ import numpy as np
 
 import pandas as pd
 
-from residual_v1.features.align import align_to_clock, observed_tolerances
+from gecmis_calismalar.residual_v1.features.align import align_to_clock, observed_tolerances
 
-from residual_v1.features.build import build_xy
+from gecmis_calismalar.residual_v1.features.build import build_xy
 
-from residual_v1.features.spec import ResidualChannelSpec
+from gecmis_calismalar.residual_v1.features.spec import ResidualChannelSpec
 
 import json
 
 import pytest
 
-from residual_v1.features.physics import coordinated_turn_yaw_rate, finite_difference
+from gecmis_calismalar.residual_v1.features.physics import coordinated_turn_yaw_rate, finite_difference
 
-from residual_v1.features.spec import (
+from gecmis_calismalar.residual_v1.features.spec import (
     ALFA_SPECS,
     RFLY_SPECS,
     ResidualChannelSpec,
@@ -27,13 +27,13 @@ from residual_v1.features.spec import (
     descriptor_schema_sha256,
 )
 
-from residual_v1.features.phases import label_phases
+from gecmis_calismalar.residual_v1.features.phases import label_phases
 
-from residual_v1.ingest.alfa_channels import CHANNELS as ALFA_CHANNELS
+from gecmis_calismalar.residual_v1.ingest.alfa_channels import CHANNELS as ALFA_CHANNELS
 
-from residual_v1.ingest.rfly_channels import CHANNELS as RFLY_CHANNELS
+from gecmis_calismalar.residual_v1.ingest.rfly_channels import CHANNELS as RFLY_CHANNELS
 
-from residual_v1.schema import ChannelSpec
+from gecmis_calismalar.residual_v1.schema import ChannelSpec
 
 from pathlib import Path
 

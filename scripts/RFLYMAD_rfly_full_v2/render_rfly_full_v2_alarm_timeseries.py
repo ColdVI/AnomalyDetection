@@ -7,11 +7,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from rfly_full.supervised import alarm_onsets
+from gecmis_calismalar.rfly_full.supervised import alarm_onsets
 
 EXPERIMENT_ROOT = (
     ROOT / "artifacts" / "rfly_full" / "v2" / "normal_temporal_ae"

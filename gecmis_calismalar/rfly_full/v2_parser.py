@@ -17,10 +17,10 @@ import numpy as np
 import pandas as pd
 from pyarrow.parquet import read_schema
 
-from rfly_full.contract import (
+from gecmis_calismalar.rfly_full.contract import (
     DATASET_MANIFEST, V2_ROOT, _source_records, build_manifest, domain_of, taxonomy,
 )
-from rfly_full.pipeline import FEATURES, _atomic_json, _euler, _test_info_interval, _topic
+from gecmis_calismalar.rfly_full.pipeline import FEATURES, _atomic_json, _euler, _test_info_interval, _topic
 
 PARSED_10HZ_ROOT = V2_ROOT / "parsed_10hz"
 PARSE_STATE = V2_ROOT / "parse_10hz_state.json"

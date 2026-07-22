@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from rfly_dl.config import BUDGETS, MIN_RECALL
+from gecmis_calismalar.rfly_dl.config import BUDGETS, MIN_RECALL
 
 MODEL_ORDER = ("lstm_ae", "dense_ae", "usad")
 MODEL_LABELS = {

@@ -22,9 +22,9 @@ from sklearn.metrics import confusion_matrix
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset, WeightedRandomSampler
 
-from rfly_full.contract import DATASET_MANIFEST, V2_ROOT
-from rfly_full.pipeline import _atomic_json
-from rfly_full.v2_parser import PARSED_10HZ_ROOT, PARSE_STATE, SAMPLE_HZ, V2_FEATURES
+from gecmis_calismalar.rfly_full.contract import DATASET_MANIFEST, V2_ROOT
+from gecmis_calismalar.rfly_full.pipeline import _atomic_json
+from gecmis_calismalar.rfly_full.v2_parser import PARSED_10HZ_ROOT, PARSE_STATE, SAMPLE_HZ, V2_FEATURES
 
 SUPERVISED_ROOT = V2_ROOT / "supervised_tcn"
 WINDOW_SECONDS = 20

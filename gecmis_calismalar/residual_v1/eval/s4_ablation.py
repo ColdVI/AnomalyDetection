@@ -8,8 +8,8 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import Ridge
 
-from residual_v1.features.spec import ResidualChannelSpec
-from residual_v1.models.g1_ridge import META_COLUMNS
+from gecmis_calismalar.residual_v1.features.spec import ResidualChannelSpec
+from gecmis_calismalar.residual_v1.models.g1_ridge import META_COLUMNS
 
 S4_MIN_VARIANCE_RATIO = 1.15
 

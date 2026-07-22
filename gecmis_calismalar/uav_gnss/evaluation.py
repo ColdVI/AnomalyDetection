@@ -7,7 +7,7 @@ from math import sqrt
 import numpy as np
 import pandas as pd
 
-from uav_gnss.features import airborne_exposure_seconds, scoreable_exposure_seconds
+from gecmis_calismalar.uav_gnss.features import airborne_exposure_seconds, scoreable_exposure_seconds
 
 
 def alarm_episodes(

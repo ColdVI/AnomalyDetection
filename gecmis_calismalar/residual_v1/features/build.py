@@ -8,15 +8,15 @@ from collections.abc import Mapping, Sequence
 import numpy as np
 import pandas as pd
 
-from residual_v1.features.phases import PHASES
-from residual_v1.features.physics import (
+from gecmis_calismalar.residual_v1.features.phases import PHASES
+from gecmis_calismalar.residual_v1.features.physics import (
     coordinated_turn_yaw_rate,
     finite_difference,
     motor_pwm_summary,
     vector_norm,
 )
-from residual_v1.features.spec import ResidualChannelSpec
-from residual_v1.features.waypoints import label_waypoint_boundaries
+from gecmis_calismalar.residual_v1.features.spec import ResidualChannelSpec
+from gecmis_calismalar.residual_v1.features.waypoints import label_waypoint_boundaries
 
 logger = logging.getLogger(__name__)
 _LAG_WINDOWS = ((0.0, 0.25), (0.25, 0.5), (0.5, 1.0))

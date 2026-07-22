@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 
 DATASET = "xianglile/rflymad"
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 ARTIFACT_ROOT = ROOT / "artifacts/rfly_full"
 LISTING_CSV = ARTIFACT_ROOT / "kaggle_file_listing.csv"
 LISTING_STATE = ARTIFACT_ROOT / "kaggle_listing_state.json"

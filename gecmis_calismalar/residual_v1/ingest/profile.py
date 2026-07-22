@@ -9,9 +9,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from residual_v1.ingest.alfa_channels import CHANNELS as ALFA_CHANNELS
-from residual_v1.ingest.common import write_json
-from residual_v1.ingest.rfly_channels import CHANNELS as RFLY_CHANNELS
+from gecmis_calismalar.residual_v1.ingest.alfa_channels import CHANNELS as ALFA_CHANNELS
+from gecmis_calismalar.residual_v1.ingest.common import write_json
+from gecmis_calismalar.residual_v1.ingest.rfly_channels import CHANNELS as RFLY_CHANNELS
 
 DT_BINS_S = (0.0, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 5.0, float("inf"))
 

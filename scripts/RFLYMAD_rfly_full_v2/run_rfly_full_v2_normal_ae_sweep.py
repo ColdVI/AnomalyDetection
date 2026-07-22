@@ -6,12 +6,12 @@ from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from rfly_full.normal_ae import OUTPUT_ROOT, run
-from rfly_full.pipeline import _atomic_json
+from gecmis_calismalar.rfly_full.normal_ae import OUTPUT_ROOT, run
+from gecmis_calismalar.rfly_full.pipeline import _atomic_json
 
 
 def main() -> None:

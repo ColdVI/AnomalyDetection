@@ -1,6 +1,6 @@
 """Pre-registered RflyMAD-Real channel inventory."""
 
-from residual_v1.schema import ChannelSpec
+from gecmis_calismalar.residual_v1.schema import ChannelSpec
 
 
 CHANNELS: tuple[ChannelSpec, ...] = (

@@ -5,11 +5,11 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from uav_gnss.final_report import build_report
+from gecmis_calismalar.uav_gnss.final_report import build_report
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from anomaly_core.sequential import MultiChannelPageCUSUM, PageCUSUMConfig
+from gecmis_calismalar.anomaly_core.sequential import MultiChannelPageCUSUM, PageCUSUMConfig
 
 
 def score_cusum_channel(

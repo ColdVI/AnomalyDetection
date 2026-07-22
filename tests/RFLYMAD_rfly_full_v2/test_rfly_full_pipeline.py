@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from rfly_full.pipeline import _k_of_n, _package_priority, _safe_target, case_id, is_essential
+from gecmis_calismalar.rfly_full.pipeline import _k_of_n, _package_priority, _safe_target, case_id, is_essential
 
 
 def test_case_id_supports_simulation_and_real_paths():

@@ -10,9 +10,9 @@ import numpy as np
 import pandas as pd
 
 from adsb.windowing import build_windows
-from rfly_dl.config import FEATURE_COLUMNS, MAX_GAP_S, SCALE_CLIP, WINDOW, WINDOW_STRIDE
+from gecmis_calismalar.rfly_dl.config import FEATURE_COLUMNS, MAX_GAP_S, SCALE_CLIP, WINDOW, WINDOW_STRIDE
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 GOLD_PATH = ROOT / "data/gold/ml_features/rflymad/rflymad_ml_features.parquet"
 SILVER_PATH = ROOT / "data/silver/rflymad_silver.parquet"
 SPLIT_PATH = ROOT / "data/gold/ml_features/split_manifest.json"

@@ -1,4 +1,4 @@
-from rfly_full.dl_worker import split_of
+from gecmis_calismalar.rfly_full.dl_worker import split_of
 
 
 def test_flight_split_is_stable_and_valid():

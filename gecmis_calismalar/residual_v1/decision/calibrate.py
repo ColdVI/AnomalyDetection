@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-from residual_v1.decision.cusum import score_cusum_channel, threshold_crossing_alarms
+from gecmis_calismalar.residual_v1.decision.cusum import score_cusum_channel, threshold_crossing_alarms
 
 
 @dataclass(frozen=True)

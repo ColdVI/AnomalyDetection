@@ -4,12 +4,12 @@ import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from residual_v1.ingest.common import write_json
-from residual_v1.ingest.splits import load_flight_metadata, write_split_manifests
-from residual_v1.run import create_run_dir, update_manifest
-from residual_v1.tracking import log_run
+from gecmis_calismalar.residual_v1.ingest.common import write_json
+from gecmis_calismalar.residual_v1.ingest.splits import load_flight_metadata, write_split_manifests
+from gecmis_calismalar.residual_v1.run import create_run_dir, update_manifest
+from gecmis_calismalar.residual_v1.tracking import log_run
 
 
 def main() -> None:

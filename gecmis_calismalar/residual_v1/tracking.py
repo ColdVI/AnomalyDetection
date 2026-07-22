@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Mapping
 
-from residual_v1.ingest.common import write_json
+from gecmis_calismalar.residual_v1.ingest.common import write_json
 
 
 def log_run(

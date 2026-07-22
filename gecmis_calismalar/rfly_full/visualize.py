@@ -21,7 +21,7 @@ from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 from sklearn.preprocessing import RobustScaler
 from sklearn.manifold import TSNE
 
-from rfly_full.pipeline import FEATURES, ROOT
+from gecmis_calismalar.rfly_full.pipeline import FEATURES, ROOT
 
 
 V2_ROOT = ROOT / "artifacts/rfly_full/v2"

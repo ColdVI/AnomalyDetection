@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from rfly_full.pipeline import (
+from gecmis_calismalar.rfly_full.pipeline import (
     ARTIFACT_ROOT, PARSED_ROOT, REPORT_ROOT, _atomic_json, _load_json,
     _package_priority, _retry, case_id, is_essential, parse_ulg, smoke_evaluate,
 )
@@ -212,7 +212,7 @@ def main() -> None:
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     run(args.raw_root, datetime.fromisoformat(args.deadline) if args.deadline else None, args.batch_size)
-    from rfly_full.summary import main as write_combined_summary
+    from gecmis_calismalar.rfly_full.summary import main as write_combined_summary
     write_combined_summary()
 
 
