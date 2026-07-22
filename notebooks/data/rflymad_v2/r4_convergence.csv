@@ -1,0 +1,6 @@
+rotation,stop_reason,max_epochs,patience,min_delta,epochs_completed,best_epoch,initial_validation_loss,best_validation_loss,best_is_unmodified_base,extended_from_ceiling,validation_replay_max_abs_delta
+0,validation_patience_exhausted,100,12,0.0001,13,1,7.665611743927002,7.386845588684082,False,,
+1,validation_patience_exhausted,2000,12,0.0001,792,780,8.403168678283691,3.9386255741119385,False,500.0,8.881784197001252e-16
+2,validation_patience_exhausted,500,12,0.0001,229,217,8.719097137451172,8.135573387145996,False,100.0,0.0
+3,validation_patience_exhausted,100,12,0.0001,13,1,5.837534427642822,5.790218830108643,False,,
+4,validation_patience_exhausted,2000,12,0.0001,640,628,7.3150506019592285,3.9436187744140625,False,500.0,8.881784197001252e-16

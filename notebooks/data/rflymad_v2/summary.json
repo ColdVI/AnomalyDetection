@@ -1,0 +1,284 @@
+{
+  "snapshot_schema_version": 1,
+  "generated_at": "2026-07-22T12:34:28.817193+00:00",
+  "scope": "development-only; locked-test features were not read",
+  "parser": {
+    "schema_version": 2,
+    "sample_hz": 10,
+    "stop_reason": "complete",
+    "remaining": 0,
+    "canonical_flights": 6605,
+    "feature_schema_version": 1,
+    "truth_schema_version": 2,
+    "truth_reparse_invalidated": 2712,
+    "completed_count": 6605,
+    "failed_count": 0
+  },
+  "manifest": {
+    "canonical_flights": 6605,
+    "locked_test_canonical_flights": 1225,
+    "locked_test_fraction": 0.1854655563966692,
+    "contract": {
+      "test": "locked grouped 20% allocation within domain/family/environment strata",
+      "development": "remaining groups with deterministic five-fold assignment",
+      "wind": "environment robustness; not a system-fault positive",
+      "duplicates": "exact ULog SHA-256 shares canonical_case_id and split",
+      "truth_priority_v2": "rfly_ctrl_lxl, then TestInfo fallback; manifest records current parsed truth"
+    }
+  },
+  "crosscheck": {
+    "status": "complete",
+    "split": "development",
+    "crosscheck_schema_version": 2,
+    "onset_tolerance_s": 16.0,
+    "flights": 5380,
+    "completed": 5380,
+    "eligible": 4585,
+    "disagreement_v2": 0,
+    "locked_test_features_read": false
+  },
+  "truth_audit": {
+    "scope_split": "development",
+    "locked_test_features_read": false,
+    "flights_audited": 5380,
+    "parse_state_truth_reparse_invalidated": 2712,
+    "manifest_split_group_join_misses": 0,
+    "truth_source_distribution": {
+      "rfly_ctrl_lxl": 4934,
+      "normal_no_fault": 441,
+      "missing": 5
+    },
+    "missing_active_interval_flights": 5,
+    "truth_crosscheck_disagreement_flights": 4544,
+    "truth_crosscheck_v2_eligible_flights": 4585,
+    "truth_crosscheck_disagreement_v2_flights": 0,
+    "interval_violation_flights": 0,
+    "schema_missing_v2_features_flights": 0,
+    "near_duplicate_trajectory_tier_spanning_locked_and_development": 0,
+    "truth_crosscheck_v2_disagreement_flights": 0
+  },
+  "tcn_smoke": {
+    "status": "smoke_only",
+    "model": "supervised_tcn_multitask",
+    "validation_fold": 0,
+    "development_smoke_fold": 1,
+    "training_flights": 2833,
+    "validation_flights": 822,
+    "test_flights": 1290,
+    "training_windows": 23309,
+    "validation_eval_windows": 79337,
+    "test_eval_windows": 109100,
+    "locked_test_features_read": false,
+    "operational_claim_allowed": false,
+    "note": "test_flights is the development smoke fold, not the locked test"
+  },
+  "robustness": {
+    "status": "development_only_robustness_complete",
+    "development_flights": 5380,
+    "rotations": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "candidates_completed": [
+      "R1",
+      "W1",
+      "W2",
+      "R2",
+      "R3",
+      "R4"
+    ],
+    "convergence_extension_ceiling": 2000,
+    "convergence_extended_rotations": [
+      1,
+      4
+    ],
+    "real_conclusion": "current data/representation did not demonstrate Real transfer",
+    "wind_conclusion": "Wind robustness remains unresolved",
+    "locked_test_features_read": false,
+    "operational_claim_allowed": false,
+    "r4_gate": {
+      "critical_aggregate": {
+        "event_recall": {
+          "mean": 0.5461265103056148,
+          "std": 0.164821949006888,
+          "min": 0.3404406538734897,
+          "max": 0.7867803837953091
+        },
+        "all_nonfault_fa_per_hour": {
+          "mean": 5.239602862308731,
+          "std": 4.195268035084091,
+          "min": 0.6937961853254879,
+          "max": 10.905521829219529
+        },
+        "wind_fa_per_hour": {
+          "mean": 28.753990468101335,
+          "std": 15.104769726097528,
+          "min": 3.203702055708819,
+          "max": 42.68016517916611
+        },
+        "real_motor_recall": {
+          "mean": 0.29387755102040813,
+          "std": 0.0565383476620207,
+          "min": 0.2244897959183673,
+          "max": 0.3571428571428571
+        },
+        "real_sensor_recall": {
+          "mean": 0.2683544303797468,
+          "std": 0.15990252999719323,
+          "min": 0.0,
+          "max": 0.379746835443038
+        },
+        "real_macro_recall": {
+          "mean": 0.2811159907000774,
+          "std": 0.10292351382527182,
+          "min": 0.1224489795918367,
+          "max": 0.3684448462929476
+        },
+        "real_normal_fa_per_hour": {
+          "mean": 12.978385327254292,
+          "std": 14.05534608283592,
+          "min": 0.0,
+          "max": 35.96004439511654
+        },
+        "real_normal_alarm_flight_rate": {
+          "mean": 0.21636363636363637,
+          "std": 0.24107198609406866,
+          "min": 0.0,
+          "max": 0.6
+        }
+      },
+      "real_research_gate": {
+        "passed": false,
+        "conditions": {
+          "macro_mean_ge_0_40": false,
+          "motor_mean_ge_0_30": false,
+          "sensor_mean_ge_0_30": false,
+          "macro_min_ge_0_25": false,
+          "real_fa_mean_le_4": false,
+          "real_fa_max_le_8": false,
+          "overall_recall_mean_preserved": false,
+          "overall_recall_min_ge_0_50": false,
+          "all_nonfault_fa_mean_le_2": false
+        }
+      },
+      "wind_intermediate_gate": {
+        "passed": false,
+        "conditions": {
+          "wind_fa_mean_le_15": false,
+          "wind_fa_max_le_20": false,
+          "wind_reduction_ge_40pct": false,
+          "overall_recall_mean_preserved": false,
+          "real_macro_loss_le_0_05": true,
+          "all_nonfault_fa_mean_le_2": false
+        }
+      },
+      "wind_final_research_target": {
+        "passed": false,
+        "conditions": {
+          "wind_fa_mean_le_5": false,
+          "wind_fa_max_le_8": false
+        }
+      },
+      "real_feasibility_gate": {
+        "passed": false,
+        "conditions": {
+          "macro_mean_ge_0_50": false,
+          "motor_mean_ge_0_40": false,
+          "sensor_mean_ge_0_40": false,
+          "real_fa_mean_le_2": false,
+          "real_fa_max_le_4": false,
+          "bootstrap_macro_lower_ge_0_35": false
+        }
+      },
+      "frozen_baseline": {
+        "critical_event_recall_mean": 0.6043117744610281,
+        "critical_real_macro_recall": 0.14275000000000002,
+        "critical_wind_fa_per_hour": 28.461784635934823
+      }
+    },
+    "r4_bootstrap": {
+      "method": "canonical-flight cluster bootstrap; rotations stay in cluster",
+      "seed": 20260722,
+      "samples": 1000,
+      "policies": {
+        "critical": {
+          "event_recall": {
+            "lower_95": 0.535258148280211,
+            "upper_95": 0.5565491133633422
+          },
+          "real_motor_recall": {
+            "lower_95": 0.24255156765676567,
+            "upper_95": 0.3473710792131845
+          },
+          "real_sensor_recall": {
+            "lower_95": 0.22737965838509316,
+            "upper_95": 0.30540915915915917
+          },
+          "real_macro_recall": {
+            "lower_95": 0.24918060301909906,
+            "upper_95": 0.31443020673584415
+          },
+          "real_normal_fa_per_hour": {
+            "lower_95": 11.559828658828414,
+            "upper_95": 26.26332496046357
+          },
+          "real_normal_alarm_flight_rate": {
+            "lower_95": 0.1509433962264151,
+            "upper_95": 0.41895730958230953
+          },
+          "all_nonfault_fa_per_hour": {
+            "lower_95": 4.757064346676268,
+            "upper_95": 5.719721726060236
+          },
+          "wind_fa_per_hour": {
+            "lower_95": 28.361575555987546,
+            "upper_95": 31.829199894376877
+          }
+        },
+        "advisory": {
+          "event_recall": {
+            "lower_95": 0.6309540711078753,
+            "upper_95": 0.6519526553735705
+          },
+          "real_motor_recall": {
+            "lower_95": 0.2889914948453608,
+            "upper_95": 0.39908736681887363
+          },
+          "real_sensor_recall": {
+            "lower_95": 0.3037488425925926,
+            "upper_95": 0.39477375565610856
+          },
+          "real_macro_recall": {
+            "lower_95": 0.31021936330119115,
+            "upper_95": 0.37895778774190364
+          },
+          "real_normal_fa_per_hour": {
+            "lower_95": 29.324467119164137,
+            "upper_95": 48.64377340491832
+          },
+          "real_normal_alarm_flight_rate": {
+            "lower_95": 0.3823335913312693,
+            "upper_95": 0.7031605113636363
+          },
+          "all_nonfault_fa_per_hour": {
+            "lower_95": 8.106050937775938,
+            "upper_95": 9.434002354513638
+          },
+          "wind_fa_per_hour": {
+            "lower_95": 33.133178154357005,
+            "upper_95": 36.74866076657376
+          }
+        }
+      }
+    }
+  },
+  "verification": {
+    "related_tests_passed": 44,
+    "locked_test_features_read": false,
+    "archive_changes": 0,
+    "operational_claim_allowed": false
+  }
+}
