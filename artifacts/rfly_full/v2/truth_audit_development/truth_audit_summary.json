@@ -1,0 +1,48 @@
+{
+  "scope_split": "development",
+  "locked_test_features_read": false,
+  "flights_audited": 5380,
+  "parse_state_stop_reason": "complete",
+  "parse_state_completed": 6605,
+  "parse_state_failed": 0,
+  "parse_state_truth_schema_version": 2,
+  "parse_state_truth_reparse_invalidated": 2712,
+  "manifest_split_group_join_misses": 0,
+  "truth_source_distribution": {
+    "rfly_ctrl_lxl": 4934,
+    "normal_no_fault": 441,
+    "missing": 5
+  },
+  "system_fault_flights": 4221,
+  "missing_active_interval_flights": 5,
+  "missing_active_interval_by_domain_family": {
+    "Real|Motor": 5
+  },
+  "rfly_ctrl_lxl_flights": 4934,
+  "truth_crosscheck_disagreement_flights": 4544,
+  "truth_crosscheck_v2_onset_tolerance_s": 16.0,
+  "truth_crosscheck_v2_eligible_flights": 4585,
+  "truth_crosscheck_disagreement_v2_flights": 0,
+  "truth_crosscheck_v2_disagreement_by_domain_family": {},
+  "truth_crosscheck_v2_onset_delta_abs_quantiles_s": {
+    "0.0": 0.0,
+    "0.5": 1.6000000000000014,
+    "0.9": 15.200000000000003,
+    "0.99": 15.5,
+    "1.0": 15.899999999999999
+  },
+  "truth_crosscheck_v2_offset_delta_quantiles_s": {
+    "0.0": 0.0,
+    "0.5": 27.799999999999997,
+    "0.9": 35.0,
+    "0.99": 50.61599999999998,
+    "1.0": 63.099999999999994
+  },
+  "active_from_first_sample_flights": 0,
+  "active_from_first_sample_by_package": {},
+  "interval_violation_flights": 0,
+  "schema_missing_v2_features_flights": 0,
+  "near_duplicate_duration_tier_clusters": 1058,
+  "near_duplicate_trajectory_tier_clusters": 0,
+  "near_duplicate_trajectory_tier_spanning_locked_and_development": 0
+}

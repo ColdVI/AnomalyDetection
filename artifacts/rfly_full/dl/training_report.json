@@ -1,0 +1,111 @@
+{
+  "status": "trained",
+  "trained_at": "2026-07-20T20:22:02.044815+03:00",
+  "model": "dense_autoencoder",
+  "window_seconds": 20,
+  "train_stride_seconds": 5,
+  "evaluation_stride_seconds": 1,
+  "split": "sha256(case_id): 70/15/15",
+  "normal_flights": {
+    "train": 387,
+    "val": 72,
+    "test": 72
+  },
+  "features": [
+    "local_x",
+    "local_y",
+    "local_z",
+    "local_vx",
+    "local_vy",
+    "local_vz",
+    "local_ax",
+    "local_ay",
+    "local_az",
+    "roll_deg",
+    "pitch_deg",
+    "yaw_deg",
+    "act_roll",
+    "act_pitch",
+    "act_yaw",
+    "act_thrust",
+    "output_mean",
+    "output_std",
+    "output_range",
+    "battery_remaining",
+    "vel_test_ratio",
+    "pos_test_ratio",
+    "hgt_test_ratio",
+    "mag_test_ratio",
+    "gps_eph",
+    "gps_epv"
+  ],
+  "train_windows": 4620,
+  "validation_windows": 898,
+  "best_epoch": 12,
+  "best_val_loss": 2.531747817993164,
+  "parameters": 69272,
+  "threshold": 15.19620418548584,
+  "threshold_source": "normal_validation_reconstruction_q99.5",
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 6.497645210575413,
+      "val_loss": 5.576874732971191
+    },
+    {
+      "epoch": 2,
+      "train_loss": 4.1434601319802775,
+      "val_loss": 3.8449320793151855
+    },
+    {
+      "epoch": 3,
+      "train_loss": 3.185290239952706,
+      "val_loss": 3.2620983123779297
+    },
+    {
+      "epoch": 4,
+      "train_loss": 2.9410579526746594,
+      "val_loss": 3.07177734375
+    },
+    {
+      "epoch": 5,
+      "train_loss": 2.7517584401208,
+      "val_loss": 2.927373170852661
+    },
+    {
+      "epoch": 6,
+      "train_loss": 2.6474829622217126,
+      "val_loss": 2.827852487564087
+    },
+    {
+      "epoch": 7,
+      "train_loss": 2.5162760502583272,
+      "val_loss": 2.7417829036712646
+    },
+    {
+      "epoch": 8,
+      "train_loss": 2.478048385800542,
+      "val_loss": 2.6825480461120605
+    },
+    {
+      "epoch": 9,
+      "train_loss": 2.361162904146555,
+      "val_loss": 2.627427816390991
+    },
+    {
+      "epoch": 10,
+      "train_loss": 2.3137941553785994,
+      "val_loss": 2.5855960845947266
+    },
+    {
+      "epoch": 11,
+      "train_loss": 2.2747491888097815,
+      "val_loss": 2.562307357788086
+    },
+    {
+      "epoch": 12,
+      "train_loss": 2.2450260987152926,
+      "val_loss": 2.531747817993164
+    }
+  ]
+}

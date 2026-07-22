@@ -1,0 +1,109 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-21T10:11:23.890178+00:00",
+  "flight_candidates": 6605,
+  "canonical_flights": 6605,
+  "exact_duplicate_candidates": 0,
+  "locked_test_canonical_flights": 1225,
+  "quality_status": {
+    "provisional_testinfo_truth": 4746,
+    "ok": 1839,
+    "missing_fault_interval": 20
+  },
+  "by_domain_family": [
+    {
+      "domain": "HIL",
+      "fault_family": "Environment",
+      "flights": 443
+    },
+    {
+      "domain": "HIL",
+      "fault_family": "Load",
+      "flights": 291
+    },
+    {
+      "domain": "HIL",
+      "fault_family": "Motor",
+      "flights": 921
+    },
+    {
+      "domain": "HIL",
+      "fault_family": "NoFault",
+      "flights": 240
+    },
+    {
+      "domain": "HIL",
+      "fault_family": "Propeller",
+      "flights": 435
+    },
+    {
+      "domain": "HIL",
+      "fault_family": "Sensor",
+      "flights": 690
+    },
+    {
+      "domain": "HIL",
+      "fault_family": "Voltage",
+      "flights": 36
+    },
+    {
+      "domain": "Real",
+      "fault_family": "Motor",
+      "flights": 245
+    },
+    {
+      "domain": "Real",
+      "fault_family": "NoFault",
+      "flights": 51
+    },
+    {
+      "domain": "Real",
+      "fault_family": "Sensor",
+      "flights": 197
+    },
+    {
+      "domain": "SIL",
+      "fault_family": "Environment",
+      "flights": 443
+    },
+    {
+      "domain": "SIL",
+      "fault_family": "Load",
+      "flights": 291
+    },
+    {
+      "domain": "SIL",
+      "fault_family": "Motor",
+      "flights": 921
+    },
+    {
+      "domain": "SIL",
+      "fault_family": "NoFault",
+      "flights": 240
+    },
+    {
+      "domain": "SIL",
+      "fault_family": "Propeller",
+      "flights": 435
+    },
+    {
+      "domain": "SIL",
+      "fault_family": "Sensor",
+      "flights": 690
+    },
+    {
+      "domain": "SIL",
+      "fault_family": "Voltage",
+      "flights": 36
+    }
+  ],
+  "contract": {
+    "test": "locked grouped 20% allocation within domain/family/environment strata",
+    "development": "remaining groups with deterministic five-fold assignment",
+    "wind": "environment robustness; not a system-fault positive",
+    "duplicates": "exact ULog SHA-256 shares canonical_case_id and split",
+    "truth_priority_v2": "rfly_ctrl_lxl, then TestInfo fallback; manifest records current parsed truth"
+  },
+  "locked_test_fraction": 0.1854655563966692,
+  "split_registry": "artifacts/rfly_full/v2/split_registry.json"
+}

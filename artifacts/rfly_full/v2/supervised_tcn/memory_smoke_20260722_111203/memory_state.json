@@ -1,0 +1,33 @@
+{
+  "status": "complete",
+  "return_code": 0,
+  "started_at": "2026-07-22T08:12:03.943451+00:00",
+  "finished_at": "2026-07-22T08:21:55.310419+00:00",
+  "elapsed_seconds": 591.3611400000009,
+  "peak_rss_mb": 3563.2109375,
+  "max_peak_mb": 4096.0,
+  "memory_gate_passed": true,
+  "locked_test_features_read": false,
+  "validation_fold": 0,
+  "development_smoke_fold": 1,
+  "max_train_windows": 50000,
+  "max_val_windows": 20000,
+  "epochs": 3,
+  "tcn_output": "C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\artifacts\\rfly_full\\v2\\supervised_tcn\\run_20260722_111938",
+  "command": [
+    "C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\.venv\\Scripts\\python.exe",
+    "C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\scripts\\run_rfly_full_v2_supervised.py",
+    "--validation-fold",
+    "0",
+    "--development-smoke-fold",
+    "1",
+    "--epochs",
+    "3",
+    "--max-train-windows",
+    "50000",
+    "--max-val-windows",
+    "20000",
+    "--protocol",
+    "full"
+  ]
+}

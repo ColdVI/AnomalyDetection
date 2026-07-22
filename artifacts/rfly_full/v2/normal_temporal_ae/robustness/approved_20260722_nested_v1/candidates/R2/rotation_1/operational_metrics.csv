@@ -1,0 +1,3 @@
+policy,fault_flights,detected_fault_flights,event_recall,flight_tp,flight_fn,flight_fp,flight_tn,normal_validation_fa_per_hour,all_nonfault_fa_per_hour,environment_fa_per_hour
+critical,4221,1806,0.42786069651741293,1806,2415,28,63,13.65483608778109,2.0481494789795183,7.368514728130284
+advisory,4221,1728,0.4093816631130064,1728,2493,28,63,13.65483608778109,12.97879985627021,13.135178428406158

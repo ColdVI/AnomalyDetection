@@ -1,0 +1,13 @@
+{
+  "status": "invalidated_and_rerun",
+  "affected_packages": ["SIL-Wind", "HIL-Wind"],
+  "observed_problem": "The first parser assumed the real-flight idle sentinel 1500 for simulation logs; simulation rfly_ctrl_lxl uses zero while idle, making every 1 Hz row appear anomalous.",
+  "evidence": {
+    "sample_case": "SIL-Wind/SIL-Wind/acce-wind/TestCase_106_1414000105",
+    "controller_id_values": [0, 123544],
+    "test_info_fault_injection_s": 26,
+    "test_info_test_end_s": 71
+  },
+  "correction": "Simulation event truth is now taken from the published TestInfo injection/end interval; rfly_ctrl_lxl with zero idle is only a fallback.",
+  "invalidated_outputs": "First 2026-07-20 batch run prior to this correction. Its Wind metrics must not be used."
+}

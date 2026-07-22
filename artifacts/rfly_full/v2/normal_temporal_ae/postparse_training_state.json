@@ -1,0 +1,7 @@
+{
+  "status": "complete",
+  "parser_stop_reason": "complete",
+  "parsed_flights": 6605,
+  "model_output": "C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\artifacts\\rfly_full\\v2\\normal_temporal_ae\\run_20260721_143155",
+  "updated_at": "2026-07-21T11:31:56.433753+00:00"
+}

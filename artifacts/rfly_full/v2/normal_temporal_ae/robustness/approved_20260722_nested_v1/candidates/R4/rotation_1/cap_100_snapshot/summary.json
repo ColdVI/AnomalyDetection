@@ -1,0 +1,46 @@
+{
+  "status": "development_only_convergence_followup",
+  "created_at": "2026-07-22T10:47:37.506949+00:00",
+  "candidate": "R4",
+  "rotation": 1,
+  "model_source": "nested base AE; Real NoFault convergence fine-tune",
+  "normal_groups": {
+    "Real": {
+      "outer": "real_session:NoFault:2023-5-25",
+      "inner": "real_session:NoFault:2023-6-2"
+    },
+    "HIL": {
+      "outer": "simulation_scenario:HIL-NoFault/HIL-NoFault/waypoint",
+      "inner": "simulation_scenario:HIL-NoFault/HIL-NoFault/velocity"
+    },
+    "SIL": {
+      "outer": "simulation_scenario:SIL-NoFault/SIL-NoFault/circling",
+      "inner": "simulation_scenario:SIL-NoFault/SIL-NoFault/waypoint"
+    }
+  },
+  "wind_groups": {
+    "HIL": {
+      "outer": "simulation_scenario:HIL-Wind/hover-wind",
+      "inner": "simulation_scenario:HIL-Wind/waypoint-wind"
+    },
+    "SIL": {
+      "outer": "simulation_scenario:SIL-Wind/SIL-Wind/hover-wind",
+      "inner": "simulation_scenario:SIL-Wind/SIL-Wind/dece-wind"
+    }
+  },
+  "convergence": {
+    "stop_reason": "max_epochs",
+    "max_epochs": 100,
+    "patience": 12,
+    "min_delta": 0.0001,
+    "epochs_completed": 100,
+    "best_epoch": 99,
+    "initial_validation_loss": 8.403168678283691,
+    "best_validation_loss": 7.626890659332275,
+    "best_is_unmodified_base": false
+  },
+  "inner_calibration_fault_flights": 0,
+  "outer_evaluation_used_for_selection": false,
+  "locked_test_features_read": false,
+  "operational_claim_allowed": false
+}

@@ -43,6 +43,28 @@ influx_token.txt
 start_all.bat
 start_all_docker.bat
 artifacts/rflymad/
+/artifacts/pytest-rfly-*/
+/artifacts/rfly_full/kaggle_file_listing.csv
+/artifacts/rfly_full/kaggle_listing_state.json
+/artifacts/rfly_full/download_manifest.json
+/artifacts/rfly_full/overnight_state.json
+/artifacts/rfly_full/parsed_batches/
+/artifacts/rfly_full/batch_reports/
+/artifacts/rfly_full/*.log
+/artifacts/rfly_full/*.pid
+/artifacts/rfly_full/expanded_sources/
+/artifacts/rfly_full/expansion_state.json
+/artifacts/rfly_full/expansion_manifest.json
+/artifacts/rfly_full/expansion_*.log
+/artifacts/rfly_full/dl/model.pt
+/artifacts/rfly_full/dl/worker_state.json
+/artifacts/rfly_full/dl/batches/
+/artifacts/rfly_full/dl_worker.log
+/artifacts/rfly_full/dl_worker.pid
+/artifacts/rfly_full/v2/parse_10hz_state.json
+/artifacts/rfly_full/v2/parsed_10hz/
+/artifacts/rfly_full/v2/dense_ae_diagnostics/scored_windows.parquet
+/artifacts/rfly_full/v2/supervised_tcn/*/model.pt
 
 # RESIDUAL-V1 generated Silver/features/runs/handouts. These remain on disk for
 # local audit tools (including Claude) but are not source files.

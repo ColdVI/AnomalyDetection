@@ -1,0 +1,1050 @@
+{
+  "schema_version": 1,
+  "frozen_at": "2026-07-21T10:11:23.780884+00:00",
+  "groups": {
+    "simulation_scenario:HIL-Load/acce-load": {
+      "split": "locked_test",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Load"
+    },
+    "simulation_scenario:HIL-Load/circling-load": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "HIL",
+      "fault_family": "Load"
+    },
+    "simulation_scenario:HIL-Load/dece-load": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "HIL",
+      "fault_family": "Load"
+    },
+    "simulation_scenario:HIL-Load/hover-load": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "Load"
+    },
+    "simulation_scenario:HIL-Load/velocity-load": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "HIL",
+      "fault_family": "Load"
+    },
+    "simulation_scenario:HIL-Load/waypoint-load": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "HIL",
+      "fault_family": "Load"
+    },
+    "simulation_scenario:HIL-NoFault/HIL-NoFault/acce": {
+      "split": "locked_test",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "NoFault"
+    },
+    "simulation_scenario:HIL-NoFault/HIL-NoFault/circling": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "NoFault"
+    },
+    "simulation_scenario:HIL-NoFault/HIL-NoFault/dece": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "NoFault"
+    },
+    "simulation_scenario:HIL-NoFault/HIL-NoFault/hover": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "NoFault"
+    },
+    "simulation_scenario:HIL-NoFault/HIL-NoFault/velocity": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "HIL",
+      "fault_family": "NoFault"
+    },
+    "simulation_scenario:HIL-NoFault/HIL-NoFault/waypoint": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "NoFault"
+    },
+    "simulation_scenario:HIL-Sensors/acce-GPS": {
+      "split": "locked_test",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/acce-acce": {
+      "split": "locked_test",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/acce-baro": {
+      "split": "locked_test",
+      "cv_fold": 0,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/acce-gyro": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/acce-mag": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/circling-GPS": {
+      "split": "locked_test",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/circling-acce": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/circling-baro": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/circling-gyro": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/circling-mag": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/dece-GPS": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/dece-acce": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/dece-baro": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/dece-gyro": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/dece-mag": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/hover-GPS": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/hover-acce": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/hover-baro": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/hover-gyro": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/hover-mag": {
+      "split": "locked_test",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/velocity-GPS": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/velocity-acce": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/velocity-baro": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/velocity-gyro": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/velocity-mag": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/waypoint-GPS": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/waypoint-acce": {
+      "split": "locked_test",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/waypoint-baro": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/waypoint-gyro": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Sensors/waypoint-mag": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "HIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:HIL-Voltage/acce-voltage": {
+      "split": "locked_test",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Voltage"
+    },
+    "simulation_scenario:HIL-Voltage/circling-voltage": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Voltage"
+    },
+    "simulation_scenario:HIL-Voltage/dece-voltage": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Voltage"
+    },
+    "simulation_scenario:HIL-Voltage/hover-voltage": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Voltage"
+    },
+    "simulation_scenario:HIL-Voltage/velocity-voltage": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Voltage"
+    },
+    "simulation_scenario:HIL-Voltage/waypoint-voltage": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Voltage"
+    },
+    "simulation_scenario:HIL-Wind/acce-wind": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Environment"
+    },
+    "simulation_scenario:HIL-Wind/circling-wind": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Environment"
+    },
+    "simulation_scenario:HIL-Wind/dece-wind": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Environment"
+    },
+    "simulation_scenario:HIL-Wind/hover-wind": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Environment"
+    },
+    "simulation_scenario:HIL-Wind/velocity-wind": {
+      "split": "locked_test",
+      "cv_fold": 4,
+      "domain": "HIL",
+      "fault_family": "Environment"
+    },
+    "simulation_scenario:HIL-Wind/waypoint-wind": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "Environment"
+    },
+    "simulation_scenario:HIL_Motor_1/circling-motor-1": {
+      "split": "locked_test",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:HIL_Motor_1/circling-motor-2": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:HIL_Motor_1/circling-motor-3": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:HIL_Motor_1/hover-motor-1": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "HIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:HIL_Motor_1/hover-motor-2": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:HIL_Motor_1/hover-motor-3": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "HIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:HIL_Motor_2/acce-motor": {
+      "split": "locked_test",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:HIL_Motor_2/dece-motor": {
+      "split": "locked_test",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:HIL_Motor_2/velocity-motor": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:HIL_Motor_2/waypoint-motor-1": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:HIL_Motor_2/waypoint-motor-2": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "HIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:HIL_Motor_2/waypoint-motor-3": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:HIL_Prop/acce-prop": {
+      "split": "locked_test",
+      "cv_fold": 3,
+      "domain": "HIL",
+      "fault_family": "Propeller"
+    },
+    "simulation_scenario:HIL_Prop/circling-prop": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Propeller"
+    },
+    "simulation_scenario:HIL_Prop/dece-prop": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Propeller"
+    },
+    "simulation_scenario:HIL_Prop/hover-prop": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "HIL",
+      "fault_family": "Propeller"
+    },
+    "simulation_scenario:HIL_Prop/velocity-prop": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Propeller"
+    },
+    "simulation_scenario:HIL_Prop/waypoint-prop": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "HIL",
+      "fault_family": "Propeller"
+    },
+    "real_session:Motor:2023-6-2": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "Real",
+      "fault_family": "Motor"
+    },
+    "real_session:Motor:2023-5-31": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "Real",
+      "fault_family": "Motor"
+    },
+    "real_session:Motor:2023-6-7": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "Real",
+      "fault_family": "Motor"
+    },
+    "real_session:Motor:2023-6-9": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "Real",
+      "fault_family": "Motor"
+    },
+    "real_session:Motor:2023-6-10": {
+      "split": "locked_test",
+      "cv_fold": 0,
+      "domain": "Real",
+      "fault_family": "Motor"
+    },
+    "real_session:Motor:2023-5-17": {
+      "split": "locked_test",
+      "cv_fold": 0,
+      "domain": "Real",
+      "fault_family": "Motor"
+    },
+    "real_session:Motor:2023-5-18": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "Real",
+      "fault_family": "Motor"
+    },
+    "real_session:Motor:2023-6-1": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "Real",
+      "fault_family": "Motor"
+    },
+    "real_session:Motor:2023-5-22": {
+      "split": "locked_test",
+      "cv_fold": 3,
+      "domain": "Real",
+      "fault_family": "Motor"
+    },
+    "real_session:Motor:2023-5-23": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "Real",
+      "fault_family": "Motor"
+    },
+    "real_session:Motor:2023-5-24": {
+      "split": "locked_test",
+      "cv_fold": 4,
+      "domain": "Real",
+      "fault_family": "Motor"
+    },
+    "real_session:Motor:2023-5-25": {
+      "split": "locked_test",
+      "cv_fold": 3,
+      "domain": "Real",
+      "fault_family": "Motor"
+    },
+    "real_session:Motor:2023-5-26": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "Real",
+      "fault_family": "Motor"
+    },
+    "real_session:NoFault:2023-6-15": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "Real",
+      "fault_family": "NoFault"
+    },
+    "real_session:NoFault:2023-5-25": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "Real",
+      "fault_family": "NoFault"
+    },
+    "real_session:NoFault:2023-6-2": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "Real",
+      "fault_family": "NoFault"
+    },
+    "real_session:NoFault:2023-5-31": {
+      "split": "locked_test",
+      "cv_fold": 1,
+      "domain": "Real",
+      "fault_family": "NoFault"
+    },
+    "real_session:Sensor:2023-6-15": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "Real",
+      "fault_family": "Sensor"
+    },
+    "real_session:Sensor:2023-6-2": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "Real",
+      "fault_family": "Sensor"
+    },
+    "real_session:Sensor:2023-6-10": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "Real",
+      "fault_family": "Sensor"
+    },
+    "real_session:Sensor:2023-5-22": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "Real",
+      "fault_family": "Sensor"
+    },
+    "real_session:Sensor:2023-5-23": {
+      "split": "locked_test",
+      "cv_fold": 2,
+      "domain": "Real",
+      "fault_family": "Sensor"
+    },
+    "real_session:Sensor:2023-5-25": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "Real",
+      "fault_family": "Sensor"
+    },
+    "real_session:Sensor:2023-5-19": {
+      "split": "locked_test",
+      "cv_fold": 3,
+      "domain": "Real",
+      "fault_family": "Sensor"
+    },
+    "real_session:Sensor:2023-6-1": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "Real",
+      "fault_family": "Sensor"
+    },
+    "real_session:Sensor:2023-5-31": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "Real",
+      "fault_family": "Sensor"
+    },
+    "real_session:Sensor:2023-5-26": {
+      "split": "locked_test",
+      "cv_fold": 1,
+      "domain": "Real",
+      "fault_family": "Sensor"
+    },
+    "real_session:Sensor:2023-5-30": {
+      "split": "locked_test",
+      "cv_fold": 0,
+      "domain": "Real",
+      "fault_family": "Sensor"
+    },
+    "real_session:Sensor:2023-5-27": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "Real",
+      "fault_family": "Sensor"
+    },
+    "real_session:Sensor:2023-5-29": {
+      "split": "locked_test",
+      "cv_fold": 0,
+      "domain": "Real",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Load/SIL-Load/acce-load": {
+      "split": "locked_test",
+      "cv_fold": 3,
+      "domain": "SIL",
+      "fault_family": "Load"
+    },
+    "simulation_scenario:SIL-Load/SIL-Load/circling-load": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Load"
+    },
+    "simulation_scenario:SIL-Load/SIL-Load/dece-load": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "SIL",
+      "fault_family": "Load"
+    },
+    "simulation_scenario:SIL-Load/SIL-Load/hover-load": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "SIL",
+      "fault_family": "Load"
+    },
+    "simulation_scenario:SIL-Load/SIL-Load/velocity-load": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "SIL",
+      "fault_family": "Load"
+    },
+    "simulation_scenario:SIL-Load/SIL-Load/waypoint-load": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "SIL",
+      "fault_family": "Load"
+    },
+    "simulation_scenario:SIL-NoFault/SIL-NoFault/acce": {
+      "split": "locked_test",
+      "cv_fold": 4,
+      "domain": "SIL",
+      "fault_family": "NoFault"
+    },
+    "simulation_scenario:SIL-NoFault/SIL-NoFault/circling": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "SIL",
+      "fault_family": "NoFault"
+    },
+    "simulation_scenario:SIL-NoFault/SIL-NoFault/dece": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "SIL",
+      "fault_family": "NoFault"
+    },
+    "simulation_scenario:SIL-NoFault/SIL-NoFault/hover": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "SIL",
+      "fault_family": "NoFault"
+    },
+    "simulation_scenario:SIL-NoFault/SIL-NoFault/velocity": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "SIL",
+      "fault_family": "NoFault"
+    },
+    "simulation_scenario:SIL-NoFault/SIL-NoFault/waypoint": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "SIL",
+      "fault_family": "NoFault"
+    },
+    "simulation_scenario:SIL-Sensors/acce-GPS": {
+      "split": "locked_test",
+      "cv_fold": 4,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/acce-acce": {
+      "split": "locked_test",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/acce-baro": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/acce-gyro": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/acce-mag": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/circling-GPS": {
+      "split": "locked_test",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/circling-acce": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/circling-baro": {
+      "split": "locked_test",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/circling-gyro": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/circling-mag": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/dece-GPS": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/dece-acce": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/dece-baro": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/dece-gyro": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/dece-mag": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/hover-GPS": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/hover-acce": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/hover-baro": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/hover-gyro": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/hover-mag": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/velocity-GPS": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/velocity-acce": {
+      "split": "locked_test",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/velocity-baro": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/velocity-gyro": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/velocity-mag": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/waypoint-GPS": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/waypoint-acce": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/waypoint-baro": {
+      "split": "locked_test",
+      "cv_fold": 3,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/waypoint-gyro": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Sensors/waypoint-mag": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Sensor"
+    },
+    "simulation_scenario:SIL-Voltage/SIL-Voltage/acce-voltage": {
+      "split": "locked_test",
+      "cv_fold": 3,
+      "domain": "SIL",
+      "fault_family": "Voltage"
+    },
+    "simulation_scenario:SIL-Voltage/SIL-Voltage/circling-voltage": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "SIL",
+      "fault_family": "Voltage"
+    },
+    "simulation_scenario:SIL-Voltage/SIL-Voltage/dece-voltage": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "SIL",
+      "fault_family": "Voltage"
+    },
+    "simulation_scenario:SIL-Voltage/SIL-Voltage/hover-voltage": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "SIL",
+      "fault_family": "Voltage"
+    },
+    "simulation_scenario:SIL-Voltage/SIL-Voltage/velocity-voltage": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Voltage"
+    },
+    "simulation_scenario:SIL-Voltage/SIL-Voltage/waypoint-voltage": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "SIL",
+      "fault_family": "Voltage"
+    },
+    "simulation_scenario:SIL-Wind/SIL-Wind/acce-wind": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "SIL",
+      "fault_family": "Environment"
+    },
+    "simulation_scenario:SIL-Wind/SIL-Wind/circling-wind": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Environment"
+    },
+    "simulation_scenario:SIL-Wind/SIL-Wind/dece-wind": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "SIL",
+      "fault_family": "Environment"
+    },
+    "simulation_scenario:SIL-Wind/SIL-Wind/hover-wind": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "SIL",
+      "fault_family": "Environment"
+    },
+    "simulation_scenario:SIL-Wind/SIL-Wind/velocity-wind": {
+      "split": "locked_test",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Environment"
+    },
+    "simulation_scenario:SIL-Wind/SIL-Wind/waypoint-wind": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Environment"
+    },
+    "simulation_scenario:SIL_Motor_1/SIL_Motor_1/circling-motor-1": {
+      "split": "locked_test",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:SIL_Motor_1/SIL_Motor_1/circling-motor-2": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "SIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:SIL_Motor_1/SIL_Motor_1/circling-motor-3": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "SIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:SIL_Motor_1/SIL_Motor_1/hover-motor-1": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "SIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:SIL_Motor_1/SIL_Motor_1/hover-motor-2": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "SIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:SIL_Motor_1/SIL_Motor_1/hover-motor-3": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "SIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:SIL_Motor_2/acce-motor": {
+      "split": "locked_test",
+      "cv_fold": 3,
+      "domain": "SIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:SIL_Motor_2/dece-motor": {
+      "split": "locked_test",
+      "cv_fold": 2,
+      "domain": "SIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:SIL_Motor_2/velocity-motor": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "SIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:SIL_Motor_2/waypoint-motor-1": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "SIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:SIL_Motor_2/waypoint-motor-2": {
+      "split": "development",
+      "cv_fold": 3,
+      "domain": "SIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:SIL_Motor_2/waypoint-motor-3": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Motor"
+    },
+    "simulation_scenario:SIL_Prop/acce-prop": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "SIL",
+      "fault_family": "Propeller"
+    },
+    "simulation_scenario:SIL_Prop/circling-prop": {
+      "split": "locked_test",
+      "cv_fold": 2,
+      "domain": "SIL",
+      "fault_family": "Propeller"
+    },
+    "simulation_scenario:SIL_Prop/dece-prop": {
+      "split": "development",
+      "cv_fold": 4,
+      "domain": "SIL",
+      "fault_family": "Propeller"
+    },
+    "simulation_scenario:SIL_Prop/hover-prop": {
+      "split": "development",
+      "cv_fold": 1,
+      "domain": "SIL",
+      "fault_family": "Propeller"
+    },
+    "simulation_scenario:SIL_Prop/velocity-prop": {
+      "split": "development",
+      "cv_fold": 0,
+      "domain": "SIL",
+      "fault_family": "Propeller"
+    },
+    "simulation_scenario:SIL_Prop/waypoint-prop": {
+      "split": "development",
+      "cv_fold": 2,
+      "domain": "SIL",
+      "fault_family": "Propeller"
+    }
+  }
+}

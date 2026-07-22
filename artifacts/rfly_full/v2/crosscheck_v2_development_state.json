@@ -1,0 +1,13 @@
+{
+  "status": "complete",
+  "split": "development",
+  "crosscheck_schema_version": 2,
+  "onset_tolerance_s": 16.0,
+  "flights": 5380,
+  "completed": 5380,
+  "failed": {},
+  "eligible": 4585,
+  "disagreement_v2": 0,
+  "locked_test_features_read": false,
+  "updated_at": "2026-07-22T11:07:55.470835+03:00"
+}

@@ -1,0 +1,75 @@
+{
+  "method": "canonical-flight cluster bootstrap; rotations stay in cluster",
+  "seed": 20260722,
+  "samples": 1000,
+  "policies": {
+    "critical": {
+      "event_recall": {
+        "lower_95": 0.5846640050076752,
+        "upper_95": 0.606352152925847
+      },
+      "real_motor_recall": {
+        "lower_95": 0.1989472291840713,
+        "upper_95": 0.2800114942528736
+      },
+      "real_sensor_recall": {
+        "lower_95": 0.18815193394560226,
+        "upper_95": 0.2502946297040311
+      },
+      "real_macro_recall": {
+        "lower_95": 0.203627237353925,
+        "upper_95": 0.256236125962318
+      },
+      "real_normal_fa_per_hour": {
+        "lower_95": 11.471375461223145,
+        "upper_95": 26.41237675090885
+      },
+      "real_normal_alarm_flight_rate": {
+        "lower_95": 0.1384313725490196,
+        "upper_95": 0.3913190364277321
+      },
+      "all_nonfault_fa_per_hour": {
+        "lower_95": 2.878610314199519,
+        "upper_95": 3.682964842111859
+      },
+      "wind_fa_per_hour": {
+        "lower_95": 27.500269892429667,
+        "upper_95": 30.97770867064885
+      }
+    },
+    "advisory": {
+      "event_recall": {
+        "lower_95": 0.6400847537850229,
+        "upper_95": 0.6598847179929458
+      },
+      "real_motor_recall": {
+        "lower_95": 0.23498521505376344,
+        "upper_95": 0.3261627906976744
+      },
+      "real_sensor_recall": {
+        "lower_95": 0.24868257487641757,
+        "upper_95": 0.3242291235334714
+      },
+      "real_macro_recall": {
+        "lower_95": 0.25423526531074914,
+        "upper_95": 0.3107732712206623
+      },
+      "real_normal_fa_per_hour": {
+        "lower_95": 27.178899330317837,
+        "upper_95": 46.624419647220044
+      },
+      "real_normal_alarm_flight_rate": {
+        "lower_95": 0.3461206896551724,
+        "upper_95": 0.6592803030303028
+      },
+      "all_nonfault_fa_per_hour": {
+        "lower_95": 7.783726486059977,
+        "upper_95": 8.878391083868639
+      },
+      "wind_fa_per_hour": {
+        "lower_95": 32.26316896833377,
+        "upper_95": 35.73591953667622
+      }
+    }
+  }
+}

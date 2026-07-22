@@ -1,0 +1,53 @@
+{
+  "status": "complete",
+  "created_at": "2026-07-22T08:44:10.622319+00:00",
+  "run_name": "approved_20260722_nested_v1",
+  "development_flights": 5380,
+  "rotations": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "candidates": [
+    "R1",
+    "W1",
+    "W2",
+    "R2",
+    "R3"
+  ],
+  "selection_rule": "stop at the first passing candidate per target",
+  "locked_test_features_read": false,
+  "status_label": "development_only_robustness",
+  "operational_claim_allowed": false,
+  "base_rotations_completed": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "updated_at": "2026-07-22T11:14:36.356429+00:00",
+  "active_candidate": null,
+  "active_candidate_rotations_completed": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "candidates_completed": [
+    "R1",
+    "W1",
+    "W2",
+    "R2",
+    "R3",
+    "R4"
+  ],
+  "convergence_extension_ceiling": 2000,
+  "convergence_extended_rotations": [
+    1,
+    4
+  ]
+}

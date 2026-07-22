@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "C:\Users\PC_5812_YD26\Desktop\GitHub\AnomalyDetection\scripts\parse_rfly_full_v2_10hz.py", line 12, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\PC_5812_YD26\Desktop\GitHub\AnomalyDetection\rfly_full\v2_parser.py", line 313, in main
+    state = run(
+        max_flights=args.max_flights,
+        deadline=datetime.fromisoformat(args.deadline) if args.deadline else None,
+        priority_normal=args.priority_normal,
+    )
+  File "C:\Users\PC_5812_YD26\Desktop\GitHub\AnomalyDetection\rfly_full\v2_parser.py", line 291, in run
+    _atomic_json(PARSE_STATE, state)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_5812_YD26\Desktop\GitHub\AnomalyDetection\rfly_full\pipeline.py", line 56, in _atomic_json
+    os.replace(temporary, path)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Eri\u015fim engellendi: 'C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\artifacts\\rfly_full\\v2\\parse_10hz_state.json.tmp' -> 'C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\artifacts\\rfly_full\\v2\\parse_10hz_state.json'

@@ -1,0 +1,17 @@
+policy,domain,fault_family,flights,detected,recall
+advisory,HIL,Motor,16,15,0.9375
+advisory,HIL,Propeller,2,2,1.0
+advisory,HIL,Sensor,12,4,0.3333333333333333
+advisory,Real,Motor,4,2,0.5
+advisory,Real,Sensor,4,2,0.5
+advisory,SIL,Motor,16,16,1.0
+advisory,SIL,Propeller,6,6,1.0
+advisory,SIL,Sensor,9,7,0.7777777777777778
+critical,HIL,Motor,16,15,0.9375
+critical,HIL,Propeller,2,2,1.0
+critical,HIL,Sensor,12,4,0.3333333333333333
+critical,Real,Motor,4,2,0.5
+critical,Real,Sensor,4,1,0.25
+critical,SIL,Motor,16,13,0.8125
+critical,SIL,Propeller,6,5,0.8333333333333334
+critical,SIL,Sensor,9,1,0.1111111111111111

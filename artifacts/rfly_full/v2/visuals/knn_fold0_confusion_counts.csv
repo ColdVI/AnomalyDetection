@@ -1,0 +1,6 @@
+,NoFault,Motor,Propeller,Sensor,Environment
+NoFault,23,1,0,15,1
+Motor,5,20,1,70,0
+Propeller,0,81,14,0,1
+Sensor,3,43,0,199,6
+Environment,0,88,1,26,23
