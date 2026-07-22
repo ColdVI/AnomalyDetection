@@ -1,0 +1,126 @@
+================================================================================
+UAV ANOMALI TESPITI - MODEL SONUCLARI (Recall / Precision / F1)
+Olusturulma: 2026-07-09
+Kapsam: development kumesi. 131 ucusluk ayri bir test grubu (kor holdout)
+        hicbir sayida yoktur, hic kullanilmadi.
+================================================================================
+
+--------------------------------------------------------------------------------
+METRIKLERIN TANIMI
+--------------------------------------------------------------------------------
+Recall (Yakalama orani)   : Gercek arizalarin yuzde kaci zamaninda alarm uretti.
+Precision (Kesinlik)      : Uretilen alarmlarin yuzde kaci gercek bir arizaya
+                             denk geldi (geri kalani yanlis alarm).
+F1 Score                  : Recall ve Precision'in dengeli ortalamasi (0-1,
+                             1'e yaklastikca daha iyi).
+Yanlis Alarm Orani (FA/h) : Normal ucus saati basina uretilen yanlis alarm
+                             sayisi (dusuk = iyi).
+Bunlar 5 ayri rastgele train/test bolunmesinin (seed) ortalamasidir.
+
+--------------------------------------------------------------------------------
+1) VERI SETLERI VE KATEGORILER
+--------------------------------------------------------------------------------
+Ana veri seti UAV-SEAD (PX4 ucuslari), asagidaki ariza kategorileri:
+  Actuator Controls, Actuator Outputs, Actuator Outputs+Controls, Actuator
+  Thrust, Battery, Position.X, Position.Y, Position.Z, Velocity
+
+Ek veri setleri: ALFA (sabit kanat, mekanik ariza), UAV Attack (PX4, siber
+saldiri), RflyMAD (PX4, gercek-ucus motor/sensor arizasi - yeni eklendi, henuz
+ana modele karismadi, ayri olarak test ediliyor).
+
+--------------------------------------------------------------------------------
+2) GUNCEL EN IYI SONUC - KATEGORI BAZINDA RECALL
+   (en son model, dusuk-alarm-toleransli ayar: FA hedefi <=12/saat)
+--------------------------------------------------------------------------------
+Kategori                      Ornek sayisi   Recall    Yanlis Alarm/saat
+----------------------------  ------------   -------   -----------------
+Velocity                            2         0.800*        54.8   (n=2, guvenilmez)
+Position.X                        145         0.185           18.7
+Position.Y                         96         0.160           22.8
+Actuator Outputs                   25         0.120           10.7
+Actuator Outputs+Controls          42         0.086           10.9
+Actuator Controls                  17         0.035           11.3
+Position.Z                        121         0.028            2.9
+Battery                             2         0.000           22.1   (n=2, guvenilmez)
+Actuator Thrust                     2         0.000            0.0   (n=2, guvenilmez)
+
+* n=2 olan kategorilerde tek bir arizanin yakalanip yakalanmamasi orani
+  %0 veya %100 yapiyor - istatistiksel olarak anlamli degil, sadece bilgi
+  amacli verildi.
+
+--------------------------------------------------------------------------------
+3) FARKLI YONTEMLERIN KARSILASTIRMASI (Recall / Precision / F1)
+   Genel (tum kategoriler birlesik) sonuclar, 5-seed ortalamasi
+--------------------------------------------------------------------------------
+
+DUSUK ALARM TOLERANSLI AYAR (FA hedefi <= 2/saat):
+Yontem                                    Recall   Precision   F1      FA/saat
+-----------------------------------------  ------   ---------   -----   -------
+Tum ozellikler + skor birlestirme (eski)    0.132     0.222      0.149    12.87
+Tahmin-hata modeli (Chronos) eklenmis       0.133     0.237      0.151    12.83
+Buyutulmus veriyle yeniden egitim (guncel)  0.043     0.275      0.088     1.60
+
+YUKSEK ALARM TOLERANSLI AYAR (FA hedefi <= 12/saat):
+Yontem                                    Recall   Precision   F1      FA/saat
+-----------------------------------------  ------   ---------   -----   -------
+Tum ozellikler + skor birlestirme (eski)    0.212     0.201      0.193    23.63
+Tahmin-hata modeli (Chronos) eklenmis       0.213     0.199      0.194    23.92
+Tek-ozellik motor skoru (itki_komutu tek)   0.182     0.100      0.119    47.75
+Motor kategorisine ozel skor + birlestirme  0.217     0.203      0.197    23.74
+Buyutulmus veriyle yeniden egitim (guncel)  0.126     0.117      0.120     9.95
+Buyutulmus veri + farkli karar kurali       0.056     0.217      0.245     2.28
+
+NOT: "Buyutulmus veriyle yeniden egitim" satiri, normal ucus sayisini 324'ten
+899'a cikardiktan sonraki en guncel modeldir. Yanlis alarm oranini ciddi
+dusurdu (23.6 -> 9.95 ve 12.9 -> 1.60) ama bunun bedeli recall'un de dusmesi
+oldu (0.21 -> 0.13, 0.13 -> 0.04). Yani model daha "sessiz" oldu ama daha az
+ariza yakaliyor - klasik recall/precision degis-tokusu, henuz cozulmedi.
+
+RflyMAD (yeni, gercek-ucus motor/sensor verisi) - AYRI OLARAK test edildi:
+  Ayni tek-ozellik motor skoru bu veri setinde     Recall = 0.82 - 1.00
+  Ama SEAD kategorilerine hic transfer olmuyor:    Recall = 0.01 - 0.02
+  (iki veri setini birlestirip TEK modelle test etme denemesi teknik bir
+  hatadan dolayi henuz saglikli sonuc vermiyor - duzeltiliyor)
+
+--------------------------------------------------------------------------------
+4) TESPIT GECIKMESI (yakalanan arizalarda, gecikme suresi)
+--------------------------------------------------------------------------------
+Ortalama gecikme     : ~5-125 saniye (cogunlukla 10-45 saniye)
+Karar sikligi         : saniyede 1 kez
+
+Asil sorun gecikme DEGIL - yukaridaki tablodan gorulecegi gibi recall zaten
+dusuk, yani arizalarin buyuk kismi hic yakalanmiyor. Yakalanan kucuk kisim
+makul surede yakalaniyor.
+
+--------------------------------------------------------------------------------
+5) NEDEN RECALL DUSUK KALIYOR - KISA ACIKLAMA
+--------------------------------------------------------------------------------
+Tek bir ozellik (motor komut sinyali) arizali/normal ucuslari tek basina cok
+iyi ayirt edebiliyor (ayirt etme gucu ~0.98/1.0 - neredeyse mukemmel). Ama
+ayni ozellik normal ucuslarda da sik sik alarm uretiyor (saatte 38 kez) -
+cunku normal ucuslarin kendisi de birbirinden oldukca farkli (398 normal
+ucus aslinda yalniz 64 farkli oturuma/gorevden geliyor, yani bagimsiz ornek
+sayisi gorunenden cok daha az). Yanlis alarm sayisini kabul edilebilir
+seviyeye (saatte 2-12) indirmek icin alarm esigi yukseltiliyor, bu da gercek
+arizalarin cogunun da esigin altinda kalmasina, yani kacirilmasina yol
+aciyor. Daha fazla normal ucus veriyle egitmek bu sorunu bir miktar
+azaltiyor (bkz. bolum 3) ama tamamen cozmuyor - cunku sorun veri MIKTARI
+degil, normal ucuslarin CESITLILIGI ve modelin buna gore kalibre edilmesi.
+
+--------------------------------------------------------------------------------
+6) SU AN NEREDE KALDIK
+--------------------------------------------------------------------------------
+- RflyMAD verisini SEAD ile birlestirip tek model test etme denemesindeki
+  teknik hata duzeltiliyor (iki veri setinin ortak olmayan kolonlari yanlis
+  dolduruluyordu).
+- Sirada: normal-ucus cesitliligine gore alarm esigini otomatik ayarlayan bir
+  kalibrasyon adimi - amac yukaridaki recall/precision degis-tokusunu daha iyi
+  bir noktaya tasimak (mevcut en iyi ayarda yanlis-alarm butcesinin bir kismi
+  hic kullanilmiyor, oradan geri recall kazanilabilir).
+- Bu da yetmezse: farkli/yeni skor turleri denenecek (zaman serisi tahmin
+  modelleri, farkli ozellik kombinasyonlari).
+- Hicbiri hedefe (%30-50 recall, saatte 2-12 yanlis alarm) ulasamazsa, nihai
+  teslim "calisan bir alarm sistemi" degil, "bu veriyle ulasilabilir en iyi
+  recall/yanlis-alarm dengesi ve nedeni" seklinde durust bir rapor olacak.
+
+================================================================================

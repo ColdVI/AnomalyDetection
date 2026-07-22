@@ -1,0 +1,77 @@
+{
+  "artifact_schema_version": 1,
+  "created_utc": "2026-07-10T06:05:29.655982+00:00",
+  "stage": "ML-16 Kol N SEAD lstm magnitude-normalized post-hoc scoring (frozen checkpoint, no retraining)",
+  "source": "uav_sead",
+  "architecture": "lstm",
+  "plan": "docs/ML16_KOL_N_GENLIK_NORMALIZE_SKOR_PLAN.md",
+  "score_sources_evaluated": [
+    "lstm_relerr",
+    "lstm_rankpct"
+  ],
+  "relative_error_eps": 0.1,
+  "frozen_checkpoint_source": "artifacts/ml_lstm_sead/uav_sead/full_matrix",
+  "blind_holdout_read": false,
+  "blind_holdout_flights": 200,
+  "development_flights": 1044,
+  "development_source_ids_sha256": "66d0038ce92305e1a0ca0538cd7ef93458d5271ea161cf4386a3994eea5165c0",
+  "evaluated_splits": [
+    "split_00"
+  ],
+  "ae_feature_columns": [
+    "gps_step_m",
+    "log_gps_speed",
+    "gps_accel_mps2",
+    "vertical_rate_calc",
+    "gps_speed_residual",
+    "vertical_rate_residual",
+    "course_change_deg",
+    "gps_frozen_count",
+    "jamming_indicator",
+    "noise_per_ms",
+    "hdop",
+    "vdop",
+    "satellites_used",
+    "s_variance_m_s",
+    "eph",
+    "epv",
+    "roll_rate",
+    "pitch_rate",
+    "yaw_rate",
+    "attitude_missing",
+    "num_missing_groups",
+    "attitude_stale_s"
+  ],
+  "window": 50,
+  "stride": 5,
+  "window_coverage": [
+    {
+      "split": "split_00",
+      "relerr_val_row_finite_fraction": 0.959960644481505,
+      "relerr_test_row_finite_fraction": 0.9635589035239661,
+      "rankpct_val_row_finite_fraction": 0.959960644481505,
+      "rankpct_test_row_finite_fraction": 0.9635589035239661,
+      "train_windows": 6642,
+      "score_windows": 263186,
+      "train_flights": 23,
+      "val_flights": 117,
+      "test_flights": 904
+    }
+  ],
+  "split_manifest_sha256": "d59439b8ed497ebb420a2e9e4fa3c7a6c77c08793cfe772c26a9c4cbf73d651e",
+  "feature_table_sha256": "1174ca5bd0a66cb3c0e9f7ad19ccc6c0e402c83c4206359bd1d92411a8d888a7",
+  "silver_table_sha256": "4475827831628765a5974424def732492a2788fa266cd8d44503ff36998b91a8",
+  "gate_status": {
+    "gate_a": "passed",
+    "gate_b": "smoke_only"
+  },
+  "files": {
+    "category_metrics.csv": "025d6bf6040f1bccc01a6557b575fc03e888f25f34bfa1569969949021ef100f",
+    "correlation_diagnostics.json": "7a40fde13d9ad99a7b0f94b559e43eaed45b93f93a62a72aac5fe85cfa0f1fb9",
+    "flight_label_metrics.csv": "aa73ecf35bb93c2c837dd9c2cd15bb7ad3e4359c00843da2c032e9950f6424c9",
+    "gates.json": "1757cb2974c85f9eae8eff5c9d6d682060c4bcfa3e1d37e5a9e2c9c854263617",
+    "metrics.csv": "a9c40455397405aca23e2181764b7a77efef6e200238b27dda90f844afe7f562",
+    "split_00/correlation_diagnostic.json": "7c6e4a5ff9c3ba2b6ab46a1730da53eec0d611e2052bdd7365738200ef61e344",
+    "split_00/policies.json": "956d8bd92988c535604c3f5a5a12228ebb072d36dcef4a10b9778f8fb6cae051"
+  }
+}

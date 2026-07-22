@@ -1709,3 +1709,61 @@ ve mevcut kaynaktan ingest matematiksel olarak yetersizdir.
 koşu thresholds_frozen.json yazmadı. configs/residual_v1_cusum.json değiştirilmedi
 (SHA-256 627948fbfd060aa39f881f72c25cf359694642d546b2e02ee6a0a2e4d0777584).
 Ana rapor: docs/RESIDUAL_V1_KALIBRASYON_NOGO_RAPORU.md.
+
+## ADR-044: RflyMAD-Full v2 — truth-parser düzeltmesi + 6-adaylı Wind/Real robustness sweep, hiçbiri kapıyı geçmedi
+
+- Durum: NO-GO (araştırma-promosyon seviyesinde) — mevcut veri/temsille Real
+  transfer gösterilemedi, Wind robustness çözülmedi
+- Tarih: 2026-07-22
+
+**Karar:** `rfly_full/` (RflyMAD-Full v2, 6605 uçuş) hattında önce kritik bir
+parser hatası düzeltildi: `v2_parser.py` alt çizgili paket adlarında (`HIL_Motor_1`
+gibi) yanlış domain seçiyor, bu yüzden 2712 uçuşta idle kontrol durumu "arıza
+t=0'dan itibaren aktif" sayılıyordu. Düzeltme sonrası truth audit temiz
+(sahte t=0 1354→0, sızıntı yok). Ardından, sonuçlardan önce yazılı olarak
+dondurulan `RFLYMAD_V2_ROBUSTNESS_SOZLESMESI_20260722.md` sözleşmesi altında
+altı Wind/Real robustness adayı (R1, W1, W2, R2, R3, kullanıcı-onaylı ek
+convergence-follow-up R4) development-only koşuldu. **Altısı da kendi
+promosyon kapısını geçemedi:** en iyi Real macro recall (R4) %14,3'ten
+%28,1'e çıktı ama hedef %40'ın altında; genel recall %60,4'ten %54,6'ya
+düştü, FA yükü arttı. En iyi Wind azaltımı (W2) baseline'a göre %37,5,
+hedef %40'ın az altında. Development-only supervised TCN sweep de aynı
+kapılarla test edildi, geçemedi.
+
+**Bu genel bir "RflyMAD'da sinyal yok" iddiası değildir:** critical politika
+kararlı biçimde development recall/FA koruma kapısını geçiyor (bkz.
+düzeltilmiş 5-rotasyon normal-AE sweep, %60,4 recall/1,28 FA-saat); tıkanma
+özellikle Real-domain transferinde ve Wind ortam-gürültüsünde.
+
+**Sayısal gerekçe ve tam kapı tablosu:**
+`gecmis_calismalar/RFLYMAD/raporlar/RFLYMAD_V2_ROBUSTNESS_SONUCLARI_20260722.md`.
+
+**İzolasyon:** Kilitli test (`locked_test` split) hiçbir adayda okunmadı
+(`locked_test_features_read=false`, 46 summary'nin tamamında doğrulandı).
+Sözleşmenin kendi durdurma kuralı gereği yeni Real/Wind AE konfigürasyonu
+(yeni epoch/LR/threshold) yeni bir yazılı sözleşme olmadan çalıştırılmayacak.
+Ana rapor: `gecmis_calismalar/RFLYMAD/raporlar/RFLYMAD_V2_SONRAKI_ADIMLAR_20260722.md`.
+
+## ADR-045: Dört-dataset geçmiş çalışma arşivi dataset × dosya-türü bazında yeniden klasörlendi
+
+- Durum: tamamlandı (kod/rapor taşındı; büyük veri/artefakt kasıtlı olarak
+  yerinde bırakıldı)
+- Tarih: 2026-07-22
+
+**Karar:** ALFA/UAV-Attack/UAV-SEAD/RFLYMAD'daki haftalarca süren dağınık
+çalışma `gecmis_calismalar/` altında dataset-first bir taksonomiye
+(`ALFA/`, `UAV_ATTACK/`, `UAV_SEAD/`, `RFLYMAD/`, `_ortak/`) taşındı. `archive/`
+klasörü git geçmişinden (`53b9f1f~1`) geri getirildi — daha önce diskte boş bir
+kabuktu. `scripts/` ve `tests/` kök isimleri korunarak içlerine dataset alt
+klasörleri açıldı (`pytest.ini`'deki `testpaths = tests` değişmedi). Canlı
+paketler (`residual_v1`, `uav_gnss`, `anomaly_core`, `rfly_full`, `rfly_dl`)
+yeni konumlarına taşındı ve import yolları güncellendi; `adsb/` kullanıcı
+kararıyla dokunulmadan kaldı (yeni indirgenmiş ADS-B çalışması onun üzerine
+kurulacak). `data/` (~30GB) ve büyük üretilmiş `artifacts/` ağaçları
+`.gitignore` path-anchored kurallarıyla çakışmayı önlemek için taşınmadı; her
+dataset klasöründe bir `VERI_ARTEFAKT_KONUMU.md` pointer dosyası bırakıldı.
+
+**İzolasyon:** Taşıma sonrası tam test suite (`python -m pytest tests -q`)
+çalıştırılıp önceki geçen test sayısıyla birebir eşleştiği doğrulandı (bkz.
+Faz 3 doğrulama kaydı). Commit/push kullanıcı onayına bırakıldı.
+Harita: `gecmis_calismalar/README.md`.

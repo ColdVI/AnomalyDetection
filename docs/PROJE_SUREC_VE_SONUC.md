@@ -24,6 +24,14 @@ ama operasyonel eşik kurulamadı" ayrımı belgelendi:
 - **RESIDUAL-V1** — NO-GO; sanity kapıları (S-1/S-3) PASS ama kalibrasyon için
   yeterli bağımsız normal uçuş-saati yok. (Ayrıntı: `RESIDUAL_V1.md`.)
 
+**2026-07-22 güncellemesi:** RflyMAD-Full v2 hattında ayrı, çok daha büyük bir
+turda (6605 uçuş, düzeltilmiş truth) 6-adaylı preregistered Wind/Real
+robustness sweep (R1-R4, W1, W2) ve development-only TCN sweep çalıştırıldı —
+**hiçbiri kendi kapısını geçmedi**; aynı desen burada da tekrarlandı: sinyal
+kısmen var (Real macro recall %14→%28'e çıktı) ama genel recall/FA maliyeti
+ve Wind alarm yükü operasyonel/araştırma eşiğinin altında kaldı. Ayrıntı:
+bölüm 6 ve `gecmis_calismalar/RFLYMAD/raporlar/RFLYMAD_V2_SONRAKI_ADIMLAR_20260722.md`.
+
 ## İçindekiler
 
 1. Durum, Teşhis ve Yol Haritası
@@ -31,6 +39,7 @@ ama operasyonel eşik kurulamadı" ayrımı belgelendi:
 3. UAV GNSS Integrity v1 — Ön-kayıt
 4. Sunum 1–2. Hafta Revizyon Talimatları
 5. Sunum 3. Hafta Revizyon Talimatları
+6. RflyMAD-Full v2 — 2026-07-22 Güncellemesi
 
 
 ---
@@ -44,7 +53,7 @@ ama operasyonel eşik kurulamadı" ayrımı belgelendi:
 > için, o makinede çalışırken bu belge birincil referanstır.
 >
 > Bu belge yeni bir iddia içermez — hepsi `docs/decisions.md` (ADR-008…022),
-> `archive/2026-07-10_legacy_non_adsb_ml/docs/ML_YETERSIZLIKLER_KAYDI.md` (34
+> `gecmis_calismalar/_ortak/legacy_ml_kutuphanesi/docs/ML_YETERSIZLIKLER_KAYDI.md` (34
 > madde) ve `docs/anomali_türleri_adsb.md` içindeki kanıtlanmış bulguların
 > konsolidasyonudur.
 
@@ -262,7 +271,7 @@ Gerçek veri o makinede; kod ve bu yol haritası git'te. Sıra:
 
 ### Kaynaklar
 - `docs/decisions.md` — ADR-008…022 (tüm model turları, gate kararları)
-- `archive/2026-07-10_legacy_non_adsb_ml/docs/ML_YETERSIZLIKLER_KAYDI.md` — 34 madde konsolide yetersizlik kaydı
+- `gecmis_calismalar/_ortak/legacy_ml_kutuphanesi/docs/ML_YETERSIZLIKLER_KAYDI.md` — 34 madde konsolide yetersizlik kaydı
 - `docs/anomali_türleri_adsb.md` — 37 maddelik anomali taksonomisi
 - `adsb/reports/measurability_table.md` — gerçek satır-düzeyi kolon kapsaması
 - `adsb/README.md` — sıfırdan başlangıç sözleşmesi + Aşama 0 durumu
@@ -887,3 +896,40 @@ okunabilirlik için.
 > hiçbir öğe taşmasın veya kesişmesin, bitince tek tek kontrol et. Slayt 6'daki "bu
 > hafta" düğümünde iki durumu ayrı etiket olarak göster. ML faz numarası veya iç repo
 > jargonu kullanma, yöntemleri ne yaptıkları üzerinden anlat.
+
+---
+
+## 6. RflyMAD-Full v2 — 2026-07-22 Güncellemesi
+
+> Tam ayrıntı: `gecmis_calismalar/RFLYMAD/raporlar/` altındaki 12
+> `RFLYMAD_V2_*.md` dokümanı, özellikle `RFLYMAD_V2_SONRAKI_ADIMLAR_20260722.md`
+> (durum) ve `RFLYMAD_V2_CONVERGENCE_DENEY_RAPORU_20260722.md` (görselli detay).
+
+Bu bölümdeki `rfly_full/` hattı, yukarıdaki RESIDUAL-V1 ve UAV-GNSS
+çalışmalarından **ayrı, çok daha büyük ölçekli** bir RFLYMAD turudur (6605
+uçuş, 10 Hz parse, truth-schema v2). Aynı gün içinde şu adımlar tamamlandı:
+
+1. **Truth/parser hatası düzeltmesi:** `v2_parser.py`'de yanlış domain
+   algılama nedeniyle 2712 uçuşta arıza başlangıcı yanlış hesaplanıyordu
+   (sahte "t=0'dan itibaren aktif arıza"). Düzeltildi, ilgili uçuşlar yeniden
+   parse edildi, truth audit temizlendi.
+2. **Preregistered Wind/Real robustness sözleşmesi** kullanıcı onayıyla
+   dondurulup 6 aday (R1 threshold-only, W1 eşik-kaydırma, W2 Wind-eğitime-dahil,
+   R2/R3 kısa/uzun fine-tune, R4 kullanıcı-onaylı convergence-follow-up) bu
+   sözleşme altında çalıştırıldı.
+3. **Sonuç: altı adayın da hiçbiri kendi promosyon kapısını geçemedi.** En iyi
+   Real macro recall (R4) %14,3 baseline'dan %28,1'e çıktı ama hedef %40'ın
+   altında kaldı; ayrıca genel recall düştü (%60,4→%54,6) ve FA yükü arttı. En
+   iyi Wind azaltımı (W2) %37,5 oldu, hedef %40'ın az altında.
+4. **Development-only supervised TCN sweep** de aynı kapılarla test edildi,
+   aynı şekilde geçemedi — sorunun yalnız AE'ye özgü olmadığını, muhtemelen
+   veri/temsil kısıtından geldiğini güçlendirdi.
+
+**Genel projeye katkısı:** bu tur, dosyanın giriş bölümündeki "araştırma-
+kalitesi küçük/heterojen veriyle operasyonel çıta kanıtlanmaya çalışıldı" teşhisini
+bağımsız bir dördüncü hat üzerinde bir kez daha doğruladı — Real-domain
+transferi ve Wind-robustness'ı için preregistered disiplin altında bile aynı
+duvara toslandı. Sıradaki meşru yollar (yeni Real veri/temsil değişikliği,
+veya TCN'in uzun-development koşusu) `RFLYMAD_V2_SONRAKI_ADIMLAR_20260722.md`
+içinde ayrıntılandırıldı; mevcut sözleşme kapsamında yeni threshold/epoch
+avcılığı yapılmayacak.

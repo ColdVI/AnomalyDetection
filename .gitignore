@@ -79,3 +79,7 @@ artifacts/rflymad/
 /artifacts/adsb/runs/
 /adsb_parse_*.log
 /adsb_train_*.log
+
+# Kök dizinden arsivlenmis eski calisma-loglari, gevsek scriptler ve pytest
+# tmp klasorleri (2026-07-22 dosyalama). Kod degil.
+/_kok_dokunti_arsivi/

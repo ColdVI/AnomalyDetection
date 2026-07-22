@@ -1,0 +1,158 @@
+{
+  "lightgbm:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.7121681369793691,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lightgbm:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 2,
+    "n": 3,
+    "threshold": 0.7121681369793691,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lightgbm:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": -0.253912455178589,
+    "sigma_normal": 0.6929917328444674,
+    "k": 0.5,
+    "h": 152.625,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 2.0
+  },
+  "lightgbm:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.7121681369793691,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lightgbm:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 2,
+    "n": 3,
+    "threshold": 0.7121681369793691,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lightgbm:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": -0.253912455178589,
+    "sigma_normal": 0.6929917328444674,
+    "k": 0.5,
+    "h": 59.609375,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.895
+  },
+  "if_fusion:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9951923076923077,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "if_fusion:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9759615384615384,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "if_fusion:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.05447270362974721,
+    "sigma_normal": 1.7136106077814088,
+    "k": 0.5,
+    "h": 131.125,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 2.0
+  },
+  "if_fusion:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9951923076923077,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "if_fusion:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9759615384615384,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "if_fusion:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.05447270362974721,
+    "sigma_normal": 1.7136106077814088,
+    "k": 0.5,
+    "h": 51.046875,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.885
+  },
+  "lstm_existing:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9936708860759493,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lstm_existing:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9683544303797469,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lstm_existing:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.1639195037739438,
+    "sigma_normal": 1.536575585386405,
+    "k": 0.5,
+    "h": 14.32421875,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 2.0
+  },
+  "lstm_existing:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9936708860759493,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lstm_existing:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9683544303797469,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lstm_existing:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.1639195037739438,
+    "sigma_normal": 1.536575585386405,
+    "k": 0.5,
+    "h": 14.2109375,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 2.07
+  }
+}

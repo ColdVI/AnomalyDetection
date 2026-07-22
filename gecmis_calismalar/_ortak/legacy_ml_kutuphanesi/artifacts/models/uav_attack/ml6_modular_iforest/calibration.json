@@ -1,0 +1,55 @@
+{
+  "modules": {
+    "nav_butunlugu": {
+      "feature_columns": [
+        "gps_step_m",
+        "log_gps_speed",
+        "gps_accel_mps2",
+        "vertical_rate_calc",
+        "gps_speed_residual",
+        "vertical_rate_residual",
+        "course_change_deg",
+        "gps_step_5s_max",
+        "gps_step_5s_rms",
+        "gps_speed_residual_cusum_pos",
+        "gps_frozen_count"
+      ],
+      "row_threshold_q99": 0.7042889809819843,
+      "flight_threshold_max": 0.7515922970354763
+    },
+    "sinyal_kalitesi": {
+      "feature_columns": [
+        "jamming_indicator",
+        "noise_per_ms",
+        "hdop",
+        "vdop",
+        "satellites_used",
+        "s_variance_m_s",
+        "eph",
+        "epv",
+        "jamming_1s_mean",
+        "jamming_5s_max",
+        "noise_5s_std",
+        "noise_5s_mean",
+        "hdop_5s_max",
+        "sats_5s_min",
+        "hdop_cusum_pos",
+        "noise_per_ms_cusum_pos"
+      ],
+      "row_threshold_q99": 0.64049250756683,
+      "flight_threshold_max": 0.7030208469207084
+    },
+    "veri_kalitesi": {
+      "feature_columns": [
+        "attitude_missing",
+        "battery_missing",
+        "gps_health_missing",
+        "num_missing_groups",
+        "attitude_stale_count",
+        "attitude_stale_s"
+      ],
+      "row_threshold_q99": 0.5670704757876294,
+      "flight_threshold_max": 0.5670704757876294
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "artifact_schema_version": 1,
+  "created_utc": "2026-07-09T12:06:50.114336+00:00",
+  "stage": "RFLY-0 exploratory evaluation",
+  "source_note": "SEAD development + RFLY official amended-quota pooled-normal run; ALFA excluded",
+  "official_gate": true,
+  "status": "official_gate_evaluated",
+  "rfly_anomaly_truth": "whole-flight proxy; no TestInfo/rfly_ctrl_lxl intervals used",
+  "blind_holdout_read": false,
+  "blind_holdout_flights": 332,
+  "decision_layers": "imported unchanged from src/ml/decision/decision_layers.py",
+  "score_fusion": "imported unchanged from src/ml/evaluation/score_fusion.py",
+  "evaluated_splits": [
+    "split_00"
+  ],
+  "development_source_ids_sha256": "97bb741657e88a65bbe6b7ea6ca5e618317411e7aef4b18eac638e7bef759316",
+  "input_hashes": {
+    "rfly_silver_sha256": "be07b47ca4a79ad64a0e7161c87aa4a34c96b528762f41bbb27d051c9a5ff122",
+    "sead_silver_sha256": "4475827831628765a5974424def732492a2788fa266cd8d44503ff36998b91a8",
+    "split_manifest_sha256": "d59439b8ed497ebb420a2e9e4fa3c7a6c77c08793cfe772c26a9c4cbf73d651e",
+    "rfly_gold_sha256": "2a0b543e29518de253750e1bde3613fda4c7b4139ccfaf81614dd1519d0222dc",
+    "sead_gold_sha256": "1174ca5bd0a66cb3c0e9f7ad19ccc6c0e402c83c4206359bd1d92411a8d888a7"
+  },
+  "files": {
+    "cusum_feature_baseline.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "diagnosis_hypotheses.csv": "33643c733cdebe0d32e568b684d84bf7dc693b11d8fc8c146a08c138fa0c68ec",
+    "eval_group_metrics.csv": "7e5d64cead521dc5d8985f99ba57cbbc9cb39343f445c5dceca35ff2dd20f4a2",
+    "flight_label_metrics.csv": "f559f7b7a8c3e446fef3607f3082d93d094bd2364bc77259a8742e4a1f877e87",
+    "gates.json": "94b2872da62befbe25b5f7b90c9e3633e3424cb6daf7da2072730aff62ce005a",
+    "metrics.csv": "fcd61d742b08bc9f823684340a49c5994590777f79e45899bb44b98b1131b7c2",
+    "summary.json": "9ec9b811d319fe6fee7460179679d23513a43bd2a57d92f68647a35b075bbc82",
+    "split_00/calibration.json": "1aa72fffae59667d470885f05778bed1bc36bef84fea5f7c50353f09e1511e21",
+    "split_00/policies.json": "18742ce26a356cfae0d2eade95c7ee7a4c6d0108287820ad8874ec3de921e897",
+    "split_00/scaler.json": "09829d45f0a2112c10e4813b8280b9e7bc8202feeb3034582a1cbf386785c443",
+    "split_00/models/dikey_tutarlilik.joblib": "b288921489a2da01302c6761efe0afd0fb34536092606a6797d3763dc08b64cd",
+    "split_00/models/ekf_redleri.joblib": "09e0f89b0c363c1f0db3be439fe87c1bc3d853608c01be90efbc6848a9d508bd",
+    "split_00/models/irtifa_tutarliligi.joblib": "6b9dfc52f7f516632b9cf8a50ddfa34120533888a91d6244cc74b2fdca0b5c7c",
+    "split_00/models/itki_komutu.joblib": "0b987ba86bae66ee07204a91ed70330d979b3ea287c2b725135f5e4b3e411550",
+    "split_00/models/itki_kontrol_ince.joblib": "63d72f9a50d74d29d84cde95087f67108cea17fc3801bc81a80e840d66162e59",
+    "split_00/models/kontrol_cevabi.joblib": "c5df4945933611022338507551ff13957e1f92f3d34fe83813e2faf1e77bccec",
+    "split_00/models/motor_simetrisi.joblib": "7b730905758799f6867fcfdacc28727373ad4e4c3936059c0297e0881c89ef6f",
+    "split_00/models/nav_butunlugu.joblib": "3b99e1840bacc7974dded142f5757e9c9121bc28a9cb1b954496aaa037009ce2",
+    "split_00/models/sinyal_kalitesi.joblib": "dd074a7c0866cf7edcfd55f1763863cad0851841a51433dab8e0883e4b13b45f",
+    "split_00/models/veri_kalitesi.joblib": "3e927265292daa216eaa31c03e311ba1a708e26297981a3ae9240170b1329959"
+  }
+}

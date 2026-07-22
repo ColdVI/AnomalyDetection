@@ -1,0 +1,38 @@
+{
+  "artifact_schema_version": 1,
+  "created_utc": "2026-07-09T09:32:46.109574+00:00",
+  "stage": "RFLY-0 exploratory evaluation",
+  "source_note": "rflymad-only exploratory low-normal-quota run",
+  "official_gate": false,
+  "status": "exploratory_not_official_gate",
+  "rfly_anomaly_truth": "whole-flight proxy; no TestInfo/rfly_ctrl_lxl intervals used",
+  "decision_layers": "imported unchanged from src/ml/decision/decision_layers.py",
+  "score_fusion": "imported unchanged from src/ml/evaluation/score_fusion.py",
+  "evaluated_splits": [
+    "split_00"
+  ],
+  "development_source_ids_sha256": "acb8489414bad753f08939941c44c8e99ccc8263f6cf69688b6f1097d09e2e96",
+  "input_hashes": {
+    "rfly_silver_sha256": "be07b47ca4a79ad64a0e7161c87aa4a34c96b528762f41bbb27d051c9a5ff122"
+  },
+  "files": {
+    "cusum_feature_baseline.json": "81bf799495ad1fa96cd12060cf86463d43c52bbcc02e605d094051493e428617",
+    "diagnosis_hypotheses.csv": "502f3ea5246187080cebe18aa479a0243f8a434fe0835a2f7c5cbc10a4382f8d",
+    "eval_group_metrics.csv": "6b4b103b1b46fd3f7304c2a52db4a34011a8cf3d6f7e30e01506477d758b5d29",
+    "flight_label_metrics.csv": "a13cdc0f6cbb2915ebe765cce27ff66f8186aa25ed274e183daf41f024aeddb5",
+    "metrics.csv": "edc7bcd252cc4c88d0ba24616fbacab7da6a9c09c39606f346421083106c4018",
+    "summary.json": "e4f6b63d6014e333413303acc2d0ad9a7338fbe8cde5c796b4246ff070a3f44d",
+    "split_00/calibration.json": "536c6bab55935250f657e47837f488b4952dd66afb91fb9f5a15844006984b5b",
+    "split_00/policies.json": "37969f7a057953517bfcd209ceadc5577e834c3a6db73d178d59575d1a12fce9",
+    "split_00/scaler.json": "a631d7c439dd5e2e7f18b78039ee506a4941c9608de3bd82ff6b2619a63dfa87",
+    "split_00/models/ekf_redleri.joblib": "3003be44dc141bcabd81b1fcb10575d00cf7dc3e98ba6d6b535b68978bab81ee",
+    "split_00/models/irtifa_tutarliligi.joblib": "b1654bdf07c6e254c025710cadba3f9ffb7a14c8b771b5795c4502bc701b573b",
+    "split_00/models/itki_komutu.joblib": "fa6b3bcd6d2ebb9c3829a1b3a6f0e4dcb454aaac1550858e6794b89dda243b3a",
+    "split_00/models/itki_kontrol_ince.joblib": "2b64f31d3d9c5de8e572761a0fbbba1b61e28a743678c7ec00e86377d82d8acb",
+    "split_00/models/kontrol_cevabi.joblib": "b2290da0016955ad4c7aa03d78661246da08e79a752f51a085f854f24b92631c",
+    "split_00/models/motor_simetrisi.joblib": "064f901de447943c6d538d228decde2a48113fa1fddde6e1a9a9c77d5c9a4632",
+    "split_00/models/nav_butunlugu.joblib": "7445a7292bfd46308be1c607f6aa3994e8f4552818463eb619bfc5681093c726",
+    "split_00/models/sinyal_kalitesi.joblib": "9071114b99a2a1e65a9618489f3c801be77f79c38b3c7767798400fc0c78ea1f",
+    "split_00/models/veri_kalitesi.joblib": "d997779c5992ed20e45418b81c0f27e5f6a4859f7998fc437b85cd07e2a2760c"
+  }
+}

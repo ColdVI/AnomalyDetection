@@ -1,0 +1,3 @@
+model,score_col,threshold,normal_test_hours,false_events,false_events_per_hour,event_recall,median_detection_delay_s,flight_tp,flight_fp,flight_tn,flight_fn,flight_precision,flight_recall,flight_f1
+physics_rule,rule_score,46207340.46484829,310.8016500000159,6,0.01930491681752556,0.002,54.580000162124634,1,4,246,499,0.2,0.002,0.0039603960396039604
+isolation_forest,iforest_score,0.729521690478531,310.8016500000159,15,0.0482622920438139,0.06,15.300000071525574,30,9,241,470,0.7692307692307693,0.06,0.11131725417439704

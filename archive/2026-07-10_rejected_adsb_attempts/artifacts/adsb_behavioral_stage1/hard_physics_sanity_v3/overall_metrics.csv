@@ -1,0 +1,2 @@
+score_col,threshold,normal_test_hours,false_events,false_events_per_hour,event_recall,median_detection_delay_s,flight_tp,flight_fp,flight_tn,flight_fn,flight_precision,flight_recall,flight_f1
+hard_rule_score,1.0,310.8016500000159,7937,25.53718746345006,0.96,0.0,480,245,5,20,0.6620689655172414,0.96,0.7836734693877551

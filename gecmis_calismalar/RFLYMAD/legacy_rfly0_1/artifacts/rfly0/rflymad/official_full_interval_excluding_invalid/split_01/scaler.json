@@ -1,0 +1,899 @@
+{
+  "feature_columns": [
+    "gps_step_m",
+    "gps_speed_calc_mps",
+    "log_gps_speed",
+    "gps_accel_mps2",
+    "vertical_rate_calc",
+    "dist_from_start_m",
+    "local_alt_m",
+    "alt_local_residual",
+    "local_vertical_rate_mps",
+    "vertical_rate_local_residual",
+    "gps_speed_residual",
+    "vel_m_s",
+    "vertical_rate_residual",
+    "course_change_deg",
+    "roll_deg",
+    "roll_rate",
+    "pitch_deg",
+    "pitch_rate",
+    "yaw_deg",
+    "yaw_rate",
+    "roll_setpoint_error",
+    "roll_rate_error",
+    "pitch_setpoint_error",
+    "pitch_rate_error",
+    "yaw_setpoint_error",
+    "yaw_rate_error",
+    "attitude_error_mag",
+    "actuator_roll_cmd",
+    "actuator_pitch_cmd",
+    "actuator_yaw_cmd",
+    "actuator_thrust_cmd",
+    "actuator_effort",
+    "control_strain",
+    "eph",
+    "eph_delta",
+    "epv",
+    "epv_delta",
+    "raw_gps_eph",
+    "raw_gps_eph_delta",
+    "raw_gps_epv",
+    "raw_gps_epv_delta",
+    "hdop",
+    "hdop_delta",
+    "vdop",
+    "vdop_delta",
+    "satellites_used",
+    "satellites_used_delta",
+    "s_variance_m_s",
+    "s_variance_m_s_delta",
+    "jamming_indicator",
+    "jamming_indicator_delta",
+    "noise_per_ms",
+    "noise_per_ms_delta",
+    "battery_power_w",
+    "voltage_delta",
+    "remaining_delta",
+    "jamming_1s_mean",
+    "jamming_5s_max",
+    "noise_5s_mean",
+    "noise_5s_std",
+    "hdop_5s_max",
+    "sats_5s_min",
+    "gps_step_5s_max",
+    "gps_step_5s_rms",
+    "gps_speed_residual_cusum_pos",
+    "hdop_cusum_pos",
+    "noise_per_ms_cusum_pos",
+    "vel_test_ratio",
+    "pos_test_ratio",
+    "hgt_test_ratio",
+    "mag_test_ratio",
+    "tas_test_ratio",
+    "hagl_test_ratio",
+    "beta_test_ratio",
+    "pos_test_ratio_5s_mean",
+    "pos_test_ratio_5s_max",
+    "pos_test_ratio_cusum_pos",
+    "vel_test_ratio_5s_mean",
+    "vel_test_ratio_5s_max",
+    "vel_test_ratio_cusum_pos",
+    "hgt_test_ratio_5s_mean",
+    "hgt_test_ratio_5s_max",
+    "hgt_test_ratio_cusum_pos",
+    "actuator_output_std",
+    "actuator_output_range",
+    "actuator_active_channels",
+    "actuator_output_std_5s_mean",
+    "actuator_output_std_5s_max",
+    "actuator_output_std_cusum_pos",
+    "actuator_output_range_5s_mean",
+    "actuator_output_range_5s_max",
+    "actuator_output_range_cusum_pos",
+    "innovation_check_flags_active",
+    "innovation_check_flags_bit_count",
+    "gps_check_fail_flags_active",
+    "gps_check_fail_flags_bit_count",
+    "filter_fault_flags_active",
+    "filter_fault_flags_bit_count",
+    "timeout_flags_active",
+    "timeout_flags_bit_count",
+    "pos_horiz_accuracy",
+    "pos_vert_accuracy",
+    "vibe_0",
+    "vibe_1",
+    "vibe_2",
+    "local_xy_reset_counter_delta",
+    "local_z_reset_counter_delta",
+    "local_vxy_reset_counter_delta",
+    "local_vz_reset_counter_delta",
+    "local_xy_valid",
+    "local_z_valid",
+    "local_v_xy_valid",
+    "local_v_z_valid",
+    "alt_local_residual_5s_max",
+    "alt_local_residual_5s_rms",
+    "alt_local_residual_cusum_pos",
+    "attitude_error_mag_5s_max",
+    "attitude_error_mag_5s_rms",
+    "attitude_error_mag_cusum_pos",
+    "gps_frozen_count",
+    "attitude_missing",
+    "battery_missing",
+    "gps_health_missing",
+    "num_missing_groups",
+    "attitude_stale_count",
+    "attitude_stale_s",
+    "is_moving"
+  ],
+  "columns": {
+    "gps_step_m": {
+      "center": 0.20337031302901898,
+      "scale": 0.40151949240695817,
+      "impute": 0.20337031302901898
+    },
+    "gps_speed_calc_mps": {
+      "center": 1.0153555152190648,
+      "scale": 1.9793773300073205,
+      "impute": 1.0153555152190648
+    },
+    "log_gps_speed": {
+      "center": 0.7007956100182472,
+      "scale": 1.0322937187049614,
+      "impute": 0.7007956100182472
+    },
+    "gps_accel_mps2": {
+      "center": -0.004518972061365344,
+      "scale": 0.20770923980227113,
+      "impute": -0.004518972061365344
+    },
+    "vertical_rate_calc": {
+      "center": -0.0006225012699269186,
+      "scale": 0.11644053965131808,
+      "impute": -0.0006225012699269186
+    },
+    "dist_from_start_m": {
+      "center": 13.937789194199324,
+      "scale": 38.0830673025738,
+      "impute": 13.937789194199324
+    },
+    "local_alt_m": {
+      "center": 14.521355628967285,
+      "scale": 7.890308856964111,
+      "impute": 14.521355628967285
+    },
+    "alt_local_residual": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "local_vertical_rate_mps": {
+      "center": -0.00032788142561912537,
+      "scale": 0.14787421748042107,
+      "impute": -0.00032788142561912537
+    },
+    "vertical_rate_local_residual": {
+      "center": 0.03130597754076704,
+      "scale": 0.06139811127219541,
+      "impute": 0.03130597754076704
+    },
+    "gps_speed_residual": {
+      "center": 0.028086276267291585,
+      "scale": 0.04220859077845822,
+      "impute": 0.028086276267291585
+    },
+    "vel_m_s": {
+      "center": 1.00600004196167,
+      "scale": 1.968000128865242,
+      "impute": 1.00600004196167
+    },
+    "vertical_rate_residual": {
+      "center": 0.03931894652873274,
+      "scale": 0.06850102085006604,
+      "impute": 0.03931894652873274
+    },
+    "course_change_deg": {
+      "center": 0.0,
+      "scale": 0.48762086522555137,
+      "impute": 0.0
+    },
+    "roll_deg": {
+      "center": -1.5125597715377808,
+      "scale": 2.6144979521632195,
+      "impute": -1.5125597715377808
+    },
+    "roll_rate": {
+      "center": -0.013722928415931701,
+      "scale": 1.4398715154384212,
+      "impute": -0.013722928415931701
+    },
+    "pitch_deg": {
+      "center": -2.745394706726074,
+      "scale": 3.2965428829193115,
+      "impute": -2.745394706726074
+    },
+    "pitch_rate": {
+      "center": -0.02222743136909269,
+      "scale": 1.3748713813192786,
+      "impute": -0.02222743136909269
+    },
+    "yaw_deg": {
+      "center": -18.88198471069336,
+      "scale": 17.26661491394043,
+      "impute": -18.88198471069336
+    },
+    "yaw_rate": {
+      "center": 0.129031500177286,
+      "scale": 2.1848621075083003,
+      "impute": 0.129031500177286
+    },
+    "roll_setpoint_error": {
+      "center": 0.2760289108460654,
+      "scale": 0.5116895234569085,
+      "impute": 0.2760289108460654
+    },
+    "roll_rate_error": {
+      "center": 1.6870085262700458,
+      "scale": 3.0600828067268617,
+      "impute": 1.6870085262700458
+    },
+    "pitch_setpoint_error": {
+      "center": 0.38800611751534575,
+      "scale": 0.950002666714937,
+      "impute": 0.38800611751534575
+    },
+    "pitch_rate_error": {
+      "center": 2.4775214589150094,
+      "scale": 6.143873705130251,
+      "impute": 2.4775214589150094
+    },
+    "yaw_setpoint_error": {
+      "center": 3.941709508126223e-06,
+      "scale": 1.430205401220519e-05,
+      "impute": 3.941709508126223e-06
+    },
+    "yaw_rate_error": {
+      "center": 1.0623847386293965,
+      "scale": 1.8466294290066272,
+      "impute": 1.0623847386293965
+    },
+    "attitude_error_mag": {
+      "center": 0.6470058691412234,
+      "scale": 1.2902876544825468,
+      "impute": 0.6470058691412234
+    },
+    "actuator_roll_cmd": {
+      "center": 0.0003626924008131027,
+      "scale": 0.01562598068267107,
+      "impute": 0.0003626924008131027
+    },
+    "actuator_pitch_cmd": {
+      "center": -0.043439947068691254,
+      "scale": 0.033192673698067665,
+      "impute": -0.043439947068691254
+    },
+    "actuator_yaw_cmd": {
+      "center": 0.0031684567220509052,
+      "scale": 0.011581525206565857,
+      "impute": 0.0031684567220509052
+    },
+    "actuator_thrust_cmd": {
+      "center": 0.3339369595050812,
+      "scale": 0.032406896352767944,
+      "impute": 0.3339369595050812
+    },
+    "actuator_effort": {
+      "center": 0.04952047209202524,
+      "scale": 0.032594562537444596,
+      "impute": 0.04952047209202524
+    },
+    "control_strain": {
+      "center": 0.0302560760757313,
+      "scale": 0.06340801485120573,
+      "impute": 0.0302560760757313
+    },
+    "eph": {
+      "center": 1.2207765579223633,
+      "scale": 0.13379430770874023,
+      "impute": 1.2207765579223633
+    },
+    "eph_delta": {
+      "center": -1.430511474609375e-06,
+      "scale": 0.00013172626495361328,
+      "impute": -1.430511474609375e-06
+    },
+    "epv": {
+      "center": 1.8541927337646484,
+      "scale": 0.2964428663253784,
+      "impute": 1.8541927337646484
+    },
+    "epv_delta": {
+      "center": -1.2636184692382812e-05,
+      "scale": 0.00042307376861572266,
+      "impute": -1.2636184692382812e-05
+    },
+    "raw_gps_eph": {
+      "center": 0.7400000095367432,
+      "scale": 0.10699999332427979,
+      "impute": 0.7400000095367432
+    },
+    "raw_gps_eph_delta": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "raw_gps_epv": {
+      "center": 1.0250000953674316,
+      "scale": 0.20200002193450928,
+      "impute": 1.0250000953674316
+    },
+    "raw_gps_epv_delta": {
+      "center": 0.0,
+      "scale": 0.0009999871253967285,
+      "impute": 0.0
+    },
+    "hdop": {
+      "center": 0.6399999856948853,
+      "scale": 0.029999971389770508,
+      "impute": 0.6399999856948853
+    },
+    "hdop_delta": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "vdop": {
+      "center": 0.7899999618530273,
+      "scale": 0.11000001430511475,
+      "impute": 0.7899999618530273
+    },
+    "vdop_delta": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "satellites_used": {
+      "center": 19.0,
+      "scale": 1.0,
+      "impute": 19.0
+    },
+    "satellites_used_delta": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "s_variance_m_s": {
+      "center": 0.17000000178813934,
+      "scale": 0.031000003218650818,
+      "impute": 0.17000000178813934
+    },
+    "s_variance_m_s_delta": {
+      "center": 0.0,
+      "scale": 0.0040000081062316895,
+      "impute": 0.0
+    },
+    "jamming_indicator": {
+      "center": 14.0,
+      "scale": 2.0,
+      "impute": 14.0
+    },
+    "jamming_indicator_delta": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "noise_per_ms": {
+      "center": 90.0,
+      "scale": 26.0,
+      "impute": 90.0
+    },
+    "noise_per_ms_delta": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "battery_power_w": {
+      "center": 89.96442413330078,
+      "scale": 83.95542907714844,
+      "impute": 89.96442413330078
+    },
+    "voltage_delta": {
+      "center": -0.0009746551513671875,
+      "scale": 0.027341842651367188,
+      "impute": -0.0009746551513671875
+    },
+    "remaining_delta": {
+      "center": -0.00011205673217773438,
+      "scale": 0.0003871917724609375,
+      "impute": -0.00011205673217773438
+    },
+    "jamming_1s_mean": {
+      "center": 14.0,
+      "scale": 2.5999999999999996,
+      "impute": 14.0
+    },
+    "jamming_5s_max": {
+      "center": 15.0,
+      "scale": 9.0,
+      "impute": 15.0
+    },
+    "noise_5s_mean": {
+      "center": 90.68,
+      "scale": 26.200000000000003,
+      "impute": 90.68
+    },
+    "noise_5s_std": {
+      "center": 0.19999999999957807,
+      "scale": 2.8740206732982347,
+      "impute": 0.19999999999957807
+    },
+    "hdop_5s_max": {
+      "center": 0.6499999761581421,
+      "scale": 0.039999961853027344,
+      "impute": 0.6499999761581421
+    },
+    "sats_5s_min": {
+      "center": 19.0,
+      "scale": 1.0,
+      "impute": 19.0
+    },
+    "gps_step_5s_max": {
+      "center": 0.31511080005940967,
+      "scale": 0.5435880389021084,
+      "impute": 0.31511080005940967
+    },
+    "gps_step_5s_rms": {
+      "center": 0.23655757350743947,
+      "scale": 0.44974752262147266,
+      "impute": 0.23655757350743947
+    },
+    "gps_speed_residual_cusum_pos": {
+      "center": 0.06925537847502679,
+      "scale": 1.962727157611041,
+      "impute": 0.06925537847502679
+    },
+    "hdop_cusum_pos": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "noise_per_ms_cusum_pos": {
+      "center": 467.2181999999898,
+      "scale": 2607.4262,
+      "impute": 467.2181999999898
+    },
+    "vel_test_ratio": {
+      "center": 0.026116665452718735,
+      "scale": 0.02542058192193508,
+      "impute": 0.026116665452718735
+    },
+    "pos_test_ratio": {
+      "center": 0.01688564009964466,
+      "scale": 0.02269879076629877,
+      "impute": 0.01688564009964466
+    },
+    "hgt_test_ratio": {
+      "center": 0.01104967575520277,
+      "scale": 0.017801476642489433,
+      "impute": 0.01104967575520277
+    },
+    "mag_test_ratio": {
+      "center": 0.0395391471683979,
+      "scale": 0.05089953914284706,
+      "impute": 0.0395391471683979
+    },
+    "tas_test_ratio": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "hagl_test_ratio": {
+      "center": 0.0032992020715028048,
+      "scale": 0.005534868221729994,
+      "impute": 0.0032992020715028048
+    },
+    "beta_test_ratio": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "pos_test_ratio_5s_mean": {
+      "center": 0.018327910061925648,
+      "scale": 0.021777040355495714,
+      "impute": 0.018327910061925648
+    },
+    "pos_test_ratio_5s_max": {
+      "center": 0.029012903571128845,
+      "scale": 0.0377958919852972,
+      "impute": 0.029012903571128845
+    },
+    "pos_test_ratio_cusum_pos": {
+      "center": 0.13534511321038006,
+      "scale": 1.8542041160073162,
+      "impute": 0.13534511321038006
+    },
+    "vel_test_ratio_5s_mean": {
+      "center": 0.029570618569850923,
+      "scale": 0.02219787867739797,
+      "impute": 0.029570618569850923
+    },
+    "vel_test_ratio_5s_max": {
+      "center": 0.06524141877889633,
+      "scale": 0.0804407000541687,
+      "impute": 0.06524141877889633
+    },
+    "vel_test_ratio_cusum_pos": {
+      "center": 0.1302183630701622,
+      "scale": 1.195776592009927,
+      "impute": 0.1302183630701622
+    },
+    "hgt_test_ratio_5s_mean": {
+      "center": 0.012135798470699228,
+      "scale": 0.011690734550065827,
+      "impute": 0.012135798470699228
+    },
+    "hgt_test_ratio_5s_max": {
+      "center": 0.0349310003221035,
+      "scale": 0.028705548495054245,
+      "impute": 0.0349310003221035
+    },
+    "hgt_test_ratio_cusum_pos": {
+      "center": 0.013465096227137837,
+      "scale": 0.5989582295398591,
+      "impute": 0.013465096227137837
+    },
+    "actuator_output_std": {
+      "center": 35.22782990761707,
+      "scale": 23.146279211303863,
+      "impute": 35.22782990761707
+    },
+    "actuator_output_range": {
+      "center": 84.0,
+      "scale": 55.0,
+      "impute": 84.0
+    },
+    "actuator_active_channels": {
+      "center": 4.0,
+      "scale": 1.0,
+      "impute": 4.0
+    },
+    "actuator_output_std_5s_mean": {
+      "center": 35.71804781202905,
+      "scale": 22.709285473534973,
+      "impute": 35.71804781202905
+    },
+    "actuator_output_std_5s_max": {
+      "center": 49.1350180624776,
+      "scale": 41.099675517651804,
+      "impute": 49.1350180624776
+    },
+    "actuator_output_std_cusum_pos": {
+      "center": 1.2174499239821657,
+      "scale": 768.4565427195577,
+      "impute": 1.2174499239821657
+    },
+    "actuator_output_range_5s_mean": {
+      "center": 85.24,
+      "scale": 54.92,
+      "impute": 85.24
+    },
+    "actuator_output_range_5s_max": {
+      "center": 119.0,
+      "scale": 99.0,
+      "impute": 119.0
+    },
+    "actuator_output_range_cusum_pos": {
+      "center": 0.0,
+      "scale": 1752.3842999999947,
+      "impute": 0.0
+    },
+    "innovation_check_flags_active": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "innovation_check_flags_bit_count": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "gps_check_fail_flags_active": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "gps_check_fail_flags_bit_count": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "filter_fault_flags_active": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "filter_fault_flags_bit_count": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "timeout_flags_active": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "timeout_flags_bit_count": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "pos_horiz_accuracy": {
+      "center": 0.2915830612182617,
+      "scale": 0.02350720763206482,
+      "impute": 0.2915830612182617
+    },
+    "pos_vert_accuracy": {
+      "center": 0.3882358968257904,
+      "scale": 0.04455772042274475,
+      "impute": 0.3882358968257904
+    },
+    "vibe_0": {
+      "center": 4.979016807737935e-07,
+      "scale": 9.011305337480735e-07,
+      "impute": 4.979016807737935e-07
+    },
+    "vibe_1": {
+      "center": 0.0013787744101136923,
+      "scale": 0.0006068025249987841,
+      "impute": 0.0013787744101136923
+    },
+    "vibe_2": {
+      "center": 0.012585793621838093,
+      "scale": 0.009037883952260017,
+      "impute": 0.012585793621838093
+    },
+    "local_xy_reset_counter_delta": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "local_z_reset_counter_delta": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "local_vxy_reset_counter_delta": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "local_vz_reset_counter_delta": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "local_xy_valid": {
+      "center": 1.0,
+      "scale": 1.0,
+      "impute": 1.0
+    },
+    "local_z_valid": {
+      "center": 1.0,
+      "scale": 1.0,
+      "impute": 1.0
+    },
+    "local_v_xy_valid": {
+      "center": 1.0,
+      "scale": 1.0,
+      "impute": 1.0
+    },
+    "local_v_z_valid": {
+      "center": 1.0,
+      "scale": 1.0,
+      "impute": 1.0
+    },
+    "alt_local_residual_5s_max": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "alt_local_residual_5s_rms": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "alt_local_residual_cusum_pos": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "attitude_error_mag_5s_max": {
+      "center": 2.4834877204533465,
+      "scale": 6.560125725254172,
+      "impute": 2.4834877204533465
+    },
+    "attitude_error_mag_5s_rms": {
+      "center": 1.198358415597411,
+      "scale": 2.454186676796225,
+      "impute": 1.198358415597411
+    },
+    "attitude_error_mag_cusum_pos": {
+      "center": 19.241934537053165,
+      "scale": 92.54227937965061,
+      "impute": 19.241934537053165
+    },
+    "gps_frozen_count": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "attitude_missing": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "battery_missing": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "gps_health_missing": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "num_missing_groups": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "attitude_stale_count": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "attitude_stale_s": {
+      "center": 0.0,
+      "scale": 1.0,
+      "impute": 0.0
+    },
+    "is_moving": {
+      "center": 1.0,
+      "scale": 1.0,
+      "impute": 1.0
+    }
+  },
+  "source_column_presence": {
+    "rflymad": [
+      "actuator_active_channels",
+      "actuator_effort",
+      "actuator_output_range",
+      "actuator_output_range_5s_max",
+      "actuator_output_range_5s_mean",
+      "actuator_output_range_cusum_pos",
+      "actuator_output_std",
+      "actuator_output_std_5s_max",
+      "actuator_output_std_5s_mean",
+      "actuator_output_std_cusum_pos",
+      "actuator_pitch_cmd",
+      "actuator_roll_cmd",
+      "actuator_thrust_cmd",
+      "actuator_yaw_cmd",
+      "alt_local_residual",
+      "alt_local_residual_5s_max",
+      "alt_local_residual_5s_rms",
+      "alt_local_residual_cusum_pos",
+      "attitude_error_mag",
+      "attitude_error_mag_5s_max",
+      "attitude_error_mag_5s_rms",
+      "attitude_error_mag_cusum_pos",
+      "attitude_missing",
+      "attitude_stale_count",
+      "attitude_stale_s",
+      "battery_missing",
+      "battery_power_w",
+      "beta_test_ratio",
+      "control_strain",
+      "course_change_deg",
+      "dist_from_start_m",
+      "eph",
+      "eph_delta",
+      "epv",
+      "epv_delta",
+      "filter_fault_flags_active",
+      "filter_fault_flags_bit_count",
+      "gps_accel_mps2",
+      "gps_check_fail_flags_active",
+      "gps_check_fail_flags_bit_count",
+      "gps_frozen_count",
+      "gps_health_missing",
+      "gps_speed_calc_mps",
+      "gps_speed_residual",
+      "gps_speed_residual_cusum_pos",
+      "gps_step_5s_max",
+      "gps_step_5s_rms",
+      "gps_step_m",
+      "hagl_test_ratio",
+      "hdop",
+      "hdop_5s_max",
+      "hdop_cusum_pos",
+      "hdop_delta",
+      "hgt_test_ratio",
+      "hgt_test_ratio_5s_max",
+      "hgt_test_ratio_5s_mean",
+      "hgt_test_ratio_cusum_pos",
+      "innovation_check_flags_active",
+      "innovation_check_flags_bit_count",
+      "is_moving",
+      "jamming_1s_mean",
+      "jamming_5s_max",
+      "jamming_indicator",
+      "jamming_indicator_delta",
+      "local_alt_m",
+      "local_v_xy_valid",
+      "local_v_z_valid",
+      "local_vertical_rate_mps",
+      "local_vxy_reset_counter_delta",
+      "local_vz_reset_counter_delta",
+      "local_xy_reset_counter_delta",
+      "local_xy_valid",
+      "local_z_reset_counter_delta",
+      "local_z_valid",
+      "log_gps_speed",
+      "mag_test_ratio",
+      "noise_5s_mean",
+      "noise_5s_std",
+      "noise_per_ms",
+      "noise_per_ms_cusum_pos",
+      "noise_per_ms_delta",
+      "num_missing_groups",
+      "pitch_deg",
+      "pitch_rate",
+      "pitch_rate_error",
+      "pitch_setpoint_error",
+      "pos_horiz_accuracy",
+      "pos_test_ratio",
+      "pos_test_ratio_5s_max",
+      "pos_test_ratio_5s_mean",
+      "pos_test_ratio_cusum_pos",
+      "pos_vert_accuracy",
+      "raw_gps_eph",
+      "raw_gps_eph_delta",
+      "raw_gps_epv",
+      "raw_gps_epv_delta",
+      "remaining_delta",
+      "roll_deg",
+      "roll_rate",
+      "roll_rate_error",
+      "roll_setpoint_error",
+      "s_variance_m_s",
+      "s_variance_m_s_delta",
+      "satellites_used",
+      "satellites_used_delta",
+      "sats_5s_min",
+      "tas_test_ratio",
+      "timeout_flags_active",
+      "timeout_flags_bit_count",
+      "vdop",
+      "vdop_delta",
+      "vel_m_s",
+      "vel_test_ratio",
+      "vel_test_ratio_5s_max",
+      "vel_test_ratio_5s_mean",
+      "vel_test_ratio_cusum_pos",
+      "vertical_rate_calc",
+      "vertical_rate_local_residual",
+      "vertical_rate_residual",
+      "vibe_0",
+      "vibe_1",
+      "vibe_2",
+      "voltage_delta",
+      "yaw_deg",
+      "yaw_rate",
+      "yaw_rate_error",
+      "yaw_setpoint_error"
+    ]
+  }
+}

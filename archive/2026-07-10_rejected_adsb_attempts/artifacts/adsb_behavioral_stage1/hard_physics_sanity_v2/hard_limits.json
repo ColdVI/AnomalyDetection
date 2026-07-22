@@ -1,0 +1,9 @@
+{
+  "abs_speed_residual_mps": 20.0,
+  "abs_track_residual_deg": 20.0,
+  "abs_vrate_residual_mps": 5.0,
+  "abs_horizontal_accel_mps2": 8.0,
+  "abs_horizontal_jerk_mps3": 4.0,
+  "abs_baro_geom_delta_rate_mps": 5.0,
+  "duplicate_position_moving": 0.5
+}

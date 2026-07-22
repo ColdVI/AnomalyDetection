@@ -385,7 +385,7 @@ koşullarda kesişmemesi.
 C: Tersine-cherry-picking var: üç ayrı veri setinde etiket hatası bulup sayılarımızı AŞAĞI
 düzelttik (0.594→0.194; 0.749→0.526; AUC tavanı 0.75'in kaldırılması). Tüm eşikler sonuç
 görülmeden donduruldu; kör holdout'lar hiç açılmadı; her koşunun SHA-256'lı manifest'i var;
-42 ADR'lik karar günlüğü ve filtrelenebilir deney paneli (docs/experiment_dashboard.html)
+42 ADR'lik karar günlüğü ve filtrelenebilir deney paneli (docs/panolar/experiment_dashboard.html)
 her iddianın kaynağını gösteriyor.
 
 **S: Bundan sonra ne yapılabilir?**
@@ -398,13 +398,34 @@ olay verisi temin edilirse contextual hattı yeni bir ön-kayıtla yeniden değe
 
 ## 10. Kaynak dizini
 
-- Karar günlüğü (42 ADR): `docs/decisions.md`
-- Deney kayıt paneli (34 kayıt, filtrelenebilir): `docs/experiment_dashboard.html`
-- ADS-B doğal yük + gerçek recall paneli: `docs/adsb_contextual_physics_v1_burden_dashboard.html`
+- Karar günlüğü (44 ADR): `docs/decisions.md`
+- Deney kayıt paneli (34 kayıt, filtrelenebilir): `docs/panolar/experiment_dashboard.html`
+- ADS-B doğal yük + gerçek recall paneli: `docs/panolar/adsb_contextual_physics_v1_burden_dashboard.html`
 - Teşhis dokümanı: `docs/DURUM_TESHIS_VE_YOL_HARITASI.md`
-- Yetersizlikler kaydı (30+ madde): arşivde `archive/2026-07-10_legacy_non_adsb_ml/docs/ML_YETERSIZLIKLER_KAYDI.md`
-- Arşivler: `archive/2026-07-10_legacy_non_adsb_ml/` (ML-0..16, RFLY), `archive/2026-07-10_rejected_adsb_attempts/`
+- Yetersizlikler kaydı (30+ madde): `gecmis_calismalar/_ortak/legacy_ml_kutuphanesi/docs/ML_YETERSIZLIKLER_KAYDI.md`
+- Dosyalanmış geçmiş çalışmalar (2026-07-22 yeniden klasörleme): `gecmis_calismalar/`
+  (ALFA/UAV_ATTACK/UAV_SEAD/RFLYMAD × kaynak-kod/script/test/rapor/görsel — bkz.
+  `gecmis_calismalar/README.md`); eski `archive/2026-07-10_legacy_non_adsb_ml/` ve
+  `archive/2026-07-10_rejected_adsb_attempts/` yolları artık bu yeni yapıya taşındı.
 - Son koşu artifact'ları: `artifacts/adsb/runs/20260715_contextual_physics_v1_truth_v2_eval_v1/`,
   `.../20260715_contextual_physics_v1_rehearsal_v1/`
 - Ön-kayıt sözleşmeleri: `docs/adsb_contextual_candidate_v1_prereg_2026-07-14.md`,
   `docs/adsb_contextual_physics_v1_alarm_budget_prereg_2026-07-14.md`
+
+## 11. Ek (2026-07-22) — RflyMAD-Full v2 hükmü bağımsız olarak doğruladı
+
+Bu final rapor yazıldıktan sonra, RFLY üzerinde çok daha büyük ölçekli
+(490 gerçek uçuş yerine 6605 uçuş, düzeltilmiş truth-schema v2) **ayrı ve
+bağımsız** bir tur çalıştırıldı: preregistered 6-adaylı Wind/Real robustness
+sweep + development-only supervised TCN sweep. **Sonuç bu raporun §8
+hükmünü değiştirmedi, bağımsız olarak doğruladı:** altı aday da (R1-R4, W1,
+W2) kendi kapısını geçemedi; Real-domain transferi gösterilemedi (Real macro
+recall en iyi ihtimalle %28, hedef %40), Wind ortam-gürültüsü çözülemedi.
+Genel-arıza recall/FA koruma kapısı development'ta kararlı geçse de bu,
+Real/Wind için ayrı ve daha sıkı tutulan kapılar geçildiği anlamına gelmiyor.
+
+Bu, §8'deki üç kanıt hattına (yöntem uzayı dürüstçe tarandı; başarısızlık
+nedenleri veri-yapısal; iyileştirme kaldıraçları tükendi) **dördüncü,
+bağımsız bir veri/turdan** gelen teyit ekler. Ayrıntı:
+`gecmis_calismalar/RFLYMAD/raporlar/RFLYMAD_V2_SONRAKI_ADIMLAR_20260722.md`,
+ADR-044 (`docs/decisions.md`).

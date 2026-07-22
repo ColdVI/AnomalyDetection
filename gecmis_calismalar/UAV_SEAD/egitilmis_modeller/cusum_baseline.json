@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "fit_policy": "split_00 normal-train only; fixed during inference",
+  "columns": {
+    "gps_speed_residual": {
+      "center": 0.023201173870594283,
+      "sigma": 0.02221395449208449,
+      "k": 0.011106977246042244
+    },
+    "hdop": {
+      "center": 0.0,
+      "sigma": 0.0,
+      "k": 0.0
+    },
+    "noise_per_ms": {
+      "center": 0.0,
+      "sigma": 0.0,
+      "k": 0.0
+    },
+    "pos_test_ratio": {
+      "center": 0.015606201253831387,
+      "sigma": 0.01211777041107416,
+      "k": 0.00605888520553708
+    },
+    "vel_test_ratio": {
+      "center": 0.0,
+      "sigma": 0.0,
+      "k": 0.0
+    },
+    "hgt_test_ratio": {
+      "center": 0.011588893365114927,
+      "sigma": 0.011618000440788454,
+      "k": 0.005809000220394227
+    },
+    "alt_baro_residual": {
+      "center": 0.0,
+      "sigma": 0.0,
+      "k": 0.0
+    },
+    "alt_local_residual": {
+      "center": 0.0,
+      "sigma": 0.0,
+      "k": 0.0
+    },
+    "attitude_error_mag": {
+      "center": 0.3401948076219231,
+      "sigma": 0.21283892306269933,
+      "k": 0.10641946153134967
+    },
+    "ekf_alt_innov": {
+      "center": 0.01660025119781494,
+      "sigma": 0.015763589930534363,
+      "k": 0.007881794965267181
+    },
+    "ekf_vertical_vel_innov": {
+      "center": 0.0,
+      "sigma": 0.0,
+      "k": 0.0
+    },
+    "actuator_output_std": {
+      "center": 30.415225324588693,
+      "sigma": 16.514058938215356,
+      "k": 8.257029469107678
+    },
+    "actuator_output_range": {
+      "center": 90.0,
+      "sigma": 50.4084,
+      "k": 25.2042
+    }
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "stage": "ML-10 mandatory feasibility checkpoint (§3)",
+  "created_utc": "2026-07-06T15:25:01.727241+00:00",
+  "model_id": "amazon/chronos-bolt-tiny",
+  "context_window_rows": 512,
+  "minimum_context_rows": 16,
+  "batch_size": 64,
+  "measured_stride_seconds": 1.0,
+  "sample_selection": "8 deterministic flight-size quantiles with both target channels",
+  "sample_flights": [
+    {
+      "source_id": "2018-07-25/sess008/log001",
+      "rows": 96,
+      "duration_s": 95.156409,
+      "wall_seconds": 0.09271340000123018,
+      "predictions": {
+        "alt": 80,
+        "actuator_output_std": 79
+      }
+    },
+    {
+      "source_id": "2019-01-01/14_44_02",
+      "rows": 361,
+      "duration_s": 36.992757,
+      "wall_seconds": 0.06226020000030985,
+      "predictions": {
+        "alt": 35,
+        "actuator_output_std": 35
+      }
+    },
+    {
+      "source_id": "2018-09-08/18_21_08",
+      "rows": 518,
+      "duration_s": 53.148431,
+      "wall_seconds": 0.09824790000129724,
+      "predictions": {
+        "alt": 53,
+        "actuator_output_std": 52
+      }
+    },
+    {
+      "source_id": "2018-09-05/2016-02-11/19_41_03",
+      "rows": 731,
+      "duration_s": 148.29116399999998,
+      "wall_seconds": 0.23762140000326326,
+      "predictions": {
+        "alt": 146,
+        "actuator_output_std": 145
+      }
+    },
+    {
+      "source_id": "2018-09-08/18_11_27",
+      "rows": 1019,
+      "duration_s": 108.09749300000001,
+      "wall_seconds": 0.19187930000043707,
+      "predictions": {
+        "alt": 108,
+        "actuator_output_std": 107
+      }
+    },
+    {
+      "source_id": "2018-09-11/08_00_34",
+      "rows": 1316,
+      "duration_s": 137.71525,
+      "wall_seconds": 0.2546031000019866,
+      "predictions": {
+        "alt": 137,
+        "actuator_output_std": 136
+      }
+    },
+    {
+      "source_id": "2019-03-11/07_38_50",
+      "rows": 1736,
+      "duration_s": 176.35276399999998,
+      "wall_seconds": 0.31688040000153705,
+      "predictions": {
+        "alt": 176,
+        "actuator_output_std": 176
+      }
+    },
+    {
+      "source_id": "2019-01-25/17_03_27",
+      "rows": 6908,
+      "duration_s": 702.254513,
+      "wall_seconds": 1.2568147999991197,
+      "predictions": {
+        "alt": 702,
+        "actuator_output_std": 700
+      }
+    }
+  ],
+  "sample_flight_count": 8,
+  "sample_total_predictions": 2867,
+  "sample_wall_seconds": 2.5735074000040186,
+  "sample_mean_wall_seconds_per_flight": 0.3216884250005023,
+  "development_flights": 480,
+  "development_total_decision_points": 58231,
+  "projected_full_runtime_seconds": 102.43192714260698,
+  "projected_full_runtime_hours": 0.028453313095168607,
+  "fixed_rule": {
+    "under_3h": "full development at 1s stride",
+    "3_to_8h": "remeasure at 5s stride",
+    "over_8h": "fixed target-category subset plus equal-size seeded normal subset"
+  },
+  "decision": "full_development_1s",
+  "selected_stride_seconds": 1.0,
+  "full_run_authorized": true,
+  "blind_holdout_read": false,
+  "blind_holdout_flights": 131,
+  "preflight_sha256": "847890ba99d3d5e74bbd67bf130d0f0436ece240d8feee1cc6f280621d6e3dd3",
+  "split_manifest_sha256": "0e3047b3abc11d09bc5b2b94e35cca117efce8fa49fdc37393c146550b8d0f0d",
+  "feature_table_sha256": "14c90f5f9a283982cec9e93e6e0fcf6a4c3811629ac8aff72f0a2bccc4d69b06",
+  "silver_table_sha256": "6a4a9a5daaea9d15b991218f3856ff5a2846e0d02268f3ebda96d13eba82edbb"
+}

@@ -1,0 +1,47 @@
+{
+  "modules": {
+    "kontrol_tepki": {
+      "feature_columns": [
+        "abs_roll_error",
+        "abs_pitch_error",
+        "abs_yaw_error",
+        "roll_error_rate",
+        "pitch_error_rate",
+        "yaw_error_rate",
+        "roll_error_2s_rms",
+        "roll_error_5s_rms",
+        "pitch_error_2s_rms",
+        "pitch_error_5s_rms",
+        "yaw_error_5s_rms",
+        "roll_spec_energy_5s",
+        "pitch_spec_energy_5s",
+        "roll_error_cusum_pos",
+        "pitch_error_cusum_pos",
+        "turn_residual",
+        "turn_residual_5s_rms"
+      ],
+      "row_threshold_q99": 0.6559195330818558,
+      "flight_threshold_max": 0.7191070669199587
+    },
+    "rehberlik": {
+      "feature_columns": [
+        "alt_error",
+        "aspd_error",
+        "xtrack_error",
+        "path_dev_mag",
+        "wp_dist",
+        "alt_error_cusum_pos",
+        "alt_error_cusum_neg",
+        "xtrack_error_cusum_pos",
+        "climb_residual",
+        "energy_rate",
+        "altitude_rate",
+        "airspeed_error",
+        "abs_airspeed_error",
+        "xtrack_error_5s_rms"
+      ],
+      "row_threshold_q99": 0.659956451891554,
+      "flight_threshold_max": 0.6679726813363366
+    }
+  }
+}

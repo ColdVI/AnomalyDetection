@@ -1,0 +1,632 @@
+[
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "lightgbm",
+    "decision": "threshold",
+    "budget": "critical",
+    "window_auroc": 0.9178752106277588,
+    "window_auprc": 0.8718857514663825,
+    "prevalence": 0.5002471576866041,
+    "n_events": 8,
+    "detected_events": 7,
+    "false_alarm_events": 1,
+    "alarm_onsets": 12,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.875,
+    "event_precision": 0.9166666666666666,
+    "median_detection_delay_s": 26.0,
+    "p90_detection_delay_s": 88.80000000000001,
+    "avg_detection_time_s": 41.285714285714285,
+    "max_detection_time_s": 111.0,
+    "false_alarms_per_hour": 3.6000000000000005,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 2,
+        "recall": 1.0
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 5,
+        "recall": 0.8333333333333334
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "lightgbm",
+    "decision": "k_of_n",
+    "budget": "critical",
+    "window_auroc": 0.9178752106277588,
+    "window_auprc": 0.8718857514663825,
+    "prevalence": 0.5002471576866041,
+    "n_events": 8,
+    "detected_events": 2,
+    "false_alarm_events": 0,
+    "alarm_onsets": 2,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.25,
+    "event_precision": 1.0,
+    "median_detection_delay_s": 24.5,
+    "p90_detection_delay_s": 32.1,
+    "avg_detection_time_s": 24.5,
+    "max_detection_time_s": 34.0,
+    "false_alarms_per_hour": 0.0,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 0,
+        "recall": 0.0
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 2,
+        "recall": 0.3333333333333333
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "lightgbm",
+    "decision": "cusum",
+    "budget": "critical",
+    "window_auroc": 0.9178752106277588,
+    "window_auprc": 0.8718857514663825,
+    "prevalence": 0.5002471576866041,
+    "n_events": 8,
+    "detected_events": 1,
+    "false_alarm_events": 0,
+    "alarm_onsets": 1,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.125,
+    "event_precision": 1.0,
+    "median_detection_delay_s": 171.0,
+    "p90_detection_delay_s": 171.0,
+    "avg_detection_time_s": 171.0,
+    "max_detection_time_s": 171.0,
+    "false_alarms_per_hour": 0.0,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 1,
+        "recall": 0.5
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 0,
+        "recall": 0.0
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "lightgbm",
+    "decision": "threshold",
+    "budget": "advisory",
+    "window_auroc": 0.9178752106277588,
+    "window_auprc": 0.8718857514663825,
+    "prevalence": 0.5002471576866041,
+    "n_events": 8,
+    "detected_events": 7,
+    "false_alarm_events": 1,
+    "alarm_onsets": 12,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.875,
+    "event_precision": 0.9166666666666666,
+    "median_detection_delay_s": 26.0,
+    "p90_detection_delay_s": 88.80000000000001,
+    "avg_detection_time_s": 41.285714285714285,
+    "max_detection_time_s": 111.0,
+    "false_alarms_per_hour": 3.6000000000000005,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 2,
+        "recall": 1.0
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 5,
+        "recall": 0.8333333333333334
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "lightgbm",
+    "decision": "k_of_n",
+    "budget": "advisory",
+    "window_auroc": 0.9178752106277588,
+    "window_auprc": 0.8718857514663825,
+    "prevalence": 0.5002471576866041,
+    "n_events": 8,
+    "detected_events": 2,
+    "false_alarm_events": 0,
+    "alarm_onsets": 2,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.25,
+    "event_precision": 1.0,
+    "median_detection_delay_s": 24.5,
+    "p90_detection_delay_s": 32.1,
+    "avg_detection_time_s": 24.5,
+    "max_detection_time_s": 34.0,
+    "false_alarms_per_hour": 0.0,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 0,
+        "recall": 0.0
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 2,
+        "recall": 0.3333333333333333
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "lightgbm",
+    "decision": "cusum",
+    "budget": "advisory",
+    "window_auroc": 0.9178752106277588,
+    "window_auprc": 0.8718857514663825,
+    "prevalence": 0.5002471576866041,
+    "n_events": 8,
+    "detected_events": 6,
+    "false_alarm_events": 0,
+    "alarm_onsets": 7,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.75,
+    "event_precision": 1.0,
+    "median_detection_delay_s": 60.0,
+    "p90_detection_delay_s": 72.5,
+    "avg_detection_time_s": 62.5,
+    "max_detection_time_s": 73.0,
+    "false_alarms_per_hour": 0.0,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 2,
+        "recall": 1.0
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 4,
+        "recall": 0.6666666666666666
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "if_fusion",
+    "decision": "threshold",
+    "budget": "critical",
+    "window_auroc": 0.876288201326906,
+    "window_auprc": 0.7796524031650884,
+    "prevalence": 0.5002471576866041,
+    "n_events": 8,
+    "detected_events": 0,
+    "false_alarm_events": 0,
+    "alarm_onsets": 0,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.0,
+    "event_precision": NaN,
+    "median_detection_delay_s": NaN,
+    "p90_detection_delay_s": NaN,
+    "avg_detection_time_s": NaN,
+    "max_detection_time_s": NaN,
+    "false_alarms_per_hour": 0.0,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 0,
+        "recall": 0.0
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 0,
+        "recall": 0.0
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "if_fusion",
+    "decision": "k_of_n",
+    "budget": "critical",
+    "window_auroc": 0.876288201326906,
+    "window_auprc": 0.7796524031650884,
+    "prevalence": 0.5002471576866041,
+    "n_events": 8,
+    "detected_events": 6,
+    "false_alarm_events": 3,
+    "alarm_onsets": 10,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.75,
+    "event_precision": 0.7,
+    "median_detection_delay_s": 4.0,
+    "p90_detection_delay_s": 46.5,
+    "avg_detection_time_s": 17.5,
+    "max_detection_time_s": 88.0,
+    "false_alarms_per_hour": 10.800000000000002,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 1,
+        "recall": 0.5
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 5,
+        "recall": 0.8333333333333334
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "if_fusion",
+    "decision": "cusum",
+    "budget": "critical",
+    "window_auroc": 0.876288201326906,
+    "window_auprc": 0.7796524031650884,
+    "prevalence": 0.5002471576866041,
+    "n_events": 8,
+    "detected_events": 7,
+    "false_alarm_events": 3,
+    "alarm_onsets": 13,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.875,
+    "event_precision": 0.7692307692307693,
+    "median_detection_delay_s": 5.0,
+    "p90_detection_delay_s": 39.60000000000003,
+    "avg_detection_time_s": 16.285714285714285,
+    "max_detection_time_s": 87.0,
+    "false_alarms_per_hour": 10.800000000000002,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 1,
+        "recall": 0.5
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 6,
+        "recall": 1.0
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "if_fusion",
+    "decision": "threshold",
+    "budget": "advisory",
+    "window_auroc": 0.876288201326906,
+    "window_auprc": 0.7796524031650884,
+    "prevalence": 0.5002471576866041,
+    "n_events": 8,
+    "detected_events": 0,
+    "false_alarm_events": 0,
+    "alarm_onsets": 0,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.0,
+    "event_precision": NaN,
+    "median_detection_delay_s": NaN,
+    "p90_detection_delay_s": NaN,
+    "avg_detection_time_s": NaN,
+    "max_detection_time_s": NaN,
+    "false_alarms_per_hour": 0.0,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 0,
+        "recall": 0.0
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 0,
+        "recall": 0.0
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "if_fusion",
+    "decision": "k_of_n",
+    "budget": "advisory",
+    "window_auroc": 0.876288201326906,
+    "window_auprc": 0.7796524031650884,
+    "prevalence": 0.5002471576866041,
+    "n_events": 8,
+    "detected_events": 6,
+    "false_alarm_events": 3,
+    "alarm_onsets": 10,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.75,
+    "event_precision": 0.7,
+    "median_detection_delay_s": 4.0,
+    "p90_detection_delay_s": 46.5,
+    "avg_detection_time_s": 17.5,
+    "max_detection_time_s": 88.0,
+    "false_alarms_per_hour": 10.800000000000002,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 1,
+        "recall": 0.5
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 5,
+        "recall": 0.8333333333333334
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "if_fusion",
+    "decision": "cusum",
+    "budget": "advisory",
+    "window_auroc": 0.876288201326906,
+    "window_auprc": 0.7796524031650884,
+    "prevalence": 0.5002471576866041,
+    "n_events": 8,
+    "detected_events": 7,
+    "false_alarm_events": 3,
+    "alarm_onsets": 13,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.875,
+    "event_precision": 0.7692307692307693,
+    "median_detection_delay_s": 5.0,
+    "p90_detection_delay_s": 39.60000000000003,
+    "avg_detection_time_s": 16.285714285714285,
+    "max_detection_time_s": 87.0,
+    "false_alarms_per_hour": 10.800000000000002,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 1,
+        "recall": 0.5
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 6,
+        "recall": 1.0
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "lstm_existing",
+    "decision": "threshold",
+    "budget": "critical",
+    "window_auroc": 0.9462002182214947,
+    "window_auprc": 0.906771003905037,
+    "prevalence": 0.4908616187989556,
+    "n_events": 8,
+    "detected_events": 0,
+    "false_alarm_events": 0,
+    "alarm_onsets": 0,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.0,
+    "event_precision": NaN,
+    "median_detection_delay_s": NaN,
+    "p90_detection_delay_s": NaN,
+    "avg_detection_time_s": NaN,
+    "max_detection_time_s": NaN,
+    "false_alarms_per_hour": 0.0,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 0,
+        "recall": 0.0
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 0,
+        "recall": 0.0
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "lstm_existing",
+    "decision": "k_of_n",
+    "budget": "critical",
+    "window_auroc": 0.9462002182214947,
+    "window_auprc": 0.906771003905037,
+    "prevalence": 0.4908616187989556,
+    "n_events": 8,
+    "detected_events": 1,
+    "false_alarm_events": 0,
+    "alarm_onsets": 1,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.125,
+    "event_precision": 1.0,
+    "median_detection_delay_s": 35.0,
+    "p90_detection_delay_s": 35.0,
+    "avg_detection_time_s": 35.0,
+    "max_detection_time_s": 35.0,
+    "false_alarms_per_hour": 0.0,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 0,
+        "recall": 0.0
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 1,
+        "recall": 0.16666666666666666
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "lstm_existing",
+    "decision": "cusum",
+    "budget": "critical",
+    "window_auroc": 0.9462002182214947,
+    "window_auprc": 0.906771003905037,
+    "prevalence": 0.4908616187989556,
+    "n_events": 8,
+    "detected_events": 1,
+    "false_alarm_events": 0,
+    "alarm_onsets": 1,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.125,
+    "event_precision": 1.0,
+    "median_detection_delay_s": 42.0,
+    "p90_detection_delay_s": 42.0,
+    "avg_detection_time_s": 42.0,
+    "max_detection_time_s": 42.0,
+    "false_alarms_per_hour": 0.0,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 0,
+        "recall": 0.0
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 1,
+        "recall": 0.16666666666666666
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "lstm_existing",
+    "decision": "threshold",
+    "budget": "advisory",
+    "window_auroc": 0.9462002182214947,
+    "window_auprc": 0.906771003905037,
+    "prevalence": 0.4908616187989556,
+    "n_events": 8,
+    "detected_events": 0,
+    "false_alarm_events": 0,
+    "alarm_onsets": 0,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.0,
+    "event_precision": NaN,
+    "median_detection_delay_s": NaN,
+    "p90_detection_delay_s": NaN,
+    "avg_detection_time_s": NaN,
+    "max_detection_time_s": NaN,
+    "false_alarms_per_hour": 0.0,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 0,
+        "recall": 0.0
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 0,
+        "recall": 0.0
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "lstm_existing",
+    "decision": "k_of_n",
+    "budget": "advisory",
+    "window_auroc": 0.9462002182214947,
+    "window_auprc": 0.906771003905037,
+    "prevalence": 0.4908616187989556,
+    "n_events": 8,
+    "detected_events": 1,
+    "false_alarm_events": 0,
+    "alarm_onsets": 1,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.125,
+    "event_precision": 1.0,
+    "median_detection_delay_s": 35.0,
+    "p90_detection_delay_s": 35.0,
+    "avg_detection_time_s": 35.0,
+    "max_detection_time_s": 35.0,
+    "false_alarms_per_hour": 0.0,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 0,
+        "recall": 0.0
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 1,
+        "recall": 0.16666666666666666
+      }
+    }
+  },
+  {
+    "split": "split_03",
+    "seed": 3,
+    "score_source": "lstm_existing",
+    "decision": "cusum",
+    "budget": "advisory",
+    "window_auroc": 0.9462002182214947,
+    "window_auprc": 0.906771003905037,
+    "prevalence": 0.4908616187989556,
+    "n_events": 8,
+    "detected_events": 1,
+    "false_alarm_events": 0,
+    "alarm_onsets": 1,
+    "normal_hours": 0.27777777777777773,
+    "preexisting_alarm_events": 0,
+    "event_onset_recall": 0.125,
+    "event_precision": 1.0,
+    "median_detection_delay_s": 37.0,
+    "p90_detection_delay_s": 37.0,
+    "avg_detection_time_s": 37.0,
+    "max_detection_time_s": 37.0,
+    "false_alarms_per_hour": 0.0,
+    "family_onset_recall": {
+      "aileron_fault": {
+        "events": 2,
+        "detected": 0,
+        "recall": 0.0
+      },
+      "engine_fault": {
+        "events": 6,
+        "detected": 1,
+        "recall": 0.16666666666666666
+      }
+    }
+  }
+]
