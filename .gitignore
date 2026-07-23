@@ -6,6 +6,9 @@ venv/
 # bind-mount'u ile) yazdigi calisma zamani log dosyalari -- veri, kod degil.
 /Dashboard/logs/*.log
 /Dashboard/logs/*.log.1
+# scripts/parallel_parse_all.py --log-dir cikitisi -- calisma zamani debug
+# loglari, veri/kod degil.
+/logs/
 *.parquet
 # individual/metehan_geo/viz/data/*.geojson (density/heatmap/MLAT layers) --
 # pipeline ciktisi, kaynak kod degil. Lokalde uretmek icin:

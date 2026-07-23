@@ -1,5 +1,11 @@
 # ADS-B — İndirgenmiş, Basit Anomali Tespiti Planı
 
+> **Uygulama durumu (2026-07-22):** Madde 7'deki beş adım tamamlandı. Aynı
+> dondurulmuş 100-uçuş örneğinde irtifa ve rota raporları üretildi. Mevcut rota
+> kuralı düşük-hız bearing artefaktına dönüştüğü için durduruldu; yalnız irtifa
+> faz/referans teşhisi yeni bir ön-kayıtla ilerletilecek. Karar belgesi:
+> `docs/ADSB_BASIT_ANOMALI_KARSILASTIRMA_20260722.md`.
+
 > Yazıldı: 2026-07-22 (Europe/Istanbul)
 > Önkoşul: bu dosyadan önce `gecmis_calismalar/README.md` (dört-dataset dosyalama
 > haritası) okunmalı — bu plan, o dört dataset'teki (ALFA/UAV-Attack/UAV-SEAD/

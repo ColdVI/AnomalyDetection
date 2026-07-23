@@ -64,3 +64,27 @@ Step-7 ana freeze gate'inin FAIL olmasından sonra kullanıcı, anomaly-channel 
 conditional conformal calibration, ayrı temporal decision profilleri ve residual forecaster
 altyapısı yazılmıştır. Operasyonel alarm bütçesi henüz sayısal olarak kullanıcı tarafından
 dondurulmadığı için gerçek threshold calibration/evaluation koşusu başlatılmaz.
+
+## 2026-07-22 basit, öğrenmesiz keşif
+
+`docs/ADSB_BASIT_ANOMALI_PLAN_20260722.md` uyarınca tek Silver parçasında,
+sonuçlardan önce dondurulmuş eşiklerle iki küçük kural çalıştırıldı. Model,
+sentetik değerlendirme ve operasyonel alarm iddiası yoktur.
+
+- Faz kuralı 100 uçuşun 57'sinde climb→cruise→descent sırasını çözdü; 43 uçuş
+  `uncertain` bırakıldı.
+- Cruise irtifa kuralı 57 uçuşun 2'sinde olay üretti. Nitel incelemede biri faz
+  sınırı, diğeri meşru çok-seviyeli cruise adayıydı; doğrulanmış anomaly yok.
+- Heading-residual kuralı 95 uçuşta 24 olay üretti; 24/24 düşük-hız bağlamında,
+  0 cruise. Mevcut rota kuralı düşük-hız bearing artefaktı olarak durduruldu.
+- İlerleme tercihi: yalnız yeni ön-kayıtla irtifa faz/referans teşhisi.
+
+Raporlar:
+
+- `docs/ADSB_BASIT_IRTIFA_KESIF_RAPORU_20260722.md`
+- `docs/ADSB_BASIT_ROTA_KESIF_RAPORU_20260722.md`
+- `docs/ADSB_BASIT_ANOMALI_KARSILASTIRMA_20260722.md`
+
+Yeni/feature testleri `37 passed`; geniş ADS-B turunda `258 passed, 1 failed`.
+Tek failure, bu çalışmada değiştirilmeyen `adsb/cusum.py` ile tarihsel immutable
+Step-5 bundle hash'inin önceden mevcut uyuşmazlığıdır; frozen artefakt değiştirilmedi.
