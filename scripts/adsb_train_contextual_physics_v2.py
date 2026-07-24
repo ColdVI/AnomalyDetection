@@ -378,6 +378,57 @@ def _model_config(config: dict[str, Any], batch: ContextualForecastBatch) -> Con
     )
 
 
+def _numpy_batch_indices(
+    permutation: torch.Tensor, start: int, batch_size: int
+) -> np.ndarray:
+    """Return a 1-D NumPy advanced index, including for one-row remainders.
+
+    A one-element torch.Tensor used directly against a NumPy array is
+    interpreted as a scalar index and silently removes the leading batch axis.
+    The forecaster then receives (history, features) instead of
+    (batch, history, features). Converting explicitly to a 1-D NumPy array
+    preserves the batch axis without changing permutation order or RNG use.
+    """
+
+    index = permutation[start : start + batch_size].detach().cpu().numpy()
+    if index.ndim != 1 or len(index) == 0:
+        raise ContextualTrainingContractError("Training batch index must be non-empty and 1-D")
+    return index
+
+
+def _write_epoch_checkpoint_atomic(
+    path: Path,
+    *,
+    model: ContextualResidualForecaster,
+    optimizer: torch.optim.Optimizer,
+    history: list[dict[str, Any]],
+) -> None:
+    """Atomically preserve the latest completed epoch for incident recovery.
+
+    This is deliberately separate from ``model_state.pt``: that file remains
+    the final, contract-verified model artifact.  The epoch checkpoint is a
+    recovery aid and must never be interpreted as a completed training run.
+    """
+
+    temporary = path.with_name(f"{path.name}.tmp")
+    if temporary.exists():
+        raise ContextualTrainingContractError(
+            f"Stale temporary epoch checkpoint exists: {temporary}"
+        )
+    payload = {
+        "schema_version": 1,
+        "artifact_role": "incomplete_training_recovery_only",
+        "completed_epochs": len(history),
+        "history": history,
+        "model_config": model.config.__dict__,
+        "model_state_dict": model.state_dict(),
+        "optimizer_state_dict": optimizer.state_dict(),
+        "torch_rng_state": torch.get_rng_state(),
+    }
+    torch.save(payload, temporary)
+    temporary.replace(path)
+
+
 def _train(
     sources: list[FitSource], *, scaler: StrictNaturalRobustScaler, config: dict[str, Any], run_dir: Path
 ) -> tuple[ContextualResidualForecaster, dict[str, Any]]:
@@ -389,6 +440,7 @@ def _train(
     input_features: tuple[str, ...] | None = None
     history: list[dict[str, Any]] = []
     derived_config_path = run_dir / "derived_training_config.json"
+    epoch_checkpoint_path = run_dir / "training_epoch_checkpoint.pt"
 
     for epoch in range(int(training["epochs"])):
         epoch_loss_sum = 0.0
@@ -419,7 +471,9 @@ def _train(
             assert model is not None and optimizer is not None and weights is not None
             permutation = torch.randperm(len(batch.X))
             for start in range(0, len(batch.X), int(training["batch_size"])):
-                index = permutation[start : start + int(training["batch_size"])]
+                index = _numpy_batch_indices(
+                    permutation, start, int(training["batch_size"])
+                )
                 xb = torch.from_numpy(batch.X[index])
                 mb = torch.from_numpy(batch.X_mask[index])
                 yb = torch.from_numpy(batch.y[index])
@@ -443,8 +497,17 @@ def _train(
             "batches": epoch_batches,
         }
         history.append(record)
+        assert optimizer is not None
+        _write_epoch_checkpoint_atomic(
+            epoch_checkpoint_path,
+            model=model,
+            optimizer=optimizer,
+            history=history,
+        )
         print(
-            f"epoch={record['epoch']} windows={epoch_windows} mean_nll={record['mean_weighted_gaussian_nll']:.8f}",
+            f"epoch={record['epoch']} windows={epoch_windows} "
+            f"mean_nll={record['mean_weighted_gaussian_nll']:.8f} "
+            f"checkpoint={epoch_checkpoint_path.name}",
             flush=True,
         )
     assert model is not None
@@ -452,6 +515,13 @@ def _train(
         "epochs": history,
         "derived_training_config": derived_config_path.name,
         "derived_training_config_sha256": _sha256_file(derived_config_path),
+        "epoch_checkpoint": {
+            "path": epoch_checkpoint_path.name,
+            "artifact_role": "incomplete_training_recovery_only",
+            "completed_epochs": len(history),
+            "bytes": epoch_checkpoint_path.stat().st_size,
+            "sha256": _sha256_file(epoch_checkpoint_path),
+        },
     }
 
 
