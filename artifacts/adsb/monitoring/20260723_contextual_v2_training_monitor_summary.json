@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "pid": 19464,
+  "expected_process_create_time": 1784799818.294345,
+  "run_dir": "artifacts\\adsb\\runs\\20260723_contextual_physics_v2_train_v1",
+  "deadline": "2026-07-24T08:00:00+03:00",
+  "interval_s": 300.0,
+  "samples": 20,
+  "stop_reason": "training_process_stopped_without_report",
+  "last_sample": {
+    "timestamp": "2026-07-23T19:22:08.494215+03:00",
+    "pid": 19464,
+    "process": {
+      "running": false,
+      "status": "not_found"
+    },
+    "artifacts": {
+      "derived_training_config.json": {
+        "bytes": 2061,
+        "mtime": "2026-07-23T13:03:21.050464+03:00"
+      },
+      "fit_scaler.json": {
+        "bytes": 1275,
+        "mtime": "2026-07-23T13:02:48.268143+03:00"
+      },
+      "INCOMPLETE_DO_NOT_USE.md": {
+        "bytes": 139,
+        "mtime": "2026-07-23T19:19:49.381337+03:00"
+      },
+      "run_manifest.json": {
+        "bytes": 2357,
+        "mtime": "2026-07-23T12:44:07.461972+03:00"
+      }
+    },
+    "training_report": null
+  }
+}
