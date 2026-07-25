@@ -321,11 +321,11 @@
           </div>
         </div>
         <div class="field" id="clustersHint" style="display:none">
-          DBSCAN ile bulunan hava trafiği hub'ları — ülke/şehir sınırı önceden
-          verilmedi, sadece hex başına düşen benzersiz uçuş yoğunluğuna bakılarak
-          keşfedildi. Bu bir "sapma/anomali" analizi değil, coğrafi kümeleme.
-          Kümeleme her zaman TÜM uçaklar üzerinden hesaplanır — Uçak Türü
-          filtresi bu modda etkisizdir.
+          DBSCAN ile otomatik keşfedilen trafik hub'ları: ülke/şehir sınırı
+          önceden verilmedi, yalnızca hex başına uçuş yoğunluğu kümelendi.
+          Bir anomali analizi değil, coğrafi yoğunluk kümelemesidir; her
+          zaman tüm uçaklar üzerinden hesaplanır (Uçak Türü filtresi bu
+          modda etkisizdir).
         </div>
       </div>
     </details>
@@ -760,7 +760,17 @@ function addClusterLayers(geojson) {
   wireClusterHoverPopup();
 }
 
+// 2026-07-24 BUG DUZELTMESI: map.setStyle() (taban harita degisince) TUM
+// custom source/layer'lari siler, addClusterLayers() bu yuzden style.load
+// sonrasi TEKRAR cagrilmasi gerekiyor (asagida duzeltildi) -- ama
+// wireClusterHoverPopup() map.on(...) DINLEYICILERI, layer'in aksine,
+// map nesnesine bagli kalir ve setStyle ile SILINMEZ. Guard olmadan, her
+// stil degisiminde clusters modundaysan bir "mousemove" dinleyicisi daha
+// eklenip eskiler asla temizlenmezdi (birikimli/duplicate popup riski).
+let clusterHoverWired = false;
 function wireClusterHoverPopup() {
+  if (clusterHoverWired) return;
+  clusterHoverWired = true;
   map.on("mousemove", "clusters-fill", (e) => {
     map.getCanvas().style.cursor = "pointer";
     const clusterId = e.features[0].properties.cluster;
@@ -1035,6 +1045,15 @@ map.on("style.load", async () => {
   map.setProjection({ type: currentProjection });
   loadedHexMetric = null; // source/layer'lar stil degisince silindi, yeniden ekle
   loadedHeatmapMetric = null;
+  // 2026-07-24 BUG DUZELTMESI: loadedClusters BURADA sifirlanmiyordu --
+  // Trafik Kumeleri modundayken taban harita degistirilince (styleSelect),
+  // setStyle() clusters source/layer'larini da siliyor ama render() icindeki
+  // "if (loadedClusters !== clustersKey)" kontrolu hala ESKI degeri gordugu
+  // icin addClusterLayers() bir daha CAGRILMIYORDU -- harita "clusters"
+  // modunda bombos/yuklenmemis kaliyordu (kullanici bulgusu: "tiklayinca
+  // yuklenmiyor bazen"). clustersData JS bellekte kaldigi icin yeniden
+  // fetch gerekmez, sadece yeniden EKLEME tetiklenmesi yeterli.
+  loadedClusters = null;
   await render();
   if (hillshadeOn) addHillshadeLayer();
   if (mlatOn) addMlatLayer(await loadMlatGeoJSON());
