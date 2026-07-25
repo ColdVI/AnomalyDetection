@@ -220,7 +220,8 @@ def evaluate(item_tower, query_tower, loader, x, adj, route_mask, loss_fn):
 
 
 def main(n_epochs: int = 5, batch_size: int = 32, limit_files: int | None = None, mask_routes: bool = False,
-         item_tower_kind: str = "gcn", loss_kind: str = "ce", focal_gamma: float = 2.0, class_balanced: bool = False):
+         item_tower_kind: str = "gcn", loss_kind: str = "ce", focal_gamma: float = 2.0, class_balanced: bool = False,
+         patience: int | None = None):
     MODEL_OUT, BEST_MODEL_OUT = checkpoint_paths(item_tower_kind, loss_kind)
     print(f"item_tower={item_tower_kind}, loss={loss_kind}"
           + (f" (gamma={focal_gamma})" if loss_kind == "focal" else "")
@@ -324,6 +325,15 @@ def main(n_epochs: int = 5, batch_size: int = 32, limit_files: int | None = None
         best_val_acc, best_epoch = -1.0, -1
     print(f"Su ana kadarki en iyi: epoch {best_epoch}, val_acc={best_val_acc:.4f}", flush=True)
 
+    # Erken durdurma (early stopping): kac epoch'tur yeni rekor gelmedigini
+    # takip eder. Resume sirasinda da DOGRU baslatilir (ör. best_epoch=19,
+    # start_epoch=22 ise, 21'e kadar zaten 2 epoch'tur iyilesme yok demektir)
+    # -- sadece BU calistirmadaki sayaci sifirlamak, gecmisteki dalgalanmayi
+    # gormezden gelip patience'i yanlis tetiklerdi/tetiklemezdi.
+    epochs_without_improvement = max(0, (start_epoch - 1) - best_epoch) if start_epoch > 0 else 0
+    if patience is not None and epochs_without_improvement > 0:
+        print(f"(Resume: son {epochs_without_improvement} epoch'tur yeni rekor yok -- patience={patience})", flush=True)
+
     item_tower.train()
     query_tower.train()
 
@@ -375,11 +385,35 @@ def main(n_epochs: int = 5, batch_size: int = 32, limit_files: int | None = None
         # checkpoint her zaman "en iyi" degildir, bu yuzden ayri takip edilir.
         if val_acc > best_val_acc:
             best_val_acc, best_epoch = val_acc, epoch
+            epochs_without_improvement = 0
             torch.save(ckpt_dict, BEST_MODEL_OUT)
             print(f"  >>> YENI EN IYI: epoch {epoch}, val_acc={val_acc:.4f} ({BEST_MODEL_OUT} guncellendi)", flush=True)
+        else:
+            epochs_without_improvement += 1
+            if patience is not None:
+                print(f"  (en iyiyi gecemedi: {epochs_without_improvement}/{patience} epoch'tur iyilesme yok)", flush=True)
 
+        # Erken durdurma: patience epoch UST USTE yeni rekor gelmezse dur --
+        # 5/11/18'deki gibi TEK epoch'luk gecici dususleri (hep bir sonrakinde
+        # asilmisti) yanlislikla "overfit" saymamak icin patience yeterince
+        # genis (>1) secilmeli (bkz. --patience CLI aciklamasi).
+        if patience is not None and epochs_without_improvement >= patience:
+            print(f"\n>>> ERKEN DURDURMA: {patience} epoch'tur (epoch {epoch - patience + 1}-{epoch}) "
+                  f"yeni rekor gelmedi -- gercek/kalici bir plato/overfitting isareti olarak degerlendirildi.", flush=True)
+            break
+
+    # Nihai TEST iki ayri sekilde raporlanir: (1) o an bellekte olan agirliklarla
+    # (son TAMAMLANAN epoch -- erken durdurulduysa bu epoch'un KENDISI zaten
+    # kotu/overfit olabilir), (2) BEST_MODEL_OUT'un agirliklari GERI YUKLENEREK
+    # -- asil onemli olan/kullanilacak model budur.
     test_loss, test_acc = evaluate(item_tower, query_tower, test_loader, x, adj, route_mask, loss_fn)
-    print(f"\nTEST (son epoch, {n_epochs-1}): loss={test_loss:.4f} acc={test_acc:.4f}")
+    print(f"\nTEST (son tamamlanan epoch, {epoch}): loss={test_loss:.4f} acc={test_acc:.4f}")
+
+    best_ckpt_final = torch.load(BEST_MODEL_OUT, weights_only=False)
+    item_tower.load_state_dict(best_ckpt_final["item_tower"])
+    query_tower.load_state_dict(best_ckpt_final["query_tower"])
+    best_test_loss, best_test_acc = evaluate(item_tower, query_tower, test_loader, x, adj, route_mask, loss_fn)
+    print(f"TEST (en iyi checkpoint, epoch {best_epoch}): loss={best_test_loss:.4f} acc={best_test_acc:.4f}")
     print(f"En iyi val_acc: epoch {best_epoch}, val_acc={best_val_acc:.4f} -> {BEST_MODEL_OUT}")
     print(f"Son epoch modeli: {MODEL_OUT}")
 
@@ -397,7 +431,11 @@ if __name__ == "__main__":
     parser.add_argument("--focal-gamma", type=float, default=2.0, help="--loss focal icin odaklanma parametresi")
     parser.add_argument("--class-balanced", action="store_true",
                          help="Train setindeki gercek destinasyon dagilimindan (Cui ve ark. 2019) sinif agirligi ekler")
+    parser.add_argument("--patience", type=int, default=None,
+                         help="Bu kadar epoch ust uste yeni val_acc rekoru gelmezse egitimi erken durdurur "
+                              "(2026-07-25: epoch 5/11/18'deki gecici tek-epoch dususleri yanlislikla overfit "
+                              "saymamak icin >1 onerilir, ör. 5)")
     args = parser.parse_args()
     main(n_epochs=args.epochs, batch_size=args.batch_size, mask_routes=args.mask_routes,
          item_tower_kind=args.item_tower, loss_kind=args.loss, focal_gamma=args.focal_gamma,
-         class_balanced=args.class_balanced)
+         class_balanced=args.class_balanced, patience=args.patience)
