@@ -10,6 +10,7 @@ from adsb.models.contextual_residual_forecaster import (
     ContextualResidualForecaster,
 )
 from scripts.adsb_train_contextual_physics_v2 import (
+    _exact_median_mad_in_place,
     _numpy_batch_indices,
     _write_epoch_checkpoint_atomic,
 )
@@ -61,3 +62,16 @@ def test_epoch_checkpoint_is_atomic_and_records_completed_history(tmp_path) -> N
     assert "model_state_dict" in payload
     assert "optimizer_state_dict" in payload
     assert not checkpoint.with_name(f"{checkpoint.name}.tmp").exists()
+
+
+def test_disk_backed_exact_median_mad_matches_in_memory_definition(tmp_path) -> None:
+    original = np.array([9.0, -2.0, 4.0, 1.0, 20.0, 3.0, 8.0], dtype=np.float64)
+    path = tmp_path / "channel.float64.bin"
+    original.tofile(path)
+    mapped = np.memmap(path, dtype=np.float64, mode="r+", shape=original.shape)
+
+    median, mad = _exact_median_mad_in_place(mapped, chunk_rows=2)
+
+    assert median == np.median(original)
+    assert mad == np.median(np.abs(original - np.median(original))) * 1.4826
+    del mapped

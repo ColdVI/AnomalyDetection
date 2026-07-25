@@ -387,6 +387,19 @@ def test_scaler_rejects_synthetic_fit():
         )
 
 
+def test_scaler_accepts_valid_precomputed_exact_statistics():
+    scaler = StrictNaturalRobustScaler(StrictScalingConfig(clip=3.0)).fit_from_statistics(
+        {"a": {"median": 2.0, "mad": 1.4826}},
+        ("constant",),
+        ("a", "constant"),
+        data_role=NATURAL_FIT_ROLE,
+        contains_synthetic=False,
+    )
+
+    assert scaler.active_channels == ("a",)
+    assert scaler.excluded_channels_ == ("constant",)
+
+
 def test_all_zero_mad_channels_fail_closed():
     with pytest.raises(ValueError, match="MAD=0"):
         StrictNaturalRobustScaler(StrictScalingConfig(clip=3.0)).fit(

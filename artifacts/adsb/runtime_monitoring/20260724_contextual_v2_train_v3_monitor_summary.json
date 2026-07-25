@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "pid": 19548,
+  "expected_process_create_time": 1784870346.8098233,
+  "run_dir": "C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\artifacts\\adsb\\runs\\20260724_contextual_physics_v2_train_v3",
+  "deadline": "2026-07-25T08:00:00+03:00",
+  "interval_s": 300.0,
+  "samples": 8,
+  "stop_reason": "training_process_stopped_without_report",
+  "last_sample": {
+    "timestamp": "2026-07-24T08:56:03.366160+03:00",
+    "pid": 19548,
+    "process": {
+      "running": false,
+      "status": "not_found"
+    },
+    "artifacts": {
+      "INCOMPLETE_DO_NOT_USE.md": {
+        "bytes": 184,
+        "mtime": "2026-07-24T08:51:22.989724+03:00"
+      },
+      "run_manifest.json": {
+        "bytes": 2587,
+        "mtime": "2026-07-24T08:19:39.118404+03:00"
+      }
+    },
+    "training_report": null
+  }
+}

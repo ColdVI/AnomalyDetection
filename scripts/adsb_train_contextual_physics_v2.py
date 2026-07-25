@@ -1,10 +1,11 @@
 """Train the frozen contextual_physics_v2 candidate on natural fit flights.
 
 Adapted from scripts/adsb_train_contextual_physics_v1.py (ADR-042, "development
-rejected"). Same contract-verification discipline (clean tracked worktree, code
-hash lock, forbidden-path checks, no threshold selection, no truth-v2/development/
-rehearsal/holdout access) -- the only structural change is that "fit" now spans
-MULTIPLE independent days instead of one:
+rejected"). Git state and code hashes are recorded as provenance but are not
+training gates: unrelated repository edits must not invalidate or terminate a
+running numerical job. Data-role isolation, no-threshold-selection discipline,
+and truth-v2/development/rehearsal/holdout exclusion remain intact. "Fit" spans
+MULTIPLE independent days:
 
   - The original Step-5 manifest's fit role (2026-02-28, 237 parts), now sampled
     at probability=1.0 instead of 0.02 (docs/adsb_contextual_physics_v2_prereg_
@@ -39,6 +40,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from adsb.context import CausalContextConfig  # noqa: E402
 from adsb.contextual_scaling import (  # noqa: E402
     NATURAL_FIT_ROLE,
+    ROBUST_MAD_SCALE,
     StrictNaturalRobustScaler,
     StrictScalingConfig,
 )
@@ -118,11 +120,12 @@ def _git_state(repo_root: Path) -> dict[str, Any]:
     dirty_lines = subprocess.check_output(
         ["git", "status", "--porcelain", "--untracked-files=no"], cwd=repo_root, text=True
     ).splitlines()
-    if dirty_lines:
-        raise ContextualTrainingContractError(
-            f"Training requires a clean tracked worktree; dirty={dirty_lines[:10]}"
-        )
-    return {"commit": commit, "tracked_worktree_clean": True}
+    return {
+        "commit": commit,
+        "tracked_worktree_clean": not dirty_lines,
+        "dirty_tracked_paths": dirty_lines[:100],
+        "provenance_only_not_a_training_gate": True,
+    }
 
 
 def _code_hashes(repo_root: Path) -> dict[str, str]:
@@ -310,34 +313,86 @@ def _sample_flights(flight_ids: Iterable[str], *, probability: float, seed: int,
     return selected
 
 
+def _exact_median_mad_in_place(values: np.ndarray, *, chunk_rows: int = 1_000_000) -> tuple[float, float]:
+    """Compute exact median and scaled MAD while reusing disk-backed storage."""
+
+    if values.ndim != 1 or len(values) == 0:
+        raise ValueError("Exact median/MAD input must be a non-empty 1-D array")
+    median = float(np.median(values, overwrite_input=True))
+    for start in range(0, len(values), chunk_rows):
+        block = values[start : start + chunk_rows]
+        np.subtract(block, median, out=block)
+        np.abs(block, out=block)
+    if isinstance(values, np.memmap):
+        values.flush()
+    mad = float(np.median(values, overwrite_input=True) * ROBUST_MAD_SCALE)
+    return median, mad
+
+
 def _fit_scaler(
-    sources: list[FitSource], channels: tuple[str, ...], clip: float
+    sources: list[FitSource], channels: tuple[str, ...], clip: float, run_dir: Path
 ) -> tuple[StrictNaturalRobustScaler, dict[str, Any]]:
-    channel_parts: dict[str, list[np.ndarray]] = defaultdict(list)
+    work_dir = run_dir / "_scaler_work"
+    work_dir.mkdir(parents=False, exist_ok=False)
+    paths = {channel: work_dir / f"{channel}.float64.bin" for channel in channels}
+    counts = {channel: 0 for channel in channels}
     row_count = 0
     part_count = 0
-    for _, features in _iter_fit_features(sources):
-        row_count += len(features)
-        part_count += 1
+    handles: dict[str, Any] = {}
+    try:
+        handles = {channel: paths[channel].open("xb") for channel in channels}
+        try:
+            for _, features in _iter_fit_features(sources):
+                row_count += len(features)
+                part_count += 1
+                for channel in channels:
+                    values = pd.to_numeric(features[channel], errors="coerce").to_numpy(float)
+                    finite = values[np.isfinite(values)]
+                    finite.tofile(handles[channel])
+                    counts[channel] += len(finite)
+        finally:
+            for handle in handles.values():
+                handle.close()
+
+        calibration: dict[str, dict[str, float]] = {}
+        excluded: list[str] = []
         for channel in channels:
-            values = pd.to_numeric(features[channel], errors="coerce").to_numpy(float)
-            channel_parts[channel].append(values[np.isfinite(values)])
-    fit_frame = pd.DataFrame(
-        {
-            channel: pd.Series(np.concatenate(parts) if parts else np.array([], dtype=float))
-            for channel, parts in channel_parts.items()
+            if counts[channel] == 0:
+                excluded.append(channel)
+                continue
+            mapped = np.memmap(paths[channel], dtype=np.float64, mode="r+", shape=(counts[channel],))
+            try:
+                median, mad = _exact_median_mad_in_place(mapped)
+            finally:
+                del mapped
+            if mad == 0.0:
+                excluded.append(channel)
+            else:
+                calibration[channel] = {"median": median, "mad": mad}
+
+        scaler = StrictNaturalRobustScaler(StrictScalingConfig(clip=clip)).fit_from_statistics(
+            calibration,
+            tuple(excluded),
+            channels,
+            data_role=NATURAL_FIT_ROLE,
+            contains_synthetic=False,
+        )
+        return scaler, {
+            "selected_fit_rows_seen": row_count,
+            "selected_fit_parts_with_rows": part_count,
+            "finite_values_by_channel": {channel: int(counts[channel]) for channel in channels},
+            "statistics_algorithm": "exact_disk_backed_in_place_median_mad",
+            "dense_multichannel_frame_allocated": False,
         }
-    )
-    scaler = StrictNaturalRobustScaler(StrictScalingConfig(clip=clip)).fit(
-        fit_frame, channels, data_role=NATURAL_FIT_ROLE, contains_synthetic=False
-    )
-    return scaler, {
-        "selected_fit_rows_seen": row_count,
-        "selected_fit_parts_with_rows": part_count,
-        "finite_values_by_channel": {
-            channel: int(sum(len(values) for values in parts)) for channel, parts in channel_parts.items()
-        },
-    }
+    finally:
+        for handle in handles.values():
+            if not handle.closed:
+                handle.close()
+        for path in paths.values():
+            if path.exists():
+                path.unlink()
+        if work_dir.exists():
+            work_dir.rmdir()
 
 
 def _context_config(config: dict[str, Any]) -> CausalContextConfig:
@@ -670,7 +725,12 @@ def run(*, repo_root: Path, config_path: Path, run_dir: Path) -> dict[str, Any]:
     }
     _write_json_exclusive(destination / "run_manifest.json", run_manifest)
 
-    scaler, scaler_evidence = _fit_scaler(fit_sources, tuple(config["channels"]), float(config["scaling"]["clip"]))
+    scaler, scaler_evidence = _fit_scaler(
+        fit_sources,
+        tuple(config["channels"]),
+        float(config["scaling"]["clip"]),
+        destination,
+    )
     _write_json_exclusive(destination / "fit_scaler.json", {"scaler": scaler.to_dict(), "evidence": scaler_evidence})
     model, training_report = _train(fit_sources, scaler=scaler, config=config, run_dir=destination)
     checkpoint_path = destination / "model_state.pt"
@@ -681,8 +741,9 @@ def run(*, repo_root: Path, config_path: Path, run_dir: Path) -> dict[str, Any]:
         model, calibration_sources, scaler=scaler, config=config, seed_offset=1000
     )
 
-    if _code_hashes(root) != code_start or _git_state(root) != git_start:
-        raise ContextualTrainingContractError("Code or tracked Git state changed during training")
+    code_end = _code_hashes(root)
+    git_end = _git_state(root)
+    code_and_git_unchanged = code_end == code_start and git_end == git_start
     report = {
         "run_id": destination.name,
         "status": "trained_not_thresholded",
@@ -697,7 +758,14 @@ def run(*, repo_root: Path, config_path: Path, run_dir: Path) -> dict[str, Any]:
             "bytes": checkpoint_path.stat().st_size,
             "sha256": _sha256_file(checkpoint_path),
         },
-        "code_and_git_unchanged": True,
+        "provenance": {
+            "git_start": git_start,
+            "git_end": git_end,
+            "code_sha256_start": code_start,
+            "code_sha256_end": code_end,
+            "code_and_git_unchanged": code_and_git_unchanged,
+            "changes_are_recorded_not_a_training_gate": True,
+        },
         "next_gate": "conformal + CUSUM + persistence_v2 calibration (Faz D)",
     }
     _write_json_exclusive(destination / "training_report.json", report)

@@ -65,6 +65,47 @@ class StrictNaturalRobustScaler:
         self.excluded_channels_ = tuple(excluded)
         return self
 
+    def fit_from_statistics(
+        self,
+        calibration: dict[str, dict[str, float]],
+        excluded_channels: tuple[str, ...],
+        columns: tuple[str, ...],
+        *,
+        data_role: str,
+        contains_synthetic: bool,
+    ) -> "StrictNaturalRobustScaler":
+        """Install exact median/MAD statistics computed outside a DataFrame.
+
+        Large natural-fit corpora may not fit into a single dense pandas
+        frame.  This entry point preserves the same scaler definition while
+        allowing callers to compute exact statistics with disk-backed arrays.
+        """
+
+        if data_role != NATURAL_FIT_ROLE:
+            raise ValueError("Only natural_clean_fit may fit the strict scaler")
+        if contains_synthetic:
+            raise ValueError("Synthetic data cannot enter strict scaling fit")
+        expected = set(columns)
+        excluded = set(excluded_channels)
+        observed = set(calibration)
+        if observed & excluded or observed | excluded != expected:
+            raise ValueError("Calibration and excluded channels must partition requested columns")
+        normalized: dict[str, dict[str, float]] = {}
+        for column in columns:
+            if column in excluded:
+                continue
+            stats = calibration[column]
+            median = float(stats["median"])
+            mad = float(stats["mad"])
+            if not np.isfinite(median) or not np.isfinite(mad) or mad <= 0.0:
+                raise ValueError(f"Invalid precomputed scaling statistics for {column}")
+            normalized[column] = {"median": median, "mad": mad}
+        if not normalized:
+            raise ValueError("All requested channels have no data or MAD=0")
+        self.calibration_ = normalized
+        self.excluded_channels_ = tuple(column for column in columns if column in excluded)
+        return self
+
     @property
     def active_channels(self) -> tuple[str, ...]:
         if self.calibration_ is None:

@@ -78,6 +78,13 @@ class CusumTruthV2ContractError(ValueError):
     """An input or provenance relation is inconsistent with the frozen run."""
 
 
+def _sha256_source_file(path: Path) -> str:
+    """Hash source text canonically across Git LF/Windows CRLF checkouts."""
+
+    payload = path.read_bytes().replace(b"\r\n", b"\n")
+    return hashlib.sha256(payload).hexdigest()
+
+
 def _load_json(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
@@ -363,10 +370,10 @@ def load_frozen_step5_bundle(
     if not isinstance(frozen_code, dict):
         raise CusumTruthV2ContractError("Step-5 base config lacks code hashes")
     for relative in FROZEN_SCORING_CODE:
-        current = sha256_file(root / relative)
+        current = _sha256_source_file(root / relative)
         if frozen_code.get(relative) != current:
             raise CusumTruthV2ContractError(
-                f"Frozen scoring dependency bytes changed since Step 5: {relative}"
+                f"Frozen scoring dependency content changed since Step 5: {relative}"
             )
 
     detector = VectorPageCUSUM.from_dict(selected)
