@@ -66,4 +66,5 @@ def test_truth_ground_audit_builds_paired_flight_quarantine(tmp_path: Path) -> N
         "audited_rows": 6,
         "conflict_records_across_files": 2,
         "unique_conflict_keys": 1,
+        "clean_flights_before_quarantine": 2,
     }

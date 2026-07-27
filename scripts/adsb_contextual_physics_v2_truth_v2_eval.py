@@ -126,12 +126,15 @@ def _audit_truth_v2_ground_conflicts(
 ) -> tuple[pd.DataFrame, set[str], dict[str, int]]:
     records: list[dict[str, Any]] = []
     audited_rows = 0
+    clean_flights = 0
     for filename in filenames:
         frame = pd.read_parquet(
             corpus_dir / filename,
             columns=["flight_id", "timestamp_utc", "on_ground"],
         )
         audited_rows += len(frame)
+        if filename == "clean.parquet":
+            clean_flights = int(frame["flight_id"].nunique())
         frame["timestamp_utc"] = pd.to_numeric(frame["timestamp_utc"], errors="coerce")
         duplicate_mask = frame.duplicated(
             ["flight_id", "timestamp_utc"], keep=False
@@ -185,6 +188,7 @@ def _audit_truth_v2_ground_conflicts(
         "audited_rows": audited_rows,
         "conflict_records_across_files": len(conflicts),
         "unique_conflict_keys": len(unique_keys),
+        "clean_flights_before_quarantine": clean_flights,
     }
 
 
@@ -208,6 +212,7 @@ def _score_model_long(
     scaler,
     target_channels: tuple[str, ...],
     train_config: dict[str, Any],
+    output_channels: set[str] | None = None,
 ) -> pd.DataFrame:
     parts: list[pd.DataFrame] = []
     flight_ids = features["flight_id"].drop_duplicates().to_numpy()
@@ -220,6 +225,8 @@ def _score_model_long(
         scores = _score_batched(model, batch)
         grounds = _target_ground(chunk, batch.meta)
         for channel_index, channel in enumerate(target_channels):
+            if output_channels is not None and channel not in output_channels:
+                continue
             valid = batch.y_mask[:, channel_index] > 0
             if not valid.any():
                 continue
@@ -448,26 +455,27 @@ def run(run_dir: Path, calibration_dir: Path, corpus_dir: Path, out_dir: Path) -
         corpus_dir, EXPECTED_CORPUS_FILES
     )
 
-    print("truth-v2 paired clean corpus scoring", flush=True)
-    clean_features = _load_corpus_features(
-        corpus_dir / "clean.parquet", quarantined_flights
-    )
-    clean_model = _conformal_transform(
-        _score_model_long(
-            clean_features,
-            model=model,
-            scaler=scaler,
-            target_channels=target_channels,
-            train_config=train_config,
-        ),
-        calibrator,
-    )
-    cusum = VectorPageCUSUM.from_dict(calibration_report["cusum"]["detector_template"])
-    clean_cusum = _score_cusum(clean_features, cusum)
-
     results: dict[str, Any] = {}
     observability: dict[str, Any] = {}
     for recipe, channel in MODEL_RECIPES.items():
+        print(f"truth-v2 paired clean channel={channel}", flush=True)
+        clean_features = _load_corpus_features(
+            corpus_dir / "clean.parquet", quarantined_flights
+        )
+        clean_model = _conformal_transform(
+            _score_model_long(
+                clean_features,
+                model=model,
+                scaler=scaler,
+                target_channels=target_channels,
+                train_config=train_config,
+                output_channels={channel},
+            ),
+            calibrator,
+        )
+        del clean_features
+        gc.collect()
+
         print(f"truth-v2 injected recipe={recipe}", flush=True)
         corrupt_features = _load_corpus_features(
             corpus_dir / f"{recipe}.parquet", quarantined_flights
@@ -482,9 +490,12 @@ def run(run_dir: Path, calibration_dir: Path, corpus_dir: Path, out_dir: Path) -
                 scaler=scaler,
                 target_channels=target_channels,
                 train_config=train_config,
+                output_channels={channel},
             ),
             calibrator,
         )
+        del corrupt_features
+        gc.collect()
         results[recipe] = _evaluate_model_recipe(
             recipe,
             channel,
@@ -494,6 +505,17 @@ def run(run_dir: Path, calibration_dir: Path, corpus_dir: Path, out_dir: Path) -
             calibration_report,
             pareto,
         )
+        del clean_model, corrupt_model, events, eligible
+        gc.collect()
+
+    cusum = VectorPageCUSUM.from_dict(calibration_report["cusum"]["detector_template"])
+    print("truth-v2 paired clean CUSUM", flush=True)
+    clean_features = _load_corpus_features(
+        corpus_dir / "clean.parquet", quarantined_flights
+    )
+    clean_cusum = _score_cusum(clean_features, cusum)
+    del clean_features
+    gc.collect()
 
     print(f"truth-v2 injected recipe={CUSUM_RECIPE}", flush=True)
     cusum_features = _load_corpus_features(
@@ -502,13 +524,18 @@ def run(run_dir: Path, calibration_dir: Path, corpus_dir: Path, out_dir: Path) -
     cusum_events = truth_event_table(cusum_features)
     observability[CUSUM_RECIPE] = event_observability_denominators(cusum_events)
     cusum_eligible = cusum_events.loc[cusum_events["observable_eligible"].fillna(False)]
+    corrupt_cusum = _score_cusum(cusum_features, cusum)
+    del cusum_features
+    gc.collect()
     results[CUSUM_RECIPE] = _evaluate_cusum_recipe(
-        _score_cusum(cusum_features, cusum),
+        corrupt_cusum,
         clean_cusum,
         cusum_eligible,
         calibration_report,
         pareto,
     )
+    del clean_cusum, corrupt_cusum, cusum_events, cusum_eligible
+    gc.collect()
 
     out_dir.mkdir(parents=True, exist_ok=False)
     quarantine_path = out_dir / "truth_v2_on_ground_quarantine.parquet"
@@ -538,7 +565,7 @@ def run(run_dir: Path, calibration_dir: Path, corpus_dir: Path, out_dir: Path) -
             "quarantined_flight_ids_sha256": _canonical_json_sha256(
                 sorted(quarantined_flights)
             ),
-            "retained_paired_flights": int(clean_features["flight_id"].nunique()),
+            "retained_paired_flights": (audit_counts["clean_flights_before_quarantine"] - len(quarantined_flights)),
             "artifact_path": quarantine_path.name,
             "artifact_sha256": _sha256_file(quarantine_path),
             "post_training_user_authorized_deviation": True,
