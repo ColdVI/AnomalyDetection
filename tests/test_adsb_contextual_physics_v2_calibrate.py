@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 import numpy as np
 import pandas as pd
 
 from adsb.models.contextual_persistence_v2 import NULL_MEAN_SURPRISE
 from scripts.adsb_contextual_physics_v2_calibrate import (
+    _audit_on_ground_conflicts,
     _derive_reference_multiplier,
     _select_nearest,
 )
@@ -48,3 +50,29 @@ def test_nearest_burden_uses_lower_alpha_tie_break() -> None:
     )
 
     assert chosen["alpha"] == 0.01
+
+
+def test_ground_conflict_audit_quarantines_entire_affected_flight() -> None:
+    class Source:
+        path = Path("part.parquet")
+
+        @staticmethod
+        def load() -> pd.DataFrame:
+            return pd.DataFrame(
+                {
+                    "flight_id": ["bad", "bad", "bad", "good"],
+                    "timestamp_utc": [10.0, 10.0, 11.0, 10.0],
+                    "on_ground": [True, False, False, False],
+                }
+            )
+
+    conflicts, quarantined, counts = _audit_on_ground_conflicts([Source()])
+
+    assert quarantined == {"bad"}
+    assert len(conflicts) == 1
+    assert conflicts.iloc[0]["flight_id"] == "bad"
+    assert conflicts.iloc[0]["observed_on_ground_values"] == '["False","True"]'
+    assert counts == {
+        "audited_parts": 1,
+        "audited_feature_rows": 4,
+    }

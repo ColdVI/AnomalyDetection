@@ -143,6 +143,65 @@ def _target_ground(features: pd.DataFrame, meta: pd.DataFrame) -> np.ndarray:
     return lookup.reindex(keys).to_numpy(dtype=object)
 
 
+def _audit_on_ground_conflicts(
+    sources: Iterable[FitSource],
+) -> tuple[pd.DataFrame, set[str], dict[str, int]]:
+    """Find contradictory ground-state keys and quarantine their whole flights."""
+
+    parts: list[pd.DataFrame] = []
+    source_parts = 0
+    source_rows = 0
+    for source, features in _iter_fit_features(sources):
+        source_parts += 1
+        source_rows += len(features)
+        frame = features[["flight_id", "timestamp_utc", "on_ground"]].copy()
+        frame["timestamp_utc"] = pd.to_numeric(frame["timestamp_utc"], errors="coerce")
+        frame["source_path"] = source.path.as_posix()
+        parts.append(frame)
+    columns = [
+        "flight_id",
+        "timestamp_utc",
+        "observed_on_ground_values",
+        "source_paths",
+        "source_rows",
+    ]
+    if not parts:
+        return pd.DataFrame(columns=columns), set(), {
+            "audited_parts": 0,
+            "audited_feature_rows": 0,
+        }
+    audit = pd.concat(parts, ignore_index=True)
+    grouped = audit.groupby(["flight_id", "timestamp_utc"], sort=False, dropna=False)
+    conflicting = grouped["on_ground"].nunique(dropna=False)
+    conflicting = conflicting.loc[conflicting.gt(1)]
+    records: list[dict[str, Any]] = []
+    for flight_id, timestamp_utc in conflicting.index:
+        group = grouped.get_group((flight_id, timestamp_utc))
+        values = sorted(
+            {
+                "<missing>" if pd.isna(value) else str(value)
+                for value in group["on_ground"].tolist()
+            }
+        )
+        records.append(
+            {
+                "flight_id": str(flight_id),
+                "timestamp_utc": float(timestamp_utc),
+                "observed_on_ground_values": json.dumps(values, separators=(",", ":")),
+                "source_paths": json.dumps(
+                    sorted(set(group["source_path"].astype(str))), separators=(",", ":")
+                ),
+                "source_rows": int(len(group)),
+            }
+        )
+    conflicts = pd.DataFrame.from_records(records, columns=columns)
+    quarantined_flights = set(conflicts["flight_id"].astype(str))
+    return conflicts, quarantined_flights, {
+        "audited_parts": source_parts,
+        "audited_feature_rows": source_rows,
+    }
+
+
 def _score_calibration_sources(
     sources: Iterable[FitSource],
     *,
@@ -150,13 +209,26 @@ def _score_calibration_sources(
     scaler: StrictNaturalRobustScaler,
     target_channels: tuple[str, ...],
     config: dict[str, Any],
+    quarantined_flights: set[str],
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, int]]:
     long_parts: list[pd.DataFrame] = []
     cusum_parts: list[pd.DataFrame] = []
-    counts = {"parts_with_rows": 0, "feature_rows": 0, "windows": 0}
+    counts = {
+        "parts_with_rows": 0,
+        "feature_rows_before_quarantine": 0,
+        "quarantined_feature_rows": 0,
+        "feature_rows": 0,
+        "windows": 0,
+    }
     for part_number, (_, features) in enumerate(_iter_fit_features(sources), start=1):
         counts["parts_with_rows"] += 1
+        counts["feature_rows_before_quarantine"] += len(features)
+        quarantine_mask = features["flight_id"].astype(str).isin(quarantined_flights)
+        counts["quarantined_feature_rows"] += int(quarantine_mask.sum())
+        features = features.loc[~quarantine_mask].reset_index(drop=True)
         counts["feature_rows"] += len(features)
+        if features.empty:
+            continue
         batch = _make_batch(features, scaler=scaler, config=config)
         cusum_parts.append(
             features[
@@ -468,8 +540,13 @@ def run(run_dir: Path, out_dir: Path) -> dict[str, Any]:
         FitSource(path, STEP5_FIT_DAY, selected_flights=set(fit_ids), selected_sources=None)
         for path in input_paths
     ]
+    conflicts, quarantined_flights, audit_counts = _audit_on_ground_conflicts(
+        calibration_sources
+    )
 
     out_dir.mkdir(parents=True, exist_ok=False)
+    quarantine_path = out_dir / "calibration_on_ground_quarantine.parquet"
+    conflicts.to_parquet(quarantine_path, index=False)
     model, scaler, target_channels = _load_checkpoint(run_dir)
     long_frame, cusum_calibration, counts = _score_calibration_sources(
         calibration_sources,
@@ -477,6 +554,7 @@ def run(run_dir: Path, out_dir: Path) -> dict[str, Any]:
         scaler=scaler,
         target_channels=target_channels,
         config=config,
+        quarantined_flights=quarantined_flights,
     )
     calibrator = HierarchicalConformalCalibrator(
         ConditionalCalibrationConfig(min_group_size=MIN_GROUP_SIZE)
@@ -519,9 +597,23 @@ def run(run_dir: Path, out_dir: Path) -> dict[str, Any]:
         "training_report_sha256": _sha256_file(run_dir / "training_report.json"),
         "magnitude_domination_gate": False,
         "calibration_selected_flights": len(calibration_selected),
+        "calibration_retained_flights": len(calibration_selected)
+        - len(quarantined_flights),
         "calibration_selected_flight_ids_sha256": _canonical_json_sha256(
             list(calibration_selected)
         ),
+        "data_quality_quarantine": {
+            "policy": "exclude_entire_flight_on_conflicting_on_ground_at_same_timestamp",
+            "conflict_keys": int(len(conflicts)),
+            "quarantined_flights": int(len(quarantined_flights)),
+            "quarantined_flight_ids_sha256": _canonical_json_sha256(
+                sorted(quarantined_flights)
+            ),
+            "audit_counts": audit_counts,
+            "artifact_path": quarantine_path.name,
+            "artifact_sha256": _sha256_file(quarantine_path),
+            "post_training_user_authorized_deviation": True,
+        },
         "counts": counts,
         "coverage": coverage,
         "conformal": {
