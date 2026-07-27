@@ -340,6 +340,8 @@ def _derive_model_budgets(
         if spec["mode"] == "persistence_v2_cumulative"
     }
     persistence_input = scored.loc[scored["channel"].isin(persistence_channels)].copy()
+    # The frozen detector writes by positional order and therefore requires a dense index.
+    persistence_input.reset_index(drop=True, inplace=True)
     persistence = CumulativeConformalPersistence(
         PersistenceV2Config(
             reference_shift_multiplier=multiplier,
