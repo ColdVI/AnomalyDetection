@@ -53,6 +53,7 @@ from scripts.adsb_train_contextual_physics_v2 import (  # noqa: E402
 )
 
 EXPECTED_EXPANSION_DAYS = ("2024-09-01", "2025-02-15", "2025-06-15")
+FROZEN_TRAIN_CONFIG_PATH = Path("configs/adsb_contextual_physics_v2_train.json")
 MIN_GROUP_SIZE = 1000
 SCORE_BATCH_SIZE = 20_000
 CUSUM_FIT_PARTS = 20
@@ -414,9 +415,19 @@ def run(run_dir: Path, out_dir: Path) -> dict[str, Any]:
         raise FileExistsError(out_dir)
 
     root = Path.cwd().resolve()
-    train_config_path = root / run_manifest["config_path"]
+    train_config_path = root / run_manifest.get(
+        "config_path", FROZEN_TRAIN_CONFIG_PATH.as_posix()
+    )
+    if _sha256_file(train_config_path) != run_manifest.get("config_sha256"):
+        raise CalibrationContractError("Frozen training config SHA-256 mismatch")
     config = _load_json(train_config_path)
     step5_manifest_path = root / config["source_step5_manifest"]
+    observed_step5_hash = _sha256_file(step5_manifest_path)
+    if (
+        observed_step5_hash != config.get("source_step5_manifest_sha256")
+        or observed_step5_hash != run_manifest.get("source_step5_manifest_sha256")
+    ):
+        raise CalibrationContractError("Frozen Step-5 manifest SHA-256 mismatch")
     step5 = _load_json(step5_manifest_path)
     split = step5["split_contract"]["splits"]
     calibration_selected = _sample_flights(
@@ -425,10 +436,21 @@ def run(run_dir: Path, out_dir: Path) -> dict[str, Any]:
         seed=int(config["data"]["calibration_diagnostic_sample_seed"]),
         purpose="contextual_physics_v2_calibration_diagnostic",
     )
-    if _canonical_json_sha256(list(calibration_selected)) != run_manifest[
-        "calibration_diagnostic_flight_ids_sha256"
-    ]:
+    selected_hash = _canonical_json_sha256(list(calibration_selected))
+    expected_selected_hash = run_manifest.get("calibration_diagnostic_flight_ids_sha256")
+    if expected_selected_hash is not None and selected_hash != expected_selected_hash:
         raise CalibrationContractError("Calibration-selected flight hash differs from training")
+    if expected_selected_hash is None:
+        if run_manifest.get("execution_engine") != "colab_cuda_resumable_v1":
+            raise CalibrationContractError(
+                "Calibration-selected flight hash missing from non-Colab manifest"
+            )
+        if len(calibration_selected) != int(
+            run_manifest.get("calibration_diagnostic_flights_selected", -1)
+        ):
+            raise CalibrationContractError(
+                "Calibration-selected flight count differs from Colab training"
+            )
     fit_ids = tuple(split["fit"]["flight_ids"])
     if set(fit_ids) & set(calibration_selected):
         raise CalibrationContractError("Fit and calibration flights overlap")

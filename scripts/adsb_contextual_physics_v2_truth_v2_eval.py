@@ -56,6 +56,7 @@ from scripts.adsb_train_contextual_physics_v2 import (  # noqa: E402
 
 CORPUS_DIR = Path("data/objectstore/synthetic/adsb_v2_20260713_01")
 BUDGET_CONFIG_PATH = Path("configs/adsb_contextual_physics_v2_alarm_budget.json")
+FROZEN_TRAIN_CONFIG_PATH = Path("configs/adsb_contextual_physics_v2_train.json")
 EXPECTED_CORPUS_FILES = (
     "clean.parquet",
     "vertical_rate_frozen.parquet",
@@ -360,7 +361,12 @@ def run(run_dir: Path, calibration_dir: Path, corpus_dir: Path, out_dir: Path) -
     if pareto != calibration_report["budget_grid"]:
         raise TruthV2EvaluationContractError("Frozen budget grid differs from calibration")
 
-    train_config = _load_json(Path.cwd() / run_manifest["config_path"])
+    train_config_path = Path.cwd() / run_manifest.get(
+        "config_path", FROZEN_TRAIN_CONFIG_PATH.as_posix()
+    )
+    if _sha256_file(train_config_path) != run_manifest.get("config_sha256"):
+        raise TruthV2EvaluationContractError("Frozen training config SHA-256 mismatch")
+    train_config = _load_json(train_config_path)
     model, scaler, target_channels = _load_checkpoint(run_dir)
     calibrator = _fit_frozen_calibrator(calibration_dir, calibration_report)
 

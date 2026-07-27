@@ -48,6 +48,7 @@ from scripts.adsb_contextual_physics_v2_truth_v2_eval import (  # noqa: E402
 from scripts.adsb_train_contextual_physics_v2 import _sha256_file  # noqa: E402
 
 MIN_ROWS = 120
+FROZEN_TRAIN_CONFIG_PATH = Path("configs/adsb_contextual_physics_v2_train.json")
 RECIPE_CHANNELS = {
     "vertical_rate_frozen": "vertical_rate_residual",
     "ground_speed_biased": "speed_residual",
@@ -223,7 +224,12 @@ def run(
     ] is not False:
         raise TimelineContractError("Magnitude-domination gate is not false")
     run_manifest = _load_json(run_dir / "run_manifest.json")
-    train_config = _load_json(Path.cwd() / run_manifest["config_path"])
+    train_config_path = Path.cwd() / run_manifest.get(
+        "config_path", FROZEN_TRAIN_CONFIG_PATH.as_posix()
+    )
+    if _sha256_file(train_config_path) != run_manifest.get("config_sha256"):
+        raise TimelineContractError("Frozen training config SHA-256 mismatch")
+    train_config = _load_json(train_config_path)
     calibration_path = calibration_dir / "calibration_report.json"
     calibration_report = _load_json(calibration_path)
     if calibration_report["training_report_sha256"] != _sha256_file(

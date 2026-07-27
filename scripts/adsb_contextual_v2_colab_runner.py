@@ -499,6 +499,7 @@ def train(
                 "run_id": destination.name,
                 "candidate_namespace": "contextual_physics_v2",
                 "execution_engine": "colab_cuda_resumable_v1",
+                "config_path": "configs/adsb_contextual_physics_v2_train.json",
                 "frozen_training_parameters_changed": False,
                 "bundle_manifest_sha256": bundle_hash,
                 "config_sha256": config_hash,
@@ -509,6 +510,9 @@ def train(
                 "physical_rows": bundle["totals"]["parquet_rows"],
                 "step5_fit_flights_selected": len(fit_ids),
                 "calibration_diagnostic_flights_selected": len(calibration_ids),
+                "calibration_diagnostic_flight_ids_sha256": (
+                    train_module._canonical_json_sha256(list(calibration_ids))
+                ),
                 "synthetic_training_rows": 0,
                 "synthetic_calibration_rows": 0,
                 "truth_v2_accessed": False,
