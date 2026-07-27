@@ -48,6 +48,7 @@ from scripts.adsb_contextual_physics_v2_calibrate import (  # noqa: E402
     _target_ground,
 )
 from scripts.adsb_train_contextual_physics_v2 import (  # noqa: E402
+    _canonical_json_sha256,
     _make_batch,
     _sha256_file,
     _write_checksums,
@@ -119,10 +120,73 @@ def _with_exposure_bounds(frame: pd.DataFrame, time_col: str) -> pd.DataFrame:
     return result
 
 
-def _load_corpus_features(path: Path) -> pd.DataFrame:
+def _audit_truth_v2_ground_conflicts(
+    corpus_dir: Path, filenames: tuple[str, ...]
+) -> tuple[pd.DataFrame, set[str], dict[str, int]]:
+    records: list[dict[str, Any]] = []
+    audited_rows = 0
+    for filename in filenames:
+        frame = pd.read_parquet(
+            corpus_dir / filename,
+            columns=["flight_id", "timestamp_utc", "on_ground"],
+        )
+        audited_rows += len(frame)
+        frame["timestamp_utc"] = pd.to_numeric(frame["timestamp_utc"], errors="coerce")
+        grouped = frame.groupby(
+            ["flight_id", "timestamp_utc"], sort=False, dropna=False
+        )
+        conflicting = grouped["on_ground"].nunique(dropna=False)
+        for flight_id, timestamp_utc in conflicting.loc[conflicting.gt(1)].index:
+            group = grouped.get_group((flight_id, timestamp_utc))
+            values = sorted(
+                {
+                    "<missing>" if pd.isna(value) else str(value)
+                    for value in group["on_ground"].tolist()
+                }
+            )
+            records.append(
+                {
+                    "corpus_file": filename,
+                    "flight_id": str(flight_id),
+                    "timestamp_utc": float(timestamp_utc),
+                    "observed_on_ground_values": json.dumps(
+                        values, separators=(",", ":")
+                    ),
+                    "source_rows": int(len(group)),
+                }
+            )
+    columns = [
+        "corpus_file",
+        "flight_id",
+        "timestamp_utc",
+        "observed_on_ground_values",
+        "source_rows",
+    ]
+    conflicts = pd.DataFrame.from_records(records, columns=columns)
+    quarantined = set(conflicts["flight_id"].astype(str))
+    unique_keys = (
+        conflicts[["flight_id", "timestamp_utc"]].drop_duplicates()
+        if not conflicts.empty
+        else conflicts
+    )
+    return conflicts, quarantined, {
+        "audited_files": len(filenames),
+        "audited_rows": audited_rows,
+        "conflict_records_across_files": len(conflicts),
+        "unique_conflict_keys": len(unique_keys),
+    }
+
+
+def _load_corpus_features(
+    path: Path, quarantined_flights: set[str] | None = None
+) -> pd.DataFrame:
     raw = pd.read_parquet(path, columns=SOURCE_COLUMNS)
     if raw["flight_id"].isna().any():
         raise TruthV2EvaluationContractError(f"{path}: null flight_id")
+    if quarantined_flights:
+        raw = raw.loc[
+            ~raw["flight_id"].astype(str).isin(quarantined_flights)
+        ].reset_index(drop=True)
     return build_feature_table(raw)
 
 
@@ -369,9 +433,14 @@ def run(run_dir: Path, calibration_dir: Path, corpus_dir: Path, out_dir: Path) -
     train_config = _load_json(train_config_path)
     model, scaler, target_channels = _load_checkpoint(run_dir)
     calibrator = _fit_frozen_calibrator(calibration_dir, calibration_report)
+    conflicts, quarantined_flights, audit_counts = _audit_truth_v2_ground_conflicts(
+        corpus_dir, EXPECTED_CORPUS_FILES
+    )
 
     print("truth-v2 paired clean corpus scoring", flush=True)
-    clean_features = _load_corpus_features(corpus_dir / "clean.parquet")
+    clean_features = _load_corpus_features(
+        corpus_dir / "clean.parquet", quarantined_flights
+    )
     clean_model = _conformal_transform(
         _score_model_long(
             clean_features,
@@ -389,7 +458,9 @@ def run(run_dir: Path, calibration_dir: Path, corpus_dir: Path, out_dir: Path) -
     observability: dict[str, Any] = {}
     for recipe, channel in MODEL_RECIPES.items():
         print(f"truth-v2 injected recipe={recipe}", flush=True)
-        corrupt_features = _load_corpus_features(corpus_dir / f"{recipe}.parquet")
+        corrupt_features = _load_corpus_features(
+            corpus_dir / f"{recipe}.parquet", quarantined_flights
+        )
         events = truth_event_table(corrupt_features)
         observability[recipe] = event_observability_denominators(events)
         eligible = events.loc[events["observable_eligible"].fillna(False)]
@@ -414,7 +485,9 @@ def run(run_dir: Path, calibration_dir: Path, corpus_dir: Path, out_dir: Path) -
         )
 
     print(f"truth-v2 injected recipe={CUSUM_RECIPE}", flush=True)
-    cusum_features = _load_corpus_features(corpus_dir / f"{CUSUM_RECIPE}.parquet")
+    cusum_features = _load_corpus_features(
+        corpus_dir / f"{CUSUM_RECIPE}.parquet", quarantined_flights
+    )
     cusum_events = truth_event_table(cusum_features)
     observability[CUSUM_RECIPE] = event_observability_denominators(cusum_events)
     cusum_eligible = cusum_events.loc[cusum_events["observable_eligible"].fillna(False)]
@@ -426,6 +499,9 @@ def run(run_dir: Path, calibration_dir: Path, corpus_dir: Path, out_dir: Path) -
         pareto,
     )
 
+    out_dir.mkdir(parents=True, exist_ok=False)
+    quarantine_path = out_dir / "truth_v2_on_ground_quarantine.parquet"
+    conflicts.to_parquet(quarantine_path, index=False)
     report = {
         "schema_version": 1,
         "candidate_namespace": "contextual_physics_v2",
@@ -441,10 +517,24 @@ def run(run_dir: Path, calibration_dir: Path, corpus_dir: Path, out_dir: Path) -
             "altitude_dropout belongs to the S2 data-quality layer, not the frozen "
             "contextual model/CUSUM physics channels"
         ),
+        "data_quality_quarantine": {
+            "policy": (
+                "exclude_union_of_entire_flights_with_conflicting_on_ground_"
+                "at_same_timestamp_from_all_paired_corpus_files"
+            ),
+            **audit_counts,
+            "quarantined_flights": len(quarantined_flights),
+            "quarantined_flight_ids_sha256": _canonical_json_sha256(
+                sorted(quarantined_flights)
+            ),
+            "retained_paired_flights": int(clean_features["flight_id"].nunique()),
+            "artifact_path": quarantine_path.name,
+            "artifact_sha256": _sha256_file(quarantine_path),
+            "post_training_user_authorized_deviation": True,
+        },
         "event_observability_denominators": observability,
         "results": results,
     }
-    out_dir.mkdir(parents=True, exist_ok=False)
     _write_json_exclusive(out_dir / "truth_v2_eval_report.json", report)
     _write_checksums(out_dir)
     return report
