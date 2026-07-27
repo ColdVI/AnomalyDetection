@@ -1,0 +1,3 @@
+epoch=2 windows=236129563 mean_nll=0.81017512 checkpoint=training_epoch_checkpoint.pt
+epoch=3 windows=236129563 mean_nll=0.80936617 checkpoint=training_epoch_checkpoint.pt
+epoch=4 windows=236129563 mean_nll=0.80870030 checkpoint=training_epoch_checkpoint.pt
