@@ -80,6 +80,7 @@ artifacts/rflymad/
 /artifacts/adsb/models/rule_scorer_report*.json
 /artifacts/adsb/plots/
 /artifacts/adsb/runs/
+/artifacts/adsb/pytest_tmp_*/
 /artifacts/adsb/colab/contextual_v2_transfer/*.zip
 /artifacts/legacy_gpu/colab/four_dataset_probabilistic_v1_transfer/*.zip
 /adsb_parse_*.log
