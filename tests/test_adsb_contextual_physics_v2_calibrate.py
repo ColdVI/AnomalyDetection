@@ -9,6 +9,7 @@ import pandas as pd
 from adsb.models.contextual_persistence_v2 import NULL_MEAN_SURPRISE
 from scripts.adsb_contextual_physics_v2_calibrate import (
     _audit_on_ground_conflicts,
+    _derive_model_budgets,
     _derive_reference_multiplier,
     _select_nearest,
 )
@@ -76,3 +77,42 @@ def test_ground_conflict_audit_quarantines_entire_affected_flight() -> None:
         "audited_parts": 1,
         "audited_feature_rows": 4,
     }
+
+
+def test_model_budget_derivation_leaves_accumulation_to_cusum() -> None:
+    scored = pd.DataFrame(
+        {
+            "flight_id": ["f", "f"],
+            "timestamp_utc": [0.0, 10.0],
+            "t_start": [0.0, 0.0],
+            "t_end": [0.0, 10.0],
+            "on_ground": [False, False],
+            "channel": ["speed_residual", "speed_residual"],
+            "conformal_p_value": [0.5, 0.01],
+        }
+    )
+    budget = {
+        "budget_grid_episodes_per_100_scoreable_flight_hours": [1.0],
+        "budget_shares_of_total": {
+            "speed_residual": 0.5,
+            "east_velocity_residual": 0.25,
+            "north_velocity_residual": 0.25,
+        },
+        "temporal_profiles": {
+            "speed_residual": {
+                "mode": "instant",
+                "budget_fraction_of_channel": 1.0,
+            },
+            "east_north_velocity_residual": {
+                "mode": "accumulation",
+            },
+        },
+    }
+
+    result = _derive_model_budgets(scored, budget, multiplier=1.1)
+
+    assert set(result["channels"]) == {"speed_residual"}
+    assert (
+        result["channels"]["speed_residual"]["profiles"]["default"]["mode"]
+        == "instant"
+    )

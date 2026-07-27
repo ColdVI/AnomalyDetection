@@ -355,6 +355,8 @@ def _derive_model_budgets(
     persistence_input = pd.concat([persistence_input, persistence_scored], axis=1)
 
     for channel, profile_name, spec in _profile_specs(budget):
+        if spec["mode"] == "accumulation":
+            continue
         channel_frame = scored.loc[scored["channel"] == channel].copy()
         if channel_frame.empty:
             raise CalibrationContractError(f"No calibration scores for budget channel {channel}")
