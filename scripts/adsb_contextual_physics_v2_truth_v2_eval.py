@@ -8,6 +8,7 @@ selects a threshold from truth labels or recall.
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import sys
 from pathlib import Path
@@ -132,7 +133,13 @@ def _audit_truth_v2_ground_conflicts(
         )
         audited_rows += len(frame)
         frame["timestamp_utc"] = pd.to_numeric(frame["timestamp_utc"], errors="coerce")
-        grouped = frame.groupby(
+        duplicate_mask = frame.duplicated(
+            ["flight_id", "timestamp_utc"], keep=False
+        )
+        duplicates = frame.loc[duplicate_mask]
+        del duplicate_mask
+        del frame
+        grouped = duplicates.groupby(
             ["flight_id", "timestamp_utc"], sort=False, dropna=False
         )
         conflicting = grouped["on_ground"].nunique(dropna=False)
@@ -155,6 +162,10 @@ def _audit_truth_v2_ground_conflicts(
                     "source_rows": int(len(group)),
                 }
             )
+        del grouped
+        del duplicates
+        del conflicting
+        gc.collect()
     columns = [
         "corpus_file",
         "flight_id",
