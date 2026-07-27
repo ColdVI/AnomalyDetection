@@ -72,3 +72,16 @@ Faz D tamamland???nda hesaplanan multiplier, kanal ortalamalar?, persistence ve
 CUSUM b?t?e e?lemeleri calibration artifact'?na yaz?l?r. Bu dosyaya daha sonra
 yaln?z A.3 form?l?n?n ?retti?i say?sal multiplier ve artifact SHA-256's? eklenebilir;
 prosed?r veya sabitler de?i?tirilemez.
+
+## A.6 Mekanik Faz D sonucu (2026-07-27)
+
+Ek A.3'te dondurulan kapali formul, yalniz dogal calibration verisinde asagidaki sonucu uretti:
+
+- reference_shift_multiplier = 1.11
+- heading_residual ortalama kirpilmis surpriz = 0.4343199527026162
+- speed_residual ortalama kirpilmis surpriz = 0.4341911654306666
+- vertical_rate_residual ortalama kirpilmis surpriz = 0.4340276340067102
+- calibration_report.json SHA-256 =
+  8e6fa2a355fa4f49ba96769b4f3a56700a5ede39e08d87f07672d08079e86b73
+
+Truth-v2, development, rehearsal veya holdout verisi bu sonuca girmedi.
