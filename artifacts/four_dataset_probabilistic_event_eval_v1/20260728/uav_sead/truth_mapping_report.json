@@ -1,0 +1,5695 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_event_eval_v1",
+  "dataset": "uav_sead",
+  "evidence": {
+    "dataset": "uav_sead",
+    "status": "mapped",
+    "input_files": [
+      {
+        "path": "data/silver/uav_sead_silver.parquet",
+        "bytes": 480199245,
+        "sha256": "4475827831628765a5974424def732492a2788fa266cd8d44503ff36998b91a8"
+      },
+      {
+        "path": "data/objectstore/bronze/uav_sead/labels.json",
+        "bytes": 320343,
+        "sha256": "15b940cb4d8a5418ce95c615df7fc900f0b17ad7cf9a1883a0be76f1e1271221"
+      }
+    ],
+    "time_mapping": "absolute_us = Silver_source_min_timestamp + target_time_s * 1e6",
+    "boundary_semantics": "dataset-provided anomaly intervals are inclusive and unioned across annotation channels",
+    "label_records": 1246,
+    "sources_with_intervals": 346
+  },
+  "sources": 403,
+  "anomaly_sources": 134,
+  "mapped_anomaly_sources": 134,
+  "unavailable_anomaly_sources": [],
+  "source_records": [
+    {
+      "role": "val",
+      "source_id": "00_02_49",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 641,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.244000999999912,
+      "target_time_max_s": 70.3360019999999
+    },
+    {
+      "role": "val",
+      "source_id": "2018-05-26/16_27_25",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2076,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2520889999999554,
+      "target_time_max_s": 214.26002999999992
+    },
+    {
+      "role": "val",
+      "source_id": "2018-05-26/16_50_55",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 748,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2543530000000374,
+      "target_time_max_s": 79.20506
+    },
+    {
+      "role": "val",
+      "source_id": "2018-05-31/15_58_30",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 4317,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 84.75285899999997,
+      "target_time_max_s": 529.2871
+    },
+    {
+      "role": "val",
+      "source_id": "2018-06-04/18_36_56",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1179,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.536368999999922,
+      "target_time_max_s": 126.69837599999983
+    },
+    {
+      "role": "val",
+      "source_id": "2018-06-12/18_52_10",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 415,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 5.47287,
+      "target_time_max_s": 47.56797599999999
+    },
+    {
+      "role": "val",
+      "source_id": "2018-07-03/18_58_45",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1336,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3545159999999967,
+      "target_time_max_s": 150.279055
+    },
+    {
+      "role": "val",
+      "source_id": "2018-07-03/19_12_45",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 973,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 7.77983500000002,
+      "target_time_max_s": 106.836836
+    },
+    {
+      "role": "val",
+      "source_id": "2018-08-26-29/sess003/log002",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 137,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 32.04461800000013,
+      "target_time_max_s": 168.23169899999994
+    },
+    {
+      "role": "val",
+      "source_id": "2018-08-26-29/sess005/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 78,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 32.042348000000004,
+      "target_time_max_s": 109.15154000000001
+    },
+    {
+      "role": "val",
+      "source_id": "2018-08-31-09.01/2016-02-11/19_49_04",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 776,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 5.339132999999997,
+      "target_time_max_s": 84.10709299999999
+    },
+    {
+      "role": "val",
+      "source_id": "2018-08-31-09.01/2016-02-11/19_55_58",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 690,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2536169999999913,
+      "target_time_max_s": 73.26793699999999
+    },
+    {
+      "role": "val",
+      "source_id": "2018-08-31-09.01/part2/2018-09-01/19_46_14",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 815,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.377631000000001,
+      "target_time_max_s": 86.108018
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-07/14_43_50",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 394,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252015,
+      "target_time_max_s": 43.217
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-08/17_44_37",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 936,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3600079999999934,
+      "target_time_max_s": 99.84573400000001
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-08/18_11_27",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 987,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.555918999999996,
+      "target_time_max_s": 108.09749300000001
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-08/18_18_28",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 694,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.352233000000002,
+      "target_time_max_s": 74.910426
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-08/18_42_34",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 520,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.352654000000001,
+      "target_time_max_s": 57.939983
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-10/08_27_38",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 487,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.4535750000000007,
+      "target_time_max_s": 54.063947000000006
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-10/08_41_34",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 397,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3496979999999965,
+      "target_time_max_s": 47.12870899999999
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-10/19_12_58",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 624,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.556689999999996,
+      "target_time_max_s": 74.139917
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-11/07_51_46",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 835,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.253594999999997,
+      "target_time_max_s": 90.24810599999999
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-11/07_54_52",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 344,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.553671999999999,
+      "target_time_max_s": 38.818407
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-12/18_51_50",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 549,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 4.767020000000002,
+      "target_time_max_s": 80.460159
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-12/18_59_10",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 860,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 4.6790340000000015,
+      "target_time_max_s": 101.640665
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-14/07_36_08",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 382,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.5552880000000044,
+      "target_time_max_s": 45.32092900000001
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-14/07_40_52",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1376,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.560333,
+      "target_time_max_s": 158.392765
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-14/07_52_46",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 385,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.348897000000001,
+      "target_time_max_s": 44.055312
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-25/07_42_48",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 323,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.357047999999999,
+      "target_time_max_s": 36.691402999999994
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-25/08_19_32",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1491,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3520149999999944,
+      "target_time_max_s": 164.019995
+    },
+    {
+      "role": "val",
+      "source_id": "2018-09-27/08_01_35",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2246,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2499970000000076,
+      "target_time_max_s": 252.590401
+    },
+    {
+      "role": "val",
+      "source_id": "2018-10-01/07_50_55",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1516,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.250002000000002,
+      "target_time_max_s": 160.17911300000003
+    },
+    {
+      "role": "val",
+      "source_id": "2018-10-01/08_31_51",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 584,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.249761999999997,
+      "target_time_max_s": 63.19864499999999
+    },
+    {
+      "role": "val",
+      "source_id": "2018-10-01/08_48_32",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 862,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3576539999999966,
+      "target_time_max_s": 92.904125
+    },
+    {
+      "role": "val",
+      "source_id": "2018-10-02/07_28_05",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1414,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.4647959999999998,
+      "target_time_max_s": 149.276051
+    },
+    {
+      "role": "val",
+      "source_id": "2018-10-02/07_37_01",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 817,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3576690000000013,
+      "target_time_max_s": 88.724783
+    },
+    {
+      "role": "val",
+      "source_id": "2018-10-02/07_53_56",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 488,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2519860000000023,
+      "target_time_max_s": 57.348805999999996
+    },
+    {
+      "role": "val",
+      "source_id": "2018-10-04/07_12_50",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1911,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.249666999999988,
+      "target_time_max_s": 210.42240999999999
+    },
+    {
+      "role": "val",
+      "source_id": "2018-10-04/07_21_35",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1488,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.4559890000000024,
+      "target_time_max_s": 159.755896
+    },
+    {
+      "role": "val",
+      "source_id": "2018-10-04/07_27_11",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1583,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.5642179999999968,
+      "target_time_max_s": 174.53132699999998
+    },
+    {
+      "role": "val",
+      "source_id": "2018-10-04/07_38_25",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 869,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.450400999999999,
+      "target_time_max_s": 182.10091799999998
+    },
+    {
+      "role": "val",
+      "source_id": "2018-11-20/15_27_34",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 321,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.464966000000004,
+      "target_time_max_s": 71.12006099999996
+    },
+    {
+      "role": "val",
+      "source_id": "2018-11-28/07_37_08",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1540,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.6560320000000033,
+      "target_time_max_s": 168.933581
+    },
+    {
+      "role": "val",
+      "source_id": "2018-11-28/08_39_43",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2082,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.6585510000000028,
+      "target_time_max_s": 232.949658
+    },
+    {
+      "role": "val",
+      "source_id": "2018-12-03/07_52_12",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 600,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3547420000000017,
+      "target_time_max_s": 69.15903399999999
+    },
+    {
+      "role": "val",
+      "source_id": "2018-12-03/08_45_02",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1830,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.454486000000003,
+      "target_time_max_s": 206.584894
+    },
+    {
+      "role": "val",
+      "source_id": "2018-12-03/08_52_22",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2645,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2466110000000015,
+      "target_time_max_s": 289.706476
+    },
+    {
+      "role": "val",
+      "source_id": "2018-12-18/08_54_19",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2395,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.249797000000001,
+      "target_time_max_s": 268.87439399999994
+    },
+    {
+      "role": "val",
+      "source_id": "2018-12-19/08_14_47",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 263,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.5606149999999985,
+      "target_time_max_s": 31.942170000000004
+    },
+    {
+      "role": "val",
+      "source_id": "2018-12-19/08_26_15",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 190,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.396827999999914,
+      "target_time_max_s": 23.748683999999912
+    },
+    {
+      "role": "val",
+      "source_id": "2018-12-19/08_36_16",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 480,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.253641000000016,
+      "target_time_max_s": 53.15440800000002
+    },
+    {
+      "role": "val",
+      "source_id": "2018-12-19/09_06_25",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 322,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.253632000000003,
+      "target_time_max_s": 36.481474
+    },
+    {
+      "role": "val",
+      "source_id": "2018-12-20/09_09_45",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 921,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.966244000000003,
+      "target_time_max_s": 107.335814
+    },
+    {
+      "role": "val",
+      "source_id": "2018-12-20/09_48_11",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1166,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 4.46996,
+      "target_time_max_s": 142.304771
+    },
+    {
+      "role": "val",
+      "source_id": "2018-12-26/09_44_29",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 607,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.553494999999998,
+      "target_time_max_s": 70.59011299999997
+    },
+    {
+      "role": "val",
+      "source_id": "2019-01-09/07_59_28",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2647,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.255234999999999,
+      "target_time_max_s": 272.16306799999995
+    },
+    {
+      "role": "val",
+      "source_id": "2019-01-22/07_42_25",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2573,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2581600000000037,
+      "target_time_max_s": 264.74622899999997
+    },
+    {
+      "role": "val",
+      "source_id": "2019-01-22/07_57_29",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2516,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.249644999999987,
+      "target_time_max_s": 258.844471
+    },
+    {
+      "role": "val",
+      "source_id": "2019-01-29/18_17_27",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1138,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2535629999999855,
+      "target_time_max_s": 118.82767599999997
+    },
+    {
+      "role": "val",
+      "source_id": "2019-01-31/17_02_23",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 346,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.253546,
+      "target_time_max_s": 38.33599199999999
+    },
+    {
+      "role": "val",
+      "source_id": "2019-01-31/17_26_14",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 306,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.257577000000005,
+      "target_time_max_s": 34.25092000000001
+    },
+    {
+      "role": "val",
+      "source_id": "2019-01-31/17_40_52",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 415,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2583240000000018,
+      "target_time_max_s": 45.347233
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-06/07_46_01",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2580,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2510050000000206,
+      "target_time_max_s": 265.321791
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-08/08_06_46",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2599,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.25348299999996,
+      "target_time_max_s": 267.26639599999993
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-08/08_29_45",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 748,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2536759999999845,
+      "target_time_max_s": 79.364013
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-08/08_40_10",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2628,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2569029999999657,
+      "target_time_max_s": 270.32364299999995
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-08/08_53_46",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2674,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2576239999999927,
+      "target_time_max_s": 274.947223
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-13/07_41_19",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 658,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.250941999999995,
+      "target_time_max_s": 70.02409300000001
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-14/08_09_04",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 356,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.256816999999998,
+      "target_time_max_s": 39.327961
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-14/08_45_35",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 3120,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252863999999988,
+      "target_time_max_s": 320.201966
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-19/08_25_03",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 3062,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2596499999999935,
+      "target_time_max_s": 314.295999
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-20/08_24_08",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 3006,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.254470000000005,
+      "target_time_max_s": 308.782353
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-21/07_39_01",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2699,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.255191000000025,
+      "target_time_max_s": 277.46164699999997
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-21/08_15_33",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2262,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2538919999999933,
+      "target_time_max_s": 233.005083
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-22/08_06_41",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2224,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2542600000000164,
+      "target_time_max_s": 229.22305400000002
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-22/08_17_10",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2276,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.253635000000031,
+      "target_time_max_s": 234.43563
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-26/07_56_40",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1342,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2508589999999913,
+      "target_time_max_s": 139.48591399999998
+    },
+    {
+      "role": "val",
+      "source_id": "2019-02-27/07_53_27",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2310,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2504200000000054,
+      "target_time_max_s": 237.89925799999997
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-01/07_22_36",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2212,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2512669999999986,
+      "target_time_max_s": 227.97206500000001
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-04/07_34_50",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1289,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.259236999999999,
+      "target_time_max_s": 134.200099
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-05/07_29_30",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 516,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2504009999999965,
+      "target_time_max_s": 55.588160999999985
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-05/07_47_00",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 700,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.247889999999998,
+      "target_time_max_s": 74.28392699999999
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-05/07_50_02",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 620,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.256845999999996,
+      "target_time_max_s": 66.16471500000002
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-05/07_57_26",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 679,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2568469999999934,
+      "target_time_max_s": 72.17519999999999
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-06/07_23_12",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 467,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.354972000000032,
+      "target_time_max_s": 50.692116999999996
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-06/07_25_51",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 241,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252919999999996,
+      "target_time_max_s": 27.625825999999996
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-06/07_31_11",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 188,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2544299999999993,
+      "target_time_max_s": 22.249278999999994
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-08/07_44_36",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 359,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.249720999999994,
+      "target_time_max_s": 39.623906000000005
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-08/07_54_39",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2230,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2524480000000153,
+      "target_time_max_s": 229.824808
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-13/07_38_25",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2678,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2535150000000073,
+      "target_time_max_s": 275.22888
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-15/10_58_58",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2113,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.253546,
+      "target_time_max_s": 217.89232399999997
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-18/07_27_21",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2242,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2543249999999944,
+      "target_time_max_s": 230.880945
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-19/07_49_49",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 314,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252589999999998,
+      "target_time_max_s": 35.077560000000005
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-21/08_39_22",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2192,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2599460000000136,
+      "target_time_max_s": 225.91212099999998
+    },
+    {
+      "role": "val",
+      "source_id": "2019-03-25/08_40_30",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2693,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2498899999999935,
+      "target_time_max_s": 276.82065400000005
+    },
+    {
+      "role": "val",
+      "source_id": "2019-04-03/11_02_04",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1650,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2568169999999554,
+      "target_time_max_s": 170.85764799999998
+    },
+    {
+      "role": "val",
+      "source_id": "2019-04-03/11_10_52",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 242,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2521270000000015,
+      "target_time_max_s": 27.749100999999996
+    },
+    {
+      "role": "val",
+      "source_id": "2019-04-12/10_14_44",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 318,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2479000000000013,
+      "target_time_max_s": 35.460725
+    },
+    {
+      "role": "val",
+      "source_id": "2019-05-20/08_09_06",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1079,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.247915000000006,
+      "target_time_max_s": 112.74472700000001
+    },
+    {
+      "role": "val",
+      "source_id": "2019-05-24/19_04_17",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2002,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.250915000000006,
+      "target_time_max_s": 206.56565700000004
+    },
+    {
+      "role": "val",
+      "source_id": "2019-05-24/19_27_14",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 395,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3523910000000114,
+      "target_time_max_s": 43.39624900000001
+    },
+    {
+      "role": "val",
+      "source_id": "2019-06-03/11_28_20",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 904,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2528110000000083,
+      "target_time_max_s": 95.011853
+    },
+    {
+      "role": "val",
+      "source_id": "2019-06-06/16_44_58",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2473,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2640670000000114,
+      "target_time_max_s": 254.54414500000001
+    },
+    {
+      "role": "val",
+      "source_id": "2019-06-07/16_57_06",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2022,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2563260000000014,
+      "target_time_max_s": 208.65520699999996
+    },
+    {
+      "role": "val",
+      "source_id": "2019-08-01/08_17_07",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 812,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.256687999999997,
+      "target_time_max_s": 85.706301
+    },
+    {
+      "role": "val",
+      "source_id": "2019-10-09/09_38_34",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1047,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.247247999999985,
+      "target_time_max_s": 109.52572699999999
+    },
+    {
+      "role": "val",
+      "source_id": "2019-10-09/10_03_32",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 551,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2496459999999843,
+      "target_time_max_s": 59.140039
+    },
+    {
+      "role": "val",
+      "source_id": "2019-11-05/10_02_37",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1332,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.250887000000006,
+      "target_time_max_s": 138.508823
+    },
+    {
+      "role": "val",
+      "source_id": "2019-12-02/09_38_11",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 247,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2625950000000046,
+      "target_time_max_s": 28.264820999999984
+    },
+    {
+      "role": "val",
+      "source_id": "2021-10-06--/12_47_03",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 507,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.247996999999998,
+      "target_time_max_s": 56.630397000000016
+    },
+    {
+      "role": "val",
+      "source_id": "2022-09-26/10_46_38",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2550,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 4.631208999999998,
+      "target_time_max_s": 266.198399
+    },
+    {
+      "role": "val",
+      "source_id": "2022-09-26/23_39_23",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1296,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.345596999999998,
+      "target_time_max_s": 134.79359800000003
+    },
+    {
+      "role": "val",
+      "source_id": "2022-10-21/09_50_18",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1269,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 5.6495979999999975,
+      "target_time_max_s": 136.08159700000002
+    },
+    {
+      "role": "val",
+      "source_id": "2022-10-22_dhl/04_00_25",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1704,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2423780000000306,
+      "target_time_max_s": 177.02477700000009
+    },
+    {
+      "role": "val",
+      "source_id": "2022-12/2023-02-10/02_39_00",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 481,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2543999999999897,
+      "target_time_max_s": 51.973601999999985
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/2021-10-03/16_31_38",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 3046,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.247998999999993,
+      "target_time_max_s": 312.3216
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/2021-10-05/13_14_04",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 984,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.239986000000002,
+      "target_time_max_s": 103.016786
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/2021-10-06/00_05_29",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 975,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.24959800000002,
+      "target_time_max_s": 102.11759800000002
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/2021-10-07/02_36_49",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2145,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2487989999999627,
+      "target_time_max_s": 220.87119999999993
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/2022-06-15/10_29_37",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 3006,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2479789999999866,
+      "target_time_max_s": 308.58399899999995
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/2022-06-16/00_54_18",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 546,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2488030000000023,
+      "target_time_max_s": 58.5672
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/2022-09-06/14_06_20",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 657,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2495499999999993,
+      "target_time_max_s": 69.83198499999992
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/2022-09-06/14_28_22",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 424,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2495989999999892,
+      "target_time_max_s": 46.182399000000004
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/2022-09-07/14_14_45",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1130,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2488309999999956,
+      "target_time_max_s": 117.940826
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/2023-04-14/12_14_07",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1153,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2584000000000017,
+      "target_time_max_s": 120.29916800000001
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/2023-05-23/12_36_58",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1974,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.250390999999997,
+      "target_time_max_s": 203.722386
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/2023-05-23/13_03_37",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 4838,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2504000000000026,
+      "target_time_max_s": 495.140825
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/2023-05-24/00_15_34",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 947,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2568049999999857,
+      "target_time_max_s": 99.376776
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/sess005/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 3919,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.249623999999997,
+      "target_time_max_s": 401.135199
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/sess013/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1332,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.253600000000006,
+      "target_time_max_s": 138.34804200000008
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/sess014/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1856,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2479550000002746,
+      "target_time_max_s": 191.73274900000024
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/sess016/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 3377,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.248817000000031,
+      "target_time_max_s": 346.037602
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/sess054/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 625,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.25120000000004,
+      "target_time_max_s": 66.582401
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/sess060/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 970,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.247200000000248,
+      "target_time_max_s": 101.60803100000021
+    },
+    {
+      "role": "val",
+      "source_id": "2023-08/sess071/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2219,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2471980000000045,
+      "target_time_max_s": 228.373601
+    },
+    {
+      "role": "test",
+      "source_id": "2018-05-26/16_18_10",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1940,
+      "truth_active_rows": 45,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2508400000000393,
+      "target_time_max_s": 200.321953
+    },
+    {
+      "role": "test",
+      "source_id": "2018-05-31/16_07_48",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 3771,
+      "truth_active_rows": 280,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.456476000000066,
+      "target_time_max_s": 387.98799299999996
+    },
+    {
+      "role": "test",
+      "source_id": "2018-06-02/14_56_43",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 544,
+      "truth_active_rows": 45,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 55.929449000000204,
+      "target_time_max_s": 111.23668099999986
+    },
+    {
+      "role": "test",
+      "source_id": "2018-06-04/18_01_59",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 465,
+      "truth_active_rows": 47,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.25755700000002,
+      "target_time_max_s": 50.45015699999999
+    },
+    {
+      "role": "test",
+      "source_id": "2018-06-04/18_05_54",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1057,
+      "truth_active_rows": 28,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.763510999999994,
+      "target_time_max_s": 114.68368499999997
+    },
+    {
+      "role": "test",
+      "source_id": "2018-06-04/18_25_07",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1259,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.844053000000031,
+      "target_time_max_s": 132.14776299999994
+    },
+    {
+      "role": "test",
+      "source_id": "2018-06-12/19_38_14",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1986,
+      "truth_active_rows": 54,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.567266000000018,
+      "target_time_max_s": 205.33286199999998
+    },
+    {
+      "role": "test",
+      "source_id": "2018-06-12/19_55_27",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 787,
+      "truth_active_rows": 59,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.367982000000012,
+      "target_time_max_s": 83.24485100000001
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-03/18_57_00",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 413,
+      "truth_active_rows": 124,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.5534180000000006,
+      "target_time_max_s": 45.445137
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-04/19_31_44",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 951,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.654446000000007,
+      "target_time_max_s": 103.24397400000001
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-04/19_39_24",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 425,
+      "truth_active_rows": 35,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 5.5703829999999925,
+      "target_time_max_s": 48.681948000000006
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-09/19_05_45",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 883,
+      "truth_active_rows": 421,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.386343999999994,
+      "target_time_max_s": 93.028932
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-09/19_09_44",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 698,
+      "truth_active_rows": 531,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2458129999999983,
+      "target_time_max_s": 74.067542
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-09/19_16_25",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 458,
+      "truth_active_rows": 280,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.255223000000001,
+      "target_time_max_s": 49.69565800000001
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-09/19_20_08",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 813,
+      "truth_active_rows": 282,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3739699999999857,
+      "target_time_max_s": 85.91232
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-09/19_29_38",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 680,
+      "truth_active_rows": 92,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3692480000000273,
+      "target_time_max_s": 72.40459600000003
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-09/19_52_37",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 841,
+      "truth_active_rows": 218,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.385716000000002,
+      "target_time_max_s": 88.82656499999999
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-23/sess009/log002",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 9867,
+      "truth_active_rows": 5655,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 0.3006830000000491,
+      "target_time_max_s": 106.83364300000005
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-23/sess012/log001",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 18600,
+      "truth_active_rows": 15522,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 0.33599899999999927,
+      "target_time_max_s": 205.103175
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-25/sess011/log001",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 208,
+      "truth_active_rows": 67,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 32.052063,
+      "target_time_max_s": 239.42851399999998
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-__/sess006/log001",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 327,
+      "truth_active_rows": 239,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.248184000000009,
+      "target_time_max_s": 36.421783000000005
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-__/sess007/log001",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 355,
+      "truth_active_rows": 228,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.255239000000003,
+      "target_time_max_s": 39.230005
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-__/sess008/log001",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 894,
+      "truth_active_rows": 531,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.386009999999999,
+      "target_time_max_s": 94.19526799999998
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-__/sess009/log001",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 353,
+      "truth_active_rows": 316,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 13.53484300000001,
+      "target_time_max_s": 49.332869
+    },
+    {
+      "role": "test",
+      "source_id": "2018-07-__/sess011/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1293,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 5.976388999999983,
+      "target_time_max_s": 137.40960800000005
+    },
+    {
+      "role": "test",
+      "source_id": "2018-08-19/sess071/log001",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 138,
+      "truth_active_rows": 91,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 32.045531000000004,
+      "target_time_max_s": 169.24471200000002
+    },
+    {
+      "role": "test",
+      "source_id": "2018-08-19/sess076/log001",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 84,
+      "truth_active_rows": 27,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 34.630466,
+      "target_time_max_s": 117.75055700000001
+    },
+    {
+      "role": "test",
+      "source_id": "2018-08-19/sess078/log001",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 103,
+      "truth_active_rows": 41,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 32.05636,
+      "target_time_max_s": 134.206169
+    },
+    {
+      "role": "test",
+      "source_id": "2018-08-26-29/sess002/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 88,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 32.053987999999976,
+      "target_time_max_s": 119.173519
+    },
+    {
+      "role": "test",
+      "source_id": "2018-08-26-29/sess012/log002",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 88,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 32.04482900000001,
+      "target_time_max_s": 119.167489
+    },
+    {
+      "role": "test",
+      "source_id": "2018-08-31-09.01/2016-02-11/19_43_10",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 412,
+      "truth_active_rows": 354,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 5.4980469999999855,
+      "target_time_max_s": 47.257228999999995
+    },
+    {
+      "role": "test",
+      "source_id": "2018-08-31-09.01/part2/2018-09-01/19_49_31",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 291,
+      "truth_active_rows": 208,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.291643999999998,
+      "target_time_max_s": 64.944149
+    },
+    {
+      "role": "test",
+      "source_id": "2018-08-31-09.01/sess003/log002",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1208,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2447370000000433,
+      "target_time_max_s": 125.89405100000005
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-03/2016-02-11/19_35_56",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 93,
+      "truth_active_rows": 89,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.476089000000002,
+      "target_time_max_s": 25.11116400000003
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-03/2018-09-03/13_17_32",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1382,
+      "truth_active_rows": 214,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2520580000000052,
+      "target_time_max_s": 143.579156
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-03/2018-09-03/14_00_53",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 392,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.480221,
+      "target_time_max_s": 85.563202
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-03/2018-09-03/14_14_46",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 295,
+      "truth_active_rows": 32,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.470041000000002,
+      "target_time_max_s": 65.953656
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-06/13_41_28",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 773,
+      "truth_active_rows": 455,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.479896999999994,
+      "target_time_max_s": 162.69448999999997
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-06/13_56_05",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 507,
+      "truth_active_rows": 445,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.489741999999993,
+      "target_time_max_s": 108.726508
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-06/14_23_19",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 201,
+      "truth_active_rows": 146,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.474677999999997,
+      "target_time_max_s": 46.793986999999994
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-06/14_36_29",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 189,
+      "truth_active_rows": 86,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.469231999999998,
+      "target_time_max_s": 44.482504
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-06/14_38_29",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 372,
+      "truth_active_rows": 25,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.248697,
+      "target_time_max_s": 40.950377
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-06/15_03_26",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 470,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.479676000000005,
+      "target_time_max_s": 101.397974
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-07/12_39_45",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 569,
+      "truth_active_rows": 80,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.4831140000000005,
+      "target_time_max_s": 123.27751799999999
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-07/12_57_30",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 176,
+      "truth_active_rows": 164,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.4807989999999975,
+      "target_time_max_s": 41.878056
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-07/13_02_17",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 325,
+      "truth_active_rows": 317,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.480412999999999,
+      "target_time_max_s": 72.02777
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-07/13_23_31",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 324,
+      "truth_active_rows": 73,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252212,
+      "target_time_max_s": 36.82637199999999
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-07/13_26_48",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 198,
+      "truth_active_rows": 56,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2447309999999945,
+      "target_time_max_s": 23.270753
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-07/13_39_11",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 858,
+      "truth_active_rows": 138,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.256059999999998,
+      "target_time_max_s": 90.388675
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-07/14_10_59",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 52,
+      "truth_active_rows": 39,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.479909000000006,
+      "target_time_max_s": 16.715738
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-08/17_26_26",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 546,
+      "truth_active_rows": 308,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.4584740000000025,
+      "target_time_max_s": 63.115335
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-08/17_56_44",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 347,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.356196000000004,
+      "target_time_max_s": 39.123481
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-08/18_21_08",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 486,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.456803999999998,
+      "target_time_max_s": 53.148431
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-08/18_29_43",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 360,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.4528149999999975,
+      "target_time_max_s": 41.969706
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-08/18_37_09",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 395,
+      "truth_active_rows": 113,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2607449999999965,
+      "target_time_max_s": 43.746368000000004
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-10/07_36_58",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 222,
+      "truth_active_rows": 44,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.355320000000006,
+      "target_time_max_s": 27.242841999999996
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-10/07_54_58",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 592,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.357692,
+      "target_time_max_s": 64.630238
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-10/08_02_49",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 319,
+      "truth_active_rows": 103,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.357562999999999,
+      "target_time_max_s": 36.378368
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-10/19_15_38",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1088,
+      "truth_active_rows": 68,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.247202999999999,
+      "target_time_max_s": 115.24320800000001
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-11/07_29_26",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 525,
+      "truth_active_rows": 74,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252892999999993,
+      "target_time_max_s": 63.984181
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-11/07_31_37",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 306,
+      "truth_active_rows": 8,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.8696899999999985,
+      "target_time_max_s": 37.185559000000005
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-11/07_46_51",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1240,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.253708000000003,
+      "target_time_max_s": 134.879985
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-11/07_55_43",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 543,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2455309999999997,
+      "target_time_max_s": 59.95927599999999
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-11/08_07_20",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 685,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.253682999999995,
+      "target_time_max_s": 73.283242
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-11/08_16_50",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 616,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.349604999999997,
+      "target_time_max_s": 67.406358
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-12/18_42_41",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 174,
+      "truth_active_rows": 37,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 5.284830999999997,
+      "target_time_max_s": 29.385586999999994
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-12/18_48_30",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 632,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 4.706736999999997,
+      "target_time_max_s": 90.032048
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-12/19_14_19",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 632,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2544540000000026,
+      "target_time_max_s": 69.276508
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-12/19_20_24",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 637,
+      "truth_active_rows": 48,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 4.062253000000005,
+      "target_time_max_s": 75.61389199999999
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-14/08_05_42",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 478,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3640439999999927,
+      "target_time_max_s": 54.348866
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-15/17_01_53",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 831,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.861600999999993,
+      "target_time_max_s": 117.402502
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-15/17_22_19",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 243,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.4566760000000016,
+      "target_time_max_s": 28.555187999999994
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-15/17_28_56",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 407,
+      "truth_active_rows": 73,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3527990000000045,
+      "target_time_max_s": 45.426346000000024
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-15/17_59_18",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 930,
+      "truth_active_rows": 20,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.249445999999999,
+      "target_time_max_s": 99.90090699999999
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-15/18_16_47",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 559,
+      "truth_active_rows": 32,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.552859000000012,
+      "target_time_max_s": 61.21049900000003
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-15/18_21_12",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1078,
+      "truth_active_rows": 87,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.348437000000004,
+      "target_time_max_s": 114.35520900000002
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-15/18_36_56",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 655,
+      "truth_active_rows": 83,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252823999999997,
+      "target_time_max_s": 70.74003
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-15/18_41_01",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 765,
+      "truth_active_rows": 48,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.8775799999999983,
+      "target_time_max_s": 82.100036
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-15/18_45_33",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 713,
+      "truth_active_rows": 79,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3969100000000196,
+      "target_time_max_s": 76.98392900000002
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-17/08_17_29",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 751,
+      "truth_active_rows": 251,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.365655000000004,
+      "target_time_max_s": 80.60092199999997
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-17/18_40_08",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1019,
+      "truth_active_rows": 59,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2551619999999986,
+      "target_time_max_s": 111.04569000000001
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-18/07_38_12",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 568,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3544709999999895,
+      "target_time_max_s": 62.91842600000007
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-19/07_41_00",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 2465,
+      "truth_active_rows": 32,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.265533000000005,
+      "target_time_max_s": 266.970468
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-19/08_18_11",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 902,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.254800000000003,
+      "target_time_max_s": 99.523291
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-19/09_05_21",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 662,
+      "truth_active_rows": 22,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3584089999999946,
+      "target_time_max_s": 74.11533999999997
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-19/15_36_37",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1690,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.4536259999999857,
+      "target_time_max_s": 179.32879400000002
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-21/08_16_20",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1654,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.356031999999999,
+      "target_time_max_s": 186.82561
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-21/19_36_27",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 3399,
+      "truth_active_rows": 2024,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 5.010414999999995,
+      "target_time_max_s": 362.928009
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-25/07_39_04",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 825,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.4607599999999934,
+      "target_time_max_s": 93.50723699999999
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-25/07_50_00",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 287,
+      "truth_active_rows": 29,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2521059999999977,
+      "target_time_max_s": 35.55838399999999
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-25/07_52_26",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1417,
+      "truth_active_rows": 472,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.7639719999999954,
+      "target_time_max_s": 152.525513
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-25/08_11_51",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1406,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.259957000000014,
+      "target_time_max_s": 153.17674100000002
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-27/08_08_56",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1208,
+      "truth_active_rows": 69,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.349542999999997,
+      "target_time_max_s": 127.692822
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-27/08_12_10",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1732,
+      "truth_active_rows": 637,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2561099999999996,
+      "target_time_max_s": 195.375987
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-27/08_32_37",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1230,
+      "truth_active_rows": 111,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.6679889999999986,
+      "target_time_max_s": 135.63111899999998
+    },
+    {
+      "role": "test",
+      "source_id": "2018-09-27/08_37_20",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 2143,
+      "truth_active_rows": 345,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2599640000000107,
+      "target_time_max_s": 231.692871
+    },
+    {
+      "role": "test",
+      "source_id": "2018-10-01/07_55_01",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 701,
+      "truth_active_rows": 60,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2567480000000018,
+      "target_time_max_s": 75.41369800000001
+    },
+    {
+      "role": "test",
+      "source_id": "2018-10-01/08_14_21",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 361,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.256871000000004,
+      "target_time_max_s": 39.940945
+    },
+    {
+      "role": "test",
+      "source_id": "2018-10-01/08_15_13",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 223,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2567390000000103,
+      "target_time_max_s": 25.939081000000016
+    },
+    {
+      "role": "test",
+      "source_id": "2018-10-01/08_41_21",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1201,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2520339999999948,
+      "target_time_max_s": 126.63535399999999
+    },
+    {
+      "role": "test",
+      "source_id": "2018-10-02/07_24_27",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 890,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.350358999999969,
+      "target_time_max_s": 95.30913299999997
+    },
+    {
+      "role": "test",
+      "source_id": "2018-10-03/18_26_20",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 722,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.7646840000000026,
+      "target_time_max_s": 83.63524799999999
+    },
+    {
+      "role": "test",
+      "source_id": "2018-10-04/07_17_05",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 125,
+      "truth_active_rows": 5,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.451215000000005,
+      "target_time_max_s": 31.553579
+    },
+    {
+      "role": "test",
+      "source_id": "2018-10-04/07_30_31",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1221,
+      "truth_active_rows": 918,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.476185999999998,
+      "target_time_max_s": 253.38492300000001
+    },
+    {
+      "role": "test",
+      "source_id": "2018-10-04/07_38_32",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1389,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.248933000000001,
+      "target_time_max_s": 154.288917
+    },
+    {
+      "role": "test",
+      "source_id": "2018-10-04/07_43_05",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1823,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3519289999999984,
+      "target_time_max_s": 202.32480500000003
+    },
+    {
+      "role": "test",
+      "source_id": "2018-10-04/07_54_23",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1887,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.251973999999997,
+      "target_time_max_s": 205.73053099999998
+    },
+    {
+      "role": "test",
+      "source_id": "2018-10-27/16_00_09",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 129,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.459101000000004,
+      "target_time_max_s": 32.93267800000001
+    },
+    {
+      "role": "test",
+      "source_id": "2018-11-20/15_16_18",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 140,
+      "truth_active_rows": 32,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.468002999999996,
+      "target_time_max_s": 34.56629600000001
+    },
+    {
+      "role": "test",
+      "source_id": "2018-11-20/15_25_52",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 269,
+      "truth_active_rows": 117,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.472805999999991,
+      "target_time_max_s": 61.69277999999997
+    },
+    {
+      "role": "test",
+      "source_id": "2018-11-20/15_29_13",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 518,
+      "truth_active_rows": 10,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.466495000000009,
+      "target_time_max_s": 114.999188
+    },
+    {
+      "role": "test",
+      "source_id": "2018-11-23/08_13_32",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1564,
+      "truth_active_rows": 1209,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.456417999999985,
+      "target_time_max_s": 165.90845599999997
+    },
+    {
+      "role": "test",
+      "source_id": "2018-11-27/08_11_22",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1779,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.354360000000014,
+      "target_time_max_s": 192.96242000000004
+    },
+    {
+      "role": "test",
+      "source_id": "2018-11-28/08_30_57",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2300,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3623719999999935,
+      "target_time_max_s": 267.592816
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-03/07_46_16",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1896,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 4.172249999999991,
+      "target_time_max_s": 217.80980799999998
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-03/08_17_36",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 822,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3585489999999965,
+      "target_time_max_s": 91.370023
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-03/08_38_02",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1257,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.5575000000001182,
+      "target_time_max_s": 146.37191899999993
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-04/08_13_32",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1181,
+      "truth_active_rows": 267,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.5632160000000113,
+      "target_time_max_s": 140.362315
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-04/08_20_03",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2770,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.5663290000000245,
+      "target_time_max_s": 307.01754500000004
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-04/08_53_58",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1678,
+      "truth_active_rows": 279,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.4585599999999985,
+      "target_time_max_s": 192.747358
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-10/08_38_24",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1255,
+      "truth_active_rows": 232,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.259296000000006,
+      "target_time_max_s": 145.40020300000003
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-10/09_08_26",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 2000,
+      "truth_active_rows": 112,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.454001000000005,
+      "target_time_max_s": 223.59603200000004
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-12/08_12_25",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 997,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.359271000000007,
+      "target_time_max_s": 125.48238400000002
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-14/08_32_31",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1552,
+      "truth_active_rows": 169,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.6551839999999913,
+      "target_time_max_s": 176.97206500000001
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-18/08_03_22",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 209,
+      "truth_active_rows": 67,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.4544349999999895,
+      "target_time_max_s": 28.059229000000002
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-18/08_34_53",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 3899,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.554376999999988,
+      "target_time_max_s": 430.35759099999996
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-18/09_23_05",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 879,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 4.170793000000003,
+      "target_time_max_s": 112.98812000000001
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-19/07_49_17",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 703,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 4.197526000000039,
+      "target_time_max_s": 87.11756500000001
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-19/08_51_09",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 207,
+      "truth_active_rows": 32,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.4495229999999992,
+      "target_time_max_s": 25.41442999999998
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-19/09_17_32",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 337,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.757652,
+      "target_time_max_s": 42.37689999999999
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-20/07_31_37",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 255,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.5511669999999924,
+      "target_time_max_s": 31.52180299999999
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-20/07_34_46",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 498,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.354804999999999,
+      "target_time_max_s": 54.947097
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-20/08_52_31",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 790,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.66157299999999,
+      "target_time_max_s": 99.74720999999998
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-26/08_53_50",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 978,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.3525129999999876,
+      "target_time_max_s": 112.859185
+    },
+    {
+      "role": "test",
+      "source_id": "2018-12-27/08_57_51",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 308,
+      "truth_active_rows": 50,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 4.264007999999876,
+      "target_time_max_s": 40.250029999999924
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-03/08_09_31",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 268,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2545450000000073,
+      "target_time_max_s": 30.403254000000004
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-04/08_48_19",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 215,
+      "truth_active_rows": 27,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.246085000000008,
+      "target_time_max_s": 25.00820300000001
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-04/08_52_38",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 2475,
+      "truth_active_rows": 1209,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.248839000000004,
+      "target_time_max_s": 254.76077999999998
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-04/09_05_55",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 224,
+      "truth_active_rows": 123,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2612389999999962,
+      "target_time_max_s": 25.928767
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-04/09_22_14",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 313,
+      "truth_active_rows": 160,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.249924,
+      "target_time_max_s": 34.96641400000001
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-04/09_24_22",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 363,
+      "truth_active_rows": 41,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2545569999999984,
+      "target_time_max_s": 40.045384999999996
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-07/07_59_38",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1436,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2592439999999954,
+      "target_time_max_s": 149.138535
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-08/08_25_04",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 849,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2504629999999963,
+      "target_time_max_s": 89.47327899999999
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-09/08_32_29",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1768,
+      "truth_active_rows": 175,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.254314999999991,
+      "target_time_max_s": 183.07677
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-15/08_02_55",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2223,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2532489999999825,
+      "target_time_max_s": 229.054578
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-15/08_46_05",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 556,
+      "truth_active_rows": 214,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.479084,
+      "target_time_max_s": 118.74596799999998
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-16/07_21_48",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1269,
+      "truth_active_rows": 829,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.472118000000023,
+      "target_time_max_s": 262.900856
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-16/07_42_54",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1284,
+      "truth_active_rows": 889,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.483743000000004,
+      "target_time_max_s": 266.096781
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-18/07_28_38",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2488,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2560689999999965,
+      "target_time_max_s": 255.995376
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-18/08_07_57",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1304,
+      "truth_active_rows": 1076,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.474413000000027,
+      "target_time_max_s": 270.16086100000007
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-18/09_04_40",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 357,
+      "truth_active_rows": 121,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.477862000000002,
+      "target_time_max_s": 78.561204
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-21/07_44_07",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1448,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.262433999999999,
+      "target_time_max_s": 150.32885199999998
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-22/07_24_25",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1835,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2543810000000235,
+      "target_time_max_s": 189.62837800000003
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-25/16_41_38",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 519,
+      "truth_active_rows": 517,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.484290999999999,
+      "target_time_max_s": 111.24655999999999
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-25/16_45_32",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 482,
+      "truth_active_rows": 215,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.4275049999999965,
+      "target_time_max_s": 103.81932900000001
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-28/15_31_46",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2657,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2498350000000187,
+      "target_time_max_s": 273.316185
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-28/16_26_32",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 334,
+      "truth_active_rows": 166,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2530360000000087,
+      "target_time_max_s": 37.086467
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-29/16_45_53",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 297,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.259186999999997,
+      "target_time_max_s": 33.34008399999999
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-29/16_51_22",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1385,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2615079999999637,
+      "target_time_max_s": 143.962327
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-29/17_01_15",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 689,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.253421000000003,
+      "target_time_max_s": 73.211794
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-30/17_35_02",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2622,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2579960000000057,
+      "target_time_max_s": 269.70493999999997
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-30/18_15_57",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 507,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2495030000000042,
+      "target_time_max_s": 54.727086
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-30/18_18_17",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 488,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.773662999999999,
+      "target_time_max_s": 53.26641300000001
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-30/18_34_02",
+      "flight_label": "global_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 390,
+      "truth_active_rows": 256,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 6.4743640000000084,
+      "target_time_max_s": 84.981998
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-31/16_32_26",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 535,
+      "truth_active_rows": 60,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2532729999999788,
+      "target_time_max_s": 57.51910099999998
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-31/16_41_44",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 343,
+      "truth_active_rows": 86,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2549530000000004,
+      "target_time_max_s": 38.03354199999998
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-31/17_23_21",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 751,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2456989999999877,
+      "target_time_max_s": 79.52519099999999
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-31/17_28_48",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 744,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2576079999999905,
+      "target_time_max_s": 78.77438299999999
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-31/17_56_00",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2597,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2499679999999955,
+      "target_time_max_s": 267.184736
+    },
+    {
+      "role": "test",
+      "source_id": "2019-01-31/18_11_56",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 669,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2575960000000066,
+      "target_time_max_s": 71.15357800000001
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-01/18_02_58",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2599,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2574540000000525,
+      "target_time_max_s": 267.59193000000005
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-01/18_35_27",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1598,
+      "truth_active_rows": 158,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2464099999999974,
+      "target_time_max_s": 165.59393699999998
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-05/10_53_17",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2524,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.248816000000005,
+      "target_time_max_s": 259.75129300000003
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-11/10_20_38",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2665,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2507960000000082,
+      "target_time_max_s": 273.83768
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-11/11_01_12",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 2196,
+      "truth_active_rows": 359,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2585210000000018,
+      "target_time_max_s": 226.31372499999998
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-12/07_52_53",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1361,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2458070000000134,
+      "target_time_max_s": 141.496815
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-12/08_24_14",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1016,
+      "truth_active_rows": 78,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2528660000000116,
+      "target_time_max_s": 106.42054300000001
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-13/08_17_28",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2377,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2567980000000034,
+      "target_time_max_s": 245.935148
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-13/08_35_39",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2238,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.257508999999999,
+      "target_time_max_s": 230.64232900000002
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-13/09_11_41",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 511,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2576130000000063,
+      "target_time_max_s": 55.096924
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-14/07_59_35",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 370,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2492170000000016,
+      "target_time_max_s": 40.755686
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-14/08_11_59",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1727,
+      "truth_active_rows": 25,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252748000000004,
+      "target_time_max_s": 178.752053
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-14/08_31_15",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 715,
+      "truth_active_rows": 59,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2533480000000026,
+      "target_time_max_s": 75.803334
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-14/08_56_46",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 3305,
+      "truth_active_rows": 323,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2500810000000087,
+      "target_time_max_s": 339.035372
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-15/08_29_18",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1718,
+      "truth_active_rows": 58,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.24946700000001,
+      "target_time_max_s": 177.73433200000002
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-15/08_39_35",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 3127,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2575680000000062,
+      "target_time_max_s": 320.928379
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-19/08_54_26",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 3002,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2506830000000093,
+      "target_time_max_s": 308.260834
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-20/08_02_43",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1914,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2576099999999997,
+      "target_time_max_s": 197.73119400000002
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-21/08_10_04",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1210,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2544830000000076,
+      "target_time_max_s": 126.13209400000001
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-21/08_22_25",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2040,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2504189999999937,
+      "target_time_max_s": 210.499269
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-22/07_34_44",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2252,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.256089000000003,
+      "target_time_max_s": 231.950373
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-26/08_17_55",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1889,
+      "truth_active_rows": 183,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2505649999999946,
+      "target_time_max_s": 195.16053
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-27/07_18_22",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2255,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2502199999999988,
+      "target_time_max_s": 232.199302
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-28/07_43_04",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2254,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2508320000000026,
+      "target_time_max_s": 232.18339600000002
+    },
+    {
+      "role": "test",
+      "source_id": "2019-02-28/09_18_38",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2243,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2567249999999603,
+      "target_time_max_s": 231.06279900000004
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-01/07_36_24",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 2261,
+      "truth_active_rows": 93,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2649530000000198,
+      "target_time_max_s": 232.984061
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-01/07_51_58",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2224,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252914000000004,
+      "target_time_max_s": 229.28410000000002
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-01/07_59_35",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2205,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252801000000005,
+      "target_time_max_s": 227.240024
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-04/07_38_42",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2202,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2534879999999973,
+      "target_time_max_s": 226.918306
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-04/07_56_51",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 859,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2487800000000036,
+      "target_time_max_s": 90.46401600000002
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-04/08_14_41",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1283,
+      "truth_active_rows": 67,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2521460000000033,
+      "target_time_max_s": 133.551198
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-04/08_18_44",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1144,
+      "truth_active_rows": 210,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.248890000000003,
+      "target_time_max_s": 119.42711600000001
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-04/08_31_08",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 686,
+      "truth_active_rows": 160,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.148807000000005,
+      "target_time_max_s": 72.74329900000001
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-04/08_33_41",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1090,
+      "truth_active_rows": 240,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.1529069999999955,
+      "target_time_max_s": 113.84441299999999
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-04/08_44_55",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 518,
+      "truth_active_rows": 148,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.160340000000005,
+      "target_time_max_s": 55.705223
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-06/08_02_26",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 928,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2479880000000065,
+      "target_time_max_s": 97.445489
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-06/08_08_04",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 243,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2538020000000003,
+      "target_time_max_s": 27.856786
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-06/08_11_47",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2280,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2495580000000075,
+      "target_time_max_s": 234.92534700000002
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-07/07_52_21",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 583,
+      "truth_active_rows": 126,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2495819999999753,
+      "target_time_max_s": 62.39675999999997
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-07/08_04_50",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2198,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.248700000000099,
+      "target_time_max_s": 226.58554900000001
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-11/07_23_48",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2218,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2544020000000273,
+      "target_time_max_s": 228.45194300000003
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-15/11_05_20",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1517,
+      "truth_active_rows": 238,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252937000000003,
+      "target_time_max_s": 157.297578
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-15/11_19_19",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1266,
+      "truth_active_rows": 37,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.256067999999999,
+      "target_time_max_s": 131.804738
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-15/11_26_05",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1375,
+      "truth_active_rows": 78,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.251997000000017,
+      "target_time_max_s": 142.90322100000003
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-18/07_50_31",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2279,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2526590000000013,
+      "target_time_max_s": 234.687887
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-21/08_18_18",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2292,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2476589999999987,
+      "target_time_max_s": 235.98804699999994
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-22/07_46_23",
+      "flight_label": "mechanical_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1763,
+      "truth_active_rows": 104,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.256776000000002,
+      "target_time_max_s": 182.349731
+    },
+    {
+      "role": "test",
+      "source_id": "2019-03-26/07_50_02",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 962,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.256304,
+      "target_time_max_s": 100.88790600000002
+    },
+    {
+      "role": "test",
+      "source_id": "2019-04-05/18_44_17",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 171,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2496050000000025,
+      "target_time_max_s": 20.525534000000007
+    },
+    {
+      "role": "test",
+      "source_id": "2019-04-11/10_31_43",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 280,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2589420000000047,
+      "target_time_max_s": 31.613614000000013
+    },
+    {
+      "role": "test",
+      "source_id": "2019-04-11/10_34_16",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 256,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2534550000000024,
+      "target_time_max_s": 29.16542799999999
+    },
+    {
+      "role": "test",
+      "source_id": "2019-04-12/10_12_17",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 219,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2544300000000135,
+      "target_time_max_s": 25.399925999999994
+    },
+    {
+      "role": "test",
+      "source_id": "2019-04-17/07_32_57",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 511,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2529819999999745,
+      "target_time_max_s": 55.08164799999997
+    },
+    {
+      "role": "test",
+      "source_id": "2019-04-17/07_56_36",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1366,
+      "truth_active_rows": 29,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2519709999999975,
+      "target_time_max_s": 141.95833399999998
+    },
+    {
+      "role": "test",
+      "source_id": "2019-05-20/07_49_24",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 726,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252073000000003,
+      "target_time_max_s": 76.901657
+    },
+    {
+      "role": "test",
+      "source_id": "2019-05-21/07_54_18",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1756,
+      "truth_active_rows": 435,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.247996999999998,
+      "target_time_max_s": 181.48883899999998
+    },
+    {
+      "role": "test",
+      "source_id": "2019-05-21/08_04_49",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1184,
+      "truth_active_rows": 449,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2528750000000173,
+      "target_time_max_s": 123.39841200000004
+    },
+    {
+      "role": "test",
+      "source_id": "2019-05-21/08_22_58",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1112,
+      "truth_active_rows": 20,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2519439999999946,
+      "target_time_max_s": 116.09193199999999
+    },
+    {
+      "role": "test",
+      "source_id": "2019-05-23/07_24_17",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1759,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2488369999999804,
+      "target_time_max_s": 181.78072599999996
+    },
+    {
+      "role": "test",
+      "source_id": "2019-05-28/07_38_10",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1189,
+      "truth_active_rows": 483,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2567180000000064,
+      "target_time_max_s": 123.99031900000001
+    },
+    {
+      "role": "test",
+      "source_id": "2019-05-29/07_27_57",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 403,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.253695999999991,
+      "target_time_max_s": 44.108093
+    },
+    {
+      "role": "test",
+      "source_id": "2019-06-03/11_42_13",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 714,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2638820000000806,
+      "target_time_max_s": 75.71628300000009
+    },
+    {
+      "role": "test",
+      "source_id": "2019-07-02/08_26_54",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 712,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.254373000000001,
+      "target_time_max_s": 75.49375200000001
+    },
+    {
+      "role": "test",
+      "source_id": "2019-11-05/10_41_16",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1698,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2566810000000146,
+      "target_time_max_s": 175.714228
+    },
+    {
+      "role": "test",
+      "source_id": "2019-12-02/09_40_27",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1246,
+      "truth_active_rows": 24,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2500869999999935,
+      "target_time_max_s": 129.779904
+    },
+    {
+      "role": "test",
+      "source_id": "2021-10-06--/12_20_25",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1035,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.6527990000000017,
+      "target_time_max_s": 112.155198
+    },
+    {
+      "role": "test",
+      "source_id": "2021-10-06--/12_26_34",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 863,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.249606,
+      "target_time_max_s": 93.48241199999998
+    },
+    {
+      "role": "test",
+      "source_id": "2021-10-07_pid--/log_0_2021-10-1-17-16-16",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 393,
+      "truth_active_rows": 20,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.246402,
+      "target_time_max_s": 44.149624
+    },
+    {
+      "role": "test",
+      "source_id": "2021-10-07_pid--/log_1_2021-10-1-17-28-54",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 424,
+      "truth_active_rows": 108,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2536000000000023,
+      "target_time_max_s": 46.697599999999994
+    },
+    {
+      "role": "test",
+      "source_id": "2022-10-21/05_26_56",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 527,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 4.639994999999999,
+      "target_time_max_s": 58.02399199999999
+    },
+    {
+      "role": "test",
+      "source_id": "2022-10-22_dhl/03_51_03",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 900,
+      "truth_active_rows": 192,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2448009999999954,
+      "target_time_max_s": 94.498401
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2021-10-03/13_19_20",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1436,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.25359499999999,
+      "target_time_max_s": 149.31680299999996
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2021-10-05/15_10_10",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2620,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2495969999999943,
+      "target_time_max_s": 269.3807969999999
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2022-06-15/08_23_52",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 365,
+      "truth_active_rows": 68,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.247203000000127,
+      "target_time_max_s": 40.198397000000114
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2022-06-15/09_50_38",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2610,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.248827999999776,
+      "target_time_max_s": 268.57758300000023
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2022-06-15/11_58_52",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 814,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.248793000000205,
+      "target_time_max_s": 85.9751940000001
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2022-06-15/12_11_35",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 721,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2487969999999677,
+      "target_time_max_s": 76.325626
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2022-09-06/14_15_05",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 425,
+      "truth_active_rows": 13,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.253598000000011,
+      "target_time_max_s": 46.28879900000004
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2022-09-06/14_21_59",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 423,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2527770000000373,
+      "target_time_max_s": 46.08317200000005
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2022-09-07/16_48_12",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2690,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.247203999999982,
+      "target_time_max_s": 276.59119699999997
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2022-09-08/00_40_52",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 5340,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.246422999999993,
+      "target_time_max_s": 545.779999
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2022-09-08/01_07_35",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 709,
+      "truth_active_rows": 126,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2488010000000145,
+      "target_time_max_s": 75.11999900000004
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2022-09-09/00_05_28",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2611,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2479589999999945,
+      "target_time_max_s": 268.256758
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2022-09-10/07_45_22",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2716,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.247201999999998,
+      "target_time_max_s": 278.921619
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2023-03-25/18_46_08",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2731,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.255997000000008,
+      "target_time_max_s": 280.451973
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2023-04-14/13_13_05",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 758,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252001,
+      "target_time_max_s": 80.696801
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/2023-05-24/00_20_45",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2903,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2487980000000007,
+      "target_time_max_s": 298.63523200000003
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/sess006/log001",
+      "flight_label": "altitude_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 751,
+      "truth_active_rows": 8,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252797000000001,
+      "target_time_max_s": 79.372804
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/sess018/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 3208,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2559849999999813,
+      "target_time_max_s": 329.07438899999994
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/sess028/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 170,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.246417000000001,
+      "target_time_max_s": 20.401598
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/sess040/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 2653,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.251199999999983,
+      "target_time_max_s": 272.64160300000003
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/sess049/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 768,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2511989999999855,
+      "target_time_max_s": 81.10559899999998
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/sess055/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 650,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.243201000000006,
+      "target_time_max_s": 69.124798
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/sess061/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 5185,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252003000000002,
+      "target_time_max_s": 530.245598
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/sess066/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 560,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2472020000000015,
+      "target_time_max_s": 59.98479999999999
+    },
+    {
+      "role": "test",
+      "source_id": "2023-08/sess069/log001",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 3983,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.252798999999982,
+      "target_time_max_s": 407.42639899999995
+    },
+    {
+      "role": "test",
+      "source_id": "23_36_13",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1142,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 3.2511989999999997,
+      "target_time_max_s": 122.010401
+    },
+    {
+      "role": "test",
+      "source_id": "log_54_2022-4-19-18-17-42",
+      "flight_label": "external_position_anomaly",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 1641,
+      "truth_active_rows": 60,
+      "truth_sources": [
+        "uav_sead_labels_json_absolute_us"
+      ],
+      "target_time_min_s": 5.8271820000000005,
+      "target_time_max_s": 172.289616
+    }
+  ],
+  "ledgers": {
+    "val": {
+      "path": "val_window_scores.parquet",
+      "rows": 180127,
+      "sources": 135,
+      "immutable_score_payload_sha256": "25c66a7c204e7b1825c6791b67ef7b6340d3c2a1af4161282db770b88bc82d30",
+      "truth_available_rows": 180127,
+      "truth_active_rows": 0,
+      "sha256": "2e3290a20e7d3bb2d8b23b4eb4c24ffc38574d518f95cfac6aa486ec95bbaa9e",
+      "bytes": 4795508
+    },
+    "test": {
+      "path": "test_window_scores.parquet",
+      "rows": 331724,
+      "sources": 268,
+      "immutable_score_payload_sha256": "8f8bb2419a97b48bc7b40b2a3e9f7d2f1b65a6def6862115ffca09fe2657c2cf",
+      "truth_available_rows": 331724,
+      "truth_active_rows": 47957,
+      "sha256": "da80e3a27b6a2cf7487be233b06baefbb5569175b21d2a9705ed2d2a2c5de9c2",
+      "bytes": 8148567
+    }
+  }
+}

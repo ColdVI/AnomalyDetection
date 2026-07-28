@@ -1,0 +1,1897 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_event_eval_v1",
+  "dataset": "uav_sead",
+  "claim_eligible_normal_validation_count": true,
+  "normal_validation_flights": 135,
+  "truth_contract": {
+    "status": "requires_verified_mapping",
+    "source": "dataset-provided timestamp anomaly regions mapped to Gold t_rel_s",
+    "allowed_claim": "event localization only after mapping coverage and boundary semantics report pass"
+  },
+  "truth_mapping_evidence": {
+    "path": "truth_mapping_report.json",
+    "sha256": "6b01dda6619dacc4d92482ca2306f22129d99ca2204b924c9a5b2644f7459cbc",
+    "mapped_anomaly_sources": 134,
+    "unavailable_anomaly_sources": []
+  },
+  "bootstrap_contract": {
+    "unit": "source_id",
+    "replicates": 1000,
+    "confidence_level": 0.95,
+    "method": "source-stratified percentile bootstrap"
+  },
+  "calibration_grid": [
+    {
+      "minimum_above_threshold_seconds": 0.0,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events": 1157,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 220.46790571618467
+    },
+    {
+      "minimum_above_threshold_seconds": 0.0,
+      "quantile": 0.995,
+      "threshold": 3.5645420527458,
+      "validation_false_events": 701,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 133.576492573073
+    },
+    {
+      "minimum_above_threshold_seconds": 0.0,
+      "quantile": 0.9975,
+      "threshold": 6.0822220158576865,
+      "validation_false_events": 390,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 74.31502439871394
+    },
+    {
+      "minimum_above_threshold_seconds": 0.0,
+      "quantile": 0.999,
+      "threshold": 11.698180212020988,
+      "validation_false_events": 168,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 32.01262589483062
+    },
+    {
+      "minimum_above_threshold_seconds": 0.0,
+      "quantile": 0.9995,
+      "threshold": 16.92478915786745,
+      "validation_false_events": 88,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 16.768518325863656
+    },
+    {
+      "minimum_above_threshold_seconds": 0.0,
+      "quantile": 0.9999,
+      "threshold": 42.63397645035373,
+      "validation_false_events": 18,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 3.4299242030175665
+    },
+    {
+      "minimum_above_threshold_seconds": 0.5,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events": 5,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.9527567230604351
+    },
+    {
+      "minimum_above_threshold_seconds": 0.5,
+      "quantile": 0.995,
+      "threshold": 3.5645420527458,
+      "validation_false_events": 1,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.19055134461208703
+    },
+    {
+      "minimum_above_threshold_seconds": 0.5,
+      "quantile": 0.9975,
+      "threshold": 6.0822220158576865,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 0.5,
+      "quantile": 0.999,
+      "threshold": 11.698180212020988,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 0.5,
+      "quantile": 0.9995,
+      "threshold": 16.92478915786745,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 0.5,
+      "quantile": 0.9999,
+      "threshold": 42.63397645035373,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 1.0,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events": 3,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.571654033836261
+    },
+    {
+      "minimum_above_threshold_seconds": 1.0,
+      "quantile": 0.995,
+      "threshold": 3.5645420527458,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 1.0,
+      "quantile": 0.9975,
+      "threshold": 6.0822220158576865,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 1.0,
+      "quantile": 0.999,
+      "threshold": 11.698180212020988,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 1.0,
+      "quantile": 0.9995,
+      "threshold": 16.92478915786745,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 1.0,
+      "quantile": 0.9999,
+      "threshold": 42.63397645035373,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 2.0,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 2.0,
+      "quantile": 0.995,
+      "threshold": 3.5645420527458,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 2.0,
+      "quantile": 0.9975,
+      "threshold": 6.0822220158576865,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 2.0,
+      "quantile": 0.999,
+      "threshold": 11.698180212020988,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 2.0,
+      "quantile": 0.9995,
+      "threshold": 16.92478915786745,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 2.0,
+      "quantile": 0.9999,
+      "threshold": 42.63397645035373,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 5.0,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 5.0,
+      "quantile": 0.995,
+      "threshold": 3.5645420527458,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 5.0,
+      "quantile": 0.9975,
+      "threshold": 6.0822220158576865,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 5.0,
+      "quantile": 0.999,
+      "threshold": 11.698180212020988,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 5.0,
+      "quantile": 0.9995,
+      "threshold": 16.92478915786745,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    },
+    {
+      "minimum_above_threshold_seconds": 5.0,
+      "quantile": 0.9999,
+      "threshold": 42.63397645035373,
+      "validation_false_events": 0,
+      "validation_normal_hours": 5.247929381111112,
+      "validation_false_events_per_hour": 0.0
+    }
+  ],
+  "selected_budget_points": [
+    {
+      "minimum_above_threshold_seconds": 0.0,
+      "budget_false_events_per_hour": 0.1,
+      "available": false,
+      "quantile": null,
+      "threshold": null,
+      "validation_false_events_per_hour": null,
+      "evaluation": null
+    },
+    {
+      "minimum_above_threshold_seconds": 0.0,
+      "budget_false_events_per_hour": 0.5,
+      "available": false,
+      "quantile": null,
+      "threshold": null,
+      "validation_false_events_per_hour": null,
+      "evaluation": null
+    },
+    {
+      "minimum_above_threshold_seconds": 0.0,
+      "budget_false_events_per_hour": 1.0,
+      "available": false,
+      "quantile": null,
+      "threshold": null,
+      "validation_false_events_per_hour": null,
+      "evaluation": null
+    },
+    {
+      "minimum_above_threshold_seconds": 0.0,
+      "budget_false_events_per_hour": 2.0,
+      "available": false,
+      "quantile": null,
+      "threshold": null,
+      "validation_false_events_per_hour": null,
+      "evaluation": null
+    },
+    {
+      "minimum_above_threshold_seconds": 0.0,
+      "budget_false_events_per_hour": 5.0,
+      "available": true,
+      "quantile": 0.9999,
+      "threshold": 42.63397645035373,
+      "validation_false_events_per_hour": 3.4299242030175665,
+      "evaluation": {
+        "threshold": 42.63397645035373,
+        "minimum_above_threshold_seconds": 0.0,
+        "event_count": 206,
+        "detected_events": 19,
+        "event_recall": 0.09223300970873786,
+        "false_events": 9,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 1.6624236345186152,
+        "median_detection_delay_s": 6.809572000000003,
+        "p90_detection_delay_s": 64.17827839999998,
+        "range_precision_time_weighted": 0.5092296906913231,
+        "range_recall_time_weighted": 0.0007523704853286786,
+        "predicted_alarm_duration_s": 5.765632000000039,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 2.936031000000014,
+        "alarm_time_fraction": 0.0001713815852768595,
+        "longest_alarm_event_seconds": 2.0215820000000235,
+        "alarm_event_count_per_observed_hour": 4.0663366766859586,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 3986580934,
+          "percentile_intervals": {
+            "event_recall": [
+              0.05555555555555555,
+              0.13699301638463604
+            ],
+            "false_events_per_normal_hour": [
+              0.7072180153624859,
+              2.731438330720698
+            ],
+            "median_detection_delay_s": [
+              4.364833000000004,
+              12.63385468749993
+            ],
+            "p90_detection_delay_s": [
+              8.338628999999997,
+              166.15289299999995
+            ],
+            "range_precision_time_weighted": [
+              0.0,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              0.0,
+              0.0020711227515147457
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 0.0,
+      "budget_false_events_per_hour": 10.0,
+      "available": true,
+      "quantile": 0.9999,
+      "threshold": 42.63397645035373,
+      "validation_false_events_per_hour": 3.4299242030175665,
+      "evaluation": {
+        "threshold": 42.63397645035373,
+        "minimum_above_threshold_seconds": 0.0,
+        "event_count": 206,
+        "detected_events": 19,
+        "event_recall": 0.09223300970873786,
+        "false_events": 9,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 1.6624236345186152,
+        "median_detection_delay_s": 6.809572000000003,
+        "p90_detection_delay_s": 64.17827839999998,
+        "range_precision_time_weighted": 0.5092296906913231,
+        "range_recall_time_weighted": 0.0007523704853286786,
+        "predicted_alarm_duration_s": 5.765632000000039,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 2.936031000000014,
+        "alarm_time_fraction": 0.0001713815852768595,
+        "longest_alarm_event_seconds": 2.0215820000000235,
+        "alarm_event_count_per_observed_hour": 4.0663366766859586,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 3986580934,
+          "percentile_intervals": {
+            "event_recall": [
+              0.05555555555555555,
+              0.13699301638463604
+            ],
+            "false_events_per_normal_hour": [
+              0.7072180153624859,
+              2.731438330720698
+            ],
+            "median_detection_delay_s": [
+              4.364833000000004,
+              12.63385468749993
+            ],
+            "p90_detection_delay_s": [
+              8.338628999999997,
+              166.15289299999995
+            ],
+            "range_precision_time_weighted": [
+              0.0,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              0.0,
+              0.0020711227515147457
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 0.5,
+      "budget_false_events_per_hour": 0.1,
+      "available": true,
+      "quantile": 0.9975,
+      "threshold": 6.0822220158576865,
+      "validation_false_events_per_hour": 0.0,
+      "evaluation": {
+        "threshold": 6.0822220158576865,
+        "minimum_above_threshold_seconds": 0.5,
+        "event_count": 206,
+        "detected_events": 2,
+        "event_recall": 0.009708737864077669,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 40.98958600000006,
+        "p90_detection_delay_s": 68.27342520000009,
+        "range_precision_time_weighted": 1.0,
+        "range_recall_time_weighted": 5.4380231486826945e-05,
+        "predicted_alarm_duration_s": 0.21221199999990858,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 0.21221199999990858,
+        "alarm_time_fraction": 6.307934494389685e-06,
+        "longest_alarm_event_seconds": 0.21221199999990858,
+        "alarm_event_count_per_observed_hour": 0.42803543965115354,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 2476727446,
+          "percentile_intervals": {
+            "event_recall": [
+              0.0,
+              0.02525572988770958
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              6.884787000000017,
+              75.0943850000001
+            ],
+            "p90_detection_delay_s": [
+              6.884787000000017,
+              75.0943850000001
+            ],
+            "range_precision_time_weighted": [
+              1.0,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              0.0,
+              0.0001743744199703613
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 0.5,
+      "budget_false_events_per_hour": 0.5,
+      "available": true,
+      "quantile": 0.995,
+      "threshold": 3.5645420527458,
+      "validation_false_events_per_hour": 0.19055134461208703,
+      "evaluation": {
+        "threshold": 3.5645420527458,
+        "minimum_above_threshold_seconds": 0.5,
+        "event_count": 206,
+        "detected_events": 5,
+        "event_recall": 0.024271844660194174,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 22.675617999999986,
+        "p90_detection_delay_s": 60.12315560000005,
+        "range_precision_time_weighted": 0.9429667128333239,
+        "range_recall_time_weighted": 0.0017108411562275908,
+        "predicted_alarm_duration_s": 7.080145999999758,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 6.676341999999778,
+        "alarm_time_fraction": 0.00021045509763223977,
+        "longest_alarm_event_seconds": 3.6508230000000026,
+        "alarm_event_count_per_observed_hour": 1.4981240387790373,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 3702767177,
+          "percentile_intervals": {
+            "event_recall": [
+              0.00483033723522854,
+              0.05141399224122729
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              5.369681500000013,
+              63.49473000000001
+            ],
+            "p90_detection_delay_s": [
+              6.884787000000017,
+              63.49473000000001
+            ],
+            "range_precision_time_weighted": [
+              0.909430160310173,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              6.801592488138111e-05,
+              0.004091976774886225
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 0.5,
+      "budget_false_events_per_hour": 1.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.9527567230604351,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 0.5,
+        "event_count": 206,
+        "detected_events": 12,
+        "event_recall": 0.05825242718446602,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 13.059860999999998,
+        "p90_detection_delay_s": 40.60023499999998,
+        "range_precision_time_weighted": 0.9069222681173067,
+        "range_recall_time_weighted": 0.008875065854689168,
+        "predicted_alarm_duration_s": 38.188306999999995,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 34.63382600000001,
+        "alarm_time_fraction": 0.0011351353316859877,
+        "longest_alarm_event_seconds": 7.496718999999985,
+        "alarm_event_count_per_observed_hour": 4.494372116337112,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 2575264759,
+          "percentile_intervals": {
+            "event_recall": [
+              0.021257501363884358,
+              0.1068257441086649
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              3.8545760000000087,
+              39.84679099999998
+            ],
+            "p90_detection_delay_s": [
+              17.824878999999996,
+              53.792198
+            ],
+            "range_precision_time_weighted": [
+              0.41255646453483075,
+              0.9882058991779161
+            ],
+            "range_recall_time_weighted": [
+              0.0008599982670965635,
+              0.018320387227256377
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 0.5,
+      "budget_false_events_per_hour": 2.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.9527567230604351,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 0.5,
+        "event_count": 206,
+        "detected_events": 12,
+        "event_recall": 0.05825242718446602,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 13.059860999999998,
+        "p90_detection_delay_s": 40.60023499999998,
+        "range_precision_time_weighted": 0.9069222681173067,
+        "range_recall_time_weighted": 0.008875065854689168,
+        "predicted_alarm_duration_s": 38.188306999999995,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 34.63382600000001,
+        "alarm_time_fraction": 0.0011351353316859877,
+        "longest_alarm_event_seconds": 7.496718999999985,
+        "alarm_event_count_per_observed_hour": 4.494372116337112,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 2575264759,
+          "percentile_intervals": {
+            "event_recall": [
+              0.021257501363884358,
+              0.1068257441086649
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              3.8545760000000087,
+              39.84679099999998
+            ],
+            "p90_detection_delay_s": [
+              17.824878999999996,
+              53.792198
+            ],
+            "range_precision_time_weighted": [
+              0.41255646453483075,
+              0.9882058991779161
+            ],
+            "range_recall_time_weighted": [
+              0.0008599982670965635,
+              0.018320387227256377
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 0.5,
+      "budget_false_events_per_hour": 5.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.9527567230604351,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 0.5,
+        "event_count": 206,
+        "detected_events": 12,
+        "event_recall": 0.05825242718446602,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 13.059860999999998,
+        "p90_detection_delay_s": 40.60023499999998,
+        "range_precision_time_weighted": 0.9069222681173067,
+        "range_recall_time_weighted": 0.008875065854689168,
+        "predicted_alarm_duration_s": 38.188306999999995,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 34.63382600000001,
+        "alarm_time_fraction": 0.0011351353316859877,
+        "longest_alarm_event_seconds": 7.496718999999985,
+        "alarm_event_count_per_observed_hour": 4.494372116337112,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 2575264759,
+          "percentile_intervals": {
+            "event_recall": [
+              0.021257501363884358,
+              0.1068257441086649
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              3.8545760000000087,
+              39.84679099999998
+            ],
+            "p90_detection_delay_s": [
+              17.824878999999996,
+              53.792198
+            ],
+            "range_precision_time_weighted": [
+              0.41255646453483075,
+              0.9882058991779161
+            ],
+            "range_recall_time_weighted": [
+              0.0008599982670965635,
+              0.018320387227256377
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 0.5,
+      "budget_false_events_per_hour": 10.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.9527567230604351,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 0.5,
+        "event_count": 206,
+        "detected_events": 12,
+        "event_recall": 0.05825242718446602,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 13.059860999999998,
+        "p90_detection_delay_s": 40.60023499999998,
+        "range_precision_time_weighted": 0.9069222681173067,
+        "range_recall_time_weighted": 0.008875065854689168,
+        "predicted_alarm_duration_s": 38.188306999999995,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 34.63382600000001,
+        "alarm_time_fraction": 0.0011351353316859877,
+        "longest_alarm_event_seconds": 7.496718999999985,
+        "alarm_event_count_per_observed_hour": 4.494372116337112,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 2575264759,
+          "percentile_intervals": {
+            "event_recall": [
+              0.021257501363884358,
+              0.1068257441086649
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              3.8545760000000087,
+              39.84679099999998
+            ],
+            "p90_detection_delay_s": [
+              17.824878999999996,
+              53.792198
+            ],
+            "range_precision_time_weighted": [
+              0.41255646453483075,
+              0.9882058991779161
+            ],
+            "range_recall_time_weighted": [
+              0.0008599982670965635,
+              0.018320387227256377
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 1.0,
+      "budget_false_events_per_hour": 0.1,
+      "available": true,
+      "quantile": 0.995,
+      "threshold": 3.5645420527458,
+      "validation_false_events_per_hour": 0.0,
+      "evaluation": {
+        "threshold": 3.5645420527458,
+        "minimum_above_threshold_seconds": 1.0,
+        "event_count": 206,
+        "detected_events": 4,
+        "event_recall": 0.019417475728155338,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 39.74253550000002,
+        "p90_detection_delay_s": 69.90362909999993,
+        "range_precision_time_weighted": 1.0,
+        "range_recall_time_weighted": 0.00046261378650292893,
+        "predicted_alarm_duration_s": 1.8052920000000086,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 1.8052920000000086,
+        "alarm_time_fraction": 5.3661732980466246e-05,
+        "longest_alarm_event_seconds": 0.9966190000000097,
+        "alarm_event_count_per_observed_hour": 0.6420531594767303,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 3386471176,
+          "percentile_intervals": {
+            "event_recall": [
+              0.0,
+              0.04369357860671095
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              9.922444000000041,
+              72.47720699999991
+            ],
+            "p90_detection_delay_s": [
+              14.453654400000051,
+              72.47720699999991
+            ],
+            "range_precision_time_weighted": [
+              1.0,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              0.0,
+              0.001081392050065951
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 1.0,
+      "budget_false_events_per_hour": 0.5,
+      "available": true,
+      "quantile": 0.995,
+      "threshold": 3.5645420527458,
+      "validation_false_events_per_hour": 0.0,
+      "evaluation": {
+        "threshold": 3.5645420527458,
+        "minimum_above_threshold_seconds": 1.0,
+        "event_count": 206,
+        "detected_events": 4,
+        "event_recall": 0.019417475728155338,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 39.74253550000002,
+        "p90_detection_delay_s": 69.90362909999993,
+        "range_precision_time_weighted": 1.0,
+        "range_recall_time_weighted": 0.00046261378650292893,
+        "predicted_alarm_duration_s": 1.8052920000000086,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 1.8052920000000086,
+        "alarm_time_fraction": 5.3661732980466246e-05,
+        "longest_alarm_event_seconds": 0.9966190000000097,
+        "alarm_event_count_per_observed_hour": 0.6420531594767303,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 3386471176,
+          "percentile_intervals": {
+            "event_recall": [
+              0.0,
+              0.04369357860671095
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              9.922444000000041,
+              72.47720699999991
+            ],
+            "p90_detection_delay_s": [
+              14.453654400000051,
+              72.47720699999991
+            ],
+            "range_precision_time_weighted": [
+              1.0,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              0.0,
+              0.001081392050065951
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 1.0,
+      "budget_false_events_per_hour": 1.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.571654033836261,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 1.0,
+        "event_count": 206,
+        "detected_events": 7,
+        "event_recall": 0.03398058252427184,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 20.44651399999998,
+        "p90_detection_delay_s": 66.72215339999997,
+        "range_precision_time_weighted": 0.9622500943974175,
+        "range_recall_time_weighted": 0.0026395827440602215,
+        "predicted_alarm_duration_s": 10.70474200000055,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 10.30063900000053,
+        "alarm_time_fraction": 0.0003181950658557225,
+        "longest_alarm_event_seconds": 4.6507290000000125,
+        "alarm_event_count_per_observed_hour": 2.0331683383429793,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 883150713,
+          "percentile_intervals": {
+            "event_recall": [
+              0.005342769722696955,
+              0.07042964859866269
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              7.085267000000044,
+              72.47720699999991
+            ],
+            "p90_detection_delay_s": [
+              20.44651399999998,
+              72.47720699999991
+            ],
+            "range_precision_time_weighted": [
+              0.5021994956743181,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              6.329887176304374e-05,
+              0.005556398684293588
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 1.0,
+      "budget_false_events_per_hour": 2.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.571654033836261,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 1.0,
+        "event_count": 206,
+        "detected_events": 7,
+        "event_recall": 0.03398058252427184,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 20.44651399999998,
+        "p90_detection_delay_s": 66.72215339999997,
+        "range_precision_time_weighted": 0.9622500943974175,
+        "range_recall_time_weighted": 0.0026395827440602215,
+        "predicted_alarm_duration_s": 10.70474200000055,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 10.30063900000053,
+        "alarm_time_fraction": 0.0003181950658557225,
+        "longest_alarm_event_seconds": 4.6507290000000125,
+        "alarm_event_count_per_observed_hour": 2.0331683383429793,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 883150713,
+          "percentile_intervals": {
+            "event_recall": [
+              0.005342769722696955,
+              0.07042964859866269
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              7.085267000000044,
+              72.47720699999991
+            ],
+            "p90_detection_delay_s": [
+              20.44651399999998,
+              72.47720699999991
+            ],
+            "range_precision_time_weighted": [
+              0.5021994956743181,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              6.329887176304374e-05,
+              0.005556398684293588
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 1.0,
+      "budget_false_events_per_hour": 5.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.571654033836261,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 1.0,
+        "event_count": 206,
+        "detected_events": 7,
+        "event_recall": 0.03398058252427184,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 20.44651399999998,
+        "p90_detection_delay_s": 66.72215339999997,
+        "range_precision_time_weighted": 0.9622500943974175,
+        "range_recall_time_weighted": 0.0026395827440602215,
+        "predicted_alarm_duration_s": 10.70474200000055,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 10.30063900000053,
+        "alarm_time_fraction": 0.0003181950658557225,
+        "longest_alarm_event_seconds": 4.6507290000000125,
+        "alarm_event_count_per_observed_hour": 2.0331683383429793,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 883150713,
+          "percentile_intervals": {
+            "event_recall": [
+              0.005342769722696955,
+              0.07042964859866269
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              7.085267000000044,
+              72.47720699999991
+            ],
+            "p90_detection_delay_s": [
+              20.44651399999998,
+              72.47720699999991
+            ],
+            "range_precision_time_weighted": [
+              0.5021994956743181,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              6.329887176304374e-05,
+              0.005556398684293588
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 1.0,
+      "budget_false_events_per_hour": 10.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.571654033836261,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 1.0,
+        "event_count": 206,
+        "detected_events": 7,
+        "event_recall": 0.03398058252427184,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 20.44651399999998,
+        "p90_detection_delay_s": 66.72215339999997,
+        "range_precision_time_weighted": 0.9622500943974175,
+        "range_recall_time_weighted": 0.0026395827440602215,
+        "predicted_alarm_duration_s": 10.70474200000055,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 10.30063900000053,
+        "alarm_time_fraction": 0.0003181950658557225,
+        "longest_alarm_event_seconds": 4.6507290000000125,
+        "alarm_event_count_per_observed_hour": 2.0331683383429793,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 883150713,
+          "percentile_intervals": {
+            "event_recall": [
+              0.005342769722696955,
+              0.07042964859866269
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              7.085267000000044,
+              72.47720699999991
+            ],
+            "p90_detection_delay_s": [
+              20.44651399999998,
+              72.47720699999991
+            ],
+            "range_precision_time_weighted": [
+              0.5021994956743181,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              6.329887176304374e-05,
+              0.005556398684293588
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 2.0,
+      "budget_false_events_per_hour": 0.1,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.0,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 2.0,
+        "event_count": 206,
+        "detected_events": 3,
+        "event_recall": 0.014563106796116505,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 63.89861399999999,
+        "p90_detection_delay_s": 145.8529956000001,
+        "range_precision_time_weighted": 1.0,
+        "range_recall_time_weighted": 5.2165425817331285e-05,
+        "predicted_alarm_duration_s": 0.20356900000001588,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 0.20356900000001588,
+        "alarm_time_fraction": 6.0510240565522555e-06,
+        "longest_alarm_event_seconds": 0.20356900000001588,
+        "alarm_event_count_per_observed_hour": 0.3210265797383651,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 1328029096,
+          "percentile_intervals": {
+            "event_recall": [
+              0.0,
+              0.03349583852679828
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              12.757232000000045,
+              166.3415910000001
+            ],
+            "p90_detection_delay_s": [
+              12.757232000000045,
+              166.3415910000001
+            ],
+            "range_precision_time_weighted": [
+              1.0,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              0.0,
+              0.0001648614653853749
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 2.0,
+      "budget_false_events_per_hour": 0.5,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.0,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 2.0,
+        "event_count": 206,
+        "detected_events": 3,
+        "event_recall": 0.014563106796116505,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 63.89861399999999,
+        "p90_detection_delay_s": 145.8529956000001,
+        "range_precision_time_weighted": 1.0,
+        "range_recall_time_weighted": 5.2165425817331285e-05,
+        "predicted_alarm_duration_s": 0.20356900000001588,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 0.20356900000001588,
+        "alarm_time_fraction": 6.0510240565522555e-06,
+        "longest_alarm_event_seconds": 0.20356900000001588,
+        "alarm_event_count_per_observed_hour": 0.3210265797383651,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 1328029096,
+          "percentile_intervals": {
+            "event_recall": [
+              0.0,
+              0.03349583852679828
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              12.757232000000045,
+              166.3415910000001
+            ],
+            "p90_detection_delay_s": [
+              12.757232000000045,
+              166.3415910000001
+            ],
+            "range_precision_time_weighted": [
+              1.0,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              0.0,
+              0.0001648614653853749
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 2.0,
+      "budget_false_events_per_hour": 1.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.0,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 2.0,
+        "event_count": 206,
+        "detected_events": 3,
+        "event_recall": 0.014563106796116505,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 63.89861399999999,
+        "p90_detection_delay_s": 145.8529956000001,
+        "range_precision_time_weighted": 1.0,
+        "range_recall_time_weighted": 5.2165425817331285e-05,
+        "predicted_alarm_duration_s": 0.20356900000001588,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 0.20356900000001588,
+        "alarm_time_fraction": 6.0510240565522555e-06,
+        "longest_alarm_event_seconds": 0.20356900000001588,
+        "alarm_event_count_per_observed_hour": 0.3210265797383651,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 1328029096,
+          "percentile_intervals": {
+            "event_recall": [
+              0.0,
+              0.03349583852679828
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              12.757232000000045,
+              166.3415910000001
+            ],
+            "p90_detection_delay_s": [
+              12.757232000000045,
+              166.3415910000001
+            ],
+            "range_precision_time_weighted": [
+              1.0,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              0.0,
+              0.0001648614653853749
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 2.0,
+      "budget_false_events_per_hour": 2.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.0,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 2.0,
+        "event_count": 206,
+        "detected_events": 3,
+        "event_recall": 0.014563106796116505,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 63.89861399999999,
+        "p90_detection_delay_s": 145.8529956000001,
+        "range_precision_time_weighted": 1.0,
+        "range_recall_time_weighted": 5.2165425817331285e-05,
+        "predicted_alarm_duration_s": 0.20356900000001588,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 0.20356900000001588,
+        "alarm_time_fraction": 6.0510240565522555e-06,
+        "longest_alarm_event_seconds": 0.20356900000001588,
+        "alarm_event_count_per_observed_hour": 0.3210265797383651,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 1328029096,
+          "percentile_intervals": {
+            "event_recall": [
+              0.0,
+              0.03349583852679828
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              12.757232000000045,
+              166.3415910000001
+            ],
+            "p90_detection_delay_s": [
+              12.757232000000045,
+              166.3415910000001
+            ],
+            "range_precision_time_weighted": [
+              1.0,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              0.0,
+              0.0001648614653853749
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 2.0,
+      "budget_false_events_per_hour": 5.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.0,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 2.0,
+        "event_count": 206,
+        "detected_events": 3,
+        "event_recall": 0.014563106796116505,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 63.89861399999999,
+        "p90_detection_delay_s": 145.8529956000001,
+        "range_precision_time_weighted": 1.0,
+        "range_recall_time_weighted": 5.2165425817331285e-05,
+        "predicted_alarm_duration_s": 0.20356900000001588,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 0.20356900000001588,
+        "alarm_time_fraction": 6.0510240565522555e-06,
+        "longest_alarm_event_seconds": 0.20356900000001588,
+        "alarm_event_count_per_observed_hour": 0.3210265797383651,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 1328029096,
+          "percentile_intervals": {
+            "event_recall": [
+              0.0,
+              0.03349583852679828
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              12.757232000000045,
+              166.3415910000001
+            ],
+            "p90_detection_delay_s": [
+              12.757232000000045,
+              166.3415910000001
+            ],
+            "range_precision_time_weighted": [
+              1.0,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              0.0,
+              0.0001648614653853749
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 2.0,
+      "budget_false_events_per_hour": 10.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.0,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 2.0,
+        "event_count": 206,
+        "detected_events": 3,
+        "event_recall": 0.014563106796116505,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": 63.89861399999999,
+        "p90_detection_delay_s": 145.8529956000001,
+        "range_precision_time_weighted": 1.0,
+        "range_recall_time_weighted": 5.2165425817331285e-05,
+        "predicted_alarm_duration_s": 0.20356900000001588,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 0.20356900000001588,
+        "alarm_time_fraction": 6.0510240565522555e-06,
+        "longest_alarm_event_seconds": 0.20356900000001588,
+        "alarm_event_count_per_observed_hour": 0.3210265797383651,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 1328029096,
+          "percentile_intervals": {
+            "event_recall": [
+              0.0,
+              0.03349583852679828
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": [
+              12.757232000000045,
+              166.3415910000001
+            ],
+            "p90_detection_delay_s": [
+              12.757232000000045,
+              166.3415910000001
+            ],
+            "range_precision_time_weighted": [
+              1.0,
+              1.0
+            ],
+            "range_recall_time_weighted": [
+              0.0,
+              0.0001648614653853749
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 5.0,
+      "budget_false_events_per_hour": 0.1,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.0,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 5.0,
+        "event_count": 206,
+        "detected_events": 0,
+        "event_recall": 0.0,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": null,
+        "p90_detection_delay_s": null,
+        "range_precision_time_weighted": null,
+        "range_recall_time_weighted": 0.0,
+        "predicted_alarm_duration_s": 0.0,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 0.0,
+        "alarm_time_fraction": 0.0,
+        "longest_alarm_event_seconds": 0.0,
+        "alarm_event_count_per_observed_hour": 0.0,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 3917479921,
+          "percentile_intervals": {
+            "event_recall": [
+              0.0,
+              0.0
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": null,
+            "p90_detection_delay_s": null,
+            "range_precision_time_weighted": null,
+            "range_recall_time_weighted": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 5.0,
+      "budget_false_events_per_hour": 0.5,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.0,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 5.0,
+        "event_count": 206,
+        "detected_events": 0,
+        "event_recall": 0.0,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": null,
+        "p90_detection_delay_s": null,
+        "range_precision_time_weighted": null,
+        "range_recall_time_weighted": 0.0,
+        "predicted_alarm_duration_s": 0.0,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 0.0,
+        "alarm_time_fraction": 0.0,
+        "longest_alarm_event_seconds": 0.0,
+        "alarm_event_count_per_observed_hour": 0.0,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 3917479921,
+          "percentile_intervals": {
+            "event_recall": [
+              0.0,
+              0.0
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": null,
+            "p90_detection_delay_s": null,
+            "range_precision_time_weighted": null,
+            "range_recall_time_weighted": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 5.0,
+      "budget_false_events_per_hour": 1.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.0,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 5.0,
+        "event_count": 206,
+        "detected_events": 0,
+        "event_recall": 0.0,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": null,
+        "p90_detection_delay_s": null,
+        "range_precision_time_weighted": null,
+        "range_recall_time_weighted": 0.0,
+        "predicted_alarm_duration_s": 0.0,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 0.0,
+        "alarm_time_fraction": 0.0,
+        "longest_alarm_event_seconds": 0.0,
+        "alarm_event_count_per_observed_hour": 0.0,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 3917479921,
+          "percentile_intervals": {
+            "event_recall": [
+              0.0,
+              0.0
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": null,
+            "p90_detection_delay_s": null,
+            "range_precision_time_weighted": null,
+            "range_recall_time_weighted": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 5.0,
+      "budget_false_events_per_hour": 2.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.0,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 5.0,
+        "event_count": 206,
+        "detected_events": 0,
+        "event_recall": 0.0,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": null,
+        "p90_detection_delay_s": null,
+        "range_precision_time_weighted": null,
+        "range_recall_time_weighted": 0.0,
+        "predicted_alarm_duration_s": 0.0,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 0.0,
+        "alarm_time_fraction": 0.0,
+        "longest_alarm_event_seconds": 0.0,
+        "alarm_event_count_per_observed_hour": 0.0,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 3917479921,
+          "percentile_intervals": {
+            "event_recall": [
+              0.0,
+              0.0
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": null,
+            "p90_detection_delay_s": null,
+            "range_precision_time_weighted": null,
+            "range_recall_time_weighted": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 5.0,
+      "budget_false_events_per_hour": 5.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.0,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 5.0,
+        "event_count": 206,
+        "detected_events": 0,
+        "event_recall": 0.0,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": null,
+        "p90_detection_delay_s": null,
+        "range_precision_time_weighted": null,
+        "range_recall_time_weighted": 0.0,
+        "predicted_alarm_duration_s": 0.0,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 0.0,
+        "alarm_time_fraction": 0.0,
+        "longest_alarm_event_seconds": 0.0,
+        "alarm_event_count_per_observed_hour": 0.0,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 3917479921,
+          "percentile_intervals": {
+            "event_recall": [
+              0.0,
+              0.0
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": null,
+            "p90_detection_delay_s": null,
+            "range_precision_time_weighted": null,
+            "range_recall_time_weighted": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      }
+    },
+    {
+      "minimum_above_threshold_seconds": 5.0,
+      "budget_false_events_per_hour": 10.0,
+      "available": true,
+      "quantile": 0.99,
+      "threshold": 2.130552372932429,
+      "validation_false_events_per_hour": 0.0,
+      "evaluation": {
+        "threshold": 2.130552372932429,
+        "minimum_above_threshold_seconds": 5.0,
+        "event_count": 206,
+        "detected_events": 0,
+        "event_recall": 0.0,
+        "false_events": 0,
+        "normal_exposure_hours": 5.413782511944444,
+        "false_events_per_normal_hour": 0.0,
+        "median_detection_delay_s": null,
+        "p90_detection_delay_s": null,
+        "range_precision_time_weighted": null,
+        "range_recall_time_weighted": 0.0,
+        "predicted_alarm_duration_s": 0.0,
+        "truth_duration_s": 3902.373973,
+        "overlap_duration_s": 0.0,
+        "alarm_time_fraction": 0.0,
+        "longest_alarm_event_seconds": 0.0,
+        "alarm_event_count_per_observed_hour": 0.0,
+        "unavailable_anomaly_sources": 0,
+        "source_bootstrap": {
+          "unit": "source_id",
+          "stratification": "normal_vs_anomaly_flight",
+          "replicates": 1000,
+          "confidence_level": 0.95,
+          "seed": 3917479921,
+          "percentile_intervals": {
+            "event_recall": [
+              0.0,
+              0.0
+            ],
+            "false_events_per_normal_hour": [
+              0.0,
+              0.0
+            ],
+            "median_detection_delay_s": null,
+            "p90_detection_delay_s": null,
+            "range_precision_time_weighted": null,
+            "range_recall_time_weighted": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "flight_aggregations_exploratory": true,
+  "flight_metrics": {
+    "max": {
+      "roc_auc": 0.4915348629984406,
+      "average_precision": 0.5712319056670192
+    },
+    "mean": {
+      "roc_auc": 0.771886834484295,
+      "average_precision": 0.7692084514408347
+    },
+    "q99": {
+      "roc_auc": 0.7143016261973714,
+      "average_precision": 0.7349412091987654
+    },
+    "q995": {
+      "roc_auc": 0.6605034528848297,
+      "average_precision": 0.6934103691437887
+    },
+    "top_0_5pct_mean": {
+      "roc_auc": 0.5557473824905323,
+      "average_precision": 0.6332657957285259
+    },
+    "top_1pct_mean": {
+      "roc_auc": 0.5943974159055468,
+      "average_precision": 0.656061673042746
+    },
+    "top_2pct_mean": {
+      "roc_auc": 0.6426264201381153,
+      "average_precision": 0.6861551946480912
+    }
+  },
+  "interval_truth_window_metrics": {
+    "roc_auc": 0.7472382321449101,
+    "average_precision": 0.2632334441968101
+  }
+}

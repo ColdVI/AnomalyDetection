@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_gpu_v2",
+  "dataset": "rflymad",
+  "contract_sha256": "30124256d6b948602f0400203590c3e0886f3c3fbf42102a614153d000ea1346",
+  "completed_at_utc": "2026-07-28T06:27:40.230559+00:00",
+  "completed_epochs": 30,
+  "device": "cuda",
+  "cuda_device_name": "NVIDIA L4",
+  "evaluation_status": "development-only balanced primary test; Real/Wind transfer gates remain failed",
+  "active_features": [
+    "local_x",
+    "local_y",
+    "local_z",
+    "local_vx",
+    "local_vy",
+    "local_vz",
+    "local_ax",
+    "local_ay",
+    "local_az",
+    "roll_deg",
+    "pitch_deg",
+    "yaw_deg",
+    "act_roll",
+    "act_pitch",
+    "act_yaw",
+    "act_thrust",
+    "output_std",
+    "output_range",
+    "pos_test_ratio",
+    "vel_test_ratio",
+    "hgt_test_ratio",
+    "imu_accel_mag_rms",
+    "imu_gyro_mag_rms",
+    "output_diff_rms"
+  ],
+  "excluded_degenerate_features": [
+    "battery_voltage",
+    "battery_current",
+    "gps_eph",
+    "gps_epv"
+  ],
+  "final_epoch": {
+    "epoch": 30,
+    "mean_train_gaussian_nll": -0.9600764498453719,
+    "windows": 234529,
+    "observed_target_cells": 5596121,
+    "batches": 230,
+    "elapsed_seconds": 6.35150734299998,
+    "mean_validation_gaussian_nll": -0.9051212728902625
+  },
+  "validation_alarm_quantile": 0.995,
+  "validation_alarm_threshold": 2.783109827041626,
+  "magnitude_diagnostic": {
+    "sampled_validation_windows": 49423,
+    "spearman_trained_score_vs_random_init_score": 0.7750423243667038,
+    "spearman_trained_score_vs_standardized_target_magnitude": 0.782230638209245,
+    "gate": 0.8,
+    "flagged": false
+  },
+  "magnitude_domination_flagged_at_0_8": false,
+  "evaluation": {
+    "threshold": 2.783109827041626,
+    "window_count": 114022,
+    "flight_count": 132,
+    "window_level": {
+      "roc_auc": 0.7270652543384145,
+      "average_precision": 0.8066861400315873
+    },
+    "flight_level": {
+      "roc_auc": 0.6313131313131313,
+      "average_precision": 0.6924044844813668
+    },
+    "normal_flights": 66,
+    "anomalous_flights": 66,
+    "normal_flights_with_any_alarm": 65,
+    "normal_flight_alarm_fraction": 0.9848484848484849,
+    "anomalous_flight_detection_rate": 1.0,
+    "normal_alarm_windows_per_hour": 465.46757985022083,
+    "normal_observed_hours": 1.3019166666666666,
+    "by_label": {
+      "Environment": {
+        "flights": 9,
+        "detected_flights": 9,
+        "detection_rate": 1.0,
+        "median_max_score": 44.513275146484375
+      },
+      "Load": {
+        "flights": 3,
+        "detected_flights": 3,
+        "detection_rate": 1.0,
+        "median_max_score": 17.98921012878418
+      },
+      "Motor": {
+        "flights": 29,
+        "detected_flights": 29,
+        "detection_rate": 1.0,
+        "median_max_score": 39.487667083740234
+      },
+      "NoFault": {
+        "flights": 66,
+        "detected_flights": 65,
+        "detection_rate": 0.9848484848484849,
+        "median_max_score": 25.788000106811523
+      },
+      "Propeller": {
+        "flights": 12,
+        "detected_flights": 12,
+        "detection_rate": 1.0,
+        "median_max_score": 36.75579261779785
+      },
+      "Sensor": {
+        "flights": 11,
+        "detected_flights": 11,
+        "detection_rate": 1.0,
+        "median_max_score": 14.321751594543457
+      },
+      "Voltage": {
+        "flights": 2,
+        "detected_flights": 2,
+        "detection_rate": 1.0,
+        "median_max_score": 129.7244007587433
+      }
+    },
+    "warning": "Window alarms are not debounced events; alarm-windows/hour must not be compared directly with prior event-level false-alarm metrics."
+  },
+  "artifact_hashes": {
+    "run_manifest.json": {
+      "bytes": 10638,
+      "sha256": "205f58a1ad9ff401a3f4255ecd796b1ec705b6ecd9dc1009d9317f29917dd280"
+    },
+    "scaler.json": {
+      "bytes": 2476,
+      "sha256": "0433c108e16768e3f8628b731793002396af789783febddb8d2394e1ed234b32"
+    },
+    "training_history.json": {
+      "bytes": 7708,
+      "sha256": "e8b4d1e68adf9ad3176fb71561c6a8072795e70e3ee58e4234dffbc4a3321ff9"
+    },
+    "training_history.csv": {
+      "bytes": 2508,
+      "sha256": "e068c45dedf3642f36066e4bb82acbd1fc5d43000d216dc578ee823a4dc627a8"
+    },
+    "training_epoch_checkpoint.pt": {
+      "bytes": 401051,
+      "sha256": "db9c6910ae94a07e06ed2518040c86ffaee2f3f92d9a5ac5a945c4c38dc0a052"
+    },
+    "model_state.pt": {
+      "bytes": 133865,
+      "sha256": "84bb2c36f5627f5a8b3a7fce7a746af9d2d17309908e5a75be4100a6770bde54"
+    },
+    "validation_summary.json": {
+      "bytes": 249,
+      "sha256": "8bdd4726a0000438ffa7ae5a80093bbc1c0bfec33bd3d6db08f9f1f100839c6e"
+    },
+    "flight_metrics.csv": {
+      "bytes": 14920,
+      "sha256": "5a4cb56bb929cdf914d3815d75001792b2f6cb0f82fc022ba5af86a980bd9e99"
+    }
+  },
+  "interpretation_constraint": "Exploratory development result; it does not replace prior official dataset-specific gates or open any frozen holdout."
+}

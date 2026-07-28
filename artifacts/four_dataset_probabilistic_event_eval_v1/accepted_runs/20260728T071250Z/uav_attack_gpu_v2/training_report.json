@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_gpu_v2",
+  "dataset": "uav_attack",
+  "contract_sha256": "0d25d06b8157dba406ab51443e7c0305c18393f2273d41af86984ef4b8d4361b",
+  "completed_at_utc": "2026-07-28T06:32:15.564613+00:00",
+  "completed_epochs": 30,
+  "device": "cuda",
+  "cuda_device_name": "NVIDIA L4",
+  "evaluation_status": "development-only; only 19 flights",
+  "active_features": [
+    "gps_step_m",
+    "gps_speed_calc_mps",
+    "log_gps_speed",
+    "gps_accel_mps2",
+    "vertical_rate_calc",
+    "gps_speed_residual",
+    "vertical_rate_residual",
+    "course_change_deg",
+    "roll_deg",
+    "pitch_deg",
+    "yaw_deg",
+    "eph",
+    "epv",
+    "battery_power_w"
+  ],
+  "excluded_degenerate_features": [
+    "satellites_used",
+    "s_variance_m_s",
+    "jamming_indicator",
+    "noise_per_ms"
+  ],
+  "final_epoch": {
+    "epoch": 30,
+    "mean_train_gaussian_nll": -0.5870495384711031,
+    "windows": 17656,
+    "observed_target_cells": 228328,
+    "batches": 18,
+    "elapsed_seconds": 0.22405119500001547,
+    "mean_validation_gaussian_nll": 1.9220525508277828
+  },
+  "validation_alarm_quantile": 0.995,
+  "validation_alarm_threshold": 8.975638318061822,
+  "magnitude_diagnostic": {
+    "sampled_validation_windows": 4970,
+    "spearman_trained_score_vs_random_init_score": 0.038212784211755266,
+    "spearman_trained_score_vs_standardized_target_magnitude": 0.030103130656889767,
+    "gate": 0.8,
+    "flagged": false
+  },
+  "magnitude_domination_flagged_at_0_8": false,
+  "evaluation": {
+    "threshold": 8.975638318061822,
+    "window_count": 18087,
+    "flight_count": 4,
+    "window_level": {
+      "roc_auc": 0.10455498728006442,
+      "average_precision": 0.7276554408409286
+    },
+    "flight_level": {
+      "roc_auc": 0.0,
+      "average_precision": 0.6388888888888888
+    },
+    "normal_flights": 1,
+    "anomalous_flights": 3,
+    "normal_flights_with_any_alarm": 1,
+    "normal_flight_alarm_fraction": 1.0,
+    "anomalous_flight_detection_rate": 1.0,
+    "normal_alarm_windows_per_hour": 13436.948456578899,
+    "normal_observed_hours": 0.12339111111111112,
+    "by_label": {
+      "benign": {
+        "flights": 1,
+        "detected_flights": 1,
+        "detection_rate": 1.0,
+        "median_max_score": 115.10063171386719
+      },
+      "gps_jamming": {
+        "flights": 1,
+        "detected_flights": 1,
+        "detection_rate": 1.0,
+        "median_max_score": 15.746132850646973
+      },
+      "gps_spoofing": {
+        "flights": 1,
+        "detected_flights": 1,
+        "detection_rate": 1.0,
+        "median_max_score": 84.8670654296875
+      },
+      "ping_dos": {
+        "flights": 1,
+        "detected_flights": 1,
+        "detection_rate": 1.0,
+        "median_max_score": 43.09975814819336
+      }
+    },
+    "warning": "Window alarms are not debounced events; alarm-windows/hour must not be compared directly with prior event-level false-alarm metrics."
+  },
+  "artifact_hashes": {
+    "run_manifest.json": {
+      "bytes": 8924,
+      "sha256": "819651cf74576ea8d969bf44f8cb7584fd0061fb60686a5c7bc92a4ca517dff3"
+    },
+    "scaler.json": {
+      "bytes": 1589,
+      "sha256": "11f88cb88f472ddaf95bacab80452730f16b4acc63eeedfa58e7b4a3c63abaa5"
+    },
+    "training_history.json": {
+      "bytes": 7624,
+      "sha256": "074ff81c05c00530cdb2d58f2fa8e6ff95af16303a5c2cc00100af04c7325923"
+    },
+    "training_history.csv": {
+      "bytes": 2424,
+      "sha256": "863bb28fdb120e91b4b05be104509f6ea14c7b66d792d67dcbf175f6f8390aa4"
+    },
+    "training_epoch_checkpoint.pt": {
+      "bytes": 323995,
+      "sha256": "85a7bb4d9dc42cdc9da64e6abd6f3749ad3b2a8bcfa0dbd97088ab6e1460fc16"
+    },
+    "model_state.pt": {
+      "bytes": 108009,
+      "sha256": "4ce8fb775a5bf0f5f0819532b5802160dee01db258fb506ccd34a2809d2121dd"
+    },
+    "validation_summary.json": {
+      "bytes": 248,
+      "sha256": "125d8ecda6a25ba20f192b2f2fede31343021ffd34860aa67280636554a26e7e"
+    },
+    "flight_metrics.csv": {
+      "bytes": 586,
+      "sha256": "60403e9da83e59020c122d59e3da2808b02c8d8eda781b7d3fc07df2a0dedf18"
+    }
+  },
+  "interpretation_constraint": "Exploratory development result; it does not replace prior official dataset-specific gates or open any frozen holdout."
+}

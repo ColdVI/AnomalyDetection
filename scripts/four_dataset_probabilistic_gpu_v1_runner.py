@@ -33,6 +33,7 @@ from torch import nn
 
 CONFIG_PATH = Path("configs/four_dataset_probabilistic_gpu_v1.json")
 PREREG_PATH = Path("docs/FOUR_DATASET_PROBABILISTIC_GPU_V1_PREREG_20260727.md")
+EXPECTED_NAMESPACE = "four_dataset_probabilistic_gpu_v1"
 REQUIRED_META_COLUMNS = ("t_rel_s", "source_id", "label")
 
 
@@ -81,7 +82,7 @@ def _seed_everything(seed: int) -> None:
 def _load_contract(root: Path, dataset: str) -> tuple[dict[str, Any], dict[str, Any]]:
     config_path = root / CONFIG_PATH
     config = json.loads(config_path.read_text(encoding="utf-8"))
-    if config.get("candidate_namespace") != "four_dataset_probabilistic_gpu_v1":
+    if config.get("candidate_namespace") != EXPECTED_NAMESPACE:
         raise ProbabilisticV1Error("Unexpected candidate namespace")
     if dataset not in config["datasets"]:
         raise ProbabilisticV1Error(f"Unknown dataset {dataset!r}")
@@ -233,30 +234,59 @@ def _load_access(
     development["fault_family"] = development["fault_family"].astype(str)
     development["cv_fold"] = pd.to_numeric(development["cv_fold"], errors="raise").astype(int)
     normal = str(spec["normal_label"])
-    train_folds = set(map(int, spec["train_folds"]))
-    validation_fold = int(spec["validation_fold"])
-    test_fold = int(spec["test_fold"])
-    roles = {
-        "train": tuple(
+    explicit_split_path: Path | None = None
+    if spec.get("explicit_split_manifest_path"):
+        explicit_split_path = root / str(spec["explicit_split_manifest_path"])
+        explicit = json.loads(explicit_split_path.read_text(encoding="utf-8"))
+        try:
+            declared = explicit["sources"][dataset]["roles"]
+            roles = {
+                role: tuple(map(str, declared[role]))
+                for role in ("train", "val", "test")
+            }
+        except (KeyError, TypeError) as exc:
+            raise ProbabilisticV1Error("Explicit RflyMAD split is malformed") from exc
+        available_ids = set(development["canonical_case_id"])
+        missing_ids = set().union(*map(set, roles.values())) - available_ids
+        if missing_ids:
+            raise ProbabilisticV1Error(
+                f"Explicit RflyMAD split references missing sources: {sorted(missing_ids)[:5]}"
+            )
+        declared_normal = set(roles["train"]) | set(roles["val"])
+        actual_normal = set(
             development.loc[
-                development["fault_family"].eq(normal)
-                & development["cv_fold"].isin(train_folds),
-                "canonical_case_id",
-            ].tolist()
-        ),
-        "val": tuple(
-            development.loc[
-                development["fault_family"].eq(normal)
-                & development["cv_fold"].eq(validation_fold),
-                "canonical_case_id",
-            ].tolist()
-        ),
-        "test": tuple(
-            development.loc[
-                development["cv_fold"].eq(test_fold), "canonical_case_id"
-            ].tolist()
-        ),
-    }
+                development["fault_family"].eq(normal), "canonical_case_id"
+            ]
+        )
+        if not declared_normal <= actual_normal:
+            raise ProbabilisticV1Error(
+                "Explicit RflyMAD train/validation roles must be normal-only"
+            )
+    else:
+        train_folds = set(map(int, spec["train_folds"]))
+        validation_fold = int(spec["validation_fold"])
+        test_fold = int(spec["test_fold"])
+        roles = {
+            "train": tuple(
+                development.loc[
+                    development["fault_family"].eq(normal)
+                    & development["cv_fold"].isin(train_folds),
+                    "canonical_case_id",
+                ].tolist()
+            ),
+            "val": tuple(
+                development.loc[
+                    development["fault_family"].eq(normal)
+                    & development["cv_fold"].eq(validation_fold),
+                    "canonical_case_id",
+                ].tolist()
+            ),
+            "test": tuple(
+                development.loc[
+                    development["cv_fold"].eq(test_fold), "canonical_case_id"
+                ].tolist()
+            ),
+        }
     if not all(roles.values()):
         raise ProbabilisticV1Error("One or more RflyMAD roles are empty")
     if set(roles["train"]) & set(roles["val"]):
@@ -303,13 +333,23 @@ def _load_access(
         "selected_file_count": len(file_evidence),
         "selected_files_sha256": _canonical_sha(file_evidence),
     }
+    if explicit_split_path is not None:
+        data_fingerprint["explicit_split_manifest_path"] = (
+            explicit_split_path.relative_to(root).as_posix()
+        )
+        data_fingerprint["explicit_split_manifest_sha256"] = _sha256(
+            explicit_split_path
+        )
+    contract_paths = [manifest_path, split_registry_path, base_path]
+    if explicit_split_path is not None:
+        contract_paths.append(explicit_split_path)
     return DatasetAccess(
         dataset=dataset,
         features=features,
         roles=roles,
         labels={str(key): str(value) for key, value in labels.items()},
         data_fingerprint=data_fingerprint,
-        contract_paths=(manifest_path, split_registry_path, base_path),
+        contract_paths=tuple(contract_paths),
         source_paths=source_paths,
     )
 

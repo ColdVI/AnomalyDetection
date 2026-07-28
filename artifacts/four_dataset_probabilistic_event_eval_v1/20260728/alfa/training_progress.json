@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "dataset": "alfa",
+  "stage": "event_v1_test_score_export",
+  "source_index": 9,
+  "source_count": 9,
+  "scored_windows": 4941,
+  "updated_at_utc": "2026-07-28T07:16:35.511929+00:00"
+}

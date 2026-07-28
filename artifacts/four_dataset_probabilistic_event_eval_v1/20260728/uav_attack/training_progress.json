@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "dataset": "uav_attack",
+  "stage": "event_v1_test_score_export",
+  "source_index": 4,
+  "source_count": 4,
+  "scored_windows": 18087,
+  "updated_at_utc": "2026-07-28T07:23:12.884942+00:00"
+}

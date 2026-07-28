@@ -1767,3 +1767,52 @@ dataset klasöründe bir `VERI_ARTEFAKT_KONUMU.md` pointer dosyası bırakıldı
 çalıştırılıp önceki geçen test sayısıyla birebir eşleştiği doğrulandı (bkz.
 Faz 3 doğrulama kaydı). Commit/push kullanıcı onayına bırakıldı.
 Harita: `gecmis_calismalar/README.md`.
+
+## ADR-046: contextual_physics_v2 - genis truth-v2 Pareto degerlendirmesi tamamlandi
+
+- Durum: Tek, evrensel operasyonel dedektor olarak NO-GO; recipe-bazli arastirma devaminda GO
+- Tarih: 2026-07-27
+
+**Kapsam ve degismezlik:** ADR-042'nin devaminda contextual_physics_v2, daha once uretilmis
+`data/objectstore/synthetic/adsb_v2_20260713_01` corpusunda degerlendirildi. Corpus yeniden
+uretilmedi; truth-v2 egitim, scaler veya kalibrasyona girmedi. On-kayitli 11 nokta
+`[0.1, 0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500]`, epoch, channel share ve persistence
+parametreleri sonuc goruldukten sonra degistirilmedi. Truth-v2 uzerinde threshold secimi
+yapilmadi (`threshold_selection_performed_on_truth_v2=false`). Magnitude gate egitim
+artifactinda PASS (`magnitude_domination_flagged_at_0_8=false`).
+
+**Veri-kalitesi karantinasi:** Alti paired parquet dosyasinda toplam 26.802.690 satir
+denetlendi. Ayni `flight_id/timestamp_utc` anahtarinda hem true hem false `on_ground`
+bulunan 58 ucusun tamami, kullanicinin post-training karantina yetkisi uyarinca, alti
+dosyadan birlik olarak dislandi. 8.910 ucustan 8.852 paired ucus kaldi. 360 conflict
+kaydi ve 60 benzersiz conflict key ayri parquet artifactinda korunuyor; veri sessizce
+majority/last-row ile duzeltilmedi.
+
+**Tam corpus kaniti (recall / paired-clean episode-saat; V=0.1, 5, 50, 500):**
+
+| Recipe / profil | V=0.1 | V=5 | V=50 | V=500 |
+|---|---:|---:|---:|---:|
+| vertical_rate_frozen / spike | 0.00% / 0.0000 | 0.00% / 0.0000 | 3.89% / 0.0179 | 12.02% / 0.2193 |
+| vertical_rate_frozen / persistence freeze | 26.26% / 0.0041 | 26.34% / 0.0038 | 40.81% / 0.0217 | 58.48% / 0.1810 |
+| ground_speed_biased / spike | 0.00% / 0.0005 | 12.25% / 0.0265 | 17.41% / 0.0695 | 49.07% / 0.6558 |
+| ground_speed_biased / persistence bias | 57.18% / 0.0009 | 57.18% / 0.0009 | 79.66% / 0.0544 | 89.98% / 0.5260 |
+| track_frozen / model | 11.58% / 0.0000 | 14.82% / 0.0001 | 62.46% / 0.0985 | 77.61% / 0.6820 |
+| position_ramp_stealthy / CUSUM | 9.35% / 0.0003 | 51.27% / 0.0172 | 65.73% / 0.0817 | 85.61% / 0.6361 |
+
+Recall paydalari yalniz observable-eligible eventlerdir: vertical-rate 8.435,
+ground-speed 8.830, track 8.449 ve position-ramp 8.852. Sirasiyla 417, 22, 403 ve
+0 active-but-unobservable event recall paydasina katilmadi. `altitude_dropout`, dondurulmus
+sozlesmeye uygun olarak S2 veri-kalitesi katmanina ait oldugundan model/CUSUM fizik
+kapsaminin disinda raporlandi.
+
+**Karar:** Genis izgara ADR-042'deki yapisal tavan sorununu acikca kirdi: speed-bias
+persistence V=0.1'de bile 57.18%, position CUSUM V=5'te 51.27% recall verdi; track V=50'de
+62.46%'ya ulasti. Buna karsin vertical spike en gevsek noktada yalniz 12.02% ve performans
+recipe/profile'a kuvvetle bagli. On-kayit tek bir operasyonel promosyon kapisi tanimlamadigi
+icin sonradan bir esik icat edilmiyor. Bu nedenle tek evrensel ADS-B anomaly dedektoru olarak
+operasyonel GO verilmedi; recipe-bazli model+persistence+CUSUM hibritinin arastirma ve
+olay-semasi karsilastirmasina devam edilmesi desteklendi.
+
+Artifactlar: `artifacts/adsb/runs/20260724_contextual_physics_v2_truth_v2_eval_v1/
+truth_v2_eval_report.json` ve `truth_v2_on_ground_quarantine.parquet`. Artifact checksum
+manifestindeki iki kayit byte boyutu ve SHA-256 bakimindan dogrulandi.

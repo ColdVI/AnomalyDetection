@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "dataset": "uav_sead",
+  "stage": "event_v1_test_score_export",
+  "source_index": 268,
+  "source_count": 268,
+  "scored_windows": 331724,
+  "updated_at_utc": "2026-07-28T07:21:45.124724+00:00"
+}

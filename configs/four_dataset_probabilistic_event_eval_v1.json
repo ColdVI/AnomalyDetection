@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_event_eval_v1",
+  "contract_date": "2026-07-28",
+  "base_model_namespace": "four_dataset_probabilistic_gpu_v2",
+  "objective": "Re-score frozen v2 checkpoints without retraining and evaluate causal window-to-event behavior separately from offline flight triage.",
+  "frozen_inputs": {
+    "base_config": {
+      "path": "configs/four_dataset_probabilistic_gpu_v2.json",
+      "sha256": "0a772a198112fbe7b71ae88537e7d30b81c5df2495857204ca824e896a562390"
+    },
+    "split_manifest": {
+      "path": "configs/four_dataset_probabilistic_gpu_v2_split_manifest.json",
+      "sha256": "41362d801f9b584b794527d38e07df5ca64ba1060a83b1584f241a4db6895b8c"
+    },
+    "required_run_files": [
+      "run_manifest.json",
+      "scaler.json",
+      "model_state.pt",
+      "training_report.json",
+      "flight_metrics.csv"
+    ]
+  },
+  "score_ledger": {
+    "required_columns": [
+      "dataset",
+      "source_id",
+      "target_time_s",
+      "score",
+      "flight_label",
+      "truth_available",
+      "truth_active"
+    ],
+    "optional_columns": [
+      "fault_family",
+      "domain",
+      "flight_status",
+      "flight_phase",
+      "truth_source"
+    ]
+  },
+  "threshold_calibration": {
+    "role": "normal_validation_only",
+    "candidate_quantiles": [
+      0.99,
+      0.995,
+      0.9975,
+      0.999,
+      0.9995,
+      0.9999
+    ],
+    "false_event_budgets_per_hour": [
+      0.1,
+      0.5,
+      1.0,
+      2.0,
+      5.0,
+      10.0
+    ],
+    "selection_rule": "For each frozen persistence policy and budget, choose the lowest candidate threshold whose aggregate normal-validation false-event rate is at or below the budget. If none qualifies, report unavailable; do not extrapolate.",
+    "minimum_normal_validation_flights_for_claim": 5
+  },
+  "event_policy_grid": {
+    "causal_smoothing": "none",
+    "threshold_comparator": ">=",
+    "minimum_above_threshold_seconds": [
+      0.0,
+      0.5,
+      1.0,
+      2.0,
+      5.0
+    ],
+    "merge_gap_seconds": 2.0,
+    "event_timestamp": "first time at which the minimum-above-threshold duration is satisfied",
+    "duration_clock": "target_time_s",
+    "large_gap_rule": "Intervals separated by a source-local timestamp gap greater than the base model max_gap_s cannot be merged."
+  },
+  "primary_metrics": [
+    "event_recall",
+    "false_events_per_normal_hour",
+    "median_detection_delay_s",
+    "p90_detection_delay_s",
+    "range_precision_time_weighted",
+    "range_recall_time_weighted"
+  ],
+  "secondary_metrics": [
+    "interval_truth_window_roc_auc",
+    "interval_truth_window_average_precision",
+    "normal_alarm_time_fraction",
+    "flight_roc_auc_max_score",
+    "flight_roc_auc_mean_score",
+    "flight_roc_auc_q99_score",
+    "flight_roc_auc_q995_score",
+    "flight_roc_auc_top_0_5pct_mean_score",
+    "flight_roc_auc_top_1pct_mean_score",
+    "flight_roc_auc_top_2pct_mean_score"
+  ],
+  "flight_aggregation_grid": {
+    "score_statistics": [
+      "max",
+      "mean",
+      "q99",
+      "q995",
+      "top_0_5pct_mean",
+      "top_1pct_mean",
+      "top_2pct_mean"
+    ],
+    "event_statistics": [
+      "alarm_time_fraction",
+      "longest_alarm_event_seconds",
+      "alarm_event_count_per_hour"
+    ],
+    "selection_status": "descriptive_only; no winner may be selected from v2 test results"
+  },
+  "reporting": {
+    "bootstrap_unit": "source_id",
+    "bootstrap_replicates": 1000,
+    "confidence_level": 0.95,
+    "flight_aggregations_are_exploratory": true,
+    "report_every_frozen_grid_point": true,
+    "separate_levels": [
+      "window",
+      "event",
+      "flight"
+    ]
+  },
+  "dataset_truth_contract": {
+    "alfa": {
+      "status": "requires_verified_extraction",
+      "source": "raw failure_status topic aligned to Gold t_rel_s",
+      "allowed_claim": "event localization only after source-level onset extraction and consistency report pass"
+    },
+    "rflymad": {
+      "status": "available",
+      "source": "parsed_10hz fault_active/condition_active plus dataset_manifest fault_start_s/fault_end_s",
+      "allowed_claim": "event localization with truth_source and truth disagreement reported"
+    },
+    "uav_sead": {
+      "status": "requires_verified_mapping",
+      "source": "dataset-provided timestamp anomaly regions mapped to Gold t_rel_s",
+      "allowed_claim": "event localization only after mapping coverage and boundary semantics report pass"
+    },
+    "uav_attack": {
+      "status": "unavailable_in_current_gold",
+      "source": "current Gold carries flight label only",
+      "allowed_claim": "flight/source/domain evaluation only; no window or event localization claim"
+    }
+  },
+  "prohibitions": {
+    "no_retraining": true,
+    "no_epoch_or_checkpoint_reselection": true,
+    "no_test_threshold_selection": true,
+    "no_test_policy_selection": true,
+    "no_point_adjustment": true,
+    "no_whole_flight_label_as_interval_truth": true,
+    "no_any_window_alarm_as_operational_flight_decision": true,
+    "no_overwrite_or_reinterpret_v2_outputs": true,
+    "no_operational_claim_without_interval_truth": true
+  }
+}

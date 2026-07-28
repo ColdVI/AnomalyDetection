@@ -99,7 +99,7 @@ def _render(eval_report: dict[str, Any], rule_summary: dict[str, Any]) -> str:
     lines = [
         "# ADS-B contextual_physics_v2 — model/CUSUM/persistence_v2 ile basit kural turu karşılaştırması",
         "",
-        "> Tarih: 2026-07-24",
+        "> Tarih: 2026-07-27",
         "> Faz G; eşik veya bütçe seçimi değildir.",
         "",
         "## Sonuçların doğru okuma birimi",

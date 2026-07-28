@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "event_namespace": "four_dataset_probabilistic_event_eval_v1",
+  "base_model_namespace": "four_dataset_probabilistic_gpu_v2",
+  "dataset": "alfa",
+  "run_dir": "C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\artifacts\\four_dataset_probabilistic_event_eval_v1\\accepted_runs\\20260728T071250Z\\alfa_gpu_v2",
+  "accepted": true,
+  "checks": {
+    "manifest_namespace": true,
+    "report_namespace": true,
+    "manifest_dataset": true,
+    "report_dataset": true,
+    "manifest_complete": true,
+    "manifest_completed_epochs": true,
+    "manifest_contract": true,
+    "report_contract": true,
+    "completed_epochs": true,
+    "magnitude_gate": true,
+    "scaler_matches_frozen_train": true,
+    "declared_artifact_hashes": true,
+    "model_dataset": true,
+    "model_contract": true,
+    "model_features": true
+  },
+  "artifact_hash_checks": {
+    "run_manifest.json": true,
+    "scaler.json": true,
+    "model_state.pt": true,
+    "flight_metrics.csv": true
+  },
+  "failed_checks": [],
+  "contract_sha256": "db5e1b5f9d5835ca69a5d08287e3ee9774828f9f5679b3cda61e60974296ad8c"
+}

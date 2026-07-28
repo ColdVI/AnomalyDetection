@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_event_eval_v1",
+  "reporting_only": true,
+  "reference_point": {
+    "minimum_above_threshold_seconds": 1.0,
+    "validation_false_event_budget_per_hour": 1.0,
+    "selection_note": "fixed presentation cell; not chosen from test performance"
+  },
+  "timeline_selection": "closest-to-median test duration within normal/anomaly class; source_id lexical tie-break; score-independent",
+  "outputs": [
+    {
+      "path": "01_training_diagnostics.png",
+      "bytes": 332298,
+      "sha256": "e0063b844a0805f12cee720cf6615f5ad6d5754fde04f1c0aa2dd3b86b1f11b2"
+    },
+    {
+      "path": "02_detection_summary.png",
+      "bytes": 179919,
+      "sha256": "4b1269082f4f4864379623a4e9b1aaa80f3f3d9fe56955e0945e11e02c70e71a"
+    },
+    {
+      "path": "03_event_operating_grid.png",
+      "bytes": 208431,
+      "sha256": "49c13380ae137468f7afd26b4ba5c320c9ffa750219e3dcf869a4644a571f7b9"
+    },
+    {
+      "path": "04_reference_confusion_matrices.png",
+      "bytes": 129764,
+      "sha256": "14c011321e60c34f780dc501c3ffb48b94cf26ec80ecd9b534a7b4eb1b02fa3e"
+    },
+    {
+      "path": "05_alfa_reference_timelines.png",
+      "bytes": 228113,
+      "sha256": "40ce5a500f784061a7001770fe4c057c6de1370cef86e9a2e7240ace49c36344"
+    },
+    {
+      "path": "05_rflymad_reference_timelines.png",
+      "bytes": 285446,
+      "sha256": "bb63538f0919551eac288fba1c0705e717ff9725d522f75eef61e794bd48167c"
+    },
+    {
+      "path": "05_uav_sead_reference_timelines.png",
+      "bytes": 519880,
+      "sha256": "b0cf046ccfe4078d4dcac2a5c0b5014e0922c291a7785b35c62536d42302ed17"
+    },
+    {
+      "path": "05_uav_attack_reference_timelines.png",
+      "bytes": 397288,
+      "sha256": "bc586f5b2969ac5d846a2056a50301b85dbb619c1b200d776c7d8fffb393c112"
+    }
+  ]
+}

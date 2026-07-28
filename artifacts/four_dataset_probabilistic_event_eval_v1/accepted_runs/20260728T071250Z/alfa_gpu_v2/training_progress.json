@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "dataset": "alfa",
+  "stage": "complete",
+  "completed_epochs": 30,
+  "training_report": "training_report.json",
+  "updated_at_utc": "2026-07-28T05:31:05.770926+00:00"
+}

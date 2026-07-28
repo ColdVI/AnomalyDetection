@@ -1,0 +1,1314 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_v3",
+  "artifact_role": "pre-split group registry and frozen-v2 overlap audit",
+  "created_date": "2026-07-28",
+  "does_not_assign_v3_roles": true,
+  "inputs": {
+    "v2_split_manifest": {
+      "path": "configs/four_dataset_probabilistic_gpu_v2_split_manifest.json",
+      "sha256": "41362d801f9b584b794527d38e07df5ca64ba1060a83b1584f241a4db6895b8c"
+    },
+    "rfly_manifest": {
+      "path": "artifacts/rfly_full/v2/dataset_manifest.parquet",
+      "sha256": "79013ca4bee3c61b89d88e7bda71ca24fd7c7b0482841ff49dee3183c918e3a4"
+    },
+    "uav_attack_archive": {
+      "path": "data/objectstore/bronze/uav_attack/UAVAttackData.zip",
+      "sha256": "d45be5d7f28e6e0e28ccb7c022e24a79f903f0287a55d2fd3a9986be15500416"
+    },
+    "gold_source_coverage": {
+      "alfa": {
+        "path": "data/gold/ml_features/alfa/alfa_ml_features.parquet",
+        "available_source_count": 54,
+        "coverage_verified": true
+      },
+      "uav_sead": {
+        "path": "data/gold/ml_features/uav_sead/uav_sead_ml_features.parquet",
+        "available_source_count": 1244,
+        "coverage_verified": true,
+        "labels_path": "data/objectstore/bronze/uav_sead/labels.json",
+        "labels_sha256": "15b940cb4d8a5418ce95c615df7fc900f0b17ad7cf9a1883a0be76f1e1271221",
+        "label_record_count": 1246,
+        "selected_label_coverage_verified": true,
+        "label_schema_fields": [
+          "class",
+          "label",
+          "object_name",
+          "ranges",
+          "size_bytes"
+        ],
+        "mission_or_session_field_present": false
+      },
+      "uav_attack": {
+        "path": "data/gold/ml_features/uav_attack/uav_attack_ml_features.parquet",
+        "available_source_count": 19,
+        "coverage_verified": true,
+        "archive_path": "data/objectstore/bronze/uav_attack/UAVAttackData.zip",
+        "archive_source_count": 19,
+        "archive_coverage_verified": true
+      },
+      "rflymad": {
+        "path": "artifacts/rfly_full/v2/dataset_manifest.parquet",
+        "available_source_count": 1551,
+        "coverage_verified": true
+      }
+    }
+  },
+  "totals": {
+    "source_count": 2868,
+    "dataset_count": 4,
+    "group_count_within_dataset": 353
+  },
+  "datasets": {
+    "alfa": {
+      "source_count": 54,
+      "group_count": 38,
+      "cross_role_group_count": 8,
+      "sources_in_cross_role_groups": 20,
+      "cross_role_source_fraction": 0.37037037037037035,
+      "group_status_counts": {
+        "deterministic_source_grammar": 54
+      },
+      "v2_role_source_counts": {
+        "train": 10,
+        "val": 2,
+        "test": 9,
+        "stress_test": 33
+      },
+      "group_composition": {
+        "normal_only": {
+          "group_count": 8,
+          "source_count": 8,
+          "normal_source_count": 8
+        },
+        "mixed": {
+          "group_count": 6,
+          "source_count": 15,
+          "normal_source_count": 7
+        },
+        "anomaly_only": {
+          "group_count": 24,
+          "source_count": 31,
+          "normal_source_count": 0
+        }
+      },
+      "group_safe_normal_role_feasibility": {
+        "pure_normal_group_count": 8,
+        "pure_normal_source_count": 8,
+        "minimum_three_way_group_gate_passed": true,
+        "status": "feasible_subject_to_frozen_split_protocol"
+      },
+      "cross_role_groups": [
+        {
+          "group_id": "alfa:carbonZ_2018-07-18-16-37-39",
+          "source_count": 2,
+          "roles": "train|stress_test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "alfa:carbonZ_2018-07-30-16-39-00",
+          "source_count": 3,
+          "roles": "train|stress_test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "alfa:carbonZ_2018-09-11-15-05-11",
+          "source_count": 2,
+          "roles": "val|test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "alfa:carbonZ_2018-09-11-15-06-34",
+          "source_count": 3,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "alfa:carbonZ_2018-09-11-17-27-13",
+          "source_count": 2,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "alfa:carbonZ_2018-10-05-14-34-20",
+          "source_count": 2,
+          "roles": "train|test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "alfa:carbonZ_2018-10-05-14-37-22",
+          "source_count": 3,
+          "roles": "train|stress_test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "alfa:carbonZ_2018-10-05-15-52-12",
+          "source_count": 3,
+          "roles": "train|val|stress_test",
+          "normal_sources": 2
+        }
+      ]
+    },
+    "rflymad": {
+      "source_count": 1551,
+      "group_count": 38,
+      "cross_role_group_count": 31,
+      "sources_in_cross_role_groups": 1458,
+      "cross_role_source_fraction": 0.9400386847195358,
+      "group_status_counts": {
+        "authoritative_dataset_metadata": 1551
+      },
+      "v2_role_source_counts": {
+        "train": 309,
+        "val": 66,
+        "test": 132,
+        "stress_test": 1044
+      },
+      "group_composition": {
+        "normal_only": {
+          "group_count": 13,
+          "source_count": 441,
+          "normal_source_count": 441
+        },
+        "mixed": {
+          "group_count": 0,
+          "source_count": 0,
+          "normal_source_count": 0
+        },
+        "anomaly_only": {
+          "group_count": 25,
+          "source_count": 1110,
+          "normal_source_count": 0
+        }
+      },
+      "group_safe_normal_role_feasibility": {
+        "pure_normal_group_count": 13,
+        "pure_normal_source_count": 441,
+        "minimum_three_way_group_gate_passed": true,
+        "status": "feasible_subject_to_frozen_split_protocol"
+      },
+      "cross_role_groups": [
+        {
+          "group_id": "rflymad:real_session:NoFault:2023-5-25",
+          "source_count": 11,
+          "roles": "train|val|test",
+          "normal_sources": 11
+        },
+        {
+          "group_id": "rflymad:real_session:NoFault:2023-6-15",
+          "source_count": 20,
+          "roles": "train|val|test",
+          "normal_sources": 20
+        },
+        {
+          "group_id": "rflymad:real_session:NoFault:2023-6-2",
+          "source_count": 10,
+          "roles": "train|val|test",
+          "normal_sources": 10
+        },
+        {
+          "group_id": "rflymad:real_session:Sensor:2023-5-22",
+          "source_count": 42,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:real_session:Sensor:2023-5-31",
+          "source_count": 29,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:real_session:Sensor:2023-6-15",
+          "source_count": 21,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:HIL-Load/hover-load",
+          "source_count": 43,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:HIL-NoFault/HIL-NoFault/circling",
+          "source_count": 40,
+          "roles": "train|val|test",
+          "normal_sources": 40
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:HIL-NoFault/HIL-NoFault/dece",
+          "source_count": 40,
+          "roles": "train|val|test",
+          "normal_sources": 40
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:HIL-NoFault/HIL-NoFault/hover",
+          "source_count": 40,
+          "roles": "train|val|test",
+          "normal_sources": 40
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:HIL-NoFault/HIL-NoFault/velocity",
+          "source_count": 40,
+          "roles": "train|val|test",
+          "normal_sources": 40
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:HIL-NoFault/HIL-NoFault/waypoint",
+          "source_count": 40,
+          "roles": "train|val|test",
+          "normal_sources": 40
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:HIL-Wind/waypoint-wind",
+          "source_count": 69,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:HIL_Motor_1/circling-motor-2",
+          "source_count": 81,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:HIL_Motor_1/circling-motor-3",
+          "source_count": 81,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:HIL_Motor_2/waypoint-motor-3",
+          "source_count": 81,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:HIL_Prop/hover-prop",
+          "source_count": 81,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:SIL-NoFault/SIL-NoFault/circling",
+          "source_count": 40,
+          "roles": "train|val|test",
+          "normal_sources": 40
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:SIL-NoFault/SIL-NoFault/dece",
+          "source_count": 40,
+          "roles": "train|val|test",
+          "normal_sources": 40
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:SIL-NoFault/SIL-NoFault/hover",
+          "source_count": 40,
+          "roles": "train|val|test",
+          "normal_sources": 40
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:SIL-NoFault/SIL-NoFault/velocity",
+          "source_count": 40,
+          "roles": "train|val|test",
+          "normal_sources": 40
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:SIL-NoFault/SIL-NoFault/waypoint",
+          "source_count": 40,
+          "roles": "train|val|test",
+          "normal_sources": 40
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:SIL-Sensors/hover-gyro",
+          "source_count": 29,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:SIL-Voltage/SIL-Voltage/circling-voltage",
+          "source_count": 6,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:SIL-Voltage/SIL-Voltage/hover-voltage",
+          "source_count": 6,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:SIL-Wind/SIL-Wind/acce-wind",
+          "source_count": 76,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:SIL_Motor_1/SIL_Motor_1/hover-motor-2",
+          "source_count": 81,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:SIL_Motor_1/SIL_Motor_1/hover-motor-3",
+          "source_count": 81,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:SIL_Motor_2/waypoint-motor-1",
+          "source_count": 81,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:SIL_Prop/acce-prop",
+          "source_count": 48,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "rflymad:simulation_scenario:SIL_Prop/hover-prop",
+          "source_count": 81,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        }
+      ]
+    },
+    "uav_sead": {
+      "source_count": 1244,
+      "group_count": 264,
+      "cross_role_group_count": 136,
+      "sources_in_cross_role_groups": 1082,
+      "cross_role_source_fraction": 0.8697749196141479,
+      "group_status_counts": {
+        "frozen_conservative_proxy_active_metadata_exhausted": 1244
+      },
+      "v2_role_source_counts": {
+        "train": 629,
+        "val": 135,
+        "test": 268,
+        "stress_test": 212
+      },
+      "group_composition": {
+        "normal_only": {
+          "group_count": 149,
+          "source_count": 388,
+          "normal_source_count": 388
+        },
+        "mixed": {
+          "group_count": 85,
+          "source_count": 811,
+          "normal_source_count": 510
+        },
+        "anomaly_only": {
+          "group_count": 30,
+          "source_count": 45,
+          "normal_source_count": 0
+        }
+      },
+      "group_safe_normal_role_feasibility": {
+        "pure_normal_group_count": 149,
+        "pure_normal_source_count": 388,
+        "minimum_three_way_group_gate_passed": true,
+        "status": "feasible_subject_to_frozen_split_protocol"
+      },
+      "cross_role_groups": [
+        {
+          "group_id": "uav_sead:2018-05-24",
+          "source_count": 4,
+          "roles": "train|stress_test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2018-05-26",
+          "source_count": 8,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2018-05-30",
+          "source_count": 3,
+          "roles": "train|stress_test",
+          "normal_sources": 2
+        },
+        {
+          "group_id": "uav_sead:2018-05-31",
+          "source_count": 2,
+          "roles": "val|test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "uav_sead:2018-06-02",
+          "source_count": 5,
+          "roles": "train|test|stress_test",
+          "normal_sources": 2
+        },
+        {
+          "group_id": "uav_sead:2018-06-04",
+          "source_count": 13,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 8
+        },
+        {
+          "group_id": "uav_sead:2018-06-12",
+          "source_count": 5,
+          "roles": "train|val|test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2018-07-03",
+          "source_count": 4,
+          "roles": "train|val|test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2018-07-09",
+          "source_count": 16,
+          "roles": "train|test|stress_test",
+          "normal_sources": 7
+        },
+        {
+          "group_id": "uav_sead:2018-08-31-09.01/2016-02-11",
+          "source_count": 8,
+          "roles": "val|test|stress_test",
+          "normal_sources": 2
+        },
+        {
+          "group_id": "uav_sead:2018-08-31-09.01/part2/2018-09-01",
+          "source_count": 6,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2018-09-03/2016-02-11",
+          "source_count": 2,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "uav_sead:2018-09-03/2018-09-03",
+          "source_count": 14,
+          "roles": "train|test|stress_test",
+          "normal_sources": 8
+        },
+        {
+          "group_id": "uav_sead:2018-09-05/2016-02-11",
+          "source_count": 3,
+          "roles": "train|stress_test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "uav_sead:2018-09-06",
+          "source_count": 19,
+          "roles": "train|test|stress_test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2018-09-07",
+          "source_count": 24,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 10
+        },
+        {
+          "group_id": "uav_sead:2018-09-08",
+          "source_count": 30,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 17
+        },
+        {
+          "group_id": "uav_sead:2018-09-10",
+          "source_count": 27,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 21
+        },
+        {
+          "group_id": "uav_sead:2018-09-11",
+          "source_count": 21,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 16
+        },
+        {
+          "group_id": "uav_sead:2018-09-12",
+          "source_count": 10,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 7
+        },
+        {
+          "group_id": "uav_sead:2018-09-14",
+          "source_count": 14,
+          "roles": "train|val|test",
+          "normal_sources": 14
+        },
+        {
+          "group_id": "uav_sead:2018-09-15",
+          "source_count": 17,
+          "roles": "train|test|stress_test",
+          "normal_sources": 5
+        },
+        {
+          "group_id": "uav_sead:2018-09-17",
+          "source_count": 11,
+          "roles": "train|test|stress_test",
+          "normal_sources": 5
+        },
+        {
+          "group_id": "uav_sead:2018-09-18",
+          "source_count": 10,
+          "roles": "train|test|stress_test",
+          "normal_sources": 7
+        },
+        {
+          "group_id": "uav_sead:2018-09-19",
+          "source_count": 20,
+          "roles": "train|test|stress_test",
+          "normal_sources": 12
+        },
+        {
+          "group_id": "uav_sead:2018-09-21",
+          "source_count": 12,
+          "roles": "train|test|stress_test",
+          "normal_sources": 10
+        },
+        {
+          "group_id": "uav_sead:2018-09-25",
+          "source_count": 12,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 8
+        },
+        {
+          "group_id": "uav_sead:2018-09-27",
+          "source_count": 8,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 2
+        },
+        {
+          "group_id": "uav_sead:2018-10-01",
+          "source_count": 17,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 13
+        },
+        {
+          "group_id": "uav_sead:2018-10-02",
+          "source_count": 12,
+          "roles": "train|val|test",
+          "normal_sources": 12
+        },
+        {
+          "group_id": "uav_sead:2018-10-03",
+          "source_count": 5,
+          "roles": "train|test",
+          "normal_sources": 5
+        },
+        {
+          "group_id": "uav_sead:2018-10-04",
+          "source_count": 20,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 13
+        },
+        {
+          "group_id": "uav_sead:2018-10-27",
+          "source_count": 5,
+          "roles": "train|test",
+          "normal_sources": 5
+        },
+        {
+          "group_id": "uav_sead:2018-11-20",
+          "source_count": 10,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 5
+        },
+        {
+          "group_id": "uav_sead:2018-11-23",
+          "source_count": 3,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "uav_sead:2018-11-27",
+          "source_count": 10,
+          "roles": "train|test|stress_test",
+          "normal_sources": 9
+        },
+        {
+          "group_id": "uav_sead:2018-11-28",
+          "source_count": 11,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 7
+        },
+        {
+          "group_id": "uav_sead:2018-12-03",
+          "source_count": 10,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 8
+        },
+        {
+          "group_id": "uav_sead:2018-12-04",
+          "source_count": 12,
+          "roles": "train|test|stress_test",
+          "normal_sources": 7
+        },
+        {
+          "group_id": "uav_sead:2018-12-10",
+          "source_count": 8,
+          "roles": "train|test|stress_test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2018-12-12",
+          "source_count": 5,
+          "roles": "train|test|stress_test",
+          "normal_sources": 2
+        },
+        {
+          "group_id": "uav_sead:2018-12-14",
+          "source_count": 4,
+          "roles": "train|test|stress_test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "uav_sead:2018-12-18",
+          "source_count": 11,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 8
+        },
+        {
+          "group_id": "uav_sead:2018-12-19",
+          "source_count": 18,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 16
+        },
+        {
+          "group_id": "uav_sead:2018-12-20",
+          "source_count": 20,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 14
+        },
+        {
+          "group_id": "uav_sead:2018-12-26",
+          "source_count": 11,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 9
+        },
+        {
+          "group_id": "uav_sead:2018-12-27",
+          "source_count": 4,
+          "roles": "train|test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2019-01-01",
+          "source_count": 3,
+          "roles": "train|stress_test",
+          "normal_sources": 2
+        },
+        {
+          "group_id": "uav_sead:2019-01-03",
+          "source_count": 2,
+          "roles": "test|stress_test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "uav_sead:2019-01-04",
+          "source_count": 11,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "uav_sead:2019-01-07",
+          "source_count": 11,
+          "roles": "train|test|stress_test",
+          "normal_sources": 8
+        },
+        {
+          "group_id": "uav_sead:2019-01-08",
+          "source_count": 9,
+          "roles": "train|test|stress_test",
+          "normal_sources": 8
+        },
+        {
+          "group_id": "uav_sead:2019-01-09",
+          "source_count": 8,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 6
+        },
+        {
+          "group_id": "uav_sead:2019-01-15",
+          "source_count": 8,
+          "roles": "train|test|stress_test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2019-01-16",
+          "source_count": 5,
+          "roles": "train|test|stress_test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "uav_sead:2019-01-18",
+          "source_count": 16,
+          "roles": "train|test|stress_test",
+          "normal_sources": 8
+        },
+        {
+          "group_id": "uav_sead:2019-01-21",
+          "source_count": 5,
+          "roles": "train|test|stress_test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-01-22",
+          "source_count": 9,
+          "roles": "train|val|test",
+          "normal_sources": 9
+        },
+        {
+          "group_id": "uav_sead:2019-01-25",
+          "source_count": 15,
+          "roles": "train|test|stress_test",
+          "normal_sources": 7
+        },
+        {
+          "group_id": "uav_sead:2019-01-28",
+          "source_count": 8,
+          "roles": "train|test|stress_test",
+          "normal_sources": 5
+        },
+        {
+          "group_id": "uav_sead:2019-01-29",
+          "source_count": 12,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 10
+        },
+        {
+          "group_id": "uav_sead:2019-01-30",
+          "source_count": 12,
+          "roles": "train|test|stress_test",
+          "normal_sources": 8
+        },
+        {
+          "group_id": "uav_sead:2019-01-31",
+          "source_count": 21,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 18
+        },
+        {
+          "group_id": "uav_sead:2019-02-01",
+          "source_count": 6,
+          "roles": "train|test|stress_test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-02-05",
+          "source_count": 8,
+          "roles": "train|test|stress_test",
+          "normal_sources": 7
+        },
+        {
+          "group_id": "uav_sead:2019-02-06",
+          "source_count": 2,
+          "roles": "val|stress_test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "uav_sead:2019-02-08",
+          "source_count": 12,
+          "roles": "train|val|stress_test",
+          "normal_sources": 11
+        },
+        {
+          "group_id": "uav_sead:2019-02-11",
+          "source_count": 4,
+          "roles": "train|test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2019-02-12",
+          "source_count": 9,
+          "roles": "train|test|stress_test",
+          "normal_sources": 7
+        },
+        {
+          "group_id": "uav_sead:2019-02-13",
+          "source_count": 13,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 11
+        },
+        {
+          "group_id": "uav_sead:2019-02-14",
+          "source_count": 12,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 8
+        },
+        {
+          "group_id": "uav_sead:2019-02-15",
+          "source_count": 12,
+          "roles": "train|test|stress_test",
+          "normal_sources": 10
+        },
+        {
+          "group_id": "uav_sead:2019-02-19",
+          "source_count": 6,
+          "roles": "train|val|test",
+          "normal_sources": 6
+        },
+        {
+          "group_id": "uav_sead:2019-02-20",
+          "source_count": 7,
+          "roles": "train|val|test",
+          "normal_sources": 7
+        },
+        {
+          "group_id": "uav_sead:2019-02-21",
+          "source_count": 8,
+          "roles": "train|val|test",
+          "normal_sources": 8
+        },
+        {
+          "group_id": "uav_sead:2019-02-22",
+          "source_count": 8,
+          "roles": "train|val|test",
+          "normal_sources": 8
+        },
+        {
+          "group_id": "uav_sead:2019-02-26",
+          "source_count": 9,
+          "roles": "train|val|test",
+          "normal_sources": 8
+        },
+        {
+          "group_id": "uav_sead:2019-02-27",
+          "source_count": 9,
+          "roles": "train|val|test",
+          "normal_sources": 9
+        },
+        {
+          "group_id": "uav_sead:2019-02-28",
+          "source_count": 7,
+          "roles": "train|test",
+          "normal_sources": 7
+        },
+        {
+          "group_id": "uav_sead:2019-03-01",
+          "source_count": 8,
+          "roles": "train|val|test",
+          "normal_sources": 7
+        },
+        {
+          "group_id": "uav_sead:2019-03-04",
+          "source_count": 18,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 6
+        },
+        {
+          "group_id": "uav_sead:2019-03-05",
+          "source_count": 11,
+          "roles": "train|val",
+          "normal_sources": 11
+        },
+        {
+          "group_id": "uav_sead:2019-03-06",
+          "source_count": 9,
+          "roles": "train|val|test",
+          "normal_sources": 9
+        },
+        {
+          "group_id": "uav_sead:2019-03-07",
+          "source_count": 4,
+          "roles": "train|test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2019-03-08",
+          "source_count": 4,
+          "roles": "train|val",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-03-11",
+          "source_count": 4,
+          "roles": "train|test|stress_test",
+          "normal_sources": 2
+        },
+        {
+          "group_id": "uav_sead:2019-03-12",
+          "source_count": 3,
+          "roles": "train|stress_test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "uav_sead:2019-03-13",
+          "source_count": 4,
+          "roles": "train|val|stress_test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2019-03-15",
+          "source_count": 7,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2019-03-18",
+          "source_count": 6,
+          "roles": "train|val|test",
+          "normal_sources": 6
+        },
+        {
+          "group_id": "uav_sead:2019-03-19",
+          "source_count": 5,
+          "roles": "train|val",
+          "normal_sources": 5
+        },
+        {
+          "group_id": "uav_sead:2019-03-21",
+          "source_count": 4,
+          "roles": "train|val|test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-03-22",
+          "source_count": 4,
+          "roles": "train|test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2019-03-25",
+          "source_count": 4,
+          "roles": "train|val",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-03-26",
+          "source_count": 4,
+          "roles": "train|test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-04-03",
+          "source_count": 4,
+          "roles": "train|val",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-04-05",
+          "source_count": 4,
+          "roles": "train|test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-04-11",
+          "source_count": 4,
+          "roles": "train|test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-04-12",
+          "source_count": 4,
+          "roles": "train|val|test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-04-17",
+          "source_count": 5,
+          "roles": "test|stress_test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "uav_sead:2019-05-20",
+          "source_count": 6,
+          "roles": "train|val|test",
+          "normal_sources": 6
+        },
+        {
+          "group_id": "uav_sead:2019-05-21",
+          "source_count": 6,
+          "roles": "train|test|stress_test",
+          "normal_sources": 2
+        },
+        {
+          "group_id": "uav_sead:2019-05-23",
+          "source_count": 5,
+          "roles": "train|test",
+          "normal_sources": 5
+        },
+        {
+          "group_id": "uav_sead:2019-05-24",
+          "source_count": 4,
+          "roles": "train|val",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-05-28",
+          "source_count": 4,
+          "roles": "train|test|stress_test",
+          "normal_sources": 2
+        },
+        {
+          "group_id": "uav_sead:2019-05-29",
+          "source_count": 4,
+          "roles": "train|test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-06-03",
+          "source_count": 4,
+          "roles": "train|val|test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-06-06",
+          "source_count": 4,
+          "roles": "train|val",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-06-07",
+          "source_count": 4,
+          "roles": "train|val",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-07-02",
+          "source_count": 4,
+          "roles": "train|test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-08-01",
+          "source_count": 4,
+          "roles": "train|val",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-10-09",
+          "source_count": 4,
+          "roles": "train|val",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-11-05",
+          "source_count": 4,
+          "roles": "train|val|test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2019-12-02",
+          "source_count": 4,
+          "roles": "train|val|test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2021-10-06--",
+          "source_count": 5,
+          "roles": "val|test|stress_test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2021-10-07_pid--",
+          "source_count": 3,
+          "roles": "test|stress_test",
+          "normal_sources": 0
+        },
+        {
+          "group_id": "uav_sead:2022-09-26",
+          "source_count": 3,
+          "roles": "train|val",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2022-10-21",
+          "source_count": 4,
+          "roles": "train|val|test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2022-10-22_dhl",
+          "source_count": 2,
+          "roles": "val|test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "uav_sead:2022-12/2023-02-10",
+          "source_count": 2,
+          "roles": "train|val",
+          "normal_sources": 2
+        },
+        {
+          "group_id": "uav_sead:2023-08/2021-10-03",
+          "source_count": 4,
+          "roles": "train|val|test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2023-08/2021-10-04",
+          "source_count": 5,
+          "roles": "train|stress_test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2023-08/2021-10-05",
+          "source_count": 3,
+          "roles": "train|val|test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2023-08/2021-10-06",
+          "source_count": 4,
+          "roles": "train|val",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2023-08/2021-10-07",
+          "source_count": 3,
+          "roles": "train|val",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2023-08/2022-06-15",
+          "source_count": 5,
+          "roles": "val|test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2023-08/2022-06-16",
+          "source_count": 4,
+          "roles": "train|val",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2023-08/2022-09-06",
+          "source_count": 4,
+          "roles": "val|test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2023-08/2022-09-07",
+          "source_count": 5,
+          "roles": "train|val|test",
+          "normal_sources": 5
+        },
+        {
+          "group_id": "uav_sead:2023-08/2022-09-08",
+          "source_count": 5,
+          "roles": "train|test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2023-08/2022-09-09",
+          "source_count": 4,
+          "roles": "train|test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2023-08/2022-09-10",
+          "source_count": 4,
+          "roles": "train|test",
+          "normal_sources": 4
+        },
+        {
+          "group_id": "uav_sead:2023-08/2023-03-25",
+          "source_count": 3,
+          "roles": "train|test",
+          "normal_sources": 3
+        },
+        {
+          "group_id": "uav_sead:2023-08/2023-04-14",
+          "source_count": 6,
+          "roles": "train|val|test",
+          "normal_sources": 6
+        },
+        {
+          "group_id": "uav_sead:2023-08/2023-05-23",
+          "source_count": 5,
+          "roles": "train|val",
+          "normal_sources": 5
+        },
+        {
+          "group_id": "uav_sead:2023-08/2023-05-24",
+          "source_count": 7,
+          "roles": "train|val|test|stress_test",
+          "normal_sources": 6
+        }
+      ]
+    },
+    "uav_attack": {
+      "source_count": 19,
+      "group_count": 13,
+      "cross_role_group_count": 5,
+      "sources_in_cross_role_groups": 11,
+      "cross_role_source_fraction": 0.5789473684210527,
+      "group_status_counts": {
+        "authoritative_archive_path_metadata": 19
+      },
+      "v2_role_source_counts": {
+        "train": 4,
+        "val": 1,
+        "test": 4,
+        "stress_test": 10
+      },
+      "group_composition": {
+        "normal_only": {
+          "group_count": 1,
+          "source_count": 1,
+          "normal_source_count": 1
+        },
+        "mixed": {
+          "group_count": 5,
+          "source_count": 11,
+          "normal_source_count": 5
+        },
+        "anomaly_only": {
+          "group_count": 7,
+          "source_count": 7,
+          "normal_source_count": 0
+        }
+      },
+      "group_safe_normal_role_feasibility": {
+        "pure_normal_group_count": 1,
+        "pure_normal_source_count": 1,
+        "minimum_three_way_group_gate_passed": false,
+        "status": "not_feasible_only_one_pure_normal_group"
+      },
+      "cross_role_groups": [
+        {
+          "group_id": "uav_attack:live:live_platform_unspecified:2033-08-19",
+          "source_count": 3,
+          "roles": "train|test|stress_test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "uav_attack:simulated:PX4-H480-SITL:2020-08-02",
+          "source_count": 2,
+          "roles": "train|test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "uav_attack:simulated:PX4-PLANE-SITL:2020-08-02",
+          "source_count": 2,
+          "roles": "val|stress_test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "uav_attack:simulated:PX4-TAIL-SITL:2020-08-02",
+          "source_count": 2,
+          "roles": "test|stress_test",
+          "normal_sources": 1
+        },
+        {
+          "group_id": "uav_attack:simulated:PX4-VTOL-SITL:2020-08-02",
+          "source_count": 2,
+          "roles": "train|stress_test",
+          "normal_sources": 1
+        }
+      ]
+    }
+  },
+  "interpretation_contract": {
+    "cross_role_group": "A grouping key present in more than one frozen v2 role; it is an audit finding, not proof that every member is a duplicate flight.",
+    "conservative_group": "The UAV-SEAD parent-path fallback was frozen after the active Gold and Bronze labels metadata were shown to contain no mission/session field. It remains an explicit limitation and may be superseded only by separately versioned stronger metadata. UAV Attack mode/platform metadata comes from the raw archive path.",
+    "training_gate": "No v3 training may start until chosen group keys have zero overlap between new train, validation and test roles."
+  }
+}
