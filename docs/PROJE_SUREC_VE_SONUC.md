@@ -5,6 +5,10 @@
 > buraya birleştirildi; içerik ve sayılar değiştirilmeden korundu. Orijinal ayrık
 > dosyalar `arsiv` branch'inde durmaya devam ediyor.
 
+> **2026-07-28 sonrası yaşayan devam kaydı:** probabilistic GPU v1/v2,
+> group-safe v3/v3.1, ADS-B contextual_physics_v2 ve güncel RflyMAD bulguları
+> `docs/PROJE_YASAYAN_CALISMA_GUNLUGU.md` içinde kronolojik olarak tutulur.
+
 ## Yönetici özeti
 
 Çalışma boyunca beş veri seti (ALFA, UAV Attack, UAV-SEAD, RflyMAD ve etiketsiz
