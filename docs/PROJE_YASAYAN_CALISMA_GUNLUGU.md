@@ -587,3 +587,33 @@ Bu dosya ilerleyen raporlama boyunca şu biçimde güncellenecektir:
   `docs/FOUR_DATASET_PROBABILISTIC_V31_RFLYMAD_BASELINE_20260728.md`
 - RflyMAD yorum ve split kararı:
   `docs/RFLYMAD_V31_DEGERLENDIRME_VE_SPLIT_KARARI_20260728.md`
+
+## 17. 2026-07-28 — RflyMAD v3.1 B0 gerçek-event katmanı
+
+Epoch-30 group-safe B0 modeli değiştirilmeden 90 normal-validation, 91 bağımsız
+normal-test ve 557 anomaly-development uçuşu için 681.690 zaman hizalı pencere
+skoru dışarı aktarıldı. Gerçek event truth'u `fault_active | condition_active`
+alanlarından bağlandı; bütün uçuşu anomalili sayan eski flight proxy'si kullanılmadı.
+553 final-fault-test uçuşu mühürlü kaldı.
+
+Sonuç görülmeden threshold+persistence, zamana dayalı K-of-N ve validation-normal
+standardized-NLL CUSUM aileleri donduruldu. 144 calibration adayı 54 rapor noktasına
+indirildi; 48 nokta ölçülebildi, CUSUM 0,5 event/saat bütçesindeki altı nokta
+ekstrapolasyon yapılmadan unavailable bırakıldı.
+
+Primary 1 event/saat ve 30 saniye refractory görünümünde K-of-N 2-of-3,
+validation'da 0,511 ve normal-testte 0,654 false event/saat ile %43,27 gerçek-event
+recall verdi. Persistence 0,5 saniye aynı validation oranına rağmen normal-testte
+4,577 event/saat ve %42,19 recall; CUSUM allowance 0,25 ise 5,884 event/saat ve
+%48,29 recall verdi. En yüksek grid recall'ı %58,71 oldu fakat 9,153 false
+event/saat gerektirdi. Real-domain recall %7,81, Sensor recall %5,45 kaldı.
+
+Karar: B0 operasyonel terfi **NO-GO**. Sonuç threshold/epoch avcılığına değil,
+yeni namespace altında causal flight-phase/domain context ve kanal-bazlı NLL/scale
+teşhisine yönlendirildi. Ayrıntılı rapor:
+`docs/RFLYMAD_V31_B0_GERCEK_EVENT_DEGERLENDIRME_20260728.md`.
+
+Provenance notu: Colab run manifestinin gömülü prereg byte-hash'i sonraki checkout
+belgesiyle eşleşmedi; fakat gömülü sözleşme kendi içinde tutarlı ve config, roles,
+data fingerprint, model, scaler ve run artifact hash'lerinin tamamı eşleşti. Kusur
+gizlenmeden event manifestine ve ayrıntılı rapora kaydedildi.

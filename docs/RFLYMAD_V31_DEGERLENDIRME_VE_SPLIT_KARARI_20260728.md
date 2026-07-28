@@ -166,3 +166,19 @@ tanımlanmış aday karşılaştırması için kullanılabilir.
 
 Ana baseline raporu:
 `docs/FOUR_DATASET_PROBABILISTIC_V31_RFLYMAD_BASELINE_20260728.md`.
+
+## 9. Sonraki gerçek-event değerlendirmesi
+
+Bu belgedeki ham `any-window` flight diagnostikleri, daha sonra tamamlanan gerçek
+interval/event değerlendirmesiyle operasyonel seviyeye taşındı. Epoch-30 model
+aynı kaldı; validation-normal kalibrasyonlu threshold+persistence, K-of-N ve CUSUM
+kararları 91 normal-test ve 557 anomaly-dev uçuşunda ölçüldü.
+
+Primary 1 event/saat, 30 saniye refractory noktasında K-of-N 2-of-3; 0,654 bağımsız
+normal-test false event/saat ve %43,27 gerçek-event recall verdi. Persistence ve
+CUSUM validation bütçesini normal-testte sırasıyla 4,577 ve 5,884 event/saate taşıdı.
+Real ve Sensor recall %10'un altında kaldı. B0 operasyonel terfi kararı NO-GO olarak
+korundu; final 553 uçuş açılmadı.
+
+Tam tablo, bootstrap aralıkları, fault/domain kırılımları ve provenance olayı:
+`docs/RFLYMAD_V31_B0_GERCEK_EVENT_DEGERLENDIRME_20260728.md`.

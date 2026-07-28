@@ -1,0 +1,82 @@
+﻿{
+    "schema_version":  1,
+    "candidate_namespace":  "rflymad_probabilistic_v31_b0_event_v1",
+    "status":  "complete",
+    "device":  "cpu",
+    "base_run":  "artifacts/four_dataset_probabilistic_v31/runs/rflymad_colab_l4_20260728",
+    "contract_sha256":  "6c10569e2b99c885b662bffcd7f554799582c28ebcb0536a998b51a8624d4ba2",
+    "contract_checks":  {
+                            "grid_base_run":  true,
+                            "manifest_namespace":  true,
+                            "report_namespace":  true,
+                            "manifest_status":  true,
+                            "epochs_complete":  true,
+                            "magnitude_gate_pass":  true,
+                            "frozen_contract_self_consistent":  true,
+                            "current_non_prereg_contract_inputs_match":  true,
+                            "manifest_contract":  true,
+                            "report_contract":  true,
+                            "model_contract":  true,
+                            "model_dataset":  true,
+                            "runner_val_matches_protocol":  true,
+                            "runner_test_matches_visible_union":  true,
+                            "visible_roles_disjoint":  true,
+                            "visible_counts":  true,
+                            "final_access_prohibited":  true,
+                            "hash_run_manifest.json":  true,
+                            "hash_scaler.json":  true,
+                            "hash_model_state.pt":  true
+                        },
+    "final_fault_test_accessed":  false,
+    "score_transform":  {
+                            "fit_role":  "val_normal",
+                            "median":  -0.6923855543136597,
+                            "scale_1_4826_mad":  0.6796419722199439
+                        },
+    "roles":  {
+                  "anomaly_dev":  {
+                                      "sources":  557,
+                                      "windows":  556050,
+                                      "truth_active_windows":  326001
+                                  },
+                  "normal_test":  {
+                                      "sources":  91,
+                                      "windows":  55154,
+                                      "truth_active_windows":  0
+                                  },
+                  "val_normal":  {
+                                     "sources":  90,
+                                     "windows":  70486,
+                                     "truth_active_windows":  0
+                                 }
+              },
+    "artifacts":  {
+                      "event_grid":  {
+                                         "path":  "configs/rflymad_probabilistic_v31_event_grid.json",
+                                         "sha256":  "cc3ff2a86560bd3ef5a11890f85d913ddefe3b02bdbbedb20baee867bb632d83"
+                                     },
+                      "preregistration":  {
+                                              "path":  "docs/FOUR_DATASET_PROBABILISTIC_V31_RFLYMAD_B0_EVENT_PREREG_20260728.md",
+                                              "sha256":  "4bc1dbf7a81d40efb181c461fb92ab3cd80cd0ee47b183caa50189b58918d0f1"
+                                          },
+                      "model_state":  {
+                                          "path":  "artifacts/four_dataset_probabilistic_v31/runs/rflymad_colab_l4_20260728/model_state.pt",
+                                          "sha256":  "6e63949c76cdf27cb362ffbe21cf3e58df67a2676a35d70409250a7361b4622e"
+                                      },
+                      "scaler":  {
+                                     "path":  "artifacts/four_dataset_probabilistic_v31/runs/rflymad_colab_l4_20260728/scaler.json",
+                                     "sha256":  "33caa7277c8ce20a8eb88e79b03d1246b43d5da637494a103dfa3f6ec4337b23"
+                                 },
+                      "score_streams":  {
+                                            "path":  "score_streams.parquet",
+                                            "sha256":  "fad4109714df9a740d33910d1aa3c93a2c0316447edf125291f66eeb16e7e12a",
+                                            "bytes":  16702375
+                                        }
+                  },
+    "contract_provenance":  {
+                                "embedded_preregistration_sha256":  "9674a1a91da2427ad45a81d8492bbc653008f09dd0312e88fac100a78a889c5c",
+                                "current_preregistration_sha256":  "21b4c99cf03e0f316418340fd814e5195b61579bea16d439ea9d70f29d58a086",
+                                "preregistration_hash_matches_current_checkout":  false,
+                                "known_provenance_defect":  "accepted Colab artifact embeds a preregistration byte hash that does not match the later committed checkout; config, roles, data fingerprints and all run artifacts match"
+                            }
+}
