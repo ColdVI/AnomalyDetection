@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_v31",
+  "artifact_role": "UAV-SEAD session-key metadata audit; no split assignment",
+  "created_date": "2026-07-28",
+  "strict_parent_v3_modified": false,
+  "training_authorized": false,
+  "inputs": {
+    "labels_path": "data/objectstore/bronze/uav_sead/labels.json",
+    "labels_sha256": "15b940cb4d8a5418ce95c615df7fc900f0b17ad7cf9a1883a0be76f1e1271221",
+    "registry_path": "artifacts/four_dataset_probabilistic_v3/group_registry_v1.parquet",
+    "registry_sha256": "8b70fae4caf2cf69b26f0631c3c9094bcb2733443b949fca59577afc410b51ec",
+    "bronze_root": "data/objectstore/bronze/uav_sead"
+  },
+  "scope": {
+    "selected_source_count": 1244,
+    "audited_source_count": 1244,
+    "audit_complete": true,
+    "raw_file_bytes_in_scope": 11378112716,
+    "header_only_parse": true,
+    "elapsed_seconds": 2.5867665000005218
+  },
+  "metadata_coverage": {
+    "system_uuid": 1244,
+    "hardware": 1244,
+    "firmware_hash": 1244,
+    "os_hash": 1244,
+    "parameter_hash": 1244
+  },
+  "label_counts": {
+    "altitude_anomaly": 72,
+    "external_position_anomaly": 193,
+    "global_position_anomaly": 40,
+    "mechanical_fault": 41,
+    "normal": 898
+  },
+  "candidate_key_diagnostics": {
+    "uuid": {
+      "columns": [
+        "system_uuid"
+      ],
+      "key_count": 5,
+      "singleton_key_count": 0,
+      "cross_label_key_count": 4,
+      "cross_strict_parent_key_count": 5,
+      "largest_key_source_count": 993
+    },
+    "uuid_firmware": {
+      "columns": [
+        "system_uuid",
+        "firmware_hash"
+      ],
+      "key_count": 10,
+      "singleton_key_count": 1,
+      "cross_label_key_count": 8,
+      "cross_strict_parent_key_count": 9,
+      "largest_key_source_count": 501
+    },
+    "uuid_firmware_parameters": {
+      "columns": [
+        "system_uuid",
+        "firmware_hash",
+        "parameter_hash"
+      ],
+      "key_count": 1239,
+      "singleton_key_count": 1234,
+      "cross_label_key_count": 2,
+      "cross_strict_parent_key_count": 1,
+      "largest_key_source_count": 2
+    },
+    "uuid_firmware_identity_parameters": {
+      "columns": [
+        "system_uuid",
+        "firmware_hash",
+        "identity_parameter_hash"
+      ],
+      "key_count": 13,
+      "singleton_key_count": 1,
+      "cross_label_key_count": 10,
+      "cross_strict_parent_key_count": 10,
+      "largest_key_source_count": 499
+    },
+    "parent_uuid_firmware_parameters": {
+      "columns": [
+        "strict_parent_group_id",
+        "system_uuid",
+        "firmware_hash",
+        "parameter_hash"
+      ],
+      "key_count": 1240,
+      "singleton_key_count": 1236,
+      "cross_label_key_count": 2,
+      "cross_strict_parent_key_count": 0,
+      "largest_key_source_count": 2
+    }
+  },
+  "observed_key_interpretation": {
+    "system_uuid": "vehicle identity is too coarse and crosses labels/parents",
+    "full_parameter_hash": "nearly source-unique and therefore too fine for session grouping",
+    "ulog_start_timestamp": "boot-relative timestamp; not a wall-clock session key",
+    "strict_parent": "retained pending mission/waypoint or independently justified temporal-session evidence"
+  },
+  "decision": "strict_parent_retained_no_defensible_refined_key_yet",
+  "next_gate": "A refined registry v2 requires documented semantic review of keys, timestamp overlap/mission evidence where available, then a new immutable split."
+}

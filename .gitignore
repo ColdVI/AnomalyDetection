@@ -89,3 +89,8 @@ artifacts/rflymad/
 # Kök dizinden arsivlenmis eski calisma-loglari, gevsek scriptler ve pytest
 # tmp klasorleri (2026-07-22 dosyalama). Kod degil.
 /_kok_dokunti_arsivi/
+
+# Four-dataset probabilistic v3.1 transient resume state. Final model states,
+# reports, manifests and reporting plots remain versioned evidence.
+/artifacts/four_dataset_probabilistic_v31/runs/**/training_epoch_checkpoint.pt
+/artifacts/four_dataset_probabilistic_v31/runs/**/training_progress.json

@@ -1,6 +1,13 @@
 # Four-dataset v3 — group-safe, flight-phase ve raw kanal ablation planı
 
 Tarih: 2026-07-28
+
+V3.1 uygulama eki: Bu taslağın split sonrası uygulama kararı
+`FOUR_DATASET_NORMAL_ONLY_V31_PROTOCOL_DECISIONS_20260728.md` dosyasında
+dondurulmuştur. Mevcut v3 manifesti korunmuş; RflyMAD fault kaynakları iteratif
+geliştirme için `anomaly_dev` ve tek-seferlik `final_fault_test` rollerine grup
+düzeyinde ayrılmıştır. UAV-SEAD strict-parent benchmark, ULog header metadata
+denetimi daha savunulabilir bir session anahtarı üretmediği için korunmuştur.
 Statü: Yeni eğitim başlatmadan önce uygulanacak çalışma sözleşmesi taslağıdır;
 v2 artifactlerini veya v2 sonuçlarını değiştirmez.
 

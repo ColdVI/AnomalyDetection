@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_v31",
+  "dataset": "alfa",
+  "created_at_utc": "2026-07-28T11:16:10.038063+00:00",
+  "status": "complete",
+  "contract_sha256": "ea469f4a84260f4cca49445aa1a2e49df1bb33ea1e76c32002ac4f0f560dae51",
+  "contract_evidence": {
+    "candidate_namespace": "four_dataset_probabilistic_v31",
+    "config_sha256": "6431fab3db0dfbbd6f6a65b555bfd4bf724be32821c91ccaf9767c80a2cf7cf5",
+    "preregistration_sha256": "d11705f709c432bde53910e351ec3c3ebeb1baf0eec7223f2a5bc003b47287de",
+    "data_fingerprint": {
+      "mode": "gold_parquet",
+      "data_path": "data/gold/ml_features/alfa/alfa_ml_features.parquet",
+      "data_bytes": 18784062,
+      "data_sha256": "0f13e197ad02f339c4dde80f7f7b0ab228a8d45bdc7a77382e145cb9ffd7c47d",
+      "split_path": "configs/four_dataset_probabilistic_v31_runner_roles.json",
+      "split_sha256": "c4a2951e1a8dc5655a33d3073d493200763a18b03229704cc3430c46d5b7b8b5"
+    },
+    "roles_sha256": "4ebb13eda2680d2d3b696ce812d236116b5aab8fa68292b59f9c6b4ba6a37729",
+    "role_counts": {
+      "train": 4,
+      "val": 2,
+      "test": 14
+    },
+    "contract_sha256": "ea469f4a84260f4cca49445aa1a2e49df1bb33ea1e76c32002ac4f0f560dae51"
+  },
+  "config": {
+    "schema_version": 1,
+    "candidate_namespace": "four_dataset_probabilistic_v31",
+    "contract_date": "2026-07-28",
+    "split_manifest": "configs/four_dataset_probabilistic_v31_runner_roles.json",
+    "objective": "normal-only causal Gaussian forecasting with group/source-balanced optimizer exposure and sealed final fault test",
+    "common": {
+      "history_rows": 32,
+      "max_gap_s": 5.0,
+      "epochs": 30,
+      "batch_size": 1024,
+      "block_windows": 32768,
+      "hidden_size": 64,
+      "num_layers": 1,
+      "learning_rate": 0.001,
+      "gradient_clip_norm": 1.0,
+      "seed": 20260727,
+      "robust_scale_factor": 1.4826,
+      "robust_clip": 5.0,
+      "minimum_mad": 1e-06,
+      "min_scale": 0.05,
+      "max_scale": 5.0,
+      "mixed_precision": false,
+      "validation_alarm_quantile": 0.995,
+      "magnitude_diagnostic_max_windows": 50000,
+      "magnitude_domination_rho_gate": 0.8,
+      "select_best_validation_checkpoint": true,
+      "training_sampler": "group_then_source_balanced_epoch_quota"
+    },
+    "prohibitions": {
+      "no_row_random_split": true,
+      "no_anomaly_rows_in_optimizer": true,
+      "no_validation_or_test_preprocessing_fit": true,
+      "no_final_fault_test_during_development": true,
+      "no_test_threshold_selection": true
+    },
+    "split_name": "grouped_cv_4_fold_3",
+    "datasets": {
+      "alfa": {
+        "data_path": "data/gold/ml_features/alfa/alfa_ml_features.parquet",
+        "normal_label": "normal",
+        "evaluation_status": "four-fold group-safe CV smoke; no single-split claim",
+        "features": [
+          "roll_error",
+          "pitch_error",
+          "yaw_error",
+          "airspeed_error",
+          "alt_error",
+          "xtrack_error",
+          "wp_dist",
+          "path_dev_mag",
+          "roll_rate",
+          "pitch_rate",
+          "yaw_rate",
+          "altitude_rate",
+          "airspeed_rate",
+          "throttle",
+          "climb_rate_ms",
+          "gps_speed_residual"
+        ],
+        "group_registry_path": "artifacts/four_dataset_probabilistic_v3/group_registry_v1.parquet"
+      }
+    }
+  },
+  "dataset_spec": {
+    "data_path": "data/gold/ml_features/alfa/alfa_ml_features.parquet",
+    "normal_label": "normal",
+    "evaluation_status": "four-fold group-safe CV smoke; no single-split claim",
+    "features": [
+      "roll_error",
+      "pitch_error",
+      "yaw_error",
+      "airspeed_error",
+      "alt_error",
+      "xtrack_error",
+      "wp_dist",
+      "path_dev_mag",
+      "roll_rate",
+      "pitch_rate",
+      "yaw_rate",
+      "altitude_rate",
+      "airspeed_rate",
+      "throttle",
+      "climb_rate_ms",
+      "gps_speed_residual"
+    ],
+    "group_registry_path": "artifacts/four_dataset_probabilistic_v3/group_registry_v1.parquet"
+  },
+  "scaler": {
+    "features": [
+      "roll_error",
+      "pitch_error",
+      "yaw_error",
+      "alt_error",
+      "xtrack_error",
+      "wp_dist",
+      "path_dev_mag",
+      "roll_rate",
+      "pitch_rate",
+      "yaw_rate",
+      "altitude_rate",
+      "climb_rate_ms",
+      "gps_speed_residual"
+    ],
+    "median": {
+      "roll_error": -0.5111122130999988,
+      "pitch_error": 1.2754554748535156,
+      "yaw_error": -91.71095657348633,
+      "alt_error": 0.799999952316,
+      "xtrack_error": 10.8299331665,
+      "wp_dist": 55.0,
+      "path_dev_mag": 228.60898608819687,
+      "roll_rate": 0.0,
+      "pitch_rate": 0.0,
+      "yaw_rate": 9.081186433814429,
+      "altitude_rate": 0.0,
+      "climb_rate_ms": -0.007064219797030091,
+      "gps_speed_residual": -0.025984768151144526
+    },
+    "scale": {
+      "roll_error": 4.609184548076644,
+      "pitch_error": 4.212820425188541,
+      "yaw_error": 21.341190639414776,
+      "alt_error": 2.891070070696298,
+      "xtrack_error": 12.441196183772455,
+      "wp_dist": 13.343399999999999,
+      "path_dev_mag": 16.03758150180627,
+      "roll_rate": 2.5180158650002493,
+      "pitch_rate": 1.6692662816796662,
+      "yaw_rate": 13.46376700677327,
+      "altitude_rate": 0.0580644433305261,
+      "climb_rate_ms": 0.40724250044650395,
+      "gps_speed_residual": 0.12761479881333687
+    },
+    "excluded": [
+      "airspeed_error",
+      "airspeed_rate",
+      "throttle"
+    ],
+    "clip": 5.0
+  },
+  "completed_at_utc": "2026-07-28T11:28:24.662266+00:00",
+  "completed_epochs": 30
+}

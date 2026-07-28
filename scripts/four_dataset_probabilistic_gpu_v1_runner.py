@@ -54,6 +54,19 @@ def _canonical_sha(value: Any) -> str:
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
+def _replace_with_retry(source: Path, destination: Path) -> None:
+    """Tolerate short Windows scanner/sync locks while keeping atomic replace."""
+
+    for attempt in range(10):
+        try:
+            os.replace(source, destination)
+            return
+        except PermissionError:
+            if attempt == 9:
+                raise
+            time.sleep(0.05 * (attempt + 1))
+
+
 def _write_json_atomic(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
@@ -61,14 +74,14 @@ def _write_json_atomic(path: Path, value: Any) -> None:
         json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + "\n",
         encoding="utf-8",
     )
-    os.replace(temporary, path)
+    _replace_with_retry(temporary, path)
 
 
 def _torch_save_atomic(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
     torch.save(value, temporary)
-    os.replace(temporary, path)
+    _replace_with_retry(temporary, path)
 
 
 def _seed_everything(seed: int) -> None:
@@ -869,7 +882,7 @@ def _build_evaluation(
     flight_frame = pd.DataFrame.from_records(records)
     temporary = run_dir / "flight_metrics.csv.tmp"
     flight_frame.to_csv(temporary, index=False)
-    os.replace(temporary, run_dir / "flight_metrics.csv")
+    _replace_with_retry(temporary, run_dir / "flight_metrics.csv")
     flight_truth = flight_frame["is_anomaly"].to_numpy(np.int8)
     flight_score = flight_frame["max_score"].to_numpy(float)
     normal_flights = flight_frame.loc[flight_frame["is_anomaly"].eq(0)]
@@ -955,7 +968,7 @@ def _write_history(run_dir: Path, history: list[dict[str, Any]]) -> None:
     _write_json_atomic(run_dir / "training_history.json", history)
     temporary = run_dir / "training_history.csv.tmp"
     pd.DataFrame(history).to_csv(temporary, index=False)
-    os.replace(temporary, run_dir / "training_history.csv")
+    _replace_with_retry(temporary, run_dir / "training_history.csv")
 
 
 def _checkpoint_load(path: Path, device: torch.device) -> dict[str, Any]:
@@ -1077,6 +1090,10 @@ def _run_training(
     history: list[dict[str, Any]] = []
     completed_epochs = 0
     checkpoint_path = run_dir / "training_epoch_checkpoint.pt"
+    select_best_validation = bool(common.get("select_best_validation_checkpoint", False))
+    best_checkpoint_path = run_dir / "best_validation_checkpoint.pt"
+    best_validation_nll = math.inf
+    best_epoch = 0
     if checkpoint_path.exists():
         checkpoint = _checkpoint_load(checkpoint_path, device)
         if checkpoint.get("contract_sha256") != evidence["contract_sha256"]:
@@ -1092,6 +1109,15 @@ def _run_training(
         model.load_state_dict(checkpoint["model_state_dict"])
         optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
         _optimizer_to_device(optimizer, device)
+        if history:
+            best_row = min(
+                history,
+                key=lambda row: (
+                    float(row["mean_validation_gaussian_nll"]), int(row["epoch"])
+                ),
+            )
+            best_validation_nll = float(best_row["mean_validation_gaussian_nll"])
+            best_epoch = int(best_row["epoch"])
         print(f"resumed completed_epochs={completed_epochs}", flush=True)
 
     for epoch_index in range(completed_epochs, int(common["epochs"])):
@@ -1130,6 +1156,26 @@ def _run_training(
             "saved_at_utc": datetime.now(timezone.utc).isoformat(),
         }
         _torch_save_atomic(checkpoint_path, checkpoint)
+        candidate_nll = float(epoch_row["mean_validation_gaussian_nll"])
+        if select_best_validation and (
+            candidate_nll < best_validation_nll
+            or (candidate_nll == best_validation_nll and completed_epochs < best_epoch)
+        ):
+            best_validation_nll = candidate_nll
+            best_epoch = completed_epochs
+            _torch_save_atomic(
+                best_checkpoint_path,
+                {
+                    "schema_version": 1,
+                    "candidate_namespace": config["candidate_namespace"],
+                    "dataset": dataset,
+                    "contract_sha256": evidence["contract_sha256"],
+                    "selected_epoch": best_epoch,
+                    "mean_validation_gaussian_nll": best_validation_nll,
+                    "model_state_dict": model.state_dict(),
+                    "saved_at_utc": datetime.now(timezone.utc).isoformat(),
+                },
+            )
         _write_history(run_dir, history)
         print(
             f"epoch={completed_epochs}/{common['epochs']} "
@@ -1139,12 +1185,27 @@ def _run_training(
         )
         del validation
 
+    if select_best_validation:
+        if not best_checkpoint_path.is_file():
+            raise ProbabilisticV1Error("Best-validation checkpoint is missing")
+        selected = _checkpoint_load(best_checkpoint_path, device)
+        if selected.get("contract_sha256") != evidence["contract_sha256"]:
+            raise ProbabilisticV1Error("Best-validation checkpoint contract mismatch")
+        model.load_state_dict(selected["model_state_dict"])
+        best_epoch = int(selected["selected_epoch"])
+        best_validation_nll = float(selected["mean_validation_gaussian_nll"])
+    else:
+        best_epoch = completed_epochs
+        best_validation_nll = float(history[-1]["mean_validation_gaussian_nll"])
+
     model_payload = {
         "schema_version": 1,
         "dataset": dataset,
         "contract_sha256": evidence["contract_sha256"],
         "features": list(scaler.features),
         "model_state_dict": {key: value.detach().cpu() for key, value in model.state_dict().items()},
+        "selected_epoch": best_epoch,
+        "selection_metric": "normal_validation_gaussian_nll",
     }
     _torch_save_atomic(run_dir / "model_state.pt", model_payload)
     validation = _score_sources(
@@ -1203,6 +1264,8 @@ def _run_training(
         "validation_summary.json",
         "flight_metrics.csv",
     ]
+    if select_best_validation:
+        artifact_names.append("best_validation_checkpoint.pt")
     artifact_hashes = {
         name: {"bytes": (run_dir / name).stat().st_size, "sha256": _sha256(run_dir / name)}
         for name in artifact_names
@@ -1222,6 +1285,15 @@ def _run_training(
         "active_features": list(scaler.features),
         "excluded_degenerate_features": list(scaler.excluded),
         "final_epoch": history[-1],
+        "selected_checkpoint": {
+            "policy": (
+                "lowest_normal_validation_gaussian_nll_tie_earliest_epoch"
+                if select_best_validation
+                else "final_epoch"
+            ),
+            "epoch": best_epoch,
+            "mean_validation_gaussian_nll": best_validation_nll,
+        },
         "validation_alarm_quantile": float(common["validation_alarm_quantile"]),
         "validation_alarm_threshold": threshold,
         "magnitude_diagnostic": diagnostic,

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_v31",
+  "reuse_policy": "frozen v1 RflyMAD telemetry ZIP reused byte-for-byte",
+  "final_fault_policy": "telemetry archive contains the frozen corpus, but v3.1 runner roles omit all final_fault_test sources during development",
+  "code_archive": {
+    "path": "four_dataset_probabilistic_v31_code_and_contract.zip",
+    "bytes": 473083,
+    "sha256": "8c3c016773e9a1de1c368a4eb29209c5ac7641de26f21fe4ca0fbba6016f1f32",
+    "compression": "ZIP_STORED",
+    "member_count": 9,
+    "source_bytes": 471321,
+    "members": [
+      {
+        "path": "configs/four_dataset_probabilistic_v31_rflymad.json",
+        "bytes": 2628,
+        "sha256": "36fd8d78bb9ca098cfab6a5f7c3330702dabf3f6aad001188ee0634fb89932a4"
+      },
+      {
+        "path": "configs/four_dataset_probabilistic_v31_runner_roles.json",
+        "bytes": 126906,
+        "sha256": "c4a2951e1a8dc5655a33d3073d493200763a18b03229704cc3430c46d5b7b8b5"
+      },
+      {
+        "path": "configs/four_dataset_probabilistic_v31_split_manifest.json",
+        "bytes": 67037,
+        "sha256": "0a0b19f5caadf0b1a697f5256ff5096bcda221f01e93d3fef76b0782b293b75d"
+      },
+      {
+        "path": "configs/four_dataset_probabilistic_v31_evaluation_contract.json",
+        "bytes": 2024,
+        "sha256": "7c72634477b3036ee44a2a94fe857e9bb2cbb15e694b865f519dd9ae88b5850a"
+      },
+      {
+        "path": "docs/FOUR_DATASET_NORMAL_ONLY_V31_PROTOCOL_DECISIONS_20260728.md",
+        "bytes": 7327,
+        "sha256": "9674a1a91da2427ad45a81d8492bbc653008f09dd0312e88fac100a78a889c5c"
+      },
+      {
+        "path": "scripts/four_dataset_probabilistic_gpu_v1_runner.py",
+        "bytes": 54180,
+        "sha256": "66e9fc955e4333c4823b9d1744451409f447fa4c9ef42838491f7e3d2a5a3231"
+      },
+      {
+        "path": "scripts/four_dataset_probabilistic_v31_runner.py",
+        "bytes": 9723,
+        "sha256": "e2d0c253658563399a551500f60bf2c3a62e6feebd9e96c92e9d15903cfe3f9c"
+      },
+      {
+        "path": "artifacts/four_dataset_probabilistic_v3/group_registry_v1.parquet",
+        "bytes": 70810,
+        "sha256": "8b70fae4caf2cf69b26f0631c3c9094bcb2733443b949fca59577afc410b51ec"
+      },
+      {
+        "path": "artifacts/four_dataset_probabilistic_v31/rflymad_normal_train_audit.json",
+        "bytes": 130686,
+        "sha256": "cff7a66a6665507b5bb631d7c4edfafee11cf87278d044dd74edbdef1f874e52"
+      }
+    ]
+  },
+  "reused_data_archive": {
+    "bytes": 339274845,
+    "compression": "ZIP_STORED",
+    "member_count": 1553,
+    "path": "four_dataset_probabilistic_gpu_v1_rflymad_development_folds_0_4.zip",
+    "sha256": "f1e4cb12a5008de43acfeb2da61559c684d91209a191686dfdb8a1c83e68ef45",
+    "source_bytes": 338932957
+  }
+}

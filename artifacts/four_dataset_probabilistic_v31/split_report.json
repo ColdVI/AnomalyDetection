@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_v31",
+  "artifact_role": "pre-training contract verification",
+  "created_date": "2026-07-28",
+  "training_started": false,
+  "inputs": {
+    "base_v3_manifest_path": "configs/four_dataset_probabilistic_v3_split_manifest.json",
+    "base_v3_manifest_sha256": "27b2995e0f5bc39d87fb350d441adf9ac8be502512200d67aa74de67b302f2cc",
+    "group_registry_path": "artifacts/four_dataset_probabilistic_v3/group_registry_v1.parquet",
+    "group_registry_sha256": "8b70fae4caf2cf69b26f0631c3c9094bcb2733443b949fca59577afc410b51ec"
+  },
+  "all_contracts_passed": true,
+  "rflymad": {
+    "contract_passed": true,
+    "source_overlap_count": 0,
+    "group_overlap_count": 0,
+    "v3_train_preserved": true,
+    "v3_validation_preserved": true,
+    "v3_test_membership_preserved": true,
+    "roles": {
+      "train": {
+        "source_count": 260,
+        "group_count": 7,
+        "normal_source_count": 260,
+        "anomaly_source_count": 0,
+        "domain_counts": {
+          "HIL": 120,
+          "Real": 20,
+          "SIL": 120
+        },
+        "fault_family_counts": {
+          "NoFault": 260
+        }
+      },
+      "val": {
+        "source_count": 90,
+        "group_count": 3,
+        "normal_source_count": 90,
+        "anomaly_source_count": 0,
+        "domain_counts": {
+          "HIL": 40,
+          "Real": 10,
+          "SIL": 40
+        },
+        "fault_family_counts": {
+          "NoFault": 90
+        }
+      },
+      "normal_test": {
+        "source_count": 91,
+        "group_count": 3,
+        "normal_source_count": 91,
+        "anomaly_source_count": 0,
+        "domain_counts": {
+          "HIL": 40,
+          "Real": 11,
+          "SIL": 40
+        },
+        "fault_family_counts": {
+          "NoFault": 91
+        }
+      },
+      "anomaly_dev": {
+        "source_count": 557,
+        "group_count": 12,
+        "normal_source_count": 0,
+        "anomaly_source_count": 557,
+        "domain_counts": {
+          "HIL": 248,
+          "Real": 64,
+          "SIL": 245
+        },
+        "fault_family_counts": {
+          "Environment": 69,
+          "Motor": 243,
+          "Propeller": 129,
+          "Sensor": 110,
+          "Voltage": 6
+        }
+      },
+      "final_fault_test": {
+        "source_count": 553,
+        "group_count": 13,
+        "normal_source_count": 0,
+        "anomaly_source_count": 553,
+        "domain_counts": {
+          "HIL": 239,
+          "Real": 53,
+          "SIL": 261
+        },
+        "fault_family_counts": {
+          "Environment": 76,
+          "Load": 43,
+          "Motor": 266,
+          "Propeller": 81,
+          "Sensor": 81,
+          "Voltage": 6
+        }
+      }
+    }
+  }
+}

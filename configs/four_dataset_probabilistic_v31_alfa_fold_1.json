@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_v31",
+  "contract_date": "2026-07-28",
+  "split_manifest": "configs/four_dataset_probabilistic_v31_runner_roles.json",
+  "objective": "normal-only causal Gaussian forecasting with group/source-balanced optimizer exposure and sealed final fault test",
+  "common": {
+    "history_rows": 32,
+    "max_gap_s": 5.0,
+    "epochs": 30,
+    "batch_size": 1024,
+    "block_windows": 32768,
+    "hidden_size": 64,
+    "num_layers": 1,
+    "learning_rate": 0.001,
+    "gradient_clip_norm": 1.0,
+    "seed": 20260727,
+    "robust_scale_factor": 1.4826,
+    "robust_clip": 5.0,
+    "minimum_mad": 1e-06,
+    "min_scale": 0.05,
+    "max_scale": 5.0,
+    "mixed_precision": false,
+    "validation_alarm_quantile": 0.995,
+    "magnitude_diagnostic_max_windows": 50000,
+    "magnitude_domination_rho_gate": 0.8,
+    "select_best_validation_checkpoint": true,
+    "training_sampler": "group_then_source_balanced_epoch_quota"
+  },
+  "prohibitions": {
+    "no_row_random_split": true,
+    "no_anomaly_rows_in_optimizer": true,
+    "no_validation_or_test_preprocessing_fit": true,
+    "no_final_fault_test_during_development": true,
+    "no_test_threshold_selection": true
+  },
+  "split_name": "grouped_cv_4_fold_1",
+  "datasets": {
+    "alfa": {
+      "data_path": "data/gold/ml_features/alfa/alfa_ml_features.parquet",
+      "normal_label": "normal",
+      "evaluation_status": "four-fold group-safe CV smoke; no single-split claim",
+      "features": [
+        "roll_error",
+        "pitch_error",
+        "yaw_error",
+        "airspeed_error",
+        "alt_error",
+        "xtrack_error",
+        "wp_dist",
+        "path_dev_mag",
+        "roll_rate",
+        "pitch_rate",
+        "yaw_rate",
+        "altitude_rate",
+        "airspeed_rate",
+        "throttle",
+        "climb_rate_ms",
+        "gps_speed_residual"
+      ],
+      "group_registry_path": "artifacts/four_dataset_probabilistic_v3/group_registry_v1.parquet"
+    }
+  }
+}

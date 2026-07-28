@@ -1,6 +1,10 @@
 # Four-dataset v2 — yorum, v3 yönü ve raporlama kaydı
 
 Tarih: 2026-07-28
+
+2026-07-28 sonrası normal-only/group-safe uygulama kararları, RflyMAD v3.1 kör
+fault-test ayrımı ve UAV-SEAD session-key metadata sonucu için kanonik devam
+kaydı `FOUR_DATASET_NORMAL_ONLY_V31_PROTOCOL_DECISIONS_20260728.md` dosyasıdır.
 Kaynak: Kullanıcı tarafından sağlanan teknik değerlendirme; kabul edilmiş v2
 artifactleri ve `four_dataset_probabilistic_event_eval_v1` çıktılarıyla
 uzlaştırılmıştır.
