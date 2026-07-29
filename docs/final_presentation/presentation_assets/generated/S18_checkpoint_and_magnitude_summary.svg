@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-29T13:18:42.197012</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 50.04 415.8 
+L 234.36 415.8 
+Q 243 415.8 243 407.16 
+L 243 197.64 
+Q 243 189 234.36 189 
+L 50.04 189 
+Q 41.4 189 41.4 197.64 
+L 41.4 407.16 
+Q 41.4 415.8 50.04 415.8 
+z
+" clip-path="url(#p55d3b95e88)" style="fill: #f4f7fb; stroke: #2f6bff; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 271.8 415.8 
+L 456.12 415.8 
+Q 464.76 415.8 464.76 407.16 
+L 464.76 197.64 
+Q 464.76 189 456.12 189 
+L 271.8 189 
+Q 263.16 189 263.16 197.64 
+L 263.16 407.16 
+Q 263.16 415.8 271.8 415.8 
+z
+" clip-path="url(#p55d3b95e88)" style="fill: #f4f7fb; stroke: #27a9c7; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 493.56 415.8 
+L 677.88 415.8 
+Q 686.52 415.8 686.52 407.16 
+L 686.52 197.64 
+Q 686.52 189 677.88 189 
+L 493.56 189 
+Q 484.92 189 484.92 197.64 
+L 484.92 407.16 
+Q 484.92 415.8 493.56 415.8 
+z
+" clip-path="url(#p55d3b95e88)" style="fill: #f4f7fb; stroke: #6c5ce7; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 715.32 415.8 
+L 899.64 415.8 
+Q 908.28 415.8 908.28 407.16 
+L 908.28 197.64 
+Q 908.28 189 899.64 189 
+L 715.32 189 
+Q 706.68 189 706.68 197.64 
+L 706.68 407.16 
+Q 706.68 415.8 715.32 415.8 
+z
+" clip-path="url(#p55d3b95e88)" style="fill: #f4f7fb; stroke: #2e8b57; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 937.08 415.8 
+L 1121.4 415.8 
+Q 1130.04 415.8 1130.04 407.16 
+L 1130.04 197.64 
+Q 1130.04 189 1121.4 189 
+L 937.08 189 
+Q 928.44 189 928.44 197.64 
+L 928.44 407.16 
+Q 928.44 415.8 937.08 415.8 
+z
+" clip-path="url(#p55d3b95e88)" style="fill: #f4f7fb; stroke: #2e8b57; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 312.84 567 
+L 839.16 567 
+Q 847.8 567 847.8 558.36 
+L 847.8 482.04 
+Q 847.8 473.4 839.16 473.4 
+L 312.84 473.4 
+Q 304.2 473.4 304.2 482.04 
+L 304.2 558.36 
+Q 304.2 567 312.84 567 
+z
+" clip-path="url(#p55d3b95e88)" style="fill: #eef8f2; stroke: #2e8b57; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 104.4 
+L 1101.6 104.4 
+" clip-path="url(#p55d3b95e88)" style="fill: none; stroke: #d7dfea; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 29px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #16324f" x="50.4" y="69.542344" transform="rotate(-0 50.4 69.542344)">Checkpoint ve öğrenme kontrolü özeti</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #617086" x="51.84" y="96.344766" transform="rotate(-0 51.84 96.344766)">Normal doğrulama verisiyle seçildi; anomali sonucundan bağımsız</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2f6bff" x="59.04" y="221.597813" transform="rotate(-0 59.04 221.597813)">Seçilen checkpoint</text>
+   </g>
+   <g id="text_4">
+    <text style="font-weight: 700; font-size: 25px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #2f6bff" x="142.2" y="341.295117" transform="rotate(-0 142.2 341.295117)">30. epoch</text>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #27a9c7" x="280.8" y="221.939063" transform="rotate(-0 280.8 221.939063)">Eğitim NLL</text>
+   </g>
+   <g id="text_6">
+    <text style="font-weight: 700; font-size: 25px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #27a9c7" x="363.96" y="341.294141" transform="rotate(-0 363.96 341.294141)">-0,960</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6c5ce7" x="502.56" y="221.939063" transform="rotate(-0 502.56 221.939063)">Doğrulama NLL</text>
+   </g>
+   <g id="text_8">
+    <text style="font-weight: 700; font-size: 25px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #6c5ce7" x="585.72" y="341.294141" transform="rotate(-0 585.72 341.294141)">-0,151</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e8b57" x="724.32" y="221.939063" transform="rotate(-0 724.32 221.939063)">Eğitilmiş ↔ rastgele</text>
+   </g>
+   <g id="text_10">
+    <text style="font-weight: 700; font-size: 25px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #2e8b57" x="807.48" y="341.294141" transform="rotate(-0 807.48 341.294141)">ρ = 0,329</text>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e8b57" x="946.08" y="221.939063" transform="rotate(-0 946.08 221.939063)">Eğitilmiş ↔ genlik</text>
+   </g>
+   <g id="text_12">
+    <text style="font-weight: 700; font-size: 25px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #2e8b57" x="1029.24" y="341.294141" transform="rotate(-0 1029.24 341.294141)">ρ = 0,349</text>
+   </g>
+   <g id="text_13">
+    <text style="font-weight: 700; font-size: 17px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e8b57" x="321.84" y="508.277344" transform="rotate(-0 321.84 508.277344)">Kontrol sonucu</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172033" x="321.84" y="546.766719" transform="rotate(-0 321.84 546.766719)">Her iki korelasyon da ρ=0,80 eşiğinin altında; belirgin genlik kestirmesi işaretlenmedi.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p55d3b95e88">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-29T13:18:39.575891</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 78.84 567 
+L 468.36 567 
+Q 477 567 477 558.36 
+L 477 482.04 
+Q 477 473.4 468.36 473.4 
+L 78.84 473.4 
+Q 70.2 473.4 70.2 482.04 
+L 70.2 558.36 
+Q 70.2 567 78.84 567 
+z
+" clip-path="url(#p251161aca7)" style="fill: #f4f7fb; stroke: #6c5ce7; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 104.4 
+L 1101.6 104.4 
+" clip-path="url(#p251161aca7)" style="fill: none; stroke: #d7dfea; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 230.4 201.6 
+L 1044 201.6 
+" clip-path="url(#p251161aca7)" style="fill: none; stroke: #d7dfea; stroke-width: 4; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 230.4 201.6 
+L 1044 201.6 
+" clip-path="url(#p251161aca7)" style="fill: none; stroke: #d64545; stroke-width: 10"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 230.4 388.8 
+L 1044 388.8 
+" clip-path="url(#p251161aca7)" style="fill: none; stroke: #2e8b57; stroke-opacity: 0.35; stroke-width: 10"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 734.4 388.8 
+L 1044 388.8 
+" clip-path="url(#p251161aca7)" style="fill: none; stroke: #d64545; stroke-width: 10"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 734.4 427.68 
+L 734.4 330.48 
+" clip-path="url(#p251161aca7)" style="fill: none; stroke-dasharray: 7.4,3.2; stroke-dashoffset: 0; stroke: #16324f; stroke-width: 2"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 29px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #16324f" x="50.4" y="69.243281" transform="rotate(-0 50.4 69.243281)">Arıza başlangıcı düzeltmesi</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #617086" x="51.84" y="96.344766" transform="rotate(-0 51.84 96.344766)">Şematik gösterim — gerçek bir uçuş zaman serisi değildir</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 18px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #d64545" x="72" y="176.4" transform="rotate(-0 72 176.4)">Düzeltme öncesi</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #d64545" x="230.4" y="234" transform="rotate(-0 230.4 234)">t = 0: arıza aktif görünüyor</text>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 18px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e8b57" x="72" y="363.6" transform="rotate(-0 72 363.6)">Düzeltme sonrası</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #16324f" x="734.4" y="428.4" transform="rotate(-0 734.4 428.4)">Gerçek başlangıç</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 20px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6c5ce7" x="87.84" y="510.556875" transform="rotate(-0 87.84 510.556875)">2.712 uçuş etkilendi</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #172033" x="87.84" y="546.602188" transform="rotate(-0 87.84 546.602188)">6.605 uçuşluk havuz yeniden parse edildi</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 17px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #16324f" x="576" y="536.4" transform="rotate(-0 576 536.4)">Sonuç: düzeltme öncesi olay-zamanı metrikleri kullanılmaz.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p251161aca7">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

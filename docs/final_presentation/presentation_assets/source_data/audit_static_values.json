@@ -1,0 +1,40 @@
+{
+  "provenance": {
+    "timeline": "docs/final_presentation/01_project_timeline.md",
+    "datasets": "docs/final_presentation/02_dataset_inventory.md",
+    "methods": "docs/final_presentation/03_method_inventory.md",
+    "metrics": "docs/final_presentation/04_metric_evolution.md",
+    "failures": "docs/final_presentation/05_failure_and_fix_inventory.md",
+    "v31": "docs/final_presentation/08_probabilistic_v31_deep_dive.md",
+    "numbers": "docs/final_presentation/09_number_consistency_audit.md"
+  },
+  "timeline_three_lanes": {
+    "data_truth": ["Şema denetimi", "Olay aralığı düzeltmesi", "2.712 uçuşluk parser düzeltmesi", "Kapalı nihai test"],
+    "model": ["IF / residual", "AE · TCN · Chronos", "Gaussian sonraki-adım modeli", "30. epoch seçimi"],
+    "evaluation": ["Pencere / uçuş AUC", "Oturum bazlı bölünme", "Gerçek olay değerlendirmesi", "Hedef karşılanmadı"]
+  },
+  "dataset_feasibility": {
+    "scale": {"0": "Yok", "1": "Sınırlı", "2": "Güçlü"},
+    "criteria": ["Olay aralığı", "Normal çeşitlilik", "Bağımsız grup", "Fiziksel gözlenebilirlik", "Doğal etiket"],
+    "datasets": {
+      "ALFA": [1, 0, 1, 2, 2],
+      "UAV Attack": [0, 0, 0, 0, 2],
+      "UAV-SEAD": [2, 1, 1, 1, 2],
+      "RflyMAD": [2, 2, 2, 2, 2],
+      "ADS-B": [0, 2, 2, 1, 0]
+    },
+    "interpretation": "Audit belgelerinden türetilmiş nitel sunum kodlamasıdır; ölçülmüş model skoru değildir."
+  },
+  "metric_ladder": ["Gaussian NLL", "Pencere sıralaması", "Olay politikası", "Olay yakalama + yanlış olay/normal saat"],
+  "truth_parser": {
+    "affected_flights": 2712,
+    "canonical_pool_flights": 6605,
+    "real_series_used": false,
+    "required_label": "Şematik gösterim"
+  },
+  "sead_magnitude_correlations": {
+    "trained_vs_random": 0.964,
+    "trained_vs_raw_magnitude": 0.965,
+    "approximate": true
+  }
+}

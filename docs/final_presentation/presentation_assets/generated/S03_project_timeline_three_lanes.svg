@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-29T13:18:38.537049</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="line2d_1">
+    <path d="M 50.4 104.4 
+L 1101.6 104.4 
+" clip-path="url(#p6c0eaadb5b)" style="fill: none; stroke: #d7dfea; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 223.2 190.8 
+L 1040.4 190.8 
+" clip-path="url(#p6c0eaadb5b)" style="fill: none; stroke: #d7dfea; stroke-width: 4; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 223.2 334.8 
+L 1040.4 334.8 
+" clip-path="url(#p6c0eaadb5b)" style="fill: none; stroke: #d7dfea; stroke-width: 4; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 223.2 478.8 
+L 1040.4 478.8 
+" clip-path="url(#p6c0eaadb5b)" style="fill: none; stroke: #d7dfea; stroke-width: 4; stroke-linecap: round"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 29px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #16324f" x="50.4" y="69.542344" transform="rotate(-0 50.4 69.542344)">Proje ilerlemesi: üç paralel öğrenme hattı</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #617086" x="51.84" y="95.977734" transform="rotate(-0 51.84 95.977734)">Modelden önce ölçüm sözleşmesi olgunlaştı</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e8b57" x="50.4" y="194.956875" transform="rotate(-0 50.4 194.956875)">Veri ve gerçeklik</text>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="m36f88ec1c1" d="M 0 6.800735 
+C 1.803576 6.800735 3.533525 6.084167 4.808846 4.808846 
+C 6.084167 3.533525 6.800735 1.803576 6.800735 0 
+C 6.800735 -1.803576 6.084167 -3.533525 4.808846 -4.808846 
+C 3.533525 -6.084167 1.803576 -6.800735 0 -6.800735 
+C -1.803576 -6.800735 -3.533525 -6.084167 -4.808846 -4.808846 
+C -6.084167 -3.533525 -6.800735 -1.803576 -6.800735 0 
+C -6.800735 1.803576 -6.084167 3.533525 -4.808846 4.808846 
+C -3.533525 6.084167 -1.803576 6.800735 0 6.800735 
+z
+" style="stroke: #ffffff; stroke-width: 2"/>
+    </defs>
+    <g clip-path="url(#p6c0eaadb5b)">
+     <use xlink:href="#m36f88ec1c1" x="262.8" y="190.8" style="fill: #2e8b57; stroke: #ffffff; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="262.8" y="234.098203" transform="rotate(-0 262.8 234.098203)">Şema denetimi</text>
+   </g>
+   <g id="PathCollection_2">
+    <g clip-path="url(#p6c0eaadb5b)">
+     <use xlink:href="#m36f88ec1c1" x="514.8" y="190.8" style="fill: #2e8b57; stroke: #ffffff; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="514.8" y="234.389297" transform="rotate(-0 514.8 234.389297)">Olay aralığı düzeltmesi</text>
+   </g>
+   <g id="PathCollection_3">
+    <g clip-path="url(#p6c0eaadb5b)">
+     <use xlink:href="#m36f88ec1c1" x="766.8" y="190.8" style="fill: #2e8b57; stroke: #ffffff; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="766.8" y="234.098203" transform="rotate(-0 766.8 234.098203)">2.712 uçuşluk parser düzeltmesi</text>
+   </g>
+   <g id="PathCollection_4">
+    <g clip-path="url(#p6c0eaadb5b)">
+     <use xlink:href="#m36f88ec1c1" x="1018.8" y="190.8" style="fill: #2e8b57; stroke: #ffffff; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="1018.8" y="234.098203" transform="rotate(-0 1018.8 234.098203)">Kapalı nihai test</text>
+   </g>
+   <g id="text_8">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2f6bff" x="50.4" y="338.956875" transform="rotate(-0 50.4 338.956875)">Model</text>
+   </g>
+   <g id="PathCollection_5">
+    <defs>
+     <path id="mb13d75d93b" d="M 0 6.800735 
+C 1.803576 6.800735 3.533525 6.084167 4.808846 4.808846 
+C 6.084167 3.533525 6.800735 1.803576 6.800735 0 
+C 6.800735 -1.803576 6.084167 -3.533525 4.808846 -4.808846 
+C 3.533525 -6.084167 1.803576 -6.800735 0 -6.800735 
+C -1.803576 -6.800735 -3.533525 -6.084167 -4.808846 -4.808846 
+C -6.084167 -3.533525 -6.800735 -1.803576 -6.800735 0 
+C -6.800735 1.803576 -6.084167 3.533525 -4.808846 4.808846 
+C -3.533525 6.084167 -1.803576 6.800735 0 6.800735 
+z
+" style="stroke: #ffffff; stroke-width: 2"/>
+    </defs>
+    <g clip-path="url(#p6c0eaadb5b)">
+     <use xlink:href="#mb13d75d93b" x="262.8" y="334.8" style="fill: #2f6bff; stroke: #ffffff; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="262.8" y="378.098203" transform="rotate(-0 262.8 378.098203)">IF / residual</text>
+   </g>
+   <g id="PathCollection_6">
+    <g clip-path="url(#p6c0eaadb5b)">
+     <use xlink:href="#mb13d75d93b" x="514.8" y="334.8" style="fill: #2f6bff; stroke: #ffffff; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="514.8" y="378.098203" transform="rotate(-0 514.8 378.098203)">AE · TCN · Chronos</text>
+   </g>
+   <g id="PathCollection_7">
+    <g clip-path="url(#p6c0eaadb5b)">
+     <use xlink:href="#mb13d75d93b" x="766.8" y="334.8" style="fill: #2f6bff; stroke: #ffffff; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="766.8" y="378.098203" transform="rotate(-0 766.8 378.098203)">Gaussian sonraki-adım modeli</text>
+   </g>
+   <g id="PathCollection_8">
+    <g clip-path="url(#p6c0eaadb5b)">
+     <use xlink:href="#mb13d75d93b" x="1018.8" y="334.8" style="fill: #2f6bff; stroke: #ffffff; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="1018.8" y="378.098203" transform="rotate(-0 1018.8 378.098203)">30. epoch seçimi</text>
+   </g>
+   <g id="text_13">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6c5ce7" x="50.4" y="483.151875" transform="rotate(-0 50.4 483.151875)">Değerlendirme</text>
+   </g>
+   <g id="PathCollection_9">
+    <defs>
+     <path id="m34ac5c1a98" d="M 0 6.800735 
+C 1.803576 6.800735 3.533525 6.084167 4.808846 4.808846 
+C 6.084167 3.533525 6.800735 1.803576 6.800735 0 
+C 6.800735 -1.803576 6.084167 -3.533525 4.808846 -4.808846 
+C 3.533525 -6.084167 1.803576 -6.800735 0 -6.800735 
+C -1.803576 -6.800735 -3.533525 -6.084167 -4.808846 -4.808846 
+C -6.084167 -3.533525 -6.800735 -1.803576 -6.800735 0 
+C -6.800735 1.803576 -6.084167 3.533525 -4.808846 4.808846 
+C -3.533525 6.084167 -1.803576 6.800735 0 6.800735 
+z
+" style="stroke: #ffffff; stroke-width: 2"/>
+    </defs>
+    <g clip-path="url(#p6c0eaadb5b)">
+     <use xlink:href="#m34ac5c1a98" x="262.8" y="478.8" style="fill: #6c5ce7; stroke: #ffffff; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="262.8" y="522.097305" transform="rotate(-0 262.8 522.097305)">Pencere / uçuş AUC</text>
+   </g>
+   <g id="PathCollection_10">
+    <g clip-path="url(#p6c0eaadb5b)">
+     <use xlink:href="#m34ac5c1a98" x="514.8" y="478.8" style="fill: #6c5ce7; stroke: #ffffff; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="514.8" y="522.098203" transform="rotate(-0 514.8 522.098203)">Oturum bazlı bölünme</text>
+   </g>
+   <g id="PathCollection_11">
+    <g clip-path="url(#p6c0eaadb5b)">
+     <use xlink:href="#m34ac5c1a98" x="766.8" y="478.8" style="fill: #6c5ce7; stroke: #ffffff; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="766.8" y="522.389297" transform="rotate(-0 766.8 522.389297)">Gerçek olay değerlendirmesi</text>
+   </g>
+   <g id="PathCollection_12">
+    <g clip-path="url(#p6c0eaadb5b)">
+     <use xlink:href="#m34ac5c1a98" x="1018.8" y="478.8" style="fill: #6c5ce7; stroke: #ffffff; stroke-width: 2"/>
+    </g>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="1018.8" y="522.098203" transform="rotate(-0 1018.8 522.098203)">Hedef karşılanmadı</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #617086" x="262.8" y="565.2" transform="rotate(-0 262.8 565.2)">İlk turlar</text>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #617086" x="514.8" y="565.2" transform="rotate(-0 514.8 565.2)">Nedensellik ve bağımsızlık</text>
+   </g>
+   <g id="text_20">
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #617086" x="766.8" y="565.2" transform="rotate(-0 766.8 565.2)">Ortak olasılıksal yaklaşım</text>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #617086" x="1018.8" y="565.2" transform="rotate(-0 1018.8 565.2)">Son değerlendirme</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p6c0eaadb5b">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>
