@@ -40,14 +40,14 @@ class QueryTower(nn.Module):
         """points: (batch, max_len, POINT_DIM) -- kisa izler 0 ile pad edilmis.
         lengths: (batch,) -- her ornegin GERCEK (pad'siz) nokta sayisi."""
         batch, max_len, _ = points.shape
-        pad_mask = torch.arange(max_len).unsqueeze(0) >= lengths.unsqueeze(1)  # True = pad
+        pad_mask = torch.arange(max_len, device=points.device).unsqueeze(0) >= lengths.unsqueeze(1)  # True = pad
 
         h = self.input_proj(points)
         h = self.encoder(h, src_key_padding_mask=pad_mask)
 
         # her ornegin SON gercek (pad-olmayan) adimini sec
         last_idx = (lengths - 1).clamp(min=0)
-        last_h = h[torch.arange(batch), last_idx]
+        last_h = h[torch.arange(batch, device=points.device), last_idx]
         return self.output_proj(last_h)
 
 

@@ -3,10 +3,11 @@ YETERLI DEGIL cunku rota dagilimi ciddi dengesiz (en ust 227 rota hacmin
 %21,6'sini olusturuyor -- bkz. gunluk 2026-07-23). Bu yuzden test-seti
 dogrulugu rota-tekrar-sikligi dilimlerine gore AYRI raporlanir.
 
-Herhangi bir checkpoint'e karsi calisir (train_full.py'nin MODEL_OUT'u) --
-egitim surerken bile (checkpoint dosyasi VARSA) calistirilip kod dogrulugu
-onceden test edilebilir; nihai/anlamli sonuc icin egitim TAMAMLANMIS
-checkpoint'e karsi calistirilmali.
+Herhangi bir checkpoint'e karsi calisir (train_full_v7.py'nin MODEL_OUT'u).
+
+v6: v5'e hidden_dim/out_dim parametreleri eklendi (kapasite-artirilmis
+checkpoint'leri (ör. h64o32) dogru mimariyle yukleyebilsin diye -- yanlis
+boyutla yuklemek state_dict shape hatasi verir).
 """
 from __future__ import annotations
 
@@ -24,7 +25,7 @@ from individual.metehan_varis_tahmini.airport_gcn import (
 )
 from individual.metehan_varis_tahmini.airport_gat import AirportGAT, build_adjacency_mask
 from individual.metehan_varis_tahmini.query_tower import QueryTower
-from individual.metehan_varis_tahmini.train_full import (
+from individual.metehan_varis_tahmini.train_full_v7 import (
     TrajectoryDataset, collate, load_all_sessions, SPLIT_PATH, checkpoint_paths,
 )
 import json
@@ -44,7 +45,7 @@ def bucket_label(n):
 
 @torch.no_grad()
 def main(checkpoint: str = "best", item_tower_kind: str = "gcn", loss_kind: str = "ce", extra: str = "",
-         hidden_dim: int = 32, out_dim: int = 16, top_k: tuple[int, ...] = (1, 3, 5)):
+         hidden_dim: int = 32, out_dim: int = 16):
     MODEL_OUT, BEST_MODEL_OUT = checkpoint_paths(item_tower_kind, loss_kind, extra=extra)
 
     feat_df = pd.read_parquet(FEATURES_PATH)
@@ -63,8 +64,6 @@ def main(checkpoint: str = "best", item_tower_kind: str = "gcn", loss_kind: str 
     all_df["split"] = all_df["session_id"].map(split_map)
     all_df = all_df.dropna(subset=["split"])
 
-    # test-setindeki rota-tekrar sikligini split_df uzerinden hesapla
-    # (build_split.py'nin ayni mantigi -- TUM kept session'lar uzerinden rota sayimi)
     route_counts = split_df.groupby(["origin_airport", "dest_airport"]).size()
     route_count_map = route_counts.to_dict()
 
@@ -73,9 +72,6 @@ def main(checkpoint: str = "best", item_tower_kind: str = "gcn", loss_kind: str 
         lambda r: route_count_map.get((r["origin_airport"], r["dest_airport"]), 1), axis=1)
     test_df["bucket"] = test_df["route_count"].apply(bucket_label)
 
-    # Varsayilan: EN IYI (val_acc'e gore) checkpoint -- val_acc epoch'tan
-    # epoch'a dalgalanabiliyor (2026-07-24: epoch 5, epoch 4'ten kotu cikti),
-    # bu yuzden "son epoch" ile "en iyi epoch" AYNI SEY DEGIL.
     ckpt_path = BEST_MODEL_OUT if (checkpoint == "best" and BEST_MODEL_OUT.exists()) else MODEL_OUT
     ckpt = torch.load(ckpt_path, weights_only=False)
     print(f"Checkpoint: {ckpt_path.name} (epoch={ckpt.get('epoch', 'eski-format')}, "
@@ -93,18 +89,8 @@ def main(checkpoint: str = "best", item_tower_kind: str = "gcn", loss_kind: str 
 
     airport_emb = item_tower(x, a_norm)
 
-    # top_k: modelin gercekten sadece TEK bir varisi degil, olasi bir kucuk
-    # aday KUMESINI dogru yakalayip yakalamadigini gormek icin -- projenin
-    # bastan beri hedefi ("%60 Viyana, %30 Gent" gibi bir olasilik dagilimi)
-    # zaten TEK bir kesin cevabi degil, en olasi birkac adayi dogru siralamak.
-    # Kismi bir izden gercekten belirsiz olabilen erken-ucus ornekleri icin
-    # top-1 tek basina yaniltici olabilir -- top-3/top-5 bu belirsizligi
-    # dogru cevabi "makul adaylar" icinde yakalayip yakalamadigimizi gosterir.
-    max_k = max(top_k)
-    header = f"{'Dilim':<10} {'Ornek':<10} " + " ".join(f"{'top'+str(k):<10}" for k in top_k)
-    print(f"\n{header}")
-    overall_correct = {k: 0 for k in top_k}
-    overall_n = 0
+    print(f"\n{'Dilim':<10} {'Ornek':<10} {'Dogruluk':<10}")
+    overall_correct, overall_n = 0, 0
     for label in [bucket_label(lo) for lo, _ in BUCKETS]:
         sub = test_df[test_df["bucket"] == label]
         if len(sub) == 0:
@@ -115,36 +101,28 @@ def main(checkpoint: str = "best", item_tower_kind: str = "gcn", loss_kind: str 
             print(f"{label:<10} {'0':<10} -")
             continue
         loader = DataLoader(ds, batch_size=256, shuffle=False, collate_fn=collate)
-        correct = {k: 0 for k in top_k}
-        n = 0
-        for points, lengths, labels, origins in loader:  # collate artik origin da donduruyor (mask_routes icin)
+        correct, n = 0, 0
+        for points, lengths, labels, origins in loader:
             query_emb = query_tower(points, lengths)
             logits = query_emb @ airport_emb.T
-            topk_idx = logits.topk(min(max_k, logits.shape[-1]), dim=-1).indices  # (batch, max_k)
-            hit = topk_idx == labels.unsqueeze(1)  # (batch, max_k) -- her sutun "ilk k'ye girdi mi"
-            for k in top_k:
-                correct[k] += hit[:, :k].any(dim=1).sum().item()
+            correct += (logits.argmax(dim=-1) == labels).sum().item()
             n += len(labels)
-        row = " ".join(f"{(correct[k]/n if n else float('nan')):<10.4f}" for k in top_k)
-        print(f"{label:<10} {n:<10} {row}")
-        for k in top_k:
-            overall_correct[k] += correct[k]
+        acc = correct / n if n else float("nan")
+        print(f"{label:<10} {n:<10} {acc:.4f}")
+        overall_correct += correct
         overall_n += n
 
-    row = " ".join(f"{(overall_correct[k]/overall_n):<10.4f}" for k in top_k)
-    print(f"\n{'GENEL':<10} {overall_n:<10} {row}")
+    print(f"\n{'GENEL':<10} {overall_n:<10} {overall_correct/overall_n:.4f}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--checkpoint", choices=["best", "last"], default="best",
-                         help="'best' = en yuksek val_acc'li checkpoint, 'last' = son epoch")
+    parser.add_argument("--checkpoint", choices=["best", "last"], default="best")
     parser.add_argument("--item-tower", choices=["gcn", "gat"], default="gcn")
     parser.add_argument("--loss", choices=["ce", "focal"], default="ce")
-    parser.add_argument("--extra", default="", help="checkpoint_paths()'in ucuncu parametresi (ör. 'aug_opensky_h64o32')")
-    parser.add_argument("--hidden-dim", type=int, default=32, help="Egitimde kullanilan hidden_dim ile AYNI olmali")
-    parser.add_argument("--out-dim", type=int, default=16, help="Egitimde kullanilan out_dim ile AYNI olmali")
-    parser.add_argument("--top-k", type=int, nargs="+", default=[1, 3, 5], help="Raporlanacak top-k degerleri")
+    parser.add_argument("--extra", default="")
+    parser.add_argument("--hidden-dim", type=int, default=32)
+    parser.add_argument("--out-dim", type=int, default=16)
     args = parser.parse_args()
     main(checkpoint=args.checkpoint, item_tower_kind=args.item_tower, loss_kind=args.loss, extra=args.extra,
-         hidden_dim=args.hidden_dim, out_dim=args.out_dim, top_k=tuple(args.top_k))
+         hidden_dim=args.hidden_dim, out_dim=args.out_dim)
