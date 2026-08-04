@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-04T18:42:23.014080</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 77.76 311.04 
+L 383.04 311.04 
+Q 390.24 311.04 390.24 303.84 
+L 390.24 178.56 
+Q 390.24 171.36 383.04 171.36 
+L 77.76 171.36 
+Q 70.56 171.36 70.56 178.56 
+L 70.56 303.84 
+Q 70.56 311.04 77.76 311.04 
+z
+" clip-path="url(#p87ecfdba93)" style="fill: #ffffff; stroke: #2a78d6; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 77.76 512.64 
+L 383.04 512.64 
+Q 390.24 512.64 390.24 505.44 
+L 390.24 380.16 
+Q 390.24 372.96 383.04 372.96 
+L 77.76 372.96 
+Q 70.56 372.96 70.56 380.16 
+L 70.56 505.44 
+Q 70.56 512.64 77.76 512.64 
+z
+" clip-path="url(#p87ecfdba93)" style="fill: #ffffff; stroke: #eb6834; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 574.56 311.04 
+L 807.84 311.04 
+Q 815.04 311.04 815.04 303.84 
+L 815.04 178.56 
+Q 815.04 171.36 807.84 171.36 
+L 574.56 171.36 
+Q 567.36 171.36 567.36 178.56 
+L 567.36 303.84 
+Q 567.36 311.04 574.56 311.04 
+z
+" clip-path="url(#p87ecfdba93)" style="fill: #ffffff; stroke: #1baf7a; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 884.16 311.04 
+L 1095.84 311.04 
+Q 1103.04 311.04 1103.04 303.84 
+L 1103.04 178.56 
+Q 1103.04 171.36 1095.84 171.36 
+L 884.16 171.36 
+Q 876.96 171.36 876.96 178.56 
+L 876.96 303.84 
+Q 876.96 311.04 884.16 311.04 
+z
+" clip-path="url(#p87ecfdba93)" style="fill: #ffffff; stroke: #4a3aa7; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 397.998743 241.2 
+Q 478.798332 241.2 556.691033 241.2 
+" clip-path="url(#p87ecfdba93)" style="fill: none; stroke: #2a78d6; stroke-width: 2.6; stroke-linecap: round"/>
+    <path d="M 550.691033 238.2 
+L 556.691033 241.2 
+L 550.691033 244.2 
+z
+" clip-path="url(#p87ecfdba93)" style="fill: #2a78d6; stroke: #2a78d6; stroke-width: 2.6; stroke-linecap: round"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 822.802588 241.2 
+Q 846.001384 241.2 866.293292 241.2 
+" clip-path="url(#p87ecfdba93)" style="fill: none; stroke: #1baf7a; stroke-width: 2.6; stroke-linecap: round"/>
+    <path d="M 860.293292 238.2 
+L 866.293292 241.2 
+L 860.293292 244.2 
+z
+" clip-path="url(#p87ecfdba93)" style="fill: #1baf7a; stroke: #1baf7a; stroke-width: 2.6; stroke-linecap: round"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 398.004456 442.8 
+Q 691.203403 442.8 982.166282 442.8 
+" clip-path="url(#p87ecfdba93)" style="fill: none; stroke-dasharray: 10,8; stroke-dashoffset: 0; stroke: #eb6834; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 976.166282 439.8 
+L 982.166282 442.8 
+L 976.166282 445.8 
+z
+" clip-path="url(#p87ecfdba93)" style="fill: #eb6834; stroke-dasharray: 10,8; stroke-dashoffset: 0; stroke: #eb6834; stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 990 437.201587 
+Q 990 378.002058 990 321.038597 
+" clip-path="url(#p87ecfdba93)" style="fill: none; stroke-dasharray: 10,8; stroke-dashoffset: 0; stroke: #eb6834; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 987 327.038597 
+L 990 321.038597 
+L 993 327.038597 
+z
+" clip-path="url(#p87ecfdba93)" style="fill: #eb6834; stroke-dasharray: 10,8; stroke-dashoffset: 0; stroke: #eb6834; stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 100.8 
+L 1101.6 100.8 
+" clip-path="url(#p87ecfdba93)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1c5cab" x="50.4" y="63.589687" transform="rotate(-0 50.4 63.589687)">Neden normal-only öğrenme</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="51.84" y="93.792188" transform="rotate(-0 51.84 93.792188)">Etiket eğitime girmez; yalnız threshold kalibrasyonu ve değerlendirmede kullanılır</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #2a78d6" x="230.4" y="206.5575" transform="rotate(-0 230.4 206.5575)">Normal uçuşlar</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(169.186875 243.55125)">büyütülebilir kaynak</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(141.2775 260.442188)">daha çok uçuş, daha çok saat</text>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #eb6834" x="230.4" y="408.1575" transform="rotate(-0 230.4 408.1575)">Arızalı uçuşlar</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(191.235938 445.15125)">büyütülemez</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(144.269063 461.95125)">gerçek uçakta arıza üretmek</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(186.976875 478.75125)">riskli ve pahalı</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 17px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #1baf7a" x="691.2" y="207.316016" transform="rotate(-0 691.2 207.316016)">MODEL</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(639.452812 243.55125)">yalnız normalden</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(642.499687 260.503125)">sapmayı öğrenir</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #4a3aa7" x="990" y="206.163281" transform="rotate(-0 990 206.163281)">Değerlendirme</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(947.732813 244.71375)">event recall +</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(938.52375 260.35125)">yanlış alarm/saat</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #eb6834" x="676.8" y="468" transform="rotate(-0 676.8 468)">arızalı veri modele HİÇ girmez — yalnız değerlendirmeye gider</text>
+   </g>
+   <g id="text_12">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="72" y="550.8" transform="rotate(-0 72 550.8)">Gerekçe:</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="154.8" y="550.8" transform="rotate(-0 154.8 550.8)">arıza örneği az ve heterojen; supervised model gördüğü arıza tipine aşırı uyum sağlar, görmediğine kör kalır.</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="50.4" y="624.96" transform="rotate(-0 50.4 624.96)">İstisna açıkça işaretlendi: LightGBM ve supervised TCN ayrı karşılaştırma kollarıydı.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p87ecfdba93">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

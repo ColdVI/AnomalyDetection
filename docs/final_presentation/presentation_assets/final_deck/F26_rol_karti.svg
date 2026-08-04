@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-04T18:42:30.679258</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 64.8 439.2 
+L 248.4 439.2 
+L 248.4 285.098025 
+L 64.8 285.098025 
+z
+" clip-path="url(#p16e4e59524)" style="fill: #dce6f1; stroke: #2a78d6; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 275.04 439.2 
+L 458.64 439.2 
+L 458.64 341.133932 
+L 275.04 341.133932 
+z
+" clip-path="url(#p16e4e59524)" style="fill: #e6e3f4; stroke: #4a3aa7; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 485.28 439.2 
+L 668.88 439.2 
+L 668.88 340.804309 
+L 485.28 340.804309 
+z
+" clip-path="url(#p16e4e59524)" style="fill: #dcf3ea; stroke: #1baf7a; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 695.52 439.2 
+L 879.12 439.2 
+L 879.12 187.2 
+L 695.52 187.2 
+z
+" clip-path="url(#p16e4e59524)" style="fill: #fce7df; stroke: #eb6834; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 905.76 439.2 
+L 1089.36 439.2 
+L 1089.36 188.518492 
+L 905.76 188.518492 
+z
+" clip-path="url(#p16e4e59524)" style="fill: #ffffff; stroke-dasharray: 8,6; stroke-dashoffset: 0; stroke: #d03b3b; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 100.8 
+L 1101.6 100.8 
+" clip-path="url(#p16e4e59524)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1c5cab" x="50.4" y="63.589687" transform="rotate(-0 50.4 63.589687)">Bağımsızlık sözleşmesi: beş rol, sıfır kesişim</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="51.84" y="93.792188" transform="rotate(-0 51.84 93.792188)">RflyMAD rol kartı — akraba uçuşlar rollere dağılmadan genelleme iddiası yapılamaz</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #2a78d6" x="156.24" y="353.062919" transform="rotate(-0 156.24 353.062919)">260</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="156.24" y="392.6262" transform="rotate(-0 156.24 392.6262)">uçuş</text>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #2a78d6" x="156.24" y="469.818516" transform="rotate(-0 156.24 469.818516)">7 bağımsız grup</text>
+   </g>
+   <g id="text_6">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; fill: #2a78d6" transform="translate(127.702969 157.919375)">Normal</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; fill: #2a78d6" transform="translate(124.942344 174.708438)">training</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="156.24" y="511.623281" transform="rotate(-0 156.24 511.623281)">ölçekleyici ve model fit</text>
+   </g>
+   <g id="text_8">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #4a3aa7" x="366.48" y="381.080872" transform="rotate(-0 366.48 381.080872)">90</text>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="366.48" y="420.644153" transform="rotate(-0 366.48 420.644153)">uçuş</text>
+   </g>
+   <g id="text_10">
+    <text style="font-weight: 700; font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #4a3aa7" x="366.48" y="469.818516" transform="rotate(-0 366.48 469.818516)">3 bağımsız grup</text>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; fill: #4a3aa7" transform="translate(337.942969 157.919375)">Normal</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; fill: #4a3aa7" transform="translate(327.121406 176.119375)">validation</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(304.247031 511.623281)">checkpoint, threshold</text>
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(302.259688 527.723281)">ve event policy seçimi</text>
+   </g>
+   <g id="text_13">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #1baf7a" x="576.72" y="380.916061" transform="rotate(-0 576.72 380.916061)">91</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="576.72" y="420.479342" transform="rotate(-0 576.72 420.479342)">uçuş</text>
+   </g>
+   <g id="text_15">
+    <text style="font-weight: 700; font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #1baf7a" x="576.72" y="469.818516" transform="rotate(-0 576.72 469.818516)">3 bağımsız grup</text>
+   </g>
+   <g id="text_16">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; fill: #1baf7a" transform="translate(541.316406 156.679062)">Bağımsız</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; fill: #1baf7a" transform="translate(531.015469 176.119375)">normal test</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(525.951094 511.623281)">yanlış alarm yükü</text>
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(555.553711 527.81043)">ölçümü</text>
+   </g>
+   <g id="text_18">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #eb6834" x="786.96" y="304.113906" transform="rotate(-0 786.96 304.113906)">557</text>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="786.96" y="343.677187" transform="rotate(-0 786.96 343.677187)">uçuş</text>
+   </g>
+   <g id="text_20">
+    <text style="font-weight: 700; font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #eb6834" x="786.96" y="469.818516" transform="rotate(-0 786.96 469.818516)">12 bağımsız grup</text>
+   </g>
+   <g id="text_21">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; fill: #eb6834" transform="translate(754.932813 157.919375)">Anomali</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; fill: #eb6834" transform="translate(735.3 174.763125)">development</text>
+   </g>
+   <g id="text_22">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(742.961719 511.71043)">teşhis ve event</text>
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(740.197227 527.868828)">değerlendirmesi</text>
+   </g>
+   <g id="text_23">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #d03b3b" x="997.2" y="304.773152" transform="rotate(-0 997.2 304.773152)">553</text>
+   </g>
+   <g id="text_24">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="997.2" y="344.336433" transform="rotate(-0 997.2 344.336433)">uçuş</text>
+   </g>
+   <g id="text_25">
+    <text style="font-weight: 700; font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #d03b3b" x="997.2" y="469.818516" transform="rotate(-0 997.2 469.818516)">13 bağımsız grup</text>
+   </g>
+   <g id="text_26">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; fill: #d03b3b" transform="translate(964.449844 158.017812)">Mühürlü</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; fill: #d03b3b" transform="translate(961.862031 176.119375)">final test</text>
+   </g>
+   <g id="text_27">
+    <text style="font-weight: 700; font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #d03b3b" x="997.2" y="512.656484" transform="rotate(-0 997.2 512.656484)">HİÇ AÇILMADI</text>
+   </g>
+   <g id="text_28">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="50.4" y="624.96" transform="rotate(-0 50.4 624.96)">Mühürlü seti açmak, sonuca bakıp karar vermek olurdu. Development sonucu geçme eşiğinin altında kaldığı için kapalı bırakıldı.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p16e4e59524">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-04T18:42:25.936668</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 184.992 522 
+L 328.608 522 
+L 328.608 313.3872 
+L 184.992 313.3872 
+z
+" clip-path="url(#p7ebfeb1529)" style="fill: #d03b3b"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 511.392 522 
+L 655.008 522 
+L 655.008 376.8264 
+L 511.392 376.8264 
+z
+" clip-path="url(#p7ebfeb1529)" style="fill: #2a78d6"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 837.792 522 
+L 981.408 522 
+L 981.408 343.5624 
+L 837.792 343.5624 
+z
+" clip-path="url(#p7ebfeb1529)" style="fill: #1baf7a"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 318.796436 262.8 
+Q 395.998262 262.8 470.964021 262.8 
+" clip-path="url(#p7ebfeb1529)" style="fill: none; stroke: #898781; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 464.964021 259.8 
+L 470.964021 262.8 
+L 464.964021 265.8 
+z
+" clip-path="url(#p7ebfeb1529)" style="fill: #898781; stroke: #898781; stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 100.8 
+L 1101.6 100.8 
+" clip-path="url(#p7ebfeb1529)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 79.2 522 
+L 1087.2 522 
+" clip-path="url(#p7ebfeb1529)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.4; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1c5cab" x="50.4" y="63.589687" transform="rotate(-0 50.4 63.589687)">Düzeltme 1 — model geleceğe bakıyordu</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="51.84" y="93.437813" transform="rotate(-0 51.84 93.437813)">CUSUM: küçük ama kalıcı sapmanın kanıtını zaman içinde biriktirir — bu yüzden eklendi</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #d03b3b" x="64.8" y="140.4" transform="rotate(-0 64.8 140.4)">Sorun</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="64.8" y="173.974453" transform="rotate(-0 64.8 173.974453)">CUSUM'un baseline'ı (median/MAD) uçuşun TAMAMINDAN hesaplanıyordu. Arıza sonrası değerler, arıza öncesi skoru dolaylı etkiliyordu.</text>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1baf7a" x="64.8" y="212.4" transform="rotate(-0 64.8 212.4)">Düzeltme</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="64.8" y="245.658047" transform="rotate(-0 64.8 245.658047)">Baseline yalnız normal training uçuşlarından hesaplandı; t anındaki skor yalnız x ≤ t ile üretildi.</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 21px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #d03b3b" x="256.8" y="298.9872" transform="rotate(-0 256.8 298.9872)">0,878</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(195.069141 559.700156)">Full-flight baseline</text>
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(223.520391 577.250156)">(geçersiz)</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 21px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #2a78d6" x="583.2" y="362.4264" transform="rotate(-0 583.2 362.4264)">0,611</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(526.890234 561.007969)">Causal düzeltme</text>
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(558.972773 577.209023)">sonrası</text>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 700; font-size: 21px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #1baf7a" x="909.6" y="329.1624" transform="rotate(-0 909.6 329.1624)">0,751</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(819.657305 559.700156)">Düzeltme sonrası en güçlü</text>
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(835.537734 577.250156)">tek sinyal: cross-track</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="50.4" y="624.96" transform="rotate(-0 50.4 624.96)">Bu bir performans kaybı değil: o 0,878 hiçbir zaman gerçek zamanda üretilebilecek bir skor değildi.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p7ebfeb1529">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

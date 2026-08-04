@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-04T18:42:31.129000</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 179.28 511.2 
+L 313.92 511.2 
+L 313.92 263.745391 
+L 179.28 263.745391 
+z
+" clip-path="url(#pf1297fcfc7)" style="fill: #d03b3b"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 485.28 511.2 
+L 619.92 511.2 
+L 619.92 426.74713 
+L 485.28 426.74713 
+z
+" clip-path="url(#pf1297fcfc7)" style="fill: #1baf7a"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 790.56 393.84 
+L 1095.84 393.84 
+Q 1103.04 393.84 1103.04 386.64 
+L 1103.04 214.56 
+Q 1103.04 207.36 1095.84 207.36 
+L 790.56 207.36 
+Q 783.36 207.36 783.36 214.56 
+L 783.36 386.64 
+Q 783.36 393.84 790.56 393.84 
+z
+" clip-path="url(#pf1297fcfc7)" style="fill: #ffffff; stroke: #2a78d6; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 790.56 537.84 
+L 1095.84 537.84 
+Q 1103.04 537.84 1103.04 530.64 
+L 1103.04 426.96 
+Q 1103.04 419.76 1095.84 419.76 
+L 790.56 419.76 
+Q 783.36 419.76 783.36 426.96 
+L 783.36 530.64 
+Q 783.36 537.84 790.56 537.84 
+z
+" clip-path="url(#pf1297fcfc7)" style="fill: #fce7df; stroke: #eb6834; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 100.8 
+L 1101.6 100.8 
+" clip-path="url(#pf1297fcfc7)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 79.2 511.2 
+L 720 511.2 
+" clip-path="url(#pf1297fcfc7)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.4; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 72 305.843478 
+L 734.4 305.843478 
+" clip-path="url(#pf1297fcfc7)" style="fill: none; stroke-dasharray: 6.66,2.88; stroke-dashoffset: 0; stroke: #eb6834; stroke-width: 1.8"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1c5cab" x="50.4" y="67.310937" transform="rotate(-0 50.4 67.310937)">İlk kez genlik kontrolünden temiz geçen model</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="51.84" y="93.437813" transform="rotate(-0 51.84 93.437813)">Aynı teşhis, iki farklı tur — kapı: ρ &lt; 0,80</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 21px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #d03b3b" x="246.6" y="249.345391" transform="rotate(-0 246.6 249.345391)">0,964</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(211.51582 551.242617)">Önceki tur</text>
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(140.639766 566.963789)">(UAV-SEAD, autoencoder ailesi)</text>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 21px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #1baf7a" x="552.6" y="412.34713" transform="rotate(-0 552.6 412.34713)">0,329</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(531.846914 550.000195)">Bu tur</text>
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(447.130195 566.450156)">(RflyMAD, Gaussian forecaster)</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #eb6834" x="579.6" y="290.003478" transform="rotate(-0 579.6 290.003478)">kapı  ρ = 0,80</text>
+   </g>
+   <g id="text_8">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2a78d6" x="800.64" y="240.357656" transform="rotate(-0 800.64 240.357656)">Dondurulmuş koşu kartı</text>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(802.8 258.439219)">epoch:  30 (yalnız normal</text>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(802.8 276.033945)">validation NLL ile seçildi)</text>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(802.8 289.99)"/>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(802.8 311.512461)">threshold:  10,0940</text>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(802.8 324.99)"/>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(802.8 346.097422)">eğitilmiş–rastgele ρ:  0,3288</text>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(802.8 363.597422)">eğitilmiş–genlik ρ:  0,3495</text>
+   </g>
+   <g id="text_10">
+    <text style="font-weight: 700; font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #eb6834" x="800.64" y="451.617891" transform="rotate(-0 800.64 451.617891)">Ama dikkat</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(800.64 490.023281)">Bu kapıyı geçmek 'model başarılı'</text>
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(800.64 506.268828)">demek değil — yalnız 'bu kestirme</text>
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(800.64 522.223281)">yolu kullanmıyor' demek.</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="50.4" y="624.96" transform="rotate(-0 50.4 624.96)">Projedeki tek gerçek 'iyileşme' hikâyesi: 0,964'ten 0,329'a. Tespit performansı ayrı bir sorudur.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pf1297fcfc7">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

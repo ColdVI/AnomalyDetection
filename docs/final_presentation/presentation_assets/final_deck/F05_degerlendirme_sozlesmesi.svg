@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-04T18:42:21.920936</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 70.56 350.64 
+L 548.64 350.64 
+Q 555.84 350.64 555.84 343.44 
+L 555.84 149.76 
+Q 555.84 142.56 548.64 142.56 
+L 70.56 142.56 
+Q 63.36 142.56 63.36 149.76 
+L 63.36 343.44 
+Q 63.36 350.64 70.56 350.64 
+z
+" clip-path="url(#pca0dc28a65)" style="fill: #ffffff; stroke: #2a78d6; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 603.36 350.64 
+L 1081.44 350.64 
+Q 1088.64 350.64 1088.64 343.44 
+L 1088.64 149.76 
+Q 1088.64 142.56 1081.44 142.56 
+L 603.36 142.56 
+Q 596.16 142.56 596.16 149.76 
+L 596.16 343.44 
+Q 596.16 350.64 603.36 350.64 
+z
+" clip-path="url(#pca0dc28a65)" style="fill: #ffffff; stroke: #eb6834; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 70.56 588.24 
+L 548.64 588.24 
+Q 555.84 588.24 555.84 581.04 
+L 555.84 387.36 
+Q 555.84 380.16 548.64 380.16 
+L 70.56 380.16 
+Q 63.36 380.16 63.36 387.36 
+L 63.36 581.04 
+Q 63.36 588.24 70.56 588.24 
+z
+" clip-path="url(#pca0dc28a65)" style="fill: #ffffff; stroke: #4a3aa7; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 603.36 588.24 
+L 1081.44 588.24 
+Q 1088.64 588.24 1088.64 581.04 
+L 1088.64 387.36 
+Q 1088.64 380.16 1081.44 380.16 
+L 603.36 380.16 
+Q 596.16 380.16 596.16 387.36 
+L 596.16 581.04 
+Q 596.16 588.24 603.36 588.24 
+z
+" clip-path="url(#pca0dc28a65)" style="fill: #ffffff; stroke: #1baf7a; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 100.8 
+L 1101.6 100.8 
+" clip-path="url(#pca0dc28a65)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1c5cab" x="50.4" y="63.589687" transform="rotate(-0 50.4 63.589687)">Değerlendirme sözleşmesi: dört kural, en baştan dondurulmuş</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="51.84" y="93.437813" transform="rotate(-0 51.84 93.437813)">Her kural bir hatanın bedeli ödendikten sonra kurala dönüştü</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 17px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2a78d6" x="80.64" y="177.077344" transform="rotate(-0 80.64 177.077344)">Group-safe split</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(80.64 214.287187)">Aynı kaynak / oturum / senaryo</text>
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(80.64 232.487187)">ailesi iki role birden giremez.</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(82.08 308.441328)">Neden: Akraba uçuşlar rollere dağılırsa</text>
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(82.08 323.966328)">model testi zaten eğitimde görür.</text>
+   </g>
+   <g id="text_6">
+    <text style="font-weight: 700; font-size: 17px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #eb6834" x="613.44" y="177.077344" transform="rotate(-0 613.44 177.077344)">Causal scoring</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(613.44 214.287187)">t anındaki skor yalnız x ≤ t</text>
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(613.44 233.746562)">kullanılarak üretilir.</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(614.88 308.38293)">Neden: Uçuşun tamamından normalize etmek</text>
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(614.88 323.966328)">geleceğe bakma hatasıdır.</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 17px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4a3aa7" x="80.64" y="414.677344" transform="rotate(-0 80.64 414.677344)">Frozen policy</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(80.64 452.883516)">Ölçekleme, checkpoint ve threshold</text>
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(80.64 470.087188)">yalnız validation'da seçilir.</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(82.08 545.895781)">Neden: Test sonucuna bakıp eşik oynatmak</text>
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(82.08 561.420781)">sonucu geçersiz kılar.</text>
+   </g>
+   <g id="text_12">
+    <text style="font-weight: 700; font-size: 17px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1baf7a" x="613.44" y="414.677344" transform="rotate(-0 613.44 414.677344)">True-onset detection</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(613.44 451.985703)">Alarm arıza başladıktan sonra</text>
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(613.44 470.185703)">başlamalıdır.</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(614.88 545.895781)">Neden: Çakışma yeterli sayılırsa yakalama</text>
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(614.88 561.420781)">üç kat fazla görünür.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pca0dc28a65">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>
