@@ -1195,6 +1195,12 @@ async function render() {
       // Gunluk yogunluk (metehan_geo_country/step4_build_daily_snapshots.py
       // ile ayni desen) -- zaman araligi/metrik/Uçak Türü'nden BAGIMSIZ,
       // her zaman kendi son-N-gunluk InfluxDB penceresini kullanir.
+      // BUG DUZELTMESI (kullanici bulgusu, 2026-08-04): live-aircraft dalindaki
+      // ayni bug'in ikizi -- setRenderModeVisibility() cagrilmadan erken donuyordu,
+      // onceki modda (hexagon/tarihsel) acik kalan density-fill/density-outline
+      // katmanlari GIZLENMIYORDU, gunluk katmaninin ALTINDA/USTUNDE gorunmeye
+      // devam ediyordu.
+      setRenderModeVisibility();
       await applyDailyView();
       if (mySeq === requestSeq) setLoading(false);
       return;
