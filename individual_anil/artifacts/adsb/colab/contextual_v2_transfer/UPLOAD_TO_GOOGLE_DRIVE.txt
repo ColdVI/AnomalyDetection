@@ -1,0 +1,4 @@
+Upload every file in this directory to one Google Drive folder.
+Open notebooks/adsb_contextual_physics_v2_colab.ipynb in Colab,
+set BUNDLE_DIR to that Drive folder, then run cells from top to bottom.
+Do not rename individual ZIP shards.

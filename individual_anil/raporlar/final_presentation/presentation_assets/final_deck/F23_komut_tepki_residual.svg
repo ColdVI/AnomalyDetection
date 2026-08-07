@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-04T18:42:29.214924</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 70.56 455.04 
+L 563.04 455.04 
+Q 570.24 455.04 570.24 447.84 
+L 570.24 279.36 
+Q 570.24 272.16 563.04 272.16 
+L 70.56 272.16 
+Q 63.36 272.16 63.36 279.36 
+L 63.36 447.84 
+Q 63.36 455.04 70.56 455.04 
+z
+" clip-path="url(#pd249cdb514)" style="fill: #dcf3ea; stroke: #1baf7a; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 603.36 455.04 
+L 1095.84 455.04 
+Q 1103.04 455.04 1103.04 447.84 
+L 1103.04 279.36 
+Q 1103.04 272.16 1095.84 272.16 
+L 603.36 272.16 
+Q 596.16 272.16 596.16 279.36 
+L 596.16 447.84 
+Q 596.16 455.04 603.36 455.04 
+z
+" clip-path="url(#pd249cdb514)" style="fill: #fbe4e4; stroke: #d03b3b; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 100.8 
+L 1101.6 100.8 
+" clip-path="url(#pd249cdb514)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1c5cab" x="50.4" y="62.955937" transform="rotate(-0 50.4 62.955937)">Genlik problemine yapısal cevap: komut → tepki residual</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="51.84" y="93.792188" transform="rotate(-0 51.84 93.792188)">Anomaliyi ham büyüklükte değil, öğrenilmiş uçuş dinamiğinin tahmin hatasında ara</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 19px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1baf7a" x="64.8" y="144" transform="rotate(-0 64.8 144)">r  =  ölçülen tepki  −  beklenen tepki (kontrol komutları, bağlam)</text>
+   </g>
+   <g id="text_4">
+    <text style="font-weight: 700; font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="64.8" y="190.8" transform="rotate(-0 64.8 190.8)">Neden genlik baskınlığını yapısal olarak azaltır:</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(64.8 228.824219)">Agresif manevrada roll büyük olabilir — ham skor bunu anomali sanar. Ama komuta uygun tepki varsa residual küçük kalır.</text>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(64.8 247.824219)">Tersine: gaz yüksek, model airspeed'in korunmasını bekliyor, ölçülen airspeed düşüyor — ham değer hâlâ normal aralıkta olsa bile residual hemen sapar.</text>
+   </g>
+   <g id="text_6">
+    <text style="font-weight: 700; font-size: 15.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1baf7a" x="80.64" y="305.537578" transform="rotate(-0 80.64 305.537578)">Bulgu — sinyal gerçekten var</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(82.8 340.111719)">ALFA motor, RflyMAD motor ve sensör sınıflarında</text>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(82.8 358.394922)">arıza öncesi ve sonrası residual dağılımları</text>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(82.8 377.414453)">eşikten BAĞIMSIZ olarak ayrıştı.</text>
+   </g>
+   <g id="text_8">
+    <text style="font-weight: 700; font-size: 15.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #d03b3b" x="613.44" y="305.915391" transform="rotate(-0 613.44 305.915391)">Engel — kalibrasyon açığı</text>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(615.6 340.269922)">Güvenilir bir yanlış alarm eşiği kurmak için</text>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(615.6 358.394922)">gereken bağımsız normal uçuş süresinin:</text>
+   </g>
+   <g id="text_10">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #d03b3b" x="748.8" y="410.4" transform="rotate(-0 748.8 410.4)">ALFA  ~1/11,8</text>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #d03b3b" x="964.8" y="410.4" transform="rotate(-0 964.8 410.4)">RflyMAD  ~1/5,1</text>
+   </g>
+   <g id="text_12">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="64.8" y="500.4" transform="rotate(-0 64.8 500.4)">Bilinen risk ve alınan önlem:</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(64.8 538.582422)">Model y ≈ y(t−1) kopyacılığını öğrenip arızayı bir adım geriden takip edebilir. Bu yüzden tepki geçmişi sınırlandı,</text>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(64.8 557.332422)">komut ve yavaş bağlam öne çıkarıldı.</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="50.4" y="624.96" transform="rotate(-0 50.4 624.96)">Sonuç: sinyal var, eşik yok. Eksik olan model değil, bağımsız normal uçuş saati.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pd249cdb514">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

@@ -33,8 +33,8 @@ __pycache__/
 .tmp_pytest*/
 .pytest_tmp_*/
 .pytest_contextual_*/
-/artifacts/pytest_tmp_*/
-/artifacts/rfly_dl/smoke_*/
+/individual_anil/artifacts/pytest_tmp_*/
+/individual_anil/artifacts/rfly_dl/smoke_*/
 .tmp_pdf_reader/
 .ipynb_checkpoints/
 .idea/
@@ -42,18 +42,56 @@ __pycache__/
 influx_token.txt
 start_all.bat
 start_all_docker.bat
-artifacts/rflymad/
+individual_anil/artifacts/rflymad/
 
 # RESIDUAL-V1 generated Silver/features/runs/handouts. These remain on disk for
 # local audit tools (including Claude) but are not source files.
-/artifacts/residual_v1/
+/individual_anil/artifacts/residual_v1/
 
 # ADS-B generated training/evaluation outputs.  Reproducible evidence is
-# summarized in docs/decisions.md and docs/codex_checkpoint_2026-07-13.md;
-# raw run directories and model reports are not source files.
-/artifacts/adsb/models/baseline_training_report.json
-/artifacts/adsb/models/rule_scorer_report*.json
-/artifacts/adsb/plots/
-/artifacts/adsb/runs/
-/adsb_parse_*.log
-/adsb_train_*.log
+# summarized in individual_anil/raporlar/decisions.md; raw run directories and
+# model reports are not source files.
+/individual_anil/artifacts/adsb/models/baseline_training_report.json
+/individual_anil/artifacts/adsb/models/rule_scorer_report*.json
+/individual_anil/artifacts/adsb/plots/
+/individual_anil/artifacts/adsb/runs/
+/individual_anil/artifacts/adsb/pytest_tmp_*/
+/individual_anil/artifacts/adsb/colab/contextual_v2_transfer/*.zip
+/individual_anil/adsb_parse_*.log
+/individual_anil/adsb_train_*.log
+
+# RFLYMAD-Full v2 (rfly_full) generated download/parse/train state and
+# large intermediate artifacts. Reports and reporting plots remain versioned.
+/individual_anil/artifacts/pytest-rfly-*/
+/individual_anil/artifacts/rfly_full/kaggle_file_listing.csv
+/individual_anil/artifacts/rfly_full/kaggle_listing_state.json
+/individual_anil/artifacts/rfly_full/download_manifest.json
+/individual_anil/artifacts/rfly_full/overnight_state.json
+/individual_anil/artifacts/rfly_full/parsed_batches/
+/individual_anil/artifacts/rfly_full/batch_reports/
+/individual_anil/artifacts/rfly_full/*.log
+/individual_anil/artifacts/rfly_full/*.pid
+/individual_anil/artifacts/rfly_full/expanded_sources/
+/individual_anil/artifacts/rfly_full/expansion_state.json
+/individual_anil/artifacts/rfly_full/expansion_manifest.json
+/individual_anil/artifacts/rfly_full/expansion_*.log
+/individual_anil/artifacts/rfly_full/dl/model.pt
+/individual_anil/artifacts/rfly_full/dl/worker_state.json
+/individual_anil/artifacts/rfly_full/dl/batches/
+/individual_anil/artifacts/rfly_full/dl_worker.log
+/individual_anil/artifacts/rfly_full/dl_worker.pid
+/individual_anil/artifacts/rfly_full/v2/parse_10hz_state.json
+/individual_anil/artifacts/rfly_full/v2/parsed_10hz/
+/individual_anil/artifacts/rfly_full/v2/dense_ae_diagnostics/scored_windows.parquet
+/individual_anil/artifacts/rfly_full/v2/supervised_tcn/*/model.pt
+
+# Four-dataset probabilistic v3.1 transient resume state. Final model states,
+# reports, manifests and reporting plots remain versioned evidence.
+/individual_anil/artifacts/four_dataset_probabilistic_v31/runs/**/training_epoch_checkpoint.pt
+
+# Legacy GPU colab transfer bundles (large zips, regeneratable).
+/individual_anil/artifacts/legacy_gpu/colab/four_dataset_probabilistic_v1_transfer/*.zip
+
+# Kok dizinden arsivlenmis eski calisma-loglari, gevsek scriptler ve pytest
+# tmp klasorleri (2026-07-22 dosyalama). Kod degil.
+/individual_anil/dokunti_arsivi/

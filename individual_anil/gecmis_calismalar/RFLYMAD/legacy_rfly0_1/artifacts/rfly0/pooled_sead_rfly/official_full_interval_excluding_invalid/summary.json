@@ -1,0 +1,91 @@
+{
+  "official_gate": true,
+  "status": "official_gate_evaluated",
+  "best_rows": [
+    {
+      "score_source": "itki_komutu",
+      "decision": "cusum",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.14885057471264368,
+      "mean_false_alarms_per_hour": 29.99876549345165,
+      "seed_count": 5
+    },
+    {
+      "score_source": "itki_komutu",
+      "decision": "threshold",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.08362068965517241,
+      "mean_false_alarms_per_hour": 20.236718052032007,
+      "seed_count": 5
+    },
+    {
+      "score_source": "rfly0_fusion",
+      "decision": "cusum",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.06609195402298851,
+      "mean_false_alarms_per_hour": 9.392622516311574,
+      "seed_count": 5
+    },
+    {
+      "score_source": "ml9_fusion",
+      "decision": "cusum",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.06235632183908045,
+      "mean_false_alarms_per_hour": 9.255210974359949,
+      "seed_count": 5
+    },
+    {
+      "score_source": "existing_fusion",
+      "decision": "cusum",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.05431034482758621,
+      "mean_false_alarms_per_hour": 8.215810298604133,
+      "seed_count": 5
+    },
+    {
+      "score_source": "itki_komutu",
+      "decision": "k_of_n",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.04971264367816092,
+      "mean_false_alarms_per_hour": 7.816976654581164,
+      "seed_count": 5
+    },
+    {
+      "score_source": "itki_komutu",
+      "decision": "threshold",
+      "budget": "critical",
+      "mean_event_onset_recall": 0.04195402298850575,
+      "mean_false_alarms_per_hour": 4.760832482702378,
+      "seed_count": 5
+    },
+    {
+      "score_source": "rfly0_fusion",
+      "decision": "k_of_n",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.034195402298850576,
+      "mean_false_alarms_per_hour": 3.530119100696467,
+      "seed_count": 5
+    },
+    {
+      "score_source": "ml9_fusion",
+      "decision": "k_of_n",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.03390804597701149,
+      "mean_false_alarms_per_hour": 3.3198765503779795,
+      "seed_count": 5
+    },
+    {
+      "score_source": "existing_fusion",
+      "decision": "k_of_n",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.02988505747126437,
+      "mean_false_alarms_per_hour": 1.8824042295957615,
+      "seed_count": 5
+    }
+  ],
+  "gate_status": {
+    "gate_r_a": "passed",
+    "gate_r_b": "passed",
+    "gate_r_c": "failed"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_v31",
+  "bundle_role": "rflymad_v31_colab_transfer",
+  "archives_built": true,
+  "archives": [
+    {
+      "path": "four_dataset_probabilistic_v31_code_and_contract.zip",
+      "bytes": 473083,
+      "sha256": "8c3c016773e9a1de1c368a4eb29209c5ac7641de26f21fe4ca0fbba6016f1f32",
+      "compression": "ZIP_STORED",
+      "member_count": 9,
+      "source_bytes": 471321
+    },
+    {
+      "bytes": 339274845,
+      "compression": "ZIP_STORED",
+      "member_count": 1553,
+      "path": "four_dataset_probabilistic_gpu_v1_rflymad_development_folds_0_4.zip",
+      "sha256": "f1e4cb12a5008de43acfeb2da61559c684d91209a191686dfdb8a1c83e68ef45",
+      "source_bytes": 338932957
+    }
+  ],
+  "bundle_manifest": {
+    "path": "bundle_manifest_v31.json",
+    "bytes": 2828,
+    "sha256": "4a626f50c6223b9a1dfafd6db0d61e1264d7b7cdcba5b337d402f1a8fee396df"
+  }
+}

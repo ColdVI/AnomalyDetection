@@ -1,0 +1,200 @@
+{
+  "gate_d1": {
+    "status": "passed",
+    "parse_coverage_note": "2 ULogs did not yield Silver rows; listed explicitly. No holdout rows were read.",
+    "development_normal_sessions_minimum": 110,
+    "development_normal_sessions": 115
+  },
+  "gate_d2": {
+    "status": "passed",
+    "rule": "median CUSUM test_FA_per_hour/budget drops by >=15% vs frozen ML9/ML12 references",
+    "old_median_shift_ratio": 5.20677327971917,
+    "new_median_shift_ratio": 1.8971590381466745,
+    "relative_drop": 0.6356363267176867,
+    "cells": [
+      {
+        "score_source": "existing_fusion",
+        "budget": "advisory",
+        "old_mean_fa_per_hour": 23.626550164087583,
+        "old_shift_ratio": 1.9688791803406318,
+        "new_mean_fa_per_hour": 9.861980506588244,
+        "new_shift_ratio": 0.8218317088823537
+      },
+      {
+        "score_source": "existing_fusion",
+        "budget": "critical",
+        "old_mean_fa_per_hour": 12.868154589884123,
+        "old_shift_ratio": 6.434077294942061,
+        "new_mean_fa_per_hour": 1.5963451734276886,
+        "new_shift_ratio": 0.7981725867138443
+      },
+      {
+        "score_source": "itki_komutu",
+        "budget": "advisory",
+        "old_mean_fa_per_hour": 47.753631173955334,
+        "old_shift_ratio": 3.9794692644962777,
+        "new_mean_fa_per_hour": 35.66983640893194,
+        "new_shift_ratio": 2.9724863674109954
+      },
+      {
+        "score_source": "itki_komutu",
+        "budget": "critical",
+        "old_mean_fa_per_hour": 20.534989939039114,
+        "old_shift_ratio": 10.267494969519557,
+        "new_mean_fa_per_hour": 9.381379916094161,
+        "new_shift_ratio": 4.690689958047081
+      }
+    ]
+  },
+  "gate_d3": {
+    "status": "failed",
+    "rule": "any row critical recall >=0.30 @ FA<=2 or advisory recall >=0.50 @ FA<=12",
+    "evaluated_seed_count": 5,
+    "candidates": [
+      {
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.11857506361323156,
+        "mean_false_alarms_per_hour": 9.861980506588244,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.041730279898218835,
+        "mean_false_alarms_per_hour": 1.5963451734276886,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0539440203562341,
+        "mean_false_alarms_per_hour": 2.4280378684833934,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.144529262086514,
+        "mean_false_alarms_per_hour": 35.66983640893194,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.035114503816793895,
+        "mean_false_alarms_per_hour": 9.381379916094161,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.06106870229007634,
+        "mean_false_alarms_per_hour": 9.327558667316953,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.03206106870229007,
+        "mean_false_alarms_per_hour": 3.0988623452153257,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.06615776081424937,
+        "mean_false_alarms_per_hour": 13.488808653061625,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.027989821882951654,
+        "mean_false_alarms_per_hour": 4.30333700633968,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.12569974554707378,
+        "mean_false_alarms_per_hour": 9.9499839288844,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.04325699745547074,
+        "mean_false_alarms_per_hour": 1.5959778742534432,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.05597964376590331,
+        "mean_false_alarms_per_hour": 2.2838550971957807,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      }
+    ]
+  }
+}

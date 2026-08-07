@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_event_eval_v1",
+  "dataset": "alfa",
+  "evidence": {
+    "dataset": "alfa",
+    "status": "mapped",
+    "input_files": [
+      {
+        "path": "data/silver/alfa_silver.parquet",
+        "bytes": 3399893,
+        "sha256": "786daee9fb31999d7c51eedca8e0f393bdd23e761b1396029f6adab73cc86334"
+      },
+      {
+        "path": "data/objectstore/bronze/alfa/processed.zip",
+        "bytes": 271996798,
+        "sha256": "02562756b9428aa24fbd27105f91687b38541ced8d5432766c14176573d0b4c9"
+      }
+    ],
+    "time_mapping": "target_time_s = (raw_failure_status_%time - Silver_source_min_ts_ns) / 1e9",
+    "boundary_semantics": "inclusive onset; a latched airframe failure remains active through the final Gold sample",
+    "mapped_sources": 36,
+    "active_failure_status_files": 37
+  },
+  "sources": 11,
+  "anomaly_sources": 6,
+  "mapped_anomaly_sources": 5,
+  "unavailable_anomaly_sources": [
+    "carbonZ_2018-07-18-12-10-11_no_ground_truth"
+  ],
+  "source_records": [
+    {
+      "role": "val",
+      "source_id": "carbonZ_2018-09-11-15-05-11_2_no_failure",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 244,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "normal_flight_label"
+      ],
+      "target_time_min_s": 7.9014892578125,
+      "target_time_max_s": 67.29473543167114
+    },
+    {
+      "role": "val",
+      "source_id": "carbonZ_2018-10-05-15-52-12_1_no_failure",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 335,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "normal_flight_label"
+      ],
+      "target_time_min_s": 7.814311742782593,
+      "target_time_max_s": 89.4731216430664
+    },
+    {
+      "role": "test",
+      "source_id": "carbonZ_2018-07-18-12-10-11_no_ground_truth",
+      "flight_label": "unknown",
+      "is_anomaly_flight": true,
+      "truth_fully_available": false,
+      "truth_available_rows": 0,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "alfa_truth_unavailable"
+      ],
+      "target_time_min_s": 7.93099045753479,
+      "target_time_max_s": 205.15343475341797
+    },
+    {
+      "role": "test",
+      "source_id": "carbonZ_2018-07-30-17-02-48",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 1829,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "normal_flight_label"
+      ],
+      "target_time_min_s": 7.2253289222717285,
+      "target_time_max_s": 441.8221290111542
+    },
+    {
+      "role": "test",
+      "source_id": "carbonZ_2018-09-11-14-16-55_no_failure",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 107,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "normal_flight_label"
+      ],
+      "target_time_min_s": 7.683027982711792,
+      "target_time_max_s": 33.327157735824585
+    },
+    {
+      "role": "test",
+      "source_id": "carbonZ_2018-09-11-15-05-11_1_elevator_failure",
+      "flight_label": "elevator_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 279,
+      "truth_active_rows": 52,
+      "truth_sources": [
+        "alfa_failure_status_first_active_latched"
+      ],
+      "target_time_min_s": 7.81690788269043,
+      "target_time_max_s": 75.8409194946289
+    },
+    {
+      "role": "test",
+      "source_id": "carbonZ_2018-09-11-15-06-34_3_rudder_left_failure",
+      "flight_label": "rudder_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 256,
+      "truth_active_rows": 38,
+      "truth_sources": [
+        "alfa_failure_status_first_active_latched"
+      ],
+      "target_time_min_s": 7.676149368286133,
+      "target_time_max_s": 69.11127948760986
+    },
+    {
+      "role": "test",
+      "source_id": "carbonZ_2018-09-11-17-25-17",
+      "flight_label": "normal",
+      "is_anomaly_flight": false,
+      "truth_fully_available": true,
+      "truth_available_rows": 46,
+      "truth_active_rows": 0,
+      "truth_sources": [
+        "normal_flight_label"
+      ],
+      "target_time_min_s": 7.176090955734253,
+      "target_time_max_s": 66.34665751457214
+    },
+    {
+      "role": "test",
+      "source_id": "carbonZ_2018-09-11-17-27-13_1_rudder_zero__left_aileron_failure",
+      "flight_label": "aileron_rudder_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 563,
+      "truth_active_rows": 113,
+      "truth_sources": [
+        "alfa_failure_status_first_active_latched"
+      ],
+      "target_time_min_s": 7.6708784103393555,
+      "target_time_max_s": 143.44409012794495
+    },
+    {
+      "role": "test",
+      "source_id": "carbonZ_2018-10-05-14-34-20_2_right_aileron_failure_with_emr_traj",
+      "flight_label": "aileron_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 636,
+      "truth_active_rows": 41,
+      "truth_sources": [
+        "alfa_failure_status_first_active_latched"
+      ],
+      "target_time_min_s": 7.675897598266602,
+      "target_time_max_s": 162.02267622947693
+    },
+    {
+      "role": "test",
+      "source_id": "carbonZ_2018-10-18-11-04-35_engine_failure_with_emr_traj",
+      "flight_label": "engine_fault",
+      "is_anomaly_flight": true,
+      "truth_fully_available": true,
+      "truth_available_rows": 419,
+      "truth_active_rows": 33,
+      "truth_sources": [
+        "alfa_failure_status_first_active_latched"
+      ],
+      "target_time_min_s": 7.750224828720093,
+      "target_time_max_s": 108.95764327049255
+    }
+  ],
+  "ledgers": {
+    "val": {
+      "path": "val_window_scores.parquet",
+      "rows": 579,
+      "sources": 2,
+      "immutable_score_payload_sha256": "4a97661480ec87d5905d6ff22119f6177f61ee8704c247491a40d51ffe3b7677",
+      "truth_available_rows": 579,
+      "truth_active_rows": 0,
+      "sha256": "8c1fbe5c778c2bf73e3750b11ea738cd00921c61a7b191c5c4e74ce1aa5d0804",
+      "bytes": 21932
+    },
+    "test": {
+      "path": "test_window_scores.parquet",
+      "rows": 4941,
+      "sources": 9,
+      "immutable_score_payload_sha256": "b752ba83c27d9c9ab9c6d07506e4769017f33541857b2d06fdc45d6833818201",
+      "truth_available_rows": 4135,
+      "truth_active_rows": 277,
+      "sha256": "beff40e54ee56d467d58159ad24dde8ead33d8d784dfe8d46975dc3e4b379aa7",
+      "bytes": 128528
+    }
+  }
+}

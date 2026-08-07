@@ -1,0 +1,132 @@
+{
+  "provenance": {
+    "timeline": "docs/final_presentation/01_project_timeline.md",
+    "datasets": "docs/final_presentation/02_dataset_inventory.md",
+    "metrics": "docs/final_presentation/04_metric_evolution.md",
+    "failures": "docs/final_presentation/05_failure_and_fix_inventory.md",
+    "v31": "docs/final_presentation/08_probabilistic_v31_deep_dive.md",
+    "numbers": "docs/final_presentation/09_number_consistency_audit.md"
+  },
+  "split_roles": {
+    "train": {
+      "source_count": 260,
+      "group_count": 7,
+      "normal_source_count": 260,
+      "anomaly_source_count": 0,
+      "domain_counts": {
+        "HIL": 120,
+        "Real": 20,
+        "SIL": 120
+      },
+      "fault_family_counts": {
+        "NoFault": 260
+      }
+    },
+    "val": {
+      "source_count": 90,
+      "group_count": 3,
+      "normal_source_count": 90,
+      "anomaly_source_count": 0,
+      "domain_counts": {
+        "HIL": 40,
+        "Real": 10,
+        "SIL": 40
+      },
+      "fault_family_counts": {
+        "NoFault": 90
+      }
+    },
+    "normal_test": {
+      "source_count": 91,
+      "group_count": 3,
+      "normal_source_count": 91,
+      "anomaly_source_count": 0,
+      "domain_counts": {
+        "HIL": 40,
+        "Real": 11,
+        "SIL": 40
+      },
+      "fault_family_counts": {
+        "NoFault": 91
+      }
+    },
+    "anomaly_dev": {
+      "source_count": 557,
+      "group_count": 12,
+      "normal_source_count": 0,
+      "anomaly_source_count": 557,
+      "domain_counts": {
+        "HIL": 248,
+        "Real": 64,
+        "SIL": 245
+      },
+      "fault_family_counts": {
+        "Environment": 69,
+        "Motor": 243,
+        "Propeller": 129,
+        "Sensor": 110,
+        "Voltage": 6
+      }
+    },
+    "final_fault_test": {
+      "source_count": 553,
+      "group_count": 13,
+      "normal_source_count": 0,
+      "anomaly_source_count": 553,
+      "domain_counts": {
+        "HIL": 239,
+        "Real": 53,
+        "SIL": 261
+      },
+      "fault_family_counts": {
+        "Environment": 76,
+        "Load": 43,
+        "Motor": 266,
+        "Propeller": 81,
+        "Sensor": 81,
+        "Voltage": 6
+      }
+    }
+  },
+  "checkpoint": {
+    "policy": "lowest_normal_validation_gaussian_nll_tie_earliest_epoch",
+    "epoch": 30,
+    "mean_validation_gaussian_nll": -0.15059167814242488
+  },
+  "final_epoch": {
+    "epoch": 30,
+    "mean_train_gaussian_nll": -0.9604541933654139,
+    "windows": 205247,
+    "candidate_windows_before_balancing": 205247,
+    "observed_target_cells": 4902471,
+    "batches": 201,
+    "elapsed_seconds": 5.905598916999907,
+    "sampler": "group_then_source_balanced_epoch_quota",
+    "train_group_count": 7,
+    "group_quota_min": 29321,
+    "group_quota_max": 29321,
+    "replacement_window_draws": 33394,
+    "mean_validation_gaussian_nll": -0.15059167814242488
+  },
+  "magnitude_diagnostic": {
+    "sampled_validation_windows": 50000,
+    "spearman_trained_score_vs_random_init_score": 0.32881319994221075,
+    "spearman_trained_score_vs_standardized_target_magnitude": 0.3494698407011917,
+    "gate": 0.8,
+    "flagged": false
+  },
+  "final_event_result": {
+    "event_recall": 0.4327,
+    "false_events_per_normal_hour": 0.654,
+    "real_recall": 0.0781,
+    "sensor_recall": 0.0545,
+    "max_sweep_recall": 0.5871,
+    "max_sweep_false_events_per_hour": 9.153,
+    "final_fault_test_opened": false,
+    "source": "docs/RFLYMAD_V31_B0_GERCEK_EVENT_DEGERLENDIRME_20260728.md"
+  },
+  "scatter_status": {
+    "status": "BLOCKED",
+    "reason": "Trained/random/magnitude point scores were not persisted; only summary Spearman correlations exist."
+  }
+}

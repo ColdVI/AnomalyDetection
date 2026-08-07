@@ -1,0 +1,146 @@
+{
+  "nav_butunlugu": {
+    "feature_columns": [
+      "gps_step_m",
+      "log_gps_speed",
+      "gps_accel_mps2",
+      "vertical_rate_calc",
+      "gps_speed_residual",
+      "vertical_rate_residual",
+      "course_change_deg",
+      "gps_step_5s_max",
+      "gps_step_5s_rms",
+      "gps_speed_residual_cusum_pos",
+      "gps_frozen_count"
+    ],
+    "row_threshold_q99": 0.4909789887860534,
+    "flight_threshold_max": 0.6389658893452319
+  },
+  "sinyal_kalitesi": {
+    "feature_columns": [
+      "jamming_indicator",
+      "noise_per_ms",
+      "hdop",
+      "vdop",
+      "satellites_used",
+      "s_variance_m_s",
+      "eph",
+      "epv",
+      "jamming_1s_mean",
+      "jamming_5s_max",
+      "noise_5s_std",
+      "noise_5s_mean",
+      "hdop_5s_max",
+      "sats_5s_min",
+      "hdop_cusum_pos",
+      "noise_per_ms_cusum_pos"
+    ],
+    "row_threshold_q99": 0.3403751206139419,
+    "flight_threshold_max": 0.3453200489750624
+  },
+  "veri_kalitesi": {
+    "feature_columns": [
+      "attitude_missing",
+      "battery_missing",
+      "gps_health_missing",
+      "num_missing_groups",
+      "attitude_stale_count",
+      "attitude_stale_s"
+    ],
+    "row_threshold_q99": 0.5459575659710396,
+    "flight_threshold_max": 0.5459575659710396
+  },
+  "irtifa_tutarliligi": {
+    "feature_columns": [
+      "alt_baro_residual",
+      "alt_local_residual",
+      "vertical_rate_local_residual",
+      "alt_baro_residual_5s_max",
+      "alt_baro_residual_5s_rms",
+      "alt_local_residual_5s_max",
+      "alt_local_residual_5s_rms",
+      "alt_baro_residual_cusum_pos",
+      "alt_local_residual_cusum_pos",
+      "hgt_test_ratio",
+      "hgt_test_ratio_5s_max",
+      "pos_vert_accuracy"
+    ],
+    "row_threshold_q99": 0.40590072490129786,
+    "flight_threshold_max": 0.5094007954177611
+  },
+  "kontrol_cevabi": {
+    "feature_columns": [
+      "roll_setpoint_error",
+      "pitch_setpoint_error",
+      "yaw_setpoint_error",
+      "roll_rate_error",
+      "pitch_rate_error",
+      "yaw_rate_error",
+      "attitude_error_mag",
+      "attitude_error_mag_5s_max",
+      "attitude_error_mag_5s_rms",
+      "attitude_error_mag_cusum_pos",
+      "actuator_effort",
+      "actuator_thrust_cmd",
+      "control_strain",
+      "vibe_0",
+      "vibe_1",
+      "vibe_2"
+    ],
+    "row_threshold_q99": 0.6555202354872661,
+    "flight_threshold_max": 0.7295870945770968
+  },
+  "ekf_redleri": {
+    "feature_columns": [
+      "innovation_check_flags_active",
+      "innovation_check_flags_bit_count",
+      "gps_check_fail_flags_active",
+      "gps_check_fail_flags_bit_count",
+      "filter_fault_flags_active",
+      "filter_fault_flags_bit_count",
+      "timeout_flags_active",
+      "timeout_flags_bit_count",
+      "pre_flt_fail",
+      "local_xy_reset_counter_delta",
+      "local_z_reset_counter_delta",
+      "local_vxy_reset_counter_delta",
+      "local_vz_reset_counter_delta",
+      "local_xy_valid",
+      "local_z_valid",
+      "local_v_xy_valid",
+      "local_v_z_valid"
+    ],
+    "row_threshold_q99": 0.7036249752875724,
+    "flight_threshold_max": 0.7036249752875724
+  },
+  "dikey_tutarlilik": {
+    "feature_columns": [
+      "ekf_alt_innov",
+      "ekf_vertical_vel_innov",
+      "ekf_alt_innov_5s_max",
+      "ekf_vertical_vel_innov_5s_max",
+      "ekf_alt_innov_cusum_pos"
+    ],
+    "row_threshold_q99": 0.5561237194800284,
+    "flight_threshold_max": 0.6839111784456764
+  },
+  "motor_simetrisi": {
+    "feature_columns": [
+      "actuator_output_std",
+      "actuator_output_range",
+      "actuator_output_std_5s_max",
+      "actuator_output_range_5s_max",
+      "actuator_output_std_cusum_pos"
+    ],
+    "row_threshold_q99": 0.6436990754660414,
+    "flight_threshold_max": 0.7673818306422231
+  },
+  "pooled_ekf": {
+    "feature_columns": [
+      "ekf_pos_innov_mag",
+      "ekf_vel_innov_mag"
+    ],
+    "row_threshold_q99": 0.46732501394037285,
+    "flight_threshold_max": 0.6321659196663265
+  }
+}

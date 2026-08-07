@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_v31",
+  "contract_date": "2026-07-28",
+  "split_manifest": "configs/four_dataset_probabilistic_v31_split_manifest.json",
+  "training": {
+    "optimizer_roles": [
+      "train"
+    ],
+    "preprocessing_fit_roles": [
+      "train"
+    ],
+    "checkpoint_selection_role": "val",
+    "checkpoint_metric": "grouped_normal_validation_gaussian_nll",
+    "maximum_epochs": 30,
+    "training_sampler": "equal_epoch_quota_across_groups_then_equal_quota_across_sources_within_group",
+    "anomaly_optimizer_access": false,
+    "anomaly_preprocessing_access": false
+  },
+  "development": {
+    "roles_visible": [
+      "train",
+      "val",
+      "normal_test",
+      "anomaly_dev"
+    ],
+    "final_fault_test_visible": false,
+    "model_selection_disclosure": "semi-supervised model selection; normal-only optimizer",
+    "accuracy_precision_f1_primary": false
+  },
+  "final_evaluation": {
+    "roles_visible_after_explicit_one_shot_open": [
+      "normal_test",
+      "final_fault_test"
+    ],
+    "allowed_open_count": 1,
+    "post_result_threshold_or_grid_change": false
+  },
+  "normal_metrics": [
+    "false_events_per_hour",
+    "fraction_of_flights_with_any_false_alarm",
+    "false_events_per_flight",
+    "alarm_time_fraction",
+    "threshold_stability_by_group"
+  ],
+  "fault_metrics": [
+    "event_recall",
+    "flight_recall",
+    "first_detection_delay_s",
+    "recall_by_fault_family",
+    "recall_by_severity_or_magnitude_when_available",
+    "interval_auc",
+    "flight_auc",
+    "pr_auc"
+  ],
+  "uncertainty": {
+    "bootstrap_unit": "group_or_source_as_declared_by_dataset",
+    "row_bootstrap_allowed": false,
+    "window_bootstrap_allowed": false
+  },
+  "dataset_status": {
+    "rflymad": "baseline_authorized_after_contract_preflight",
+    "uav_sead": "hold_strict_parent_retained_session_key_evidence_insufficient",
+    "alfa": "four_fold_group_safe_cv_smoke_authorized",
+    "uav_attack": "external_stress_or_exploratory_only"
+  }
+}

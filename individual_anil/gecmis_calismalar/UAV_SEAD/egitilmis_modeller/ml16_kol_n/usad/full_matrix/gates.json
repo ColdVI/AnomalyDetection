@@ -1,0 +1,123 @@
+{
+  "gate_a": {
+    "status": "passed",
+    "rule": "blind holdout never read (development-set assertion below); no .fit(/train_lstm_autoencoder/train_dense_autoencoder/train_usad/fit_modular_iforest/fit_scaler_params call anywhere in this scoring path (verified statically in tests/test_ml16_kol_n_magnitude_normalized_scoring.py); masked_mse_per_channel sums to masked_mse exactly (same test file). No frozen-CSV byte-identity determinism check this round -- these are NEW scores, nothing existing to reproduce.",
+    "blind_holdout_flights": 200,
+    "blind_holdout_read": false
+  },
+  "gate_b": {
+    "status": "failed",
+    "rule": "any of {lstm,dense_ae,usad}_{relerr,rankpct} x {threshold,k_of_n,cusum}: critical recall >=0.30 @ FA<=2 or advisory recall >=0.50 @ FA<=12",
+    "evaluated_seed_count": 5,
+    "candidates": [
+      {
+        "architecture": "usad",
+        "score_source": "usad_rankpct",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.2865139949109415,
+        "mean_false_alarms_per_hour": 19.28377501158946,
+        "passed": false
+      },
+      {
+        "architecture": "usad",
+        "score_source": "usad_rankpct",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.12111959287531808,
+        "mean_false_alarms_per_hour": 4.854647632833204,
+        "passed": false
+      },
+      {
+        "architecture": "usad",
+        "score_source": "usad_rankpct",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.21068702290076335,
+        "mean_false_alarms_per_hour": 20.70814112497461,
+        "passed": false
+      },
+      {
+        "architecture": "usad",
+        "score_source": "usad_rankpct",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.1989821882951654,
+        "mean_false_alarms_per_hour": 10.713352266173787,
+        "passed": false
+      },
+      {
+        "architecture": "usad",
+        "score_source": "usad_rankpct",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.2687022900763359,
+        "mean_false_alarms_per_hour": 27.423137181376056,
+        "passed": false
+      },
+      {
+        "architecture": "usad",
+        "score_source": "usad_rankpct",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.233587786259542,
+        "mean_false_alarms_per_hour": 7.98172916371838,
+        "passed": false
+      },
+      {
+        "architecture": "usad",
+        "score_source": "usad_relerr",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.25801526717557255,
+        "mean_false_alarms_per_hour": 22.519458511672013,
+        "passed": false
+      },
+      {
+        "architecture": "usad",
+        "score_source": "usad_relerr",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.11755725190839694,
+        "mean_false_alarms_per_hour": 6.030304806631609,
+        "passed": false
+      },
+      {
+        "architecture": "usad",
+        "score_source": "usad_relerr",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.19796437659033078,
+        "mean_false_alarms_per_hour": 19.403678370356097,
+        "passed": false
+      },
+      {
+        "architecture": "usad",
+        "score_source": "usad_relerr",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.19694656488549617,
+        "mean_false_alarms_per_hour": 11.076500530109257,
+        "passed": false
+      },
+      {
+        "architecture": "usad",
+        "score_source": "usad_relerr",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.24936386768447835,
+        "mean_false_alarms_per_hour": 25.647021051017116,
+        "passed": false
+      },
+      {
+        "architecture": "usad",
+        "score_source": "usad_relerr",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.22697201017811705,
+        "mean_false_alarms_per_hour": 10.081088734806526,
+        "passed": false
+      }
+    ]
+  }
+}

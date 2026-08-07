@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "contextual_physics_v2",
+  "contract_date": "2026-07-23",
+  "prereg_doc": "docs/adsb_contextual_physics_v2_prereg_20260723.md",
+  "frozen_before_results": true,
+  "supersedes_grid": "contextual_physics_v1: [0.1, 0.5, 1.0, 2.0, 5.0] (ADR-042 found structurally too tight -- root cause: rate-per-100-flight-hours budget projected onto a single ~0.5-1h flight window yields <4% expected recall at V=5.0 regardless of model quality)",
+  "budget_grid_episodes_per_100_scoreable_flight_hours": [0.1, 0.5, 1.0, 2.0, 5.0, 10, 25, 50, 100, 250, 500],
+  "budget_shares_of_total": {
+    "s2_reason_codes": 0.150,
+    "speed_residual": 0.277,
+    "heading_residual": 0.228,
+    "vertical_rate_residual": 0.115,
+    "east_velocity_residual": 0.115,
+    "north_velocity_residual": 0.115
+  },
+  "temporal_profiles": {
+    "speed_residual": {
+      "spike": {"mode": "instant", "budget_fraction_of_channel": 0.5},
+      "bias": {"mode": "persistence_v2_cumulative", "budget_fraction_of_channel": 0.5}
+    },
+    "vertical_rate_residual": {
+      "spike": {"mode": "instant", "budget_fraction_of_channel": 0.5},
+      "freeze": {"mode": "persistence_v2_cumulative", "budget_fraction_of_channel": 0.5}
+    },
+    "heading_residual": {
+      "mode": "persistence_v2_cumulative", "budget_fraction_of_channel": 1.0
+    },
+    "east_north_velocity_residual": {
+      "mode": "accumulation",
+      "detector": "adsb.cusum causal two-sided Page CUSUM (ADR-029, UNCHANGED from v1)",
+      "target_vector_shift_mps": 2.0,
+      "h_selection": "derived per budget_grid point from natural calibration, NOT set in this file"
+    }
+  },
+  "note_on_persistence_v2_cumulative": "v1'deki 'persistence' modu (window_s=30.0 sabit kayan pencere) yerine, adsb/models/contextual_persistence_v2.py'nin conformal_p_value uzerinde ucus-sinirlariyla resetlenen kumulatif istatistigi kullanilir -- ADR-042'nin CUSUM'un neden daha iyi genelledigi gozlemine dogrudan yanit.",
+  "revision_policy": "Mode ASSIGNMENT per channel may be revised only via a new pre-registered version informed by the anomaly-development role; budget shares, grid values, and persistence_v2 parameters may not be changed post-hoc within this namespace."
+}

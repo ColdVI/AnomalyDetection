@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-04T18:42:26.993628</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 142.704 532.8 
+L 242.496 532.8 
+L 242.496 350.806154 
+L 142.704 350.806154 
+z
+" clip-path="url(#pa70d24df5c)" style="fill: #eb6834"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 369.504 532.8 
+L 469.296 532.8 
+L 469.296 522.498462 
+L 369.504 522.498462 
+z
+" clip-path="url(#pa70d24df5c)" style="fill: #1baf7a"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 697.104 532.8 
+L 796.896 532.8 
+L 796.896 427.0032 
+L 697.104 427.0032 
+z
+" clip-path="url(#pa70d24df5c)" style="fill: #eb6834"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 923.904 532.8 
+L 1023.696 532.8 
+L 1023.696 354.4632 
+L 923.904 354.4632 
+z
+" clip-path="url(#pa70d24df5c)" style="fill: #1baf7a"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 100.8 
+L 1101.6 100.8 
+" clip-path="url(#pa70d24df5c)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 64.8 532.8 
+L 547.2 532.8 
+" clip-path="url(#pa70d24df5c)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.4; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 619.2 532.8 
+L 1101.6 532.8 
+" clip-path="url(#pa70d24df5c)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.4; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1c5cab" x="50.4" y="63.589687" transform="rotate(-0 50.4 63.589687)">Düzeltme 3 — uçuş sayısı bağımsız deney sayısı değil</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="51.84" y="93.437813" transform="rotate(-0 51.84 93.437813)">UAV-SEAD havuzu 60'tan 1.044 development uçuşuna büyütüldü — ama uçuşlar akrabaydı</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #d03b3b" x="64.8" y="140.4" transform="rotate(-0 64.8 140.4)">Sorun</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="64.8" y="173.974453" transform="rotate(-0 64.8 173.974453)">Aynı gün ve aynı oturumdan gelen akraba uçuşlar train ve test rollerine dağılıyordu. Model, test uçuşunun neredeyse aynısını eğitimde görmüştü.</text>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1c5cab" x="64.8" y="212.4" transform="rotate(-0 64.8 212.4)">Düzeltme</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="64.8" y="245.658047" transform="rotate(-0 64.8 245.658047)">Session-level split: akraba uçuşlar aynı role kilitlendi.</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 21px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #eb6834" x="192.6" y="336.406154" transform="rotate(-0 192.6 336.406154)">±0,212</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(158.29418 570.602461)">Uçuş bazlı</text>
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(178.401797 588.050156)">split</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 21px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #1baf7a" x="419.4" y="508.098462" transform="rotate(-0 419.4 508.098462)">±0,012</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(375.674766 571.807969)">Oturum bazlı</text>
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(405.201797 588.050156)">split</text>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #0b0b0b" x="306" y="284.4" transform="rotate(-0 306 284.4)">Seed oynaklığı</text>
+   </g>
+   <g id="text_12">
+    <text style="font-weight: 700; font-size: 21px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #eb6834" x="747" y="412.6032" transform="rotate(-0 747 412.6032)">0,474</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(712.69418 570.602461)">Uçuş bazlı</text>
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(732.801797 588.050156)">split</text>
+   </g>
+   <g id="text_14">
+    <text style="font-weight: 700; font-size: 21px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #1baf7a" x="973.8" y="340.0632" transform="rotate(-0 973.8 340.0632)">0,799</text>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(930.074766 571.807969)">Oturum bazlı</text>
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(959.601797 588.050156)">split</text>
+   </g>
+   <g id="text_16">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #0b0b0b" x="860.4" y="284.4" transform="rotate(-0 860.4 284.4)">Adil satır AUC</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="50.4" y="624.96" transform="rotate(-0 50.4 624.96)">İyileşme yeni bir modelden değil, doğru veri bölünmesinden geldi. Oynaklığın 17'ye 1 düşmesi asıl kritik olan: öncesinde hiçbir sonuca güvenilemezdi.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pa70d24df5c">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

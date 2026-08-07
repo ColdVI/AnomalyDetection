@@ -1,0 +1,123 @@
+{
+  "gate_a": {
+    "status": "passed",
+    "rule": "blind holdout never read (development-set assertion below); no .fit(/train_lstm_autoencoder/train_dense_autoencoder/train_usad/fit_modular_iforest/fit_scaler_params call anywhere in this scoring path (verified statically in tests/test_ml16_kol_n_magnitude_normalized_scoring.py); masked_mse_per_channel sums to masked_mse exactly (same test file). No frozen-CSV byte-identity determinism check this round -- these are NEW scores, nothing existing to reproduce.",
+    "blind_holdout_flights": 200,
+    "blind_holdout_read": false
+  },
+  "gate_b": {
+    "status": "failed",
+    "rule": "any of {lstm,dense_ae,usad}_{relerr,rankpct} x {threshold,k_of_n,cusum}: critical recall >=0.30 @ FA<=2 or advisory recall >=0.50 @ FA<=12",
+    "evaluated_seed_count": 5,
+    "candidates": [
+      {
+        "architecture": "dense_ae",
+        "score_source": "dense_ae_rankpct",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.28651399491094154,
+        "mean_false_alarms_per_hour": 16.877511637983023,
+        "passed": false
+      },
+      {
+        "architecture": "dense_ae",
+        "score_source": "dense_ae_rankpct",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.12620865139949108,
+        "mean_false_alarms_per_hour": 4.112081148261733,
+        "passed": false
+      },
+      {
+        "architecture": "dense_ae",
+        "score_source": "dense_ae_rankpct",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.21526717557251906,
+        "mean_false_alarms_per_hour": 22.274810625968616,
+        "passed": false
+      },
+      {
+        "architecture": "dense_ae",
+        "score_source": "dense_ae_rankpct",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.21526717557251912,
+        "mean_false_alarms_per_hour": 8.195111016874748,
+        "passed": false
+      },
+      {
+        "architecture": "dense_ae",
+        "score_source": "dense_ae_rankpct",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.2712468193384224,
+        "mean_false_alarms_per_hour": 28.52952867789697,
+        "passed": false
+      },
+      {
+        "architecture": "dense_ae",
+        "score_source": "dense_ae_rankpct",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.27022900763358776,
+        "mean_false_alarms_per_hour": 8.667332932764342,
+        "passed": false
+      },
+      {
+        "architecture": "dense_ae",
+        "score_source": "dense_ae_relerr",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.24783715012722646,
+        "mean_false_alarms_per_hour": 16.314084373182492,
+        "passed": false
+      },
+      {
+        "architecture": "dense_ae",
+        "score_source": "dense_ae_relerr",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.11450381679389314,
+        "mean_false_alarms_per_hour": 3.9907034159394392,
+        "passed": false
+      },
+      {
+        "architecture": "dense_ae",
+        "score_source": "dense_ae_relerr",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.19796437659033078,
+        "mean_false_alarms_per_hour": 17.971629056939776,
+        "passed": false
+      },
+      {
+        "architecture": "dense_ae",
+        "score_source": "dense_ae_relerr",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.17404580152671753,
+        "mean_false_alarms_per_hour": 7.514950894365606,
+        "passed": false
+      },
+      {
+        "architecture": "dense_ae",
+        "score_source": "dense_ae_relerr",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.24987277353689566,
+        "mean_false_alarms_per_hour": 21.787769675823164,
+        "passed": false
+      },
+      {
+        "architecture": "dense_ae",
+        "score_source": "dense_ae_relerr",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.22188295165394406,
+        "mean_false_alarms_per_hour": 8.485216477963528,
+        "passed": false
+      }
+    ]
+  }
+}

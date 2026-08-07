@@ -1,0 +1,90 @@
+{
+  "status": "development_only_convergence_followup",
+  "created_at": "2026-07-22T10:55:47.384718+00:00",
+  "candidate": "R4",
+  "rotations_completed": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "convergence_protocol": {
+    "initial_max_epochs": 100,
+    "extension_ceiling": 2000,
+    "patience": 12,
+    "min_delta": 0.0001,
+    "checkpoint": "minimum inner Real-NoFault validation loss; epoch 0 allowed"
+  },
+  "rotation_convergence": [
+    {
+      "stop_reason": "validation_patience_exhausted",
+      "max_epochs": 100,
+      "patience": 12,
+      "min_delta": 0.0001,
+      "epochs_completed": 13,
+      "best_epoch": 1,
+      "initial_validation_loss": 7.665611743927002,
+      "best_validation_loss": 7.386845588684082,
+      "best_is_unmodified_base": false
+    },
+    {
+      "stop_reason": "validation_patience_exhausted",
+      "max_epochs": 2000,
+      "patience": 12,
+      "min_delta": 0.0001,
+      "epochs_completed": 792,
+      "best_epoch": 780,
+      "initial_validation_loss": 8.403168678283691,
+      "best_validation_loss": 3.9386255741119385,
+      "best_is_unmodified_base": false,
+      "extended_from_ceiling": 500,
+      "validation_replay_max_abs_delta": 8.881784197001252e-16
+    },
+    {
+      "stop_reason": "validation_patience_exhausted",
+      "max_epochs": 500,
+      "patience": 12,
+      "min_delta": 0.0001,
+      "epochs_completed": 229,
+      "best_epoch": 217,
+      "initial_validation_loss": 8.719097137451172,
+      "best_validation_loss": 8.135573387145996,
+      "best_is_unmodified_base": false,
+      "extended_from_ceiling": 100,
+      "validation_replay_max_abs_delta": 0.0
+    },
+    {
+      "stop_reason": "validation_patience_exhausted",
+      "max_epochs": 100,
+      "patience": 12,
+      "min_delta": 0.0001,
+      "epochs_completed": 13,
+      "best_epoch": 1,
+      "initial_validation_loss": 5.837534427642822,
+      "best_validation_loss": 5.790218830108643,
+      "best_is_unmodified_base": false
+    },
+    {
+      "stop_reason": "validation_patience_exhausted",
+      "max_epochs": 2000,
+      "patience": 12,
+      "min_delta": 0.0001,
+      "epochs_completed": 640,
+      "best_epoch": 628,
+      "initial_validation_loss": 7.3150506019592285,
+      "best_validation_loss": 3.9436187744140625,
+      "best_is_unmodified_base": false,
+      "extended_from_ceiling": 500,
+      "validation_replay_max_abs_delta": 8.881784197001252e-16
+    }
+  ],
+  "locked_test_features_read": false,
+  "operational_claim_allowed": false,
+  "report_refreshed_at": "2026-07-22T11:14:19.979209+00:00",
+  "real_research_gate_passed": false,
+  "real_feasibility_gate_passed": false,
+  "wind_intermediate_gate_passed": false,
+  "wind_final_research_target_passed": false,
+  "last_ceiling_extension_at": "2026-07-22T11:14:19.494262+00:00"
+}

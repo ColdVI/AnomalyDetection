@@ -1,0 +1,83 @@
+{
+  "policy_schema_version": 1,
+  "created_utc": "2026-07-03T12:00:01.889970+00:00",
+  "source": "uav_sead",
+  "status": "development_rejected; model/feature revision required",
+  "blind_holdout_used": false,
+  "blind_holdout_locked": true,
+  "selection_data": "split_00 development test only",
+  "development_flights": 204,
+  "final_holdout_flights_unopened": 76,
+  "excluded_anomalous_flights_without_ranges": [
+    "2018-07-25/sess006/log001"
+  ],
+  "score_definition": "module IsolationForest row score / module normal-val Q99; max=OR, vote2=second-highest module ratio, vote3=minimum ratio",
+  "budgets_are_product_assumptions": true,
+  "tier_decisions": {
+    "critical_signal": {
+      "status": "rejected; no candidate meets minimum utility",
+      "requirements": {
+        "max_false_alarms_per_hour": 2.0,
+        "min_event_recall": 0.3
+      },
+      "meaning": "operator notification; GPS/signal-integrity odakli",
+      "best_within_false_alarm_budget": {
+        "fusion": "vote2",
+        "threshold_ratio": 1.25,
+        "k": 2,
+        "n": 3,
+        "clear_s": 10.0,
+        "cooldown_s": 30.0,
+        "n_events": 165,
+        "detected_events": 15,
+        "event_recall": 0.09090909090909091,
+        "overlap_detected_events": 18,
+        "event_overlap_recall": 0.10909090909090909,
+        "preexisting_alarm_events": 3,
+        "mean_detection_delay_s": 15.537351400000011,
+        "false_alarm_events": 4,
+        "normal_hours": 5.168371569166666,
+        "false_alarms_per_hour": 0.7739381633981376,
+        "normal_flight_fa_per_hour_p95": 0.0,
+        "alarm_fraction": 0.03871811641595814
+      }
+    },
+    "advisory_warning": {
+      "status": "rejected; no candidate meets minimum utility",
+      "requirements": {
+        "max_false_alarms_per_hour": 12.0,
+        "min_event_recall": 0.5
+      },
+      "meaning": "dashboard/inceleme uyarisi; otomatik aksiyon yok",
+      "best_within_false_alarm_budget": {
+        "fusion": "ekf_redleri",
+        "threshold_ratio": 1.0,
+        "k": 5,
+        "n": 9,
+        "clear_s": 10.0,
+        "cooldown_s": 30.0,
+        "n_events": 165,
+        "detected_events": 30,
+        "event_recall": 0.18181818181818182,
+        "overlap_detected_events": 56,
+        "event_overlap_recall": 0.3393939393939394,
+        "preexisting_alarm_events": 26,
+        "mean_detection_delay_s": 16.68265073333334,
+        "false_alarm_events": 61,
+        "normal_hours": 5.168371569166666,
+        "false_alarms_per_hour": 11.802556991821598,
+        "normal_flight_fa_per_hour_p95": 71.46708674862766,
+        "alarm_fraction": 0.24701983867451494
+      }
+    }
+  },
+  "inputs": {
+    "model_version": "ml7_candidate_iforest",
+    "model_manifest_sha256": "64e0829af2f59fe61140c0758a6bec79703277c674c3284e913222815b8e2549",
+    "split_manifest_sha256": "1ff74b3e543f683ad5b38e079f4830b9c2ed38016bdc932a09e5ee085fb70bef"
+  },
+  "development_outputs": {
+    "sweep": "data/gold/ml6/ml7_alarm_policy_sweep.csv",
+    "by_class": "data/gold/ml6/ml7_alarm_policy_by_class.csv"
+  }
+}

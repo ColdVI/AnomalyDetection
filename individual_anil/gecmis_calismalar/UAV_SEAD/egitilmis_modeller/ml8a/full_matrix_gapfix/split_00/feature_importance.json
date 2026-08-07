@@ -1,0 +1,962 @@
+[
+  {
+    "feature": "gps_speed_residual__max",
+    "gain": 2330.300048828125
+  },
+  {
+    "feature": "gps_speed_residual__std",
+    "gain": 2180.510009765625
+  },
+  {
+    "feature": "alt_local_residual__max",
+    "gain": 899.697021484375
+  },
+  {
+    "feature": "control_strain__q90",
+    "gain": 838.4120178222656
+  },
+  {
+    "feature": "control_strain__diff_std",
+    "gain": 796.3190002441406
+  },
+  {
+    "feature": "gps_speed_residual__q90",
+    "gain": 760.8050231933594
+  },
+  {
+    "feature": "alt_local_residual__q10",
+    "gain": 718.5819702148438
+  },
+  {
+    "feature": "attitude_error_mag__diff_abs_max",
+    "gain": 674.9483184814453
+  },
+  {
+    "feature": "attitude_error_mag__min",
+    "gain": 673.9190216064453
+  },
+  {
+    "feature": "attitude_error_mag__range",
+    "gain": 588.6351928710938
+  },
+  {
+    "feature": "gps_speed_residual__diff_std",
+    "gain": 555.7589721679688
+  },
+  {
+    "feature": "attitude_error_mag__lag1_autocorrelation",
+    "gain": 356.5740051269531
+  },
+  {
+    "feature": "timeout_flags_bit_count__mean",
+    "gain": 310.30999755859375
+  },
+  {
+    "feature": "attitude_error_mag__q10",
+    "gain": 289.92000579833984
+  },
+  {
+    "feature": "attitude_error_mag__q90",
+    "gain": 270.4010009765625
+  },
+  {
+    "feature": "battery_missing__mean",
+    "gain": 217.61900329589844
+  },
+  {
+    "feature": "attitude_error_mag__q75",
+    "gain": 210.43499755859375
+  },
+  {
+    "feature": "gps_speed_residual__lag1_autocorrelation",
+    "gain": 208.55859756469727
+  },
+  {
+    "feature": "battery_missing__q75",
+    "gain": 202.91780471801758
+  },
+  {
+    "feature": "attitude_error_mag__median",
+    "gain": 201.75900268554688
+  },
+  {
+    "feature": "gps_speed_residual__mean",
+    "gain": 163.28119659423828
+  },
+  {
+    "feature": "alt_local_residual__q75",
+    "gain": 155.14599609375
+  },
+  {
+    "feature": "control_strain__std",
+    "gain": 153.5709991455078
+  },
+  {
+    "feature": "gps_speed_residual__missing_fraction",
+    "gain": 153.10499572753906
+  },
+  {
+    "feature": "gps_speed_residual__q10",
+    "gain": 150.70799255371094
+  },
+  {
+    "feature": "attitude_error_mag__max",
+    "gain": 146.010498046875
+  },
+  {
+    "feature": "timeout_flags_bit_count__min",
+    "gain": 125.93299865722656
+  },
+  {
+    "feature": "timeout_flags_bit_count__linear_slope",
+    "gain": 110.49500274658203
+  },
+  {
+    "feature": "gps_speed_residual__stale_fraction",
+    "gain": 110.4749984741211
+  },
+  {
+    "feature": "alt_baro_residual__missing_fraction",
+    "gain": 108.31099700927734
+  },
+  {
+    "feature": "timeout_flags_bit_count__max",
+    "gain": 91.6187973022461
+  },
+  {
+    "feature": "gps_speed_residual__q25",
+    "gain": 91.06890106201172
+  },
+  {
+    "feature": "alt_local_residual__diff_abs_max",
+    "gain": 90.04419708251953
+  },
+  {
+    "feature": "battery_missing__std",
+    "gain": 82.47840118408203
+  },
+  {
+    "feature": "gps_speed_residual__diff_abs_max",
+    "gain": 76.21199798583984
+  },
+  {
+    "feature": "battery_missing__lag1_autocorrelation",
+    "gain": 71.28369903564453
+  },
+  {
+    "feature": "gps_speed_residual__min",
+    "gain": 59.89310073852539
+  },
+  {
+    "feature": "gps_speed_residual__median",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_speed_residual__q75",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_speed_residual__range",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_speed_residual__first",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_speed_residual__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_speed_residual__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_speed_residual__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_speed_residual__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__std",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__min",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__max",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__median",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__q10",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__q25",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__q75",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__q90",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__range",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__first",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__diff_std",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__diff_abs_max",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__lag1_autocorrelation",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_baro_residual__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__std",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__min",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__median",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__q25",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__q90",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__range",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__first",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__diff_std",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__lag1_autocorrelation",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "alt_local_residual__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_error_mag__mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_error_mag__std",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_error_mag__q25",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_error_mag__first",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_error_mag__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_error_mag__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_error_mag__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_error_mag__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_error_mag__diff_std",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_error_mag__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_error_mag__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__min",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__max",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__median",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__q10",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__q25",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__q75",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__range",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__first",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__diff_abs_max",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__lag1_autocorrelation",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "control_strain__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__std",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__min",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__max",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__median",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__q10",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__q25",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__q75",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__q90",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__range",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__first",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__diff_std",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__diff_abs_max",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__lag1_autocorrelation",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "innovation_check_flags_bit_count__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__std",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__min",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__max",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__median",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__q10",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__q25",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__q75",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__q90",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__range",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__first",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__diff_std",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__diff_abs_max",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__lag1_autocorrelation",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_check_fail_flags_bit_count__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__std",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__min",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__max",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__median",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__q10",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__q25",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__q75",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__q90",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__range",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__first",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__diff_std",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__diff_abs_max",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__lag1_autocorrelation",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "filter_fault_flags_bit_count__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__std",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__median",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__q10",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__q25",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__q75",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__q90",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__range",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__first",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__diff_std",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__diff_abs_max",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__lag1_autocorrelation",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "timeout_flags_bit_count__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__std",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__min",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__max",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__median",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__q10",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__q25",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__q75",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__q90",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__range",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__first",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__diff_std",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__diff_abs_max",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__lag1_autocorrelation",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "attitude_missing__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__min",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__max",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__median",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__q10",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__q25",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__q90",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__range",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__first",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__diff_std",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__diff_abs_max",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "battery_missing__stale_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__std",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__min",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__max",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__median",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__q10",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__q25",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__q75",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__q90",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__range",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__first",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__last",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__last_minus_first",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__linear_slope",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__diff_mean",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__diff_std",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__diff_abs_max",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__lag1_autocorrelation",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__missing_fraction",
+    "gain": 0.0
+  },
+  {
+    "feature": "gps_health_missing__stale_fraction",
+    "gain": 0.0
+  }
+]

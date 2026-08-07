@@ -1,0 +1,49 @@
+{
+  "status": "development_only_partial_parse",
+  "created_at": "2026-07-21T10:09:29.015656+00:00",
+  "model": "normal_only_temporal_conv_autoencoder",
+  "training_contract": "development NoFault only; domain-balanced sampler",
+  "threshold_contract": "domain-specific, held-out development NoFault groups only",
+  "locked_test_features_read": false,
+  "operational_claim_allowed": false,
+  "validation_groups": {
+    "Real": "real_session:NoFault:2023-6-15",
+    "HIL": "simulation_scenario:HIL-NoFault/HIL-NoFault/dece",
+    "SIL": "simulation_scenario:SIL-NoFault/SIL-NoFault/dece"
+  },
+  "validation_rotation": 3,
+  "train_normal_flights": 330,
+  "validation_normal_flights": 96,
+  "train_windows": 4852,
+  "validation_windows": 2884,
+  "available_development_flights": 515,
+  "epochs_completed": 25,
+  "metrics": [
+    {
+      "policy": "critical",
+      "fault_flights": 69,
+      "detected_fault_flights": 32,
+      "event_recall": 0.463768115942029,
+      "flight_tp": 32,
+      "flight_fn": 37,
+      "flight_fp": 1,
+      "flight_tn": 95,
+      "normal_validation_fa_per_hour": 0.6297008920762637,
+      "all_nonfault_fa_per_hour": 0.9981976985997504,
+      "environment_fa_per_hour": 23.45864661654135
+    },
+    {
+      "policy": "advisory",
+      "fault_flights": 69,
+      "detected_fault_flights": 44,
+      "event_recall": 0.6376811594202898,
+      "flight_tp": 44,
+      "flight_fn": 25,
+      "flight_fp": 17,
+      "flight_tn": 79,
+      "normal_validation_fa_per_hour": 10.704915165296482,
+      "all_nonfault_fa_per_hour": 10.980174684597253,
+      "environment_fa_per_hour": 25.263157894736842
+    }
+  ]
+}

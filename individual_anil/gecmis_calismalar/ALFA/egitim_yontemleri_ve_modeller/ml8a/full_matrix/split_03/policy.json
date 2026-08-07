@@ -1,0 +1,158 @@
+{
+  "lightgbm:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.6418893292932764,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lightgbm:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 2,
+    "n": 3,
+    "threshold": 0.6418893292932764,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lightgbm:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.25680741266681334,
+    "sigma_normal": 0.4043393401547315,
+    "k": 0.5,
+    "h": 44.797977447509766,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 2.0
+  },
+  "lightgbm:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.6418893292932764,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lightgbm:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 2,
+    "n": 3,
+    "threshold": 0.6418893292932764,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lightgbm:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.25680741266681334,
+    "sigma_normal": 0.4043393401547315,
+    "k": 0.5,
+    "h": 15.466190338134766,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.99
+  },
+  "if_fusion:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9973118279569892,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "if_fusion:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 2,
+    "n": 3,
+    "threshold": 0.9811827956989247,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "if_fusion:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.0319794706086889,
+    "sigma_normal": 1.749820489222876,
+    "k": 0.5,
+    "h": 6.992255210876465,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.89
+  },
+  "if_fusion:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9973118279569892,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "if_fusion:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 2,
+    "n": 3,
+    "threshold": 0.9811827956989247,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "if_fusion:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.0319794706086889,
+    "sigma_normal": 1.749820489222876,
+    "k": 0.5,
+    "h": 6.992255210876465,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 1.89
+  },
+  "lstm_existing:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9967948717948718,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lstm_existing:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9711538461538461,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lstm_existing:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.03869475039714962,
+    "sigma_normal": 1.7378633412464384,
+    "k": 0.5,
+    "h": 24.80247688293457,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 2.0
+  },
+  "lstm_existing:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9967948717948718,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lstm_existing:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9711538461538461,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "lstm_existing:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.03869475039714962,
+    "sigma_normal": 1.7378633412464384,
+    "k": 0.5,
+    "h": 16.718549728393555,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 7.65
+  }
+}

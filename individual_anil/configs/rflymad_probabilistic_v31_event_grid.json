@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "rflymad_probabilistic_v31_b0_event_v1",
+  "contract_date": "2026-07-28",
+  "base_model_namespace": "four_dataset_probabilistic_v31",
+  "base_run": "artifacts/four_dataset_probabilistic_v31/runs/rflymad_colab_l4_20260728",
+  "visible_roles": ["val_normal", "normal_test", "anomaly_dev"],
+  "forbidden_role": "final_fault_test",
+  "score_transform": {
+    "name": "validation_normal_robust_z",
+    "location": "median",
+    "scale": "1.4826 * MAD",
+    "minimum_scale": 1e-09,
+    "fit_role": "val_normal",
+    "test_refit_forbidden": true
+  },
+  "common": {
+    "threshold_comparator": ">=",
+    "max_gap_seconds": 5.0,
+    "merge_gap_seconds": 2.0,
+    "false_event_budgets_per_normal_hour": [0.5, 1.0, 2.0],
+    "refractory_seconds": [10.0, 30.0],
+    "threshold_candidate_quantiles": [0.99, 0.995, 0.9975, 0.999, 0.9995, 0.9999, 0.99995, 0.99999],
+    "selection_rule": "For every frozen family/policy/budget, choose on val_normal the lowest threshold or h whose false-event rate is at or below budget; ties choose the more conservative value; if unavailable report unavailable without extrapolation."
+  },
+  "families": {
+    "threshold_persistence": {
+      "minimum_duration_seconds": [0.5, 1.0, 2.0]
+    },
+    "k_of_n_time": {
+      "policies": [
+        {"name": "2_of_3_approx_10hz", "horizon_seconds": 0.3, "minimum_exceedances": 2},
+        {"name": "3_of_5_approx_10hz", "horizon_seconds": 0.5, "minimum_exceedances": 3},
+        {"name": "5_of_10_approx_10hz", "horizon_seconds": 1.0, "minimum_exceedances": 5}
+      ],
+      "implementation_rule": "Causal time horizon on t_rel_s; rows are never assumed uniformly spaced and gaps above max_gap_seconds reset state."
+    },
+    "standardized_nll_cusum": {
+      "allowance_candidates": [0.25, 0.5, 1.0],
+      "recurrence": "S_t = max(0, S_prev + z_t - allowance); large gaps reset; accepted alarm resets S to zero and starts refractory.",
+      "h_candidate_quantiles": [0.99, 0.995, 0.9975, 0.999, 0.9995, 0.9999, 0.99995, 0.99999]
+    }
+  },
+  "bootstrap": {
+    "replicates": 1000,
+    "confidence_level": 0.95,
+    "unit": "source_id",
+    "stratify": ["normal_vs_anomaly", "domain", "fault_family_when_available"],
+    "seed": 20260728
+  },
+  "reporting": {
+    "report_every_frozen_grid_point": true,
+    "select_test_winner": false,
+    "normal_metrics": ["false_events_per_hour", "false_events_per_flight", "fraction_flights_with_any_false_event", "alarm_time_fraction"],
+    "fault_metrics": ["event_recall", "first_detection_delay_seconds", "range_precision_time_weighted", "range_recall_time_weighted"],
+    "breakdowns": ["domain", "fault_family", "group_id"]
+  },
+  "prohibitions": {
+    "no_retraining": true,
+    "no_epoch_extension": true,
+    "no_checkpoint_reselection": true,
+    "no_test_threshold_selection": true,
+    "no_normal_test_policy_selection": true,
+    "no_final_fault_test_access": true,
+    "no_whole_flight_interval_truth": true,
+    "no_point_adjustment": true,
+    "no_post_result_grid_change": true
+  }
+}

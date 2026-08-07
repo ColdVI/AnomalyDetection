@@ -1,0 +1,38 @@
+{
+  "artifact_schema_version": 1,
+  "stage": "ML-10 causal Chronos forecast-residual precompute",
+  "created_utc": "2026-07-06T15:27:58.984987+00:00",
+  "model_id": "amazon/chronos-bolt-tiny",
+  "model_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+  "zero_shot": true,
+  "training_or_gradient_updates": false,
+  "device": "cpu",
+  "context_window_rows": 512,
+  "minimum_context_rows": 16,
+  "decision_stride_seconds": 1.0,
+  "quantile_levels": [
+    0.1,
+    0.5,
+    0.9
+  ],
+  "development_flights": 480,
+  "development_rows": 501765,
+  "blind_holdout_read": false,
+  "blind_holdout_scored": false,
+  "blind_holdout_flights": 131,
+  "total_wall_seconds": 101.23641510000016,
+  "finite_scores": {
+    "chronos_alt_residual": 57323,
+    "chronos_actuator_std_residual": 56812
+  },
+  "score_table": "data/gold/ml_features/uav_sead/uav_sead_ml10_forecast_residual.parquet",
+  "score_table_sha256": "b9d3a75ed2eeb7a9bbaf965c88c028de284635b22615b621093b854c7578046e",
+  "preflight_sha256": "847890ba99d3d5e74bbd67bf130d0f0436ece240d8feee1cc6f280621d6e3dd3",
+  "feasibility_sha256": "4d89a6dbd062d4f09375f1e46ffb14974cc43ecbeb8ba87acf26709fafaaf9ab",
+  "split_manifest_sha256": "0e3047b3abc11d09bc5b2b94e35cca117efce8fa49fdc37393c146550b8d0f0d",
+  "input_feature_table_sha256": "14c90f5f9a283982cec9e93e6e0fcf6a4c3811629ac8aff72f0a2bccc4d69b06",
+  "input_silver_table_sha256": "6a4a9a5daaea9d15b991218f3856ff5a2846e0d02268f3ebda96d13eba82edbb",
+  "files": {
+    "flight_timings.json": "3a1f0b47870067e60da23385e29ea9ee08c6c24a7b6f2fb69c7aa7c6cfbca357"
+  }
+}

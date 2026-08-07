@@ -1,0 +1,106 @@
+{
+  "lstm_relerr:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9995027458388696,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.3680781758957656
+  },
+  "lstm_relerr:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9942993224167836,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.954397394136808
+  },
+  "lstm_relerr:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.04466076797462296,
+    "sigma_normal": 1.8037199222389724,
+    "k": 0.5,
+    "h": 74.1875,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 2.0
+  },
+  "lstm_relerr:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9946690735283565,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.92182410423453
+  },
+  "lstm_relerr:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.970084413359165,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.92182410423453
+  },
+  "lstm_relerr:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.04466076797462296,
+    "sigma_normal": 1.8037199222389724,
+    "k": 0.5,
+    "h": 22.40625,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 12.0
+  },
+  "lstm_rankpct:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.999243166729054,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.954397394136808
+  },
+  "lstm_rankpct:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9964156543302302,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.5635179153094463
+  },
+  "lstm_rankpct:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.1403387893760549,
+    "sigma_normal": 1.8968177407889408,
+    "k": 0.5,
+    "h": 86.96875,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 2.0
+  },
+  "lstm_rankpct:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9950701066841422,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.92182410423453
+  },
+  "lstm_rankpct:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9794977681056761,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.92182410423453
+  },
+  "lstm_rankpct:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.1403387893760549,
+    "sigma_normal": 1.8968177407889408,
+    "k": 0.5,
+    "h": 20.75,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 12.0
+  }
+}

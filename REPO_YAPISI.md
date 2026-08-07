@@ -18,25 +18,22 @@ Aşağıdaki harita, hangi klasörün kime/neye ait olduğunu özetler.
 ## Bireysel proje — ML Anomali-Tespiti Fizibilitesi (Anıl)
 
 Gerçek ADS-B ve İHA telemetrisinde operasyonel bir anomali dedektörünün
-kurulabilirliğini araştıran çalışma. Sonuç: disiplinli **NO-GO** — sinyal
+kurulabilirliğini araştıran çalışma. Beş veri kümesi, 12'den fazla yöntem
+ailesi, 17'den fazla deney turu. Sonuç: disiplinli **NO-GO** — sinyal
 gösterilebiliyor ama dondurulmuş yanlış-alarm bütçesi altında operasyonel eşik
 kurulamıyor.
 
-| Klasör / dosya | İçerik |
+Tüm kaynak kod, eğitilmiş modeller, artefaktlar ve raporlar tek klasörde:
+[individual_anil/](individual_anil/).
+
+| Belge | İçerik |
 |---|---|
-| [adsb/](adsb/) | ADS-B contextual-physics residual modeli + kural/CUSUM karar katmanı |
-| [residual_v1/](residual_v1/) | Komut→tepki residual tabanlı İHA FDI hattı (ALFA + RflyMAD) |
-| [uav_gnss/](uav_gnss/) | UAV GNSS bütünlük pilotu (PX4/RflyMAD) |
-| [anomaly_core/](anomaly_core/) | Paylaşılan CUSUM/forecaster/kalibrasyon çekirdeği |
-| [scripts/](scripts/) | `adsb_*`, `residual_v1_*`, `*_uav_gnss_*` deney/rapor sürücüleri |
-| [tests/](tests/) | `test_adsb_*`, `test_residual_v1_*`, `test_uav_gnss_*` |
-| [artifacts/](artifacts/) | Kayıtlı run çıktıları/manifestler (büyük veri gitignore'da) |
-| **Raporlar (`docs/`):** | |
-| [docs/RESIDUAL_V1.md](docs/RESIDUAL_V1.md) | RESIDUAL-V1 tasarım + sonuç + NO-GO (birleşik) |
-| [docs/ADSB_CONTEXTUAL_DENEY.md](docs/ADSB_CONTEXTUAL_DENEY.md) | ADS-B contextual deney kayıtları (birleşik) |
-| [docs/PROJE_SUREC_VE_SONUC.md](docs/PROJE_SUREC_VE_SONUC.md) | Durum/teşhis, skor defteri, ön-kayıt, sunum notları (birleşik) |
-| [docs/final_rapor_ml_fizibilite_2026-07-16.md](docs/final_rapor_ml_fizibilite_2026-07-16.md) | Fizibilite final raporu |
-| [docs/decisions.md](docs/decisions.md) | ADR karar günlüğü |
+| [individual_anil/README.md](individual_anil/README.md) | Giriş kapısı — çalışma nedir, sonuç nedir, nereden başlanır |
+| [individual_anil/KOD_HARITASI.md](individual_anil/KOD_HARITASI.md) | Modül modül kod haritası |
+| [individual_anil/BULGU_KOD_ESLEMESI.md](individual_anil/BULGU_KOD_ESLEMESI.md) | Üç yapısal bulgu → hangi dosya/fonksiyonda ölçüldü |
+| [individual_anil/CALISTIRMA.md](individual_anil/CALISTIRMA.md) | Demo, testler, gerçek veriyle çalıştırma, sonuçlara bakma |
+| [individual_anil/demo/](individual_anil/demo/) | Veri gerektirmeyen uçtan uca demo (`demo_calistir.py`) |
+| [individual_anil/raporlar/](individual_anil/raporlar/) | Tüm ADR/rapor/sunum malzemesi |
 
 ## Bireysel proje — Coğrafi Rota Analizi (Metehan)
 
@@ -50,7 +47,7 @@ kurulamıyor.
 
 ## Arşiv (git geçmişinde)
 
-Eski non-ADS-B ML hattı (ALFA/UAV-SEAD/RFLY, ML-0…ML-16) ve süreç/AI-inceleme
-notları `main`'de değil, ayrı **`arsiv`** branch'inde tutulur
-(`git checkout arsiv`). Bu, `main`'i teslime hazır ve hafif tutmak içindir; içerik
-kaybolmadı, iki makineden `git fetch` ile erişilebilir.
+Anomali-tespiti çalışmasının güncel hâli artık `main`'de, `individual_anil/`
+altında. Çalışmanın tam commit geçmişi (adım adım deney kararları, ara
+sonuçlar) ayrı **`arsiv`** branch'inde tutulur (`git checkout arsiv`) —
+arkeoloji için, `main`'in içeriği için değil.

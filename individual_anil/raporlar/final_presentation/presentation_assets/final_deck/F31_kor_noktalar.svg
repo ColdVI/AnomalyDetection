@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-04T18:42:32.868268</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 208.8 206.64 
+L 399.13344 206.64 
+L 399.13344 172.08 
+L 208.8 172.08 
+z
+" clip-path="url(#p29bbba8b0b)" style="fill: #1baf7a"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 208.8 267.84 
+L 226.0656 267.84 
+L 226.0656 233.28 
+L 208.8 233.28 
+z
+" clip-path="url(#p29bbba8b0b)" style="fill: #d03b3b"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 806.4 206.64 
+L 925.1028 206.64 
+L 925.1028 172.08 
+L 806.4 172.08 
+z
+" clip-path="url(#p29bbba8b0b)" style="fill: #2a78d6"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 806.4 267.84 
+L 887.37264 267.84 
+L 887.37264 233.28 
+L 806.4 233.28 
+z
+" clip-path="url(#p29bbba8b0b)" style="fill: #4a3aa7"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 806.4 329.04 
+L 822.70728 329.04 
+L 822.70728 294.48 
+L 806.4 294.48 
+z
+" clip-path="url(#p29bbba8b0b)" style="fill: #d03b3b"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 70.56 465.84 
+L 563.04 465.84 
+Q 570.24 465.84 570.24 458.64 
+L 570.24 358.56 
+Q 570.24 351.36 563.04 351.36 
+L 70.56 351.36 
+Q 63.36 351.36 63.36 358.56 
+L 63.36 458.64 
+Q 63.36 465.84 70.56 465.84 
+z
+" clip-path="url(#p29bbba8b0b)" style="fill: #dcf3ea; stroke: #1baf7a; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 603.36 465.84 
+L 1095.84 465.84 
+Q 1103.04 465.84 1103.04 458.64 
+L 1103.04 358.56 
+Q 1103.04 351.36 1095.84 351.36 
+L 603.36 351.36 
+Q 596.16 351.36 596.16 358.56 
+L 596.16 458.64 
+Q 596.16 465.84 603.36 465.84 
+z
+" clip-path="url(#p29bbba8b0b)" style="fill: #fce7df; stroke: #eb6834; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 100.8 
+L 1101.6 100.8 
+" clip-path="url(#p29bbba8b0b)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1c5cab" x="50.4" y="63.321562" transform="rotate(-0 50.4 63.321562)">Kör noktalar: ortalama yanıltıyor</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="51.84" y="93.437813" transform="rotate(-0 51.84 93.437813)">Aynı model, aynı eşik — yakalamanın tamamı tek bir yerde toplanıyor</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 14.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="64.8" y="140.4" transform="rotate(-0 64.8 140.4)">Arıza ailesine göre</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #0b0b0b" x="198" y="194.306836" transform="rotate(-0 198 194.306836)">Motor</text>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1baf7a" x="413.53344" y="194.95625" transform="rotate(-0 413.53344 194.95625)">%60,08</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #0b0b0b" x="198" y="255.506836" transform="rotate(-0 198 255.506836)">Sensor</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #d03b3b" x="240.4656" y="256.15625" transform="rotate(-0 240.4656 256.15625)">%5,45</text>
+   </g>
+   <g id="text_8">
+    <text style="font-weight: 700; font-size: 14.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="619.2" y="140.4" transform="rotate(-0 619.2 140.4)">Veri alanına göre</text>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #0b0b0b" x="795.6" y="194.306836" transform="rotate(-0 795.6 194.306836)">HIL</text>
+   </g>
+   <g id="text_10">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2a78d6" x="939.5028" y="194.95625" transform="rotate(-0 939.5028 194.95625)">%56,85</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="1101.6" y="193.917656" transform="rotate(-0 1101.6 193.917656)">gecikme —</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #0b0b0b" x="795.6" y="255.506836" transform="rotate(-0 795.6 255.506836)">SIL</text>
+   </g>
+   <g id="text_13">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4a3aa7" x="901.77264" y="256.15625" transform="rotate(-0 901.77264 256.15625)">%38,78</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="1101.6" y="255.117656" transform="rotate(-0 1101.6 255.117656)">gecikme 17,4 s</text>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #0b0b0b" x="795.6" y="316.707363" transform="rotate(-0 795.6 316.707363)">Real (gerçek uçuş)</text>
+   </g>
+   <g id="text_16">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #d03b3b" x="837.10728" y="317.35625" transform="rotate(-0 837.10728 317.35625)">%7,81</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="1101.6" y="316.317656" transform="rotate(-0 1101.6 316.317656)">gecikme 41,2 s</text>
+   </g>
+   <g id="text_18">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1baf7a" x="80.64" y="384.357656" transform="rotate(-0 80.64 384.357656)">Motor arızasında gecikme:  0,1 saniye</text>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(82.8 419.469922)">Model komut–tepki ilişkisinin bozulduğu ani arızaları görüyor;</text>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(82.8 437.436719)">yavaş gelişen sensör bozulmalarını görmüyor.</text>
+   </g>
+   <g id="text_20">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #eb6834" x="613.44" y="384.568594" transform="rotate(-0 613.44 384.568594)">Bunu düzeltmeyi denedik</text>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(615.6 419.311719)">6 ön-kayıtlı dayanıklılık adayı tarandı: gerçek uçuş yakalaması</text>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(615.6 437.436719)">%14,3 → %28,1 çıktı (hedef %40) ama genel yakalama %60,4 → %54,6 düştü.</text>
+   </g>
+   <g id="text_22">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="64.8" y="514.8" transform="rotate(-0 64.8 514.8)">Belirli bir domain iyileşirken genel sistem kötüleşti — bu bir model ayarı sorunu değil, feature ve gözlenebilirlik sorunudur.</text>
+   </g>
+   <g id="text_23">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="50.4" y="624.96" transform="rotate(-0 50.4 624.96)">Sıradaki işin adresi burası: gerçek uçuş verisinde sensör arızasının fiziksel izini görünür kılmak.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p29bbba8b0b">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

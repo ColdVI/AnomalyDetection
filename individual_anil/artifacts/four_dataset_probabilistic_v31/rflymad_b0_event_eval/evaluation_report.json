@@ -1,0 +1,45 @@
+﻿{
+    "schema_version":  1,
+    "candidate_namespace":  "rflymad_probabilistic_v31_b0_event_v1",
+    "status":  "complete",
+    "base_model_changed":  false,
+    "calibration_role":  "val_normal",
+    "test_selection_performed":  false,
+    "final_fault_test_accessed":  false,
+    "contract_checks":  {
+                            "namespace":  true,
+                            "grid_hash":  true,
+                            "prereg_hash":  true,
+                            "ledger_hash":  true,
+                            "final_not_accessed":  true
+                        },
+    "ledger":  {
+                   "rows":  681690,
+                   "role_sources":  {
+                                        "anomaly_dev":  557,
+                                        "normal_test":  91,
+                                        "val_normal":  90
+                                    }
+               },
+    "grid_points":  54,
+    "available_grid_points":  48,
+    "interpretation":  "All frozen points are reported; no test winner is selected. CUSUM alarms are point events: range precision is undefined and range recall is zero under this representation, so neither is comparable to interval-producing families.",
+    "artifacts":  {
+                      "operating_grid.csv":  {
+                                                 "sha256":  "61feee4a5a6c71f34fe20bf73598b03977e7130138a9a8f218cbc781da94a6ac",
+                                                 "bytes":  5851
+                                             },
+                      "event_metrics.csv":  {
+                                                "sha256":  "57dd04861ebe182245d7f7551be774f86aecd17cec8d9b55a9f949f37fbe8d91",
+                                                "bytes":  15928
+                                            },
+                      "domain_family_breakdown.csv":  {
+                                                          "sha256":  "9238ead65acf7bbd6ece921129e1d19d793e51b5046a3fb973cb41ae563f33db",
+                                                          "bytes":  157802
+                                                      },
+                      "bootstrap_intervals.json":  {
+                                                       "sha256":  "9c53e6f4baeca7aebda663d5a103b7970ce965b92d075706b11733149ada2262",
+                                                       "bytes":  21950
+                                                   }
+                  }
+}

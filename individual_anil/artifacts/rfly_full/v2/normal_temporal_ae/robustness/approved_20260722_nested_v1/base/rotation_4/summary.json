@@ -1,0 +1,40 @@
+{
+  "status": "development_only_robustness_base",
+  "created_at": "2026-07-22T09:01:48.282581+00:00",
+  "rotation": 4,
+  "epochs_requested": 25,
+  "epochs_completed": 25,
+  "normal_groups": {
+    "Real": {
+      "outer": "real_session:NoFault:2023-5-25",
+      "inner": "real_session:NoFault:2023-6-2"
+    },
+    "HIL": {
+      "outer": "simulation_scenario:HIL-NoFault/HIL-NoFault/hover",
+      "inner": "simulation_scenario:HIL-NoFault/HIL-NoFault/circling"
+    },
+    "SIL": {
+      "outer": "simulation_scenario:SIL-NoFault/SIL-NoFault/hover",
+      "inner": "simulation_scenario:SIL-NoFault/SIL-NoFault/velocity"
+    }
+  },
+  "wind_groups": {
+    "HIL": {
+      "outer": "simulation_scenario:HIL-Wind/dece-wind",
+      "inner": "simulation_scenario:HIL-Wind/circling-wind"
+    },
+    "SIL": {
+      "outer": "simulation_scenario:SIL-Wind/SIL-Wind/waypoint-wind",
+      "inner": "simulation_scenario:SIL-Wind/SIL-Wind/acce-wind"
+    }
+  },
+  "train_normal_flights": 260,
+  "inner_normal_flights": 90,
+  "outer_normal_flights": 91,
+  "inner_wind_flights": 145,
+  "outer_wind_flights": 145,
+  "train_windows": 3842,
+  "validation_windows": 3108,
+  "locked_test_features_read": false,
+  "operational_claim_allowed": false
+}

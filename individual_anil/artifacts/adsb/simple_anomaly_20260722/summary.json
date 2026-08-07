@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-22T16:48:10.662615+00:00",
+  "status": "discovery_only",
+  "silver_part": "data/objectstore/silver/adsblol_historical/part-20260710T125240580717Z-fcdf1dca.parquet",
+  "silver_part_sha256": "2769ba79cb2611ed2b7d39ecae8c7fe1db6975b771e4195d530dbf2a071aa5e1",
+  "contract": "docs/ADSB_BASIT_ANOMALI_ONKAYIT_20260722.md",
+  "contract_sha256": "dbdea3c469b623b5876203f886b1e8f6e81da6264f5682bbe82d2951752207cb",
+  "flights": 100,
+  "rows": 53714,
+  "phase": {
+    "resolved_flights": 57,
+    "uncertain_flights": 43,
+    "rows_by_phase": {
+      "landing": 20199,
+      "takeoff": 15027,
+      "uncertain": 11139,
+      "cruise": 7349
+    }
+  },
+  "altitude": {
+    "evaluable_flights": 57,
+    "triggered_flights": 2,
+    "triggered_flight_rate": 0.03508771929824561,
+    "events": 2,
+    "data_quality_suspect_events": 0,
+    "duration_s": {
+      "p25": 327.4524998664856,
+      "p50": 377.50499987602234,
+      "p75": 427.5574998855591,
+      "p95": 467.59949989318847
+    },
+    "peak_abs_deviation_m": {
+      "p25": 266.7249999999999,
+      "p50": 289.54999999999995,
+      "p75": 312.375,
+      "p95": 330.63500000000005
+    },
+    "review_event_ids": [
+      "407ebf_002_alt_001",
+      "a510bf_000_alt_001"
+    ],
+    "manual_review": {
+      "407ebf_002_alt_001": {
+        "classification": "phase_boundary_descent_candidate",
+        "confirmed_anomaly": false,
+        "note": "Altitude descends from about 548.6 m to 243.8 m before the strict phase rule starts landing; this is a phase-boundary false-positive candidate."
+      },
+      "a510bf_000_alt_001": {
+        "classification": "multi_level_cruise_candidate",
+        "confirmed_anomaly": false,
+        "note": "A stable 1402.1 m level is followed by a stable 1158.2 m level; the whole-flight cruise median makes the first level look anomalous, but the pattern is compatible with a legitimate altitude change."
+      }
+    },
+    "manual_review_confirmed_anomalies": 0
+  },
+  "route": {
+    "evaluable_flights": 95,
+    "triggered_flights": 13,
+    "triggered_flight_rate": 0.1368421052631579,
+    "events": 24,
+    "low_speed_context_events": 24,
+    "all_samples_low_speed_events": 23,
+    "minimum_low_speed_fraction": 0.6923076923076923,
+    "cruise_events": 0,
+    "n_samples": {
+      "p25": 5.75,
+      "p50": 8.0,
+      "p75": 17.0,
+      "p95": 36.09999999999999
+    },
+    "peak_abs_heading_residual_deg": {
+      "p25": 83.42024432697377,
+      "p50": 152.98330176908942,
+      "p75": 179.63809936132992,
+      "p95": 180.0
+    },
+    "events_by_phase": {
+      "takeoff": 17,
+      "landing": 5,
+      "uncertain": 2
+    },
+    "review_event_ids": [
+      "7804bf_003_route_001",
+      "abb5bf_000_route_001",
+      "3e0fea_003_route_001",
+      "c035bf_001_route_001",
+      "abb5bf_000_route_004",
+      "3e0fea_003_route_003"
+    ]
+  },
+  "operational_claim_allowed": false,
+  "ground_truth_available": false
+}

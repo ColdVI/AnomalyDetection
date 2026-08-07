@@ -1,0 +1,3 @@
+policy,events,detected_events,event_recall,false_alarm_events,normal_exposure_hours,false_alarms_per_hour,median_detection_delay_s,confusion_flight,flight_tp,flight_fn,flight_fp,flight_tn
+critical,1192,358,0.30033557046979864,1,11.445833333333333,0.08736803785948308,21.0,"{'tp': 358, 'fn': 834, 'fp': 0, 'tn': 50}",358,834,0,50
+advisory,1192,778,0.6526845637583892,61,11.445833333333333,5.329450309428467,17.000000000000007,"{'tp': 778, 'fn': 414, 'fp': 16, 'tn': 34}",778,414,16,34

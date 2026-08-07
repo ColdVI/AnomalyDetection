@@ -1,0 +1,100 @@
+{
+  "critical_aggregate": {
+    "event_recall": {
+      "mean": 0.10784174366263914,
+      "std": 0.11516349980138582,
+      "min": 0.0262970859985785,
+      "max": 0.3105899076048329
+    },
+    "all_nonfault_fa_per_hour": {
+      "mean": 2.542722890545286,
+      "std": 2.134071054601316,
+      "min": 0.6070716621598019,
+      "max": 6.043368779551095
+    },
+    "wind_fa_per_hour": {
+      "mean": 7.853840495660203,
+      "std": 9.370808260909119,
+      "min": 0.0,
+      "max": 23.674865184795472
+    },
+    "real_motor_recall": {
+      "mean": 0.2387755102040816,
+      "std": 0.08847297735344158,
+      "min": 0.1020408163265306,
+      "max": 0.3418367346938775
+    },
+    "real_sensor_recall": {
+      "mean": 0.220253164556962,
+      "std": 0.14812019785950895,
+      "min": 0.0,
+      "max": 0.379746835443038
+    },
+    "real_macro_recall": {
+      "mean": 0.2295143373805218,
+      "std": 0.0955204009487793,
+      "min": 0.1332988891759235,
+      "max": 0.3607917850684577
+    },
+    "real_normal_fa_per_hour": {
+      "mean": 12.08297734731194,
+      "std": 15.875768463455563,
+      "min": 0.0,
+      "max": 37.95782463928968
+    },
+    "real_normal_alarm_flight_rate": {
+      "mean": 0.19818181818181818,
+      "std": 0.2558731607264922,
+      "min": 0.0,
+      "max": 0.6
+    }
+  },
+  "real_research_gate": {
+    "passed": false,
+    "conditions": {
+      "macro_mean_ge_0_40": false,
+      "motor_mean_ge_0_30": false,
+      "sensor_mean_ge_0_30": false,
+      "macro_min_ge_0_25": false,
+      "real_fa_mean_le_4": false,
+      "real_fa_max_le_8": false,
+      "overall_recall_mean_preserved": false,
+      "overall_recall_min_ge_0_50": false,
+      "all_nonfault_fa_mean_le_2": false
+    }
+  },
+  "wind_intermediate_gate": {
+    "passed": false,
+    "conditions": {
+      "wind_fa_mean_le_15": true,
+      "wind_fa_max_le_20": false,
+      "wind_reduction_ge_40pct": true,
+      "overall_recall_mean_preserved": false,
+      "real_macro_loss_le_0_05": true,
+      "all_nonfault_fa_mean_le_2": false
+    }
+  },
+  "wind_final_research_target": {
+    "passed": false,
+    "conditions": {
+      "wind_fa_mean_le_5": false,
+      "wind_fa_max_le_8": false
+    }
+  },
+  "real_feasibility_gate": {
+    "passed": false,
+    "conditions": {
+      "macro_mean_ge_0_50": false,
+      "motor_mean_ge_0_40": false,
+      "sensor_mean_ge_0_40": false,
+      "real_fa_mean_le_2": false,
+      "real_fa_max_le_4": false,
+      "bootstrap_macro_lower_ge_0_35": false
+    }
+  },
+  "frozen_baseline": {
+    "critical_event_recall_mean": 0.6043117744610281,
+    "critical_real_macro_recall": 0.14275000000000002,
+    "critical_wind_fa_per_hour": 28.461784635934823
+  }
+}

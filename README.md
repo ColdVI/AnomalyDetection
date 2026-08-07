@@ -4,12 +4,15 @@ Bu repo, ortak gerçek-zamanlı ADS-B altyapısını (bu README) ve üzerine kur
 ayrı çalışmayı bir arada barındırıyor. Klasörlerin kime/neye ait olduğu için
 **[REPO_YAPISI.md](REPO_YAPISI.md)**'ye bakın — bu dosya güncel haritadır.
 
-Repo 2026-07-10'da bir kere sadeleştirildi: o tarihten önceki ALFA, UAV Attack,
-UAV-SEAD, RFLY ve ML-0…ML-16 denemeleri (iki reddedilen ADS-B model denemesi
-dahil) `main`'den çıkarılıp arşivlendi. Bu arşiv artık `main`'de değil, ayrı bir
-**`arsiv`** branch'inde tutuluyor (`git checkout arsiv` ile erişilebilir) — aktif
-baseline değildir, yeni modele import edilmez veya başarı kanıtı olarak
-kullanılmaz.
+Bireysel anomali-tespiti fizibilite çalışması (Anıl) — ALFA, UAV Attack,
+UAV-SEAD, RflyMAD ve ADS-B veri kümeleri üzerindeki tüm kaynak kod, eğitilmiş
+modeller, artefaktlar ve raporlar — tek klasörde toplu hâlde:
+**[individual_anil/](individual_anil/README.md)**. Bu klasördeki kod
+aktif baseline veya takım hattının bir parçası değildir; kendi başına
+okunabilir/gezilebilir bir fizibilite arşividir. Çalışmanın tam commit
+geçmişi (adım adım deney kararları) ayrı **`arsiv`** branch'inde tutuluyor
+(`git checkout arsiv` ile erişilebilir) — `individual_anil/` içindeki kod bu
+branch'in en güncel hâlidir.
 
 Ortak altyapının aktif hedefi: gerçek ADS-B verisinden gerçek-zamanlı bir
 dashboard beslemek (bkz. `src/`, `Dashboard/`). Bireysel projelerin kendi

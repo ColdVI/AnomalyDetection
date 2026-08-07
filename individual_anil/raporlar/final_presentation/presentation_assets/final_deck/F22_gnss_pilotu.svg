@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-04T18:42:28.584992</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 70.56 491.04 
+L 386.64 491.04 
+Q 393.84 491.04 393.84 483.84 
+L 393.84 214.56 
+Q 393.84 207.36 386.64 207.36 
+L 70.56 207.36 
+Q 63.36 207.36 63.36 214.56 
+L 63.36 483.84 
+Q 63.36 491.04 70.56 491.04 
+z
+" clip-path="url(#p1bf8a81de6)" style="fill: #ffffff; stroke: #2a78d6; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 82.08 471.6 
+L 373.68 471.6 
+L 373.68 428.4 
+L 82.08 428.4 
+z
+" clip-path="url(#p1bf8a81de6)" style="fill: #fbe4e4; stroke: #d03b3b; stroke-width: 1.2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 426.96 491.04 
+L 743.04 491.04 
+Q 750.24 491.04 750.24 483.84 
+L 750.24 214.56 
+Q 750.24 207.36 743.04 207.36 
+L 426.96 207.36 
+Q 419.76 207.36 419.76 214.56 
+L 419.76 483.84 
+Q 419.76 491.04 426.96 491.04 
+z
+" clip-path="url(#p1bf8a81de6)" style="fill: #ffffff; stroke: #eb6834; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 438.48 471.6 
+L 730.08 471.6 
+L 730.08 428.4 
+L 438.48 428.4 
+z
+" clip-path="url(#p1bf8a81de6)" style="fill: #fbe4e4; stroke: #d03b3b; stroke-width: 1.2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 783.36 491.04 
+L 1099.44 491.04 
+Q 1106.64 491.04 1106.64 483.84 
+L 1106.64 214.56 
+Q 1106.64 207.36 1099.44 207.36 
+L 783.36 207.36 
+Q 776.16 207.36 776.16 214.56 
+L 776.16 483.84 
+Q 776.16 491.04 783.36 491.04 
+z
+" clip-path="url(#p1bf8a81de6)" style="fill: #ffffff; stroke: #4a3aa7; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 794.88 471.6 
+L 1086.48 471.6 
+L 1086.48 428.4 
+L 794.88 428.4 
+z
+" clip-path="url(#p1bf8a81de6)" style="fill: #fbe4e4; stroke: #d03b3b; stroke-width: 1.2; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 100.8 
+L 1101.6 100.8 
+" clip-path="url(#p1bf8a81de6)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1c5cab" x="50.4" y="63.589687" transform="rotate(-0 50.4 63.589687)">Dar çerçeve denemesi: yalnız GPS bütünlüğü</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="51.84" y="93.792188" transform="rotate(-0 51.84 93.792188)">Genel dedektör yerine tek bir arıza ailesine odaklanmak sonucu değiştirir mi?</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1c5cab" x="64.8" y="140.4" transform="rotate(-0 64.8 140.4)">Neden bu deneme?</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(64.8 176.671719)">Genel amaçlı bir anomali dedektörü her arıza tipinde ortalama başarı gösteriyordu. Soruyu daralttık: tek bir arıza ailesine</text>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(64.8 194.796719)">odaklanırsak işletilebilir bir çalışma noktası bulunur mu? Roller ayrıldı — 23 geliştirme, 15 prova, 20 mühürlü uçuş.</text>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2a78d6" x="80.64" y="240.568594" transform="rotate(-0 80.64 240.568594)">PX4-native göstergeler</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(82.08 275.67375)">EKF innovation ve test ratio —</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(82.08 291.402188)">uçuş kontrolcüsünün kendi tutarlılık ölçüsü</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(82.08 358.612187)">prova: %90 recall</text>
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(82.08 377.541406)">ama 28,86 alarm / uçuş-saati</text>
+   </g>
+   <g id="text_8">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #d03b3b" x="228.24" y="453.377461" transform="rotate(-0 228.24 453.377461)">hedef karşılanmadı</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #eb6834" x="437.04" y="240.357656" transform="rotate(-0 437.04 240.357656)">Çok kanallı CUSUM</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(438.48 275.67375)">birden fazla residual kanalında</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(438.48 291.31125)">birikimli sapma</text>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="438.48" y="358.782812" transform="rotate(-0 438.48 358.782812)">bütçe altında recall çöktü</text>
+   </g>
+   <g id="text_12">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #d03b3b" x="584.64" y="453.377461" transform="rotate(-0 584.64 453.377461)">hedef karşılanmadı</text>
+   </g>
+   <g id="text_13">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #4a3aa7" x="793.44" y="240.723281" transform="rotate(-0 793.44 240.723281)">Bağlamsal LSTM</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(794.88 274.602188)">uçuş fazına koşullu</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(794.88 291.31125)">sequence prediction</text>
+   </g>
+   <g id="text_15">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(794.88 358.612187)">prova: %90 / 0 alarm-saat</text>
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(794.88 377.411406)">geliştirme: %47,1 / 20,32</text>
+   </g>
+   <g id="text_16">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #d03b3b" x="941.04" y="453.377461" transform="rotate(-0 941.04 453.377461)">hedef karşılanmadı</text>
+   </g>
+   <g id="text_17">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="64.8" y="529.2" transform="rotate(-0 64.8 529.2)">Dondurulmuş bütçe:</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="244.8" y="529.2" transform="rotate(-0 244.8 529.2)">critical ≤ 2 olay/uçuş-saati (5 s persistence)   ·   advisory ≤ 12 olay/uçuş-saati (15 s persistence)</text>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="50.4" y="624.96" transform="rotate(-0 50.4 624.96)">Provada iyi görünen sonuç geliştirmeye taşınmadı — eşik ve model roller arasında kararlı genellemedi. Mühürlü set açılmadı.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p1bf8a81de6">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

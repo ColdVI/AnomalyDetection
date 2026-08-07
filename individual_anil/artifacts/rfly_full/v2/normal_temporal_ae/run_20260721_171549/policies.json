@@ -1,0 +1,56 @@
+{
+  "Real:critical": {
+    "domain": "Real",
+    "policy": "critical",
+    "budget_fa_per_hour": 2.0,
+    "threshold": 15.788961718877157,
+    "validation_alarm_events": 1,
+    "validation_fa_per_hour": 1.9977802441731412,
+    "alarm": "4-of-6 seconds; 30-second refractory"
+  },
+  "Real:advisory": {
+    "domain": "Real",
+    "policy": "advisory",
+    "budget_fa_per_hour": 12.0,
+    "threshold": 14.490923573176065,
+    "validation_alarm_events": 6,
+    "validation_fa_per_hour": 11.986681465038846,
+    "alarm": "4-of-6 seconds; 30-second refractory"
+  },
+  "HIL:critical": {
+    "domain": "HIL",
+    "policy": "critical",
+    "budget_fa_per_hour": 2.0,
+    "threshold": 3.3128569940725963,
+    "validation_alarm_events": 0,
+    "validation_fa_per_hour": 0.0,
+    "alarm": "4-of-6 seconds; 30-second refractory"
+  },
+  "HIL:advisory": {
+    "domain": "HIL",
+    "policy": "advisory",
+    "budget_fa_per_hour": 12.0,
+    "threshold": 2.772775864601135,
+    "validation_alarm_events": 9,
+    "validation_fa_per_hour": 11.320754716981131,
+    "alarm": "4-of-6 seconds; 30-second refractory"
+  },
+  "SIL:critical": {
+    "domain": "SIL",
+    "policy": "critical",
+    "budget_fa_per_hour": 2.0,
+    "threshold": 4.021785240173344,
+    "validation_alarm_events": 1,
+    "validation_fa_per_hour": 1.3201320132013201,
+    "alarm": "4-of-6 seconds; 30-second refractory"
+  },
+  "SIL:advisory": {
+    "domain": "SIL",
+    "policy": "advisory",
+    "budget_fa_per_hour": 12.0,
+    "threshold": 2.2931973695754944,
+    "validation_alarm_events": 9,
+    "validation_fa_per_hour": 11.881188118811881,
+    "alarm": "4-of-6 seconds; 30-second refractory"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "flights_audited": 6605,
+  "parse_state_stop_reason": "complete",
+  "parse_state_completed": 6605,
+  "parse_state_failed": 0,
+  "parse_state_truth_schema_version": 2,
+  "parse_state_truth_reparse_invalidated": 2712,
+  "manifest_split_group_join_misses": 0,
+  "truth_source_distribution": {
+    "rfly_ctrl_lxl": 6069,
+    "normal_no_fault": 531,
+    "missing": 5
+  },
+  "system_fault_flights": 5188,
+  "missing_active_interval_flights": 5,
+  "missing_active_interval_by_domain_family": {
+    "Real|Motor": 5
+  },
+  "rfly_ctrl_lxl_flights": 6069,
+  "truth_crosscheck_disagreement_flights": 5577,
+  "active_from_first_sample_flights": 0,
+  "active_from_first_sample_by_package": {},
+  "interval_violation_flights": 0,
+  "schema_missing_v2_features_flights": 0,
+  "near_duplicate_duration_tier_clusters": 1285,
+  "near_duplicate_trajectory_tier_clusters": 0,
+  "near_duplicate_trajectory_tier_spanning_locked_and_development": 0
+}

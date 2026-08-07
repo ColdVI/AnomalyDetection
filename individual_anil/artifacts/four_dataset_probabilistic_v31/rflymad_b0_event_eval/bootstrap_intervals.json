@@ -1,0 +1,1016 @@
+{
+  "P001": {
+    "false_events_per_normal_hour": [
+      0.0,
+      0.0
+    ],
+    "event_recall": [
+      0.0,
+      0.0
+    ],
+    "median_detection_delay_s": null,
+    "range_precision_time_weighted": [
+      0.0,
+      0.0
+    ],
+    "range_recall_time_weighted": [
+      0.0,
+      0.0
+    ]
+  },
+  "P002": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.9661091935676334
+    ],
+    "event_recall": [
+      0.40210951526032324,
+      0.466786355475763
+    ],
+    "median_detection_delay_s": [
+      1.3999999999999986,
+      4.0
+    ],
+    "range_precision_time_weighted": [
+      0.7631986559052485,
+      0.8978071463000661
+    ],
+    "range_recall_time_weighted": [
+      0.01019582567427947,
+      0.016477037373394374
+    ]
+  },
+  "P003": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.9640354206998358
+    ],
+    "event_recall": [
+      0.40394973070017953,
+      0.466786355475763
+    ],
+    "median_detection_delay_s": [
+      1.5,
+      4.0
+    ],
+    "range_precision_time_weighted": [
+      0.7668126497755863,
+      0.8963330858407039
+    ],
+    "range_recall_time_weighted": [
+      0.010263957846684844,
+      0.016648633975138414
+    ]
+  },
+  "P004": {
+    "false_events_per_normal_hour": [
+      0.0,
+      0.0
+    ],
+    "event_recall": [
+      0.0,
+      0.0
+    ],
+    "median_detection_delay_s": null,
+    "range_precision_time_weighted": [
+      0.0,
+      0.0
+    ],
+    "range_recall_time_weighted": [
+      0.0,
+      0.0
+    ]
+  },
+  "P005": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.9652112125825414
+    ],
+    "event_recall": [
+      0.400359066427289,
+      0.46858168761220825
+    ],
+    "median_detection_delay_s": [
+      1.2999999999999972,
+      4.0
+    ],
+    "range_precision_time_weighted": [
+      0.6947235969981292,
+      0.8628466746026253
+    ],
+    "range_recall_time_weighted": [
+      0.006487874338726271,
+      0.011363067243565679
+    ]
+  },
+  "P006": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.9630742121481572
+    ],
+    "event_recall": [
+      0.3985637342908438,
+      0.4649910233393178
+    ],
+    "median_detection_delay_s": [
+      1.3999999999999986,
+      4.0
+    ],
+    "range_precision_time_weighted": [
+      0.689733690576524,
+      0.8650952216299326
+    ],
+    "range_recall_time_weighted": [
+      0.006667736304346886,
+      0.011394067223111835
+    ]
+  },
+  "P007": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.9639720283634161
+    ],
+    "event_recall": [
+      0.31956912028725315,
+      0.38420107719928187
+    ],
+    "median_detection_delay_s": [
+      4.100000000000001,
+      6.649999999999999
+    ],
+    "range_precision_time_weighted": [
+      0.7488407930400853,
+      0.890516668251786
+    ],
+    "range_recall_time_weighted": [
+      0.008337722387932041,
+      0.014687894487841116
+    ]
+  },
+  "P008": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.9657182395395942
+    ],
+    "event_recall": [
+      0.3177737881508079,
+      0.3859964093357271
+    ],
+    "median_detection_delay_s": [
+      4.0,
+      6.649999999999999
+    ],
+    "range_precision_time_weighted": [
+      0.7535469267249572,
+      0.8945210945656148
+    ],
+    "range_recall_time_weighted": [
+      0.008488185945906312,
+      0.014851875501437796
+    ]
+  },
+  "P009": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.966286413614497
+    ],
+    "event_recall": [
+      0.31956912028725315,
+      0.38065529622980243
+    ],
+    "median_detection_delay_s": [
+      4.100000000000001,
+      6.600000000000001
+    ],
+    "range_precision_time_weighted": [
+      0.7534848992947584,
+      0.8912374474856483
+    ],
+    "range_recall_time_weighted": [
+      0.008512528287374988,
+      0.01454039974568007
+    ]
+  },
+  "P010": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.9640675658853477
+    ],
+    "event_recall": [
+      0.31597845601436264,
+      0.38240574506283664
+    ],
+    "median_detection_delay_s": [
+      4.100000000000001,
+      6.649999999999999
+    ],
+    "range_precision_time_weighted": [
+      0.6892613848838653,
+      0.8590765338080963
+    ],
+    "range_recall_time_weighted": [
+      0.005977605416978485,
+      0.010629050118408019
+    ]
+  },
+  "P011": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.9665746056544489
+    ],
+    "event_recall": [
+      0.3177737881508079,
+      0.38061041292639136
+    ],
+    "median_detection_delay_s": [
+      4.100000000000001,
+      6.699999999999996
+    ],
+    "range_precision_time_weighted": [
+      0.6899545647448976,
+      0.8595753083032742
+    ],
+    "range_recall_time_weighted": [
+      0.005929862464649539,
+      0.01072486618175117
+    ]
+  },
+  "P012": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.963712234731974
+    ],
+    "event_recall": [
+      0.3195242369838421,
+      0.38240574506283664
+    ],
+    "median_detection_delay_s": [
+      4.100000000000001,
+      6.699999999999996
+    ],
+    "range_precision_time_weighted": [
+      0.6824935663661061,
+      0.8645364214145884
+    ],
+    "range_recall_time_weighted": [
+      0.006020645568323979,
+      0.010655627554047245
+    ]
+  },
+  "P013": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.964110430387896
+    ],
+    "event_recall": [
+      0.24236983842010773,
+      0.3052064631956912
+    ],
+    "median_detection_delay_s": [
+      4.0,
+      6.800000000000004
+    ],
+    "range_precision_time_weighted": [
+      0.7323591369831319,
+      0.8861969938931628
+    ],
+    "range_recall_time_weighted": [
+      0.007389551653674403,
+      0.01353040532906046
+    ]
+  },
+  "P014": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.9844882311730954
+    ],
+    "event_recall": [
+      0.24232495511669663,
+      0.30341113105924594
+    ],
+    "median_detection_delay_s": [
+      4.100000000000001,
+      6.799999999999997
+    ],
+    "range_precision_time_weighted": [
+      0.7310310753187252,
+      0.8851879267905396
+    ],
+    "range_recall_time_weighted": [
+      0.00739922456053252,
+      0.013561090572068852
+    ]
+  },
+  "P015": {
+    "false_events_per_normal_hour": [
+      4.569323169312539,
+      15.035232039292335
+    ],
+    "event_recall": [
+      0.5511669658886894,
+      0.6229802513464991
+    ],
+    "median_detection_delay_s": [
+      3.6000000000000085,
+      4.300000000000001
+    ],
+    "range_precision_time_weighted": [
+      0.8182097302227698,
+      0.9108192624749107
+    ],
+    "range_recall_time_weighted": [
+      0.06991023302491373,
+      0.09305635226173507
+    ]
+  },
+  "P016": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.9630849228920864
+    ],
+    "event_recall": [
+      0.24057450628366248,
+      0.30700179533213645
+    ],
+    "median_detection_delay_s": [
+      4.100000000000001,
+      6.7500000000000036
+    ],
+    "range_precision_time_weighted": [
+      0.6714275438570032,
+      0.8528229327735806
+    ],
+    "range_recall_time_weighted": [
+      0.005465961293027704,
+      0.010245631978122002
+    ]
+  },
+  "P017": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.9863638981281788
+    ],
+    "event_recall": [
+      0.24057450628366248,
+      0.30341113105924594
+    ],
+    "median_detection_delay_s": [
+      4.098750000000003,
+      6.75
+    ],
+    "range_precision_time_weighted": [
+      0.6759175935288173,
+      0.8515080679323758
+    ],
+    "range_recall_time_weighted": [
+      0.005584352015841915,
+      0.010079305684203035
+    ]
+  },
+  "P018": {
+    "false_events_per_normal_hour": [
+      3.2763580732796496,
+      11.125887051839994
+    ],
+    "event_recall": [
+      0.5511669658886894,
+      0.6211849192100538
+    ],
+    "median_detection_delay_s": [
+      3.6000000000000085,
+      4.300000000000001
+    ],
+    "range_precision_time_weighted": [
+      0.7918348503410679,
+      0.9009987816239258
+    ],
+    "range_recall_time_weighted": [
+      0.051111903704181956,
+      0.0688482403429799
+    ]
+  },
+  "P020": {
+    "false_events_per_normal_hour": [
+      3.2651624924819487,
+      10.466224033539195
+    ],
+    "event_recall": [
+      0.4524236983842011,
+      0.5242369838420108
+    ],
+    "median_detection_delay_s": [
+      34.699999999999996,
+      40.907499999999985
+    ],
+    "range_precision_time_weighted": null,
+    "range_recall_time_weighted": [
+      0.0,
+      0.0
+    ]
+  },
+  "P021": {
+    "false_events_per_normal_hour": [
+      3.262287951283166,
+      12.456004203677095
+    ],
+    "event_recall": [
+      0.4793536804308797,
+      0.5547576301615799
+    ],
+    "median_detection_delay_s": [
+      30.099999999999994,
+      31.19999999999999
+    ],
+    "range_precision_time_weighted": null,
+    "range_recall_time_weighted": [
+      0.0,
+      0.0
+    ]
+  },
+  "P023": {
+    "false_events_per_normal_hour": [
+      2.6203662954918623,
+      9.166657195695938
+    ],
+    "event_recall": [
+      0.44703770197486536,
+      0.518850987432675
+    ],
+    "median_detection_delay_s": [
+      34.60000000000001,
+      41.19999999999999
+    ],
+    "range_precision_time_weighted": null,
+    "range_recall_time_weighted": [
+      0.0,
+      0.0
+    ]
+  },
+  "P024": {
+    "false_events_per_normal_hour": [
+      2.6173930422459333,
+      9.205546196555243
+    ],
+    "event_recall": [
+      0.4775134649910234,
+      0.547576301615799
+    ],
+    "median_detection_delay_s": [
+      30.099999999999994,
+      31.200000000000003
+    ],
+    "range_precision_time_weighted": null,
+    "range_recall_time_weighted": [
+      0.0,
+      0.0
+    ]
+  },
+  "P026": {
+    "false_events_per_normal_hour": [
+      2.619478480312933,
+      11.088664050797165
+    ],
+    "event_recall": [
+      0.4524236983842011,
+      0.5242369838420108
+    ],
+    "median_detection_delay_s": [
+      33.900000000000006,
+      40.89999999999999
+    ],
+    "range_precision_time_weighted": null,
+    "range_recall_time_weighted": [
+      0.0,
+      0.0
+    ]
+  },
+  "P027": {
+    "false_events_per_normal_hour": [
+      2.6199396003447393,
+      12.436612370214581
+    ],
+    "event_recall": [
+      0.4793536804308797,
+      0.5493716337522442
+    ],
+    "median_detection_delay_s": [
+      29.6,
+      30.901250000000005
+    ],
+    "range_precision_time_weighted": null,
+    "range_recall_time_weighted": [
+      0.0,
+      0.0
+    ]
+  },
+  "P029": {
+    "false_events_per_normal_hour": [
+      2.616176876115915,
+      9.164594546842647
+    ],
+    "event_recall": [
+      0.4452423698384201,
+      0.5153052064631957
+    ],
+    "median_detection_delay_s": [
+      33.650000000000006,
+      40.300000000000004
+    ],
+    "range_precision_time_weighted": null,
+    "range_recall_time_weighted": [
+      0.0,
+      0.0
+    ]
+  },
+  "P030": {
+    "false_events_per_normal_hour": [
+      2.6167438002274017,
+      9.171081664497478
+    ],
+    "event_recall": [
+      0.47217235188509876,
+      0.5421903052064632
+    ],
+    "median_detection_delay_s": [
+      29.69874999999999,
+      31.0
+    ],
+    "range_precision_time_weighted": null,
+    "range_recall_time_weighted": [
+      0.0,
+      0.0
+    ]
+  },
+  "P032": {
+    "false_events_per_normal_hour": [
+      3.264223972452781,
+      11.106695051869652
+    ],
+    "event_recall": [
+      0.4488330341113106,
+      0.5206463195691203
+    ],
+    "median_detection_delay_s": [
+      32.00000000000001,
+      37.7
+    ],
+    "range_precision_time_weighted": null,
+    "range_recall_time_weighted": [
+      0.0,
+      0.0
+    ]
+  },
+  "P033": {
+    "false_events_per_normal_hour": [
+      3.2660511748002152,
+      12.419010894738602
+    ],
+    "event_recall": [
+      0.466786355475763,
+      0.5385996409335727
+    ],
+    "median_detection_delay_s": [
+      28.243750000000002,
+      30.799999999999997
+    ],
+    "range_precision_time_weighted": null,
+    "range_recall_time_weighted": [
+      0.0,
+      0.0
+    ]
+  },
+  "P035": {
+    "false_events_per_normal_hour": [
+      2.6141358493589,
+      9.174737832251848
+    ],
+    "event_recall": [
+      0.4434021543985638,
+      0.5134649910233393
+    ],
+    "median_detection_delay_s": [
+      32.0,
+      37.73499999999997
+    ],
+    "range_precision_time_weighted": null,
+    "range_recall_time_weighted": [
+      0.0,
+      0.0
+    ]
+  },
+  "P036": {
+    "false_events_per_normal_hour": [
+      2.6235505635144816,
+      9.16718258891181
+    ],
+    "event_recall": [
+      0.4631956912028725,
+      0.533213644524237
+    ],
+    "median_detection_delay_s": [
+      28.297499999999996,
+      30.799999999999997
+    ],
+    "range_precision_time_weighted": null,
+    "range_recall_time_weighted": [
+      0.0,
+      0.0
+    ]
+  },
+  "P037": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.9674245708173181
+    ],
+    "event_recall": [
+      0.11669658886894076,
+      0.17235188509874327
+    ],
+    "median_detection_delay_s": [
+      4.400000000000002,
+      8.949999999999998
+    ],
+    "range_precision_time_weighted": [
+      0.5414632524700996,
+      0.8594403662206317
+    ],
+    "range_recall_time_weighted": [
+      0.0022420321966044043,
+      0.007707901685562631
+    ]
+  },
+  "P038": {
+    "false_events_per_normal_hour": [
+      1.9583630263571787,
+      9.155471796467216
+    ],
+    "event_recall": [
+      0.3877917414721723,
+      0.4614003590664273
+    ],
+    "median_detection_delay_s": [
+      4.699999999999999,
+      6.600000000000001
+    ],
+    "range_precision_time_weighted": [
+      0.8222096510785268,
+      0.9236309031611006
+    ],
+    "range_recall_time_weighted": [
+      0.018946321582240036,
+      0.03218964027848997
+    ]
+  },
+  "P039": {
+    "false_events_per_normal_hour": [
+      5.240174672489083,
+      16.98889143160612
+    ],
+    "event_recall": [
+      0.5044883303411131,
+      0.5727109515260324
+    ],
+    "median_detection_delay_s": [
+      4.0,
+      4.899999999999999
+    ],
+    "range_precision_time_weighted": [
+      0.7920063022933889,
+      0.901257908264136
+    ],
+    "range_recall_time_weighted": [
+      0.043908073475647284,
+      0.06318623810393854
+    ]
+  },
+  "P040": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.9651772416425106
+    ],
+    "event_recall": [
+      0.11490125673249552,
+      0.17235188509874327
+    ],
+    "median_detection_delay_s": [
+      4.400000000000002,
+      9.003749999999949
+    ],
+    "range_precision_time_weighted": [
+      0.5300322099217899,
+      0.8473341550742505
+    ],
+    "range_recall_time_weighted": [
+      0.0019726925524219,
+      0.007422805151808681
+    ]
+  },
+  "P041": {
+    "false_events_per_normal_hour": [
+      1.310466900393204,
+      7.868526448847889
+    ],
+    "event_recall": [
+      0.3859964093357271,
+      0.4578096947935368
+    ],
+    "median_detection_delay_s": [
+      4.700000000000003,
+      6.600000000000001
+    ],
+    "range_precision_time_weighted": [
+      0.7814548944675167,
+      0.9128098232456064
+    ],
+    "range_recall_time_weighted": [
+      0.013293700200587795,
+      0.023571198898820245
+    ]
+  },
+  "P042": {
+    "false_events_per_normal_hour": [
+      3.917294310813812,
+      12.410915626089977
+    ],
+    "event_recall": [
+      0.5008976660682226,
+      0.5727109515260324
+    ],
+    "median_detection_delay_s": [
+      4.0,
+      4.899999999999999
+    ],
+    "range_precision_time_weighted": [
+      0.755081328144928,
+      0.8927934794330479
+    ],
+    "range_recall_time_weighted": [
+      0.031559162753012106,
+      0.04811951290015562
+    ]
+  },
+  "P043": {
+    "false_events_per_normal_hour": [
+      0.0,
+      3.927295939370794
+    ],
+    "event_recall": [
+      0.04308797127468582,
+      0.0807899461400359
+    ],
+    "median_detection_delay_s": [
+      4.900000000000002,
+      18.500000000000007
+    ],
+    "range_precision_time_weighted": [
+      0.43283951249793623,
+      0.8491034326170059
+    ],
+    "range_recall_time_weighted": [
+      0.0011515263066894739,
+      0.006327450769351647
+    ]
+  },
+  "P044": {
+    "false_events_per_normal_hour": [
+      1.3075331662624103,
+      7.197386040309699
+    ],
+    "event_recall": [
+      0.21898563734290846,
+      0.2836624775583483
+    ],
+    "median_detection_delay_s": [
+      7.0,
+      18.200000000000003
+    ],
+    "range_precision_time_weighted": [
+      0.8304234478012663,
+      0.9315293990759955
+    ],
+    "range_recall_time_weighted": [
+      0.012733555103639231,
+      0.025193700526543655
+    ]
+  },
+  "P045": {
+    "false_events_per_normal_hour": [
+      4.5692651648345946,
+      14.369960251390031
+    ],
+    "event_recall": [
+      0.3590664272890485,
+      0.43447037701974867
+    ],
+    "median_detection_delay_s": [
+      7.100000000000001,
+      17.400000000000006
+    ],
+    "range_precision_time_weighted": [
+      0.7913616061816381,
+      0.9085538136153708
+    ],
+    "range_recall_time_weighted": [
+      0.03212631448864205,
+      0.05047808154572632
+    ]
+  },
+  "P046": {
+    "false_events_per_normal_hour": [
+      0.0,
+      1.9641863398655244
+    ],
+    "event_recall": [
+      0.04308797127468582,
+      0.0807899461400359
+    ],
+    "median_detection_delay_s": [
+      4.900000000000002,
+      18.400000000000006
+    ],
+    "range_precision_time_weighted": [
+      0.4638928405189973,
+      0.8717072656484668
+    ],
+    "range_recall_time_weighted": [
+      0.0012140602754660964,
+      0.006514640154559748
+    ]
+  },
+  "P047": {
+    "false_events_per_normal_hour": [
+      1.306856185056511,
+      7.185902566616734
+    ],
+    "event_recall": [
+      0.21898563734290846,
+      0.28186714542190305
+    ],
+    "median_detection_delay_s": [
+      7.100000000000001,
+      18.200000000000003
+    ],
+    "range_precision_time_weighted": [
+      0.7984519253975981,
+      0.9259874767099917
+    ],
+    "range_recall_time_weighted": [
+      0.009694823088569844,
+      0.020483031822439123
+    ]
+  },
+  "P048": {
+    "false_events_per_normal_hour": [
+      3.916923153368486,
+      11.108292694526302
+    ],
+    "event_recall": [
+      0.35727109515260325,
+      0.43087971274685816
+    ],
+    "median_detection_delay_s": [
+      7.100000000000001,
+      17.400000000000006
+    ],
+    "range_precision_time_weighted": [
+      0.7628572077231237,
+      0.9028011149488456
+    ],
+    "range_recall_time_weighted": [
+      0.025291927808630765,
+      0.04128206302473711
+    ]
+  },
+  "P049": {
+    "false_events_per_normal_hour": [
+      0.0,
+      5.2328814024388
+    ],
+    "event_recall": [
+      0.12028725314183124,
+      0.17239676840215437
+    ],
+    "median_detection_delay_s": [
+      6.5,
+      28.85
+    ],
+    "range_precision_time_weighted": [
+      0.7588444893599421,
+      0.9530654480721339
+    ],
+    "range_recall_time_weighted": [
+      0.007357321877955582,
+      0.01791488314630467
+    ]
+  },
+  "P050": {
+    "false_events_per_normal_hour": [
+      3.932599624907317,
+      14.435024064692612
+    ],
+    "event_recall": [
+      0.22262118491921004,
+      0.29084380610412924
+    ],
+    "median_detection_delay_s": [
+      6.900000000000006,
+      19.700000000000003
+    ],
+    "range_precision_time_weighted": [
+      0.7526774101031309,
+      0.9038757764854569
+    ],
+    "range_recall_time_weighted": [
+      0.021449906244648122,
+      0.038228555589287755
+    ]
+  },
+  "P051": {
+    "false_events_per_normal_hour": [
+      4.5687577676997915,
+      14.427924630059143
+    ],
+    "event_recall": [
+      0.22621184919210055,
+      0.2926391382405745
+    ],
+    "median_detection_delay_s": [
+      6.900000000000006,
+      19.200000000000003
+    ],
+    "range_precision_time_weighted": [
+      0.7554841844881304,
+      0.9099162972117617
+    ],
+    "range_recall_time_weighted": [
+      0.02144168692153282,
+      0.03881402636889844
+    ]
+  },
+  "P052": {
+    "false_events_per_normal_hour": [
+      0.0,
+      3.269494947587889
+    ],
+    "event_recall": [
+      0.1220377019748654,
+      0.17235188509874327
+    ],
+    "median_detection_delay_s": [
+      6.5,
+      31.0
+    ],
+    "range_precision_time_weighted": [
+      0.8294483500430584,
+      0.9558558729615279
+    ],
+    "range_recall_time_weighted": [
+      0.00659032534723269,
+      0.016000709588637287
+    ]
+  },
+  "P053": {
+    "false_events_per_normal_hour": [
+      3.2687408948636056,
+      10.450728496050855
+    ],
+    "event_recall": [
+      0.2244165170556553,
+      0.289048473967684
+    ],
+    "median_detection_delay_s": [
+      7.395000000000007,
+      22.700000000000003
+    ],
+    "range_precision_time_weighted": [
+      0.7472412410720478,
+      0.9102091505199001
+    ],
+    "range_recall_time_weighted": [
+      0.017969144897109306,
+      0.03400420898403688
+    ]
+  },
+  "P054": {
+    "false_events_per_normal_hour": [
+      3.2691980307723303,
+      10.46792638210218
+    ],
+    "event_recall": [
+      0.2243716337522442,
+      0.289048473967684
+    ],
+    "median_detection_delay_s": [
+      7.497500000000002,
+      19.700000000000003
+    ],
+    "range_precision_time_weighted": [
+      0.7385876014819469,
+      0.9097622574516938
+    ],
+    "range_recall_time_weighted": [
+      0.018061789585281603,
+      0.033998074194012046
+    ]
+  }
+}

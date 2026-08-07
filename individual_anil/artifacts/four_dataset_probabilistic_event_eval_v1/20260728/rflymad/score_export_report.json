@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_event_eval_v1",
+  "dataset": "rflymad",
+  "device": "cpu",
+  "base_run_dir": "C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\artifacts\\four_dataset_probabilistic_event_eval_v1\\accepted_runs\\20260728T071250Z\\rflymad_gpu_v2",
+  "artifact_acceptance": {
+    "schema_version": 1,
+    "event_namespace": "four_dataset_probabilistic_event_eval_v1",
+    "base_model_namespace": "four_dataset_probabilistic_gpu_v2",
+    "dataset": "rflymad",
+    "run_dir": "C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\artifacts\\four_dataset_probabilistic_event_eval_v1\\accepted_runs\\20260728T071250Z\\rflymad_gpu_v2",
+    "accepted": true,
+    "checks": {
+      "manifest_namespace": true,
+      "report_namespace": true,
+      "manifest_dataset": true,
+      "report_dataset": true,
+      "manifest_complete": true,
+      "manifest_completed_epochs": true,
+      "manifest_contract": true,
+      "report_contract": true,
+      "completed_epochs": true,
+      "magnitude_gate": true,
+      "scaler_matches_frozen_train": true,
+      "declared_artifact_hashes": true,
+      "model_dataset": true,
+      "model_contract": true,
+      "model_features": true
+    },
+    "artifact_hash_checks": {
+      "run_manifest.json": true,
+      "scaler.json": true,
+      "model_state.pt": true,
+      "flight_metrics.csv": true
+    },
+    "failed_checks": [],
+    "contract_sha256": "30124256d6b948602f0400203590c3e0886f3c3fbf42102a614153d000ea1346"
+  },
+  "ledgers": {
+    "val": {
+      "path": "val_window_scores.parquet",
+      "rows": 49423,
+      "sources": 66,
+      "truth_available_rows": 49423,
+      "truth_active_rows": 0,
+      "bytes": 951302,
+      "sha256": "af3a70248d7b58fdf8b04aa8b1745f8bfa21ea238935bde3760e59d2215c8283"
+    },
+    "test": {
+      "path": "test_window_scores.parquet",
+      "rows": 114022,
+      "sources": 132,
+      "truth_available_rows": 114022,
+      "truth_active_rows": 40386,
+      "bytes": 2222877,
+      "sha256": "5a4b06c4b95a4a15d2c81d5339cfd7154dc24788319a98d3a7343cff344e9e2e"
+    }
+  }
+}

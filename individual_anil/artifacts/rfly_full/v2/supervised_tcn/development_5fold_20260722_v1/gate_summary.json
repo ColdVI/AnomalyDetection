@@ -1,0 +1,41 @@
+{
+  "critical_development_gate": {
+    "passed": false,
+    "conditions": {
+      "recall_mean_ge_0_50": false,
+      "recall_min_ge_0_40": false,
+      "fa_mean_le_2": false,
+      "fa_max_le_4": false
+    }
+  },
+  "advisory_development_gate": {
+    "passed": false,
+    "conditions": {
+      "recall_mean_ge_0_60": true,
+      "recall_min_ge_0_50": true,
+      "fa_mean_le_12": false,
+      "fa_max_le_15": false
+    }
+  },
+  "real_research_gate": {
+    "passed": false,
+    "conditions": {
+      "macro_mean_ge_0_40": false,
+      "motor_mean_ge_0_30": false,
+      "sensor_mean_ge_0_30": false,
+      "macro_min_ge_0_25": false,
+      "real_fa_mean_le_4": true,
+      "real_fa_max_le_8": true
+    }
+  },
+  "wind_intermediate_gate": {
+    "passed": false,
+    "conditions": {
+      "wind_fa_mean_le_15": true,
+      "wind_fa_max_le_20": true,
+      "critical_recall_mean_ge_0_50": false,
+      "all_nonfault_fa_mean_le_2": false
+    }
+  },
+  "operational_claim_allowed": false
+}

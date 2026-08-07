@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-03T14:41:38.920540</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 150.84 264.6 
+L 1001.16 264.6 
+Q 1009.8 264.6 1009.8 255.96 
+L 1009.8 136.44 
+Q 1009.8 127.8 1001.16 127.8 
+L 150.84 127.8 
+Q 142.2 127.8 142.2 136.44 
+L 142.2 255.96 
+Q 142.2 264.6 150.84 264.6 
+z
+" clip-path="url(#p1e75c89d6d)" style="fill: #eef8f2; stroke: #2e8b57; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 576 311.599512 
+Q 576 327.601573 576 340.249531 
+" clip-path="url(#p1e75c89d6d)" style="fill: none; stroke: #2e8b57; stroke-width: 3; stroke-linecap: round"/>
+    <path d="M 579.2 333.849531 
+L 576 340.249531 
+L 572.8 333.849531 
+z
+" clip-path="url(#p1e75c89d6d)" style="fill: #2e8b57; stroke: #2e8b57; stroke-width: 3; stroke-linecap: round"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 330.84 480.6 
+L 821.16 480.6 
+Q 829.8 480.6 829.8 471.96 
+L 829.8 374.04 
+Q 829.8 365.4 821.16 365.4 
+L 330.84 365.4 
+Q 322.2 365.4 322.2 374.04 
+L 322.2 471.96 
+Q 322.2 480.6 330.84 480.6 
+z
+" clip-path="url(#p1e75c89d6d)" style="fill: #f4f7fb; stroke: #16324f; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 150.84 610.2 
+L 1001.16 610.2 
+Q 1009.8 610.2 1009.8 601.56 
+L 1009.8 518.04 
+Q 1009.8 509.4 1001.16 509.4 
+L 150.84 509.4 
+Q 142.2 509.4 142.2 518.04 
+L 142.2 601.56 
+Q 142.2 610.2 150.84 610.2 
+z
+" clip-path="url(#p1e75c89d6d)" style="fill: #fff7e8; stroke: #f0a202; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 576 484.402588 
+Q 576 495.000283 576 502.914696 
+" clip-path="url(#p1e75c89d6d)" style="fill: none; stroke-dasharray: 8.88,3.84; stroke-dashoffset: 0; stroke: #f0a202; stroke-width: 2.4; stroke-linecap: round"/>
+    <path d="M 579.2 496.514696 
+L 576 502.914696 
+L 572.8 496.514696 
+z
+" clip-path="url(#p1e75c89d6d)" style="fill: #f0a202; stroke-dasharray: 8.88,3.84; stroke-dashoffset: 0; stroke: #f0a202; stroke-width: 2.4; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 104.4 
+L 1101.6 104.4 
+" clip-path="url(#p1e75c89d6d)" style="fill: none; stroke: #d7dfea; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 576 266.4 
+L 576 349.2 
+" clip-path="url(#p1e75c89d6d)" style="fill: none; stroke: #2e8b57; stroke-width: 3; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 115.2 363.6 
+L 1036.8 363.6 
+" clip-path="url(#p1e75c89d6d)" style="fill: none; stroke-dasharray: 1.6,2.64; stroke-dashoffset: 0; stroke: #d64545; stroke-width: 1.6"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 27px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #16324f" x="50.4" y="67.973906" transform="rotate(-0 50.4 67.973906)">Yarı-denetimli çerçeve: yalnız normal uçuşla eğitim</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #617086" x="51.84" y="95.952188" transform="rotate(-0 51.84 95.952188)">Etiketler yalnız eşik kalibrasyonu ve değerlendirmede kullanılır</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 19px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #2e8b57" x="576" y="165.637031" transform="rotate(-0 576 165.637031)">Normal uçuşlar</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(469.863594 200.690313)">Model eğitimi ve iç doğrulama</text>
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(480.848125 219.590313)">yalnız bu havuzdan öğrenir</text>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 18px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #16324f" x="576" y="402.477187" transform="rotate(-0 576 402.477187)">Model</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="576" y="437.808516" transform="rotate(-0 576 437.808516)">Yalnız normal davranışı öğrenir</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 17px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #f0a202" x="576" y="545.717344" transform="rotate(-0 576 545.717344)">Arızalı uçuşlar</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="576" y="580.844922" transform="rotate(-0 576 580.844922)">Eğitime hiç girmez — yalnız eşik kalibrasyonu ve nihai değerlendirmede kullanılır</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #b23b3b" x="576" y="358.56" transform="rotate(-0 576 358.56)">Etiket buradan geçmez</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 11.3px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #617086" x="61.2" y="637.2" transform="rotate(-0 61.2 637.2)">İstisna: LightGBM ve TCN karşılaştırmaları, açıkça ayrı işaretlenmiş denetimli kollardı; ana hat normal-only kaldı.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p1e75c89d6d">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

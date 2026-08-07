@@ -1,0 +1,814 @@
+{
+  "rfly_only_old_proxy": {
+    "gate_status": {
+      "gate_r_a": "passed",
+      "gate_r_b": "passed",
+      "gate_r_c": "passed"
+    },
+    "top_rows": [
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.749186,
+        "fa": 10.179896,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": true
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.717915,
+        "fa": 12.083518,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "advisory",
+        "recall": 0.678827,
+        "fa": 9.532104,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": true
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "critical",
+        "recall": 0.57329,
+        "fa": 1.227424,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": true
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "critical",
+        "recall": 0.565472,
+        "fa": 2.327361,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "recall": 0.558958,
+        "fa": 4.327387,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.001303,
+        "fa": 0.0,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "ml9_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.001303,
+        "fa": 0.0,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      }
+    ],
+    "best_budget_rows": [
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.749186,
+        "fa": 10.179896,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": true
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "advisory",
+        "recall": 0.678827,
+        "fa": 9.532104,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": true
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "critical",
+        "recall": 0.57329,
+        "fa": 1.227424,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": true
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.001303,
+        "fa": 0.0,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "ml9_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.001303,
+        "fa": 0.0,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      }
+    ]
+  },
+  "rfly_only_interval": {
+    "gate_status": {
+      "gate_r_a": "passed",
+      "gate_r_b": "passed",
+      "gate_r_c": "failed"
+    },
+    "top_rows": [
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.526073,
+        "fa": 22.275368,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "advisory",
+        "recall": 0.460726,
+        "fa": 28.739141,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.451485,
+        "fa": 30.138244,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "critical",
+        "recall": 0.441584,
+        "fa": 9.227697,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "critical",
+        "recall": 0.405941,
+        "fa": 17.284969,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "recall": 0.394059,
+        "fa": 14.085448,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "recall": 0.0,
+        "fa": 0.0,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.0,
+        "fa": 0.0,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      }
+    ],
+    "best_budget_rows": [
+      {
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "recall": 0.0,
+        "fa": 0.0,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.0,
+        "fa": 0.0,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "recall": 0.0,
+        "fa": 0.0,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "recall": 0.0,
+        "fa": 0.0,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "recall": 0.0,
+        "fa": 0.0,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": false
+      }
+    ],
+    "group_top": [
+      {
+        "eval_group": "rfly_motor",
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.724719,
+        "fa": 18.766376
+      },
+      {
+        "eval_group": "rfly_motor",
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "advisory",
+        "recall": 0.68427,
+        "fa": 27.895964
+      },
+      {
+        "eval_group": "rfly_motor",
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.669663,
+        "fa": 27.726898
+      },
+      {
+        "eval_group": "rfly_normal",
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": NaN,
+        "fa": 0.0
+      },
+      {
+        "eval_group": "rfly_normal",
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "recall": NaN,
+        "fa": 0.0
+      },
+      {
+        "eval_group": "rfly_normal",
+        "score_source": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": NaN,
+        "fa": 0.0
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.2432,
+        "fa": 29.754773
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "advisory",
+        "recall": 0.1424,
+        "fa": 33.060859
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.1408,
+        "fa": 36.813714
+      }
+    ]
+  },
+  "pooled_old_proxy": {
+    "gate_status": {
+      "gate_r_a": "passed",
+      "gate_r_b": "passed",
+      "gate_r_c": "failed"
+    },
+    "top_rows": [
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "advisory",
+        "recall": 0.388,
+        "fa": 12.887893,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.195714,
+        "fa": 34.044358,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.167429,
+        "fa": 6.36313,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "critical",
+        "recall": 0.139143,
+        "fa": 3.47523,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "recall": 0.106286,
+        "fa": 2.009771,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": false
+      },
+      {
+        "score_source": "rfly0_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.104857,
+        "fa": 2.591268,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "rfly0_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.098286,
+        "fa": 10.325174,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "ml9_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.095714,
+        "fa": 2.517232,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      }
+    ],
+    "best_budget_rows": [
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.167429,
+        "fa": 6.36313,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "rfly0_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.104857,
+        "fa": 2.591268,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "rfly0_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.098286,
+        "fa": 10.325174,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "ml9_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.095714,
+        "fa": 2.517232,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "ml9_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.090571,
+        "fa": 10.250445,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      }
+    ]
+  },
+  "pooled_interval": {
+    "gate_status": {
+      "gate_r_a": "passed",
+      "gate_r_b": "passed",
+      "gate_r_c": "failed"
+    },
+    "top_rows": [
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.148851,
+        "fa": 29.998765,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "advisory",
+        "recall": 0.083621,
+        "fa": 20.236718,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "rfly0_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.066092,
+        "fa": 9.392623,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "ml9_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.062356,
+        "fa": 9.255211,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.05431,
+        "fa": 8.21581,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.049713,
+        "fa": 7.816977,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "critical",
+        "recall": 0.041954,
+        "fa": 4.760832,
+        "seeds": 5,
+        "target_fa": 2.0,
+        "target_recall": 0.3,
+        "passed": false
+      },
+      {
+        "score_source": "rfly0_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.034195,
+        "fa": 3.530119,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      }
+    ],
+    "best_budget_rows": [
+      {
+        "score_source": "rfly0_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.066092,
+        "fa": 9.392623,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "ml9_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.062356,
+        "fa": 9.255211,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.05431,
+        "fa": 8.21581,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.049713,
+        "fa": 7.816977,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      },
+      {
+        "score_source": "rfly0_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.034195,
+        "fa": 3.530119,
+        "seeds": 5,
+        "target_fa": 12.0,
+        "target_recall": 0.5,
+        "passed": false
+      }
+    ],
+    "group_top": [
+      {
+        "eval_group": "rfly_motor",
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.253933,
+        "fa": 4.62115
+      },
+      {
+        "eval_group": "rfly_motor",
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "advisory",
+        "recall": 0.092135,
+        "fa": 58.440637
+      },
+      {
+        "eval_group": "rfly_motor",
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.091011,
+        "fa": 13.581672
+      },
+      {
+        "eval_group": "rfly_normal",
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": NaN,
+        "fa": 0.0
+      },
+      {
+        "eval_group": "rfly_normal",
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "recall": NaN,
+        "fa": 0.0
+      },
+      {
+        "eval_group": "rfly_normal",
+        "score_source": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": NaN,
+        "fa": 0.0
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "advisory",
+        "recall": 0.1456,
+        "fa": 72.287122
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": 0.0512,
+        "fa": 20.998113
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "recall": 0.0272,
+        "fa": 13.403051
+      },
+      {
+        "eval_group": "sead_anomaly",
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.144529,
+        "fa": 34.635585
+      },
+      {
+        "eval_group": "sead_anomaly",
+        "score_source": "rfly0_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.11145,
+        "fa": 14.138291
+      },
+      {
+        "eval_group": "sead_anomaly",
+        "score_source": "ml9_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": 0.104835,
+        "fa": 13.815499
+      },
+      {
+        "eval_group": "sead_normal",
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "recall": NaN,
+        "fa": 8.913934
+      },
+      {
+        "eval_group": "sead_normal",
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "recall": NaN,
+        "fa": 1.670774
+      },
+      {
+        "eval_group": "sead_normal",
+        "score_source": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "recall": NaN,
+        "fa": 1.025199
+      }
+    ]
+  }
+}

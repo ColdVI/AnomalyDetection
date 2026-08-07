@@ -1,0 +1,57 @@
+{
+  "features": [
+    "gps_step_m",
+    "gps_speed_calc_mps",
+    "log_gps_speed",
+    "gps_accel_mps2",
+    "vertical_rate_calc",
+    "gps_speed_residual",
+    "vertical_rate_residual",
+    "course_change_deg",
+    "roll_deg",
+    "pitch_deg",
+    "yaw_deg",
+    "eph",
+    "epv",
+    "battery_power_w"
+  ],
+  "median": {
+    "gps_step_m": 0.9908609390307195,
+    "gps_speed_calc_mps": 4.963426174787093,
+    "log_gps_speed": 1.7856451774484015,
+    "gps_accel_mps2": 0.021348924804128463,
+    "vertical_rate_calc": -0.00034999999996905584,
+    "gps_speed_residual": 0.06522769849735965,
+    "vertical_rate_residual": 0.017175000000004114,
+    "course_change_deg": 0.0,
+    "roll_deg": 2.129509208273965,
+    "pitch_deg": -30.053975640754366,
+    "yaw_deg": 0.004471454355886006,
+    "eph": 1.086182,
+    "epv": 1.0199431,
+    "battery_power_w": 169.11601368
+  },
+  "scale": {
+    "gps_step_m": 0.03988700460698786,
+    "gps_speed_calc_mps": 0.1751531270731844,
+    "log_gps_speed": 0.02923619276627714,
+    "gps_accel_mps2": 0.12039065487693798,
+    "vertical_rate_calc": 0.015493169999963223,
+    "gps_speed_residual": 0.048894149744963034,
+    "vertical_rate_residual": 0.016339962692355242,
+    "course_change_deg": 0.29651503027789367,
+    "roll_deg": 1.0880636558123118,
+    "pitch_deg": 2.3950543473825716,
+    "yaw_deg": 143.01143266223093,
+    "eph": 0.004108358729999996,
+    "epv": 0.0005862200399999032,
+    "battery_power_w": 21.48972904475785
+  },
+  "excluded": [
+    "satellites_used",
+    "s_variance_m_s",
+    "jamming_indicator",
+    "noise_per_ms"
+  ],
+  "clip": 5.0
+}

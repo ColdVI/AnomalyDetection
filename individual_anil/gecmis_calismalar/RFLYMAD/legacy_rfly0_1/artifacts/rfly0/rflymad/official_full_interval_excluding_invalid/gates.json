@@ -1,0 +1,648 @@
+{
+  "gate_r_a": {
+    "status": "passed",
+    "blind_holdout_read": false,
+    "blind_holdout_flights": 132,
+    "split_overlap": "asserted by split construction",
+    "invalid_interval_truth_excluded_flights": 4,
+    "invalid_interval_truth_reason": "rfly_ctrl_lxl_no_active_fault: internal RFLY control message indicates no active fault trigger, contradicting the folder label"
+  },
+  "gate_r_b": {
+    "status": "passed",
+    "evaluated_seed_count": 5,
+    "rule": "motor/sensor candidate recall gain >=0.05 vs existing_fusion and positive in >=3/5 seeds",
+    "comparisons": [
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "itki_komutu",
+        "baseline": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.7247191011235955,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.7247191011235955,
+        "positive_seed_count": 5,
+        "passed": true
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "itki_komutu",
+        "baseline": "existing_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "candidate_mean_recall": 0.6550561797752809,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.6550561797752809,
+        "positive_seed_count": 5,
+        "passed": true
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "itki_komutu",
+        "baseline": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.6696629213483146,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.6696629213483146,
+        "positive_seed_count": 5,
+        "passed": true
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "itki_komutu",
+        "baseline": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "candidate_mean_recall": 0.6123595505617978,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.6123595505617978,
+        "positive_seed_count": 5,
+        "passed": true
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "itki_komutu",
+        "baseline": "existing_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.6842696629213483,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.6842696629213483,
+        "positive_seed_count": 5,
+        "passed": true
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "itki_komutu",
+        "baseline": "existing_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "candidate_mean_recall": 0.6179775280898877,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.6179775280898877,
+        "positive_seed_count": 5,
+        "passed": true
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "ml9_fusion",
+        "baseline": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "ml9_fusion",
+        "baseline": "existing_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "ml9_fusion",
+        "baseline": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "ml9_fusion",
+        "baseline": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "ml9_fusion",
+        "baseline": "existing_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "ml9_fusion",
+        "baseline": "existing_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "rfly0_fusion",
+        "baseline": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "rfly0_fusion",
+        "baseline": "existing_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "rfly0_fusion",
+        "baseline": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "rfly0_fusion",
+        "baseline": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "rfly0_fusion",
+        "baseline": "existing_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_motor",
+        "candidate": "rfly0_fusion",
+        "baseline": "existing_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "itki_komutu",
+        "baseline": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.2432,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.2432,
+        "positive_seed_count": 5,
+        "passed": true
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "itki_komutu",
+        "baseline": "existing_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "candidate_mean_recall": 0.1376,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.1376,
+        "positive_seed_count": 5,
+        "passed": true
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "itki_komutu",
+        "baseline": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.14079999999999998,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.14079999999999998,
+        "positive_seed_count": 5,
+        "passed": true
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "itki_komutu",
+        "baseline": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0832,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0832,
+        "positive_seed_count": 5,
+        "passed": true
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "itki_komutu",
+        "baseline": "existing_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.14240000000000003,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.14240000000000003,
+        "positive_seed_count": 5,
+        "passed": true
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "itki_komutu",
+        "baseline": "existing_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "candidate_mean_recall": 0.10400000000000001,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.10400000000000001,
+        "positive_seed_count": 5,
+        "passed": true
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "ml9_fusion",
+        "baseline": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "ml9_fusion",
+        "baseline": "existing_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "ml9_fusion",
+        "baseline": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "ml9_fusion",
+        "baseline": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "ml9_fusion",
+        "baseline": "existing_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "ml9_fusion",
+        "baseline": "existing_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "rfly0_fusion",
+        "baseline": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "rfly0_fusion",
+        "baseline": "existing_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "rfly0_fusion",
+        "baseline": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "rfly0_fusion",
+        "baseline": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "rfly0_fusion",
+        "baseline": "existing_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      },
+      {
+        "eval_group": "rfly_sensor",
+        "candidate": "rfly0_fusion",
+        "baseline": "existing_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "candidate_mean_recall": 0.0,
+        "baseline_mean_recall": 0.0,
+        "mean_recall_gain": 0.0,
+        "positive_seed_count": 0,
+        "passed": false
+      }
+    ]
+  },
+  "gate_r_c": {
+    "status": "failed",
+    "evaluated_seed_count": 5,
+    "rule": "any row critical recall >=0.30 @ FA<=2 or advisory recall >=0.50 @ FA<=12",
+    "candidates": [
+      {
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0654315733215501,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.526072607260726,
+        "mean_false_alarms_per_hour": 22.275367515274844,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.44158415841584164,
+        "mean_false_alarms_per_hour": 9.227697103396597,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.45148514851485155,
+        "mean_false_alarms_per_hour": 30.13824350908941,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.3940594059405941,
+        "mean_false_alarms_per_hour": 14.0854477633472,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.4607260726072607,
+        "mean_false_alarms_per_hour": 28.739141086144862,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.40594059405940597,
+        "mean_false_alarms_per_hour": 17.284969055895537,
+        "passed": false
+      },
+      {
+        "score_source": "ml9_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0654315733215501,
+        "passed": false
+      },
+      {
+        "score_source": "ml9_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml9_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml9_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml9_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml9_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "rfly0_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0654315733215501,
+        "passed": false
+      },
+      {
+        "score_source": "rfly0_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "rfly0_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "rfly0_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "rfly0_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "rfly0_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      }
+    ]
+  }
+}

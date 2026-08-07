@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_v31",
+  "source_run": "artifacts/four_dataset_probabilistic_v31/runs/rflymad_colab_l4_20260728",
+  "training_report_sha256": "7d521e14c55c9448860b2b3139aacf38dd7ccf6dcd8573310de1a892e6199c1b",
+  "threshold_reselected": false,
+  "final_fault_test_accessed": false,
+  "plots": [
+    {
+      "path": "artifacts/four_dataset_probabilistic_v31/plots/rflymad_colab_l4_20260728/01_training_and_selected_checkpoint.png",
+      "bytes": 96568,
+      "sha256": "0c45045a24afd3e64c8740b6e2cf1f7c80de77ed2e66987ed7fbd6c23f05d983"
+    },
+    {
+      "path": "artifacts/four_dataset_probabilistic_v31/plots/rflymad_colab_l4_20260728/02_flight_max_score_distribution.png",
+      "bytes": 59258,
+      "sha256": "ecfadc42707c1b9851dc29a19ec843aee371c7c6c0844c86a61b136ffb99620b"
+    },
+    {
+      "path": "artifacts/four_dataset_probabilistic_v31/plots/rflymad_colab_l4_20260728/03_flight_flag_matrix.png",
+      "bytes": 55407,
+      "sha256": "939ce1c2ea68c3ad92a773465a216bf1fc1ed8484b969be1824994675eb7d9bb"
+    },
+    {
+      "path": "artifacts/four_dataset_probabilistic_v31/plots/rflymad_colab_l4_20260728/04_label_level_diagnostics.png",
+      "bytes": 94530,
+      "sha256": "d55fe55498c137eb1c5ca3ab7b67118cb8f76b50528a2888850d4417b23567c0"
+    }
+  ]
+}

@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_v3",
+  "artifact_role": "group-safe split contract verification",
+  "created_date": "2026-07-28",
+  "inputs": {
+    "group_registry_path": "artifacts/four_dataset_probabilistic_v3/group_registry_v1.parquet",
+    "group_registry_sha256": "8b70fae4caf2cf69b26f0631c3c9094bcb2733443b949fca59577afc410b51ec",
+    "group_registry_report_path": "artifacts/four_dataset_probabilistic_v3/group_registry_v1_report.json",
+    "group_registry_report_sha256": "4d49e8f41afe560fc6607ab7bd3f71a236e4d2fd9aa11879c4f5dfeca1909cd0"
+  },
+  "all_contracts_passed": true,
+  "training_started": false,
+  "datasets": {
+    "alfa": {
+      "status": "grouped_cv_smoke_only",
+      "folds": [
+        {
+          "fold": 0,
+          "contract_passed": true,
+          "group_overlap_count": 0,
+          "source_overlap_count": 0,
+          "roles": {
+            "train": {
+              "group_count": 4,
+              "source_count": 4,
+              "normal_source_count": 4,
+              "anomaly_source_count": 0,
+              "label_counts": {
+                "normal": 4
+              }
+            },
+            "val": {
+              "group_count": 2,
+              "source_count": 2,
+              "normal_source_count": 2,
+              "anomaly_source_count": 0,
+              "label_counts": {
+                "normal": 2
+              }
+            },
+            "test": {
+              "group_count": 10,
+              "source_count": 12,
+              "normal_source_count": 3,
+              "anomaly_source_count": 9,
+              "label_counts": {
+                "elevator_fault": 1,
+                "engine_fault": 7,
+                "normal": 3,
+                "unknown": 1
+              }
+            },
+            "stress_test": {
+              "group_count": 22,
+              "source_count": 36,
+              "normal_source_count": 6,
+              "anomaly_source_count": 30,
+              "label_counts": {
+                "aileron_fault": 7,
+                "aileron_rudder_fault": 1,
+                "elevator_fault": 1,
+                "engine_fault": 18,
+                "normal": 6,
+                "rudder_fault": 3
+              }
+            }
+          }
+        },
+        {
+          "fold": 1,
+          "contract_passed": true,
+          "group_overlap_count": 0,
+          "source_overlap_count": 0,
+          "roles": {
+            "train": {
+              "group_count": 4,
+              "source_count": 4,
+              "normal_source_count": 4,
+              "anomaly_source_count": 0,
+              "label_counts": {
+                "normal": 4
+              }
+            },
+            "val": {
+              "group_count": 2,
+              "source_count": 2,
+              "normal_source_count": 2,
+              "anomaly_source_count": 0,
+              "label_counts": {
+                "normal": 2
+              }
+            },
+            "test": {
+              "group_count": 10,
+              "source_count": 13,
+              "normal_source_count": 2,
+              "anomaly_source_count": 11,
+              "label_counts": {
+                "aileron_fault": 2,
+                "aileron_rudder_fault": 1,
+                "engine_fault": 5,
+                "normal": 2,
+                "rudder_fault": 3
+              }
+            },
+            "stress_test": {
+              "group_count": 22,
+              "source_count": 35,
+              "normal_source_count": 7,
+              "anomaly_source_count": 28,
+              "label_counts": {
+                "aileron_fault": 5,
+                "elevator_fault": 2,
+                "engine_fault": 20,
+                "normal": 7,
+                "unknown": 1
+              }
+            }
+          }
+        },
+        {
+          "fold": 2,
+          "contract_passed": true,
+          "group_overlap_count": 0,
+          "source_overlap_count": 0,
+          "roles": {
+            "train": {
+              "group_count": 4,
+              "source_count": 4,
+              "normal_source_count": 4,
+              "anomaly_source_count": 0,
+              "label_counts": {
+                "normal": 4
+              }
+            },
+            "val": {
+              "group_count": 2,
+              "source_count": 2,
+              "normal_source_count": 2,
+              "anomaly_source_count": 0,
+              "label_counts": {
+                "normal": 2
+              }
+            },
+            "test": {
+              "group_count": 9,
+              "source_count": 15,
+              "normal_source_count": 4,
+              "anomaly_source_count": 11,
+              "label_counts": {
+                "aileron_fault": 4,
+                "engine_fault": 7,
+                "normal": 4
+              }
+            },
+            "stress_test": {
+              "group_count": 23,
+              "source_count": 33,
+              "normal_source_count": 5,
+              "anomaly_source_count": 28,
+              "label_counts": {
+                "aileron_fault": 3,
+                "aileron_rudder_fault": 1,
+                "elevator_fault": 2,
+                "engine_fault": 18,
+                "normal": 5,
+                "rudder_fault": 3,
+                "unknown": 1
+              }
+            }
+          }
+        },
+        {
+          "fold": 3,
+          "contract_passed": true,
+          "group_overlap_count": 0,
+          "source_overlap_count": 0,
+          "roles": {
+            "train": {
+              "group_count": 4,
+              "source_count": 4,
+              "normal_source_count": 4,
+              "anomaly_source_count": 0,
+              "label_counts": {
+                "normal": 4
+              }
+            },
+            "val": {
+              "group_count": 2,
+              "source_count": 2,
+              "normal_source_count": 2,
+              "anomaly_source_count": 0,
+              "label_counts": {
+                "normal": 2
+              }
+            },
+            "test": {
+              "group_count": 9,
+              "source_count": 14,
+              "normal_source_count": 6,
+              "anomaly_source_count": 8,
+              "label_counts": {
+                "aileron_fault": 1,
+                "elevator_fault": 1,
+                "engine_fault": 6,
+                "normal": 6
+              }
+            },
+            "stress_test": {
+              "group_count": 23,
+              "source_count": 34,
+              "normal_source_count": 3,
+              "anomaly_source_count": 31,
+              "label_counts": {
+                "aileron_fault": 6,
+                "aileron_rudder_fault": 1,
+                "elevator_fault": 1,
+                "engine_fault": 19,
+                "normal": 3,
+                "rudder_fault": 3,
+                "unknown": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "rflymad": {
+      "contract_passed": true,
+      "group_overlap_count": 0,
+      "source_overlap_count": 0,
+      "roles": {
+        "train": {
+          "group_count": 7,
+          "source_count": 260,
+          "normal_source_count": 260,
+          "anomaly_source_count": 0,
+          "label_counts": {
+            "NoFault": 260
+          }
+        },
+        "val": {
+          "group_count": 3,
+          "source_count": 90,
+          "normal_source_count": 90,
+          "anomaly_source_count": 0,
+          "label_counts": {
+            "NoFault": 90
+          }
+        },
+        "test": {
+          "group_count": 28,
+          "source_count": 1201,
+          "normal_source_count": 91,
+          "anomaly_source_count": 1110,
+          "label_counts": {
+            "Environment": 145,
+            "Load": 43,
+            "Motor": 509,
+            "NoFault": 91,
+            "Propeller": 210,
+            "Sensor": 191,
+            "Voltage": 12
+          }
+        },
+        "stress_test": {
+          "group_count": 0,
+          "source_count": 0,
+          "normal_source_count": 0,
+          "anomaly_source_count": 0,
+          "label_counts": {}
+        }
+      }
+    },
+    "uav_sead": {
+      "contract_passed": true,
+      "group_overlap_count": 0,
+      "source_overlap_count": 0,
+      "roles": {
+        "train": {
+          "group_count": 105,
+          "source_count": 271,
+          "normal_source_count": 271,
+          "anomaly_source_count": 0,
+          "label_counts": {
+            "normal": 271
+          }
+        },
+        "val": {
+          "group_count": 22,
+          "source_count": 59,
+          "normal_source_count": 59,
+          "anomaly_source_count": 0,
+          "label_counts": {
+            "normal": 59
+          }
+        },
+        "test": {
+          "group_count": 137,
+          "source_count": 914,
+          "normal_source_count": 568,
+          "anomaly_source_count": 346,
+          "label_counts": {
+            "altitude_anomaly": 72,
+            "external_position_anomaly": 193,
+            "global_position_anomaly": 40,
+            "mechanical_fault": 41,
+            "normal": 568
+          }
+        },
+        "stress_test": {
+          "group_count": 0,
+          "source_count": 0,
+          "normal_source_count": 0,
+          "anomaly_source_count": 0,
+          "label_counts": {}
+        }
+      }
+    },
+    "uav_attack": {
+      "status": "no_go_group_safe_split_not_feasible",
+      "contract_passed": true,
+      "training_not_started": true,
+      "source_count_preserved": 19,
+      "pure_normal_group_count": 1
+    }
+  }
+}

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-04T18:42:23.241931</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 158.616 511.2 
+L 260.784 511.2 
+L 260.784 360 
+L 158.616 360 
+z
+" clip-path="url(#p37bf915e96)" style="fill: #eb6834"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 390.816 511.2 
+L 492.984 511.2 
+L 492.984 447.696 
+L 390.816 447.696 
+z
+" clip-path="url(#p37bf915e96)" style="fill: #eb6834"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 623.016 511.2 
+L 725.184 511.2 
+L 725.184 259.3008 
+L 623.016 259.3008 
+z
+" clip-path="url(#p37bf915e96)" style="fill: #2a78d6"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 855.216 511.2 
+L 957.384 511.2 
+L 957.384 249.9264 
+L 855.216 249.9264 
+z
+" clip-path="url(#p37bf915e96)" style="fill: #1baf7a"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 100.8 
+L 1101.6 100.8 
+" clip-path="url(#p37bf915e96)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 79.2 511.2 
+L 1036.8 511.2 
+" clip-path="url(#p37bf915e96)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.4; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 79.2 360 
+L 1029.6 360 
+" clip-path="url(#p37bf915e96)" style="fill: none; stroke-dasharray: 4.44,1.92; stroke-dashoffset: 0; stroke: #e1e0d9; stroke-width: 1.2"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1c5cab" x="50.4" y="62.955937" transform="rotate(-0 50.4 62.955937)">Tek modele her şeyi vermek sinyali seyreltiyor</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="51.84" y="93.437813" transform="rotate(-0 51.84 93.437813)">Isolation Forest — aynı model, iki farklı feature kurulumu · flight ROC-AUC</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1c5cab" x="64.8" y="140.4" transform="rotate(-0 64.8 140.4)">Isolation Forest neden seçildi?</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="64.8" y="173.974453" transform="rotate(-0 64.8 173.974453)">Etiket istemez, normal veriden aykırılık skoru üretir, hızlıdır ve hangi feature'ın katkı verdiği okunabilir.</text>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #eb6834" x="209.7" y="345.6" transform="rotate(-0 209.7 345.6)">rastgeleye yakın</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(171.138516 550.207969)">Monolitik IF</text>
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(193.440937 567.646172)">ALFA</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 21px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #eb6834" x="441.9" y="433.296" transform="rotate(-0 441.9 433.296)">0,210</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(403.338516 550.207969)">Monolitik IF</text>
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(404.462812 567.757969)">UAV Attack</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 21px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #2a78d6" x="674.1" y="244.9008" transform="rotate(-0 674.1 244.9008)">0,833</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(638.760586 550.207969)">Modüler IF</text>
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(657.840937 567.646172)">ALFA</text>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 700; font-size: 21px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #1baf7a" x="906.3" y="235.5264" transform="rotate(-0 906.3 235.5264)">0,864</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(841.042266 548.900156)">En güçlü tek modül</text>
+    <text style="font-size: 13.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(870.030352 566.450156)">(guidance)</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(1038.24 356.292656)">0,50</text>
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(1038.24 370.185313)">rastgele</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="50.4" y="624.96" transform="rotate(-0 50.4 624.96)">Kaynak ALFA monolitik sonucunu sayı yerine 'rastgeleye yakın' olarak veriyor; bar yüksekliği temsilîdir.  |  İlk iki bar farklı veri setlerine aittir — monolitik kurulumun ikisinde de zayıf kaldığının kanıtıdır.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p37bf915e96">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

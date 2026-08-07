@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-29T13:18:41.308762</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 46.44 433.8 
+L 241.56 433.8 
+Q 250.2 433.8 250.2 425.16 
+L 250.2 237.24 
+Q 250.2 228.6 241.56 228.6 
+L 46.44 228.6 
+Q 37.8 228.6 37.8 237.24 
+L 37.8 425.16 
+Q 37.8 433.8 46.44 433.8 
+z
+" clip-path="url(#p4e8d4e74ee)" style="fill: #f4f7fb; stroke: #2f6bff; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 253.997314 331.2 
+Q 268.198471 331.2 280.16356 331.2 
+" clip-path="url(#p4e8d4e74ee)" style="fill: none; stroke: #617086; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 272.96356 327.6 
+L 280.16356 331.2 
+L 272.96356 334.8 
+z
+" clip-path="url(#p4e8d4e74ee)" style="fill: #617086; stroke: #617086; stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 298.44 433.8 
+L 471.96 433.8 
+Q 480.6 433.8 480.6 425.16 
+L 480.6 237.24 
+Q 480.6 228.6 471.96 228.6 
+L 298.44 228.6 
+Q 289.8 228.6 289.8 237.24 
+L 289.8 425.16 
+Q 289.8 433.8 298.44 433.8 
+z
+" clip-path="url(#p4e8d4e74ee)" style="fill: #f4f7fb; stroke: #6c5ce7; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 484.396436 331.2 
+Q 502.199832 331.2 517.767161 331.2 
+" clip-path="url(#p4e8d4e74ee)" style="fill: none; stroke: #617086; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 510.567161 327.6 
+L 517.767161 331.2 
+L 510.567161 334.8 
+z
+" clip-path="url(#p4e8d4e74ee)" style="fill: #617086; stroke: #617086; stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 536.04 433.8 
+L 720.36 433.8 
+Q 729 433.8 729 425.16 
+L 729 237.24 
+Q 729 228.6 720.36 228.6 
+L 536.04 228.6 
+Q 527.4 228.6 527.4 237.24 
+L 527.4 425.16 
+Q 527.4 433.8 536.04 433.8 
+z
+" clip-path="url(#p4e8d4e74ee)" style="fill: #f4f7fb; stroke: #27a9c7; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 732.800391 331.2 
+Q 745.200771 331.2 755.365084 331.2 
+" clip-path="url(#p4e8d4e74ee)" style="fill: none; stroke: #617086; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 748.165084 327.6 
+L 755.365084 331.2 
+L 748.165084 334.8 
+z
+" clip-path="url(#p4e8d4e74ee)" style="fill: #617086; stroke: #617086; stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 773.64 433.8 
+L 921.96 433.8 
+Q 930.6 433.8 930.6 425.16 
+L 930.6 237.24 
+Q 930.6 228.6 921.96 228.6 
+L 773.64 228.6 
+Q 765 228.6 765 237.24 
+L 765 425.16 
+Q 765 433.8 773.64 433.8 
+z
+" clip-path="url(#p4e8d4e74ee)" style="fill: #f4f7fb; stroke: #f0a202; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 934.40127 331.2 
+Q 943.202994 331.2 949.768651 331.2 
+" clip-path="url(#p4e8d4e74ee)" style="fill: none; stroke: #617086; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 942.568651 327.6 
+L 949.768651 331.2 
+L 942.568651 334.8 
+z
+" clip-path="url(#p4e8d4e74ee)" style="fill: #617086; stroke: #617086; stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 968.04 433.8 
+L 1105.56 433.8 
+Q 1114.2 433.8 1114.2 425.16 
+L 1114.2 237.24 
+Q 1114.2 228.6 1105.56 228.6 
+L 968.04 228.6 
+Q 959.4 228.6 959.4 237.24 
+L 959.4 425.16 
+Q 959.4 433.8 968.04 433.8 
+z
+" clip-path="url(#p4e8d4e74ee)" style="fill: #f4f7fb; stroke: #d64545; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 104.4 
+L 1101.6 104.4 
+" clip-path="url(#p4e8d4e74ee)" style="fill: none; stroke: #d7dfea; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 29px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #16324f" x="50.4" y="69.542344" transform="rotate(-0 50.4 69.542344)">Normal davranışı olasılıksal olarak öğrenen mimari</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #617086" x="51.84" y="96.344766" transform="rotate(-0 51.84 96.344766)">Yalnız normal eğitim verisi • 32 adımlık nedensel geçmiş • 24 aktif kanal</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 15.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2f6bff" x="55.44" y="262.337578" transform="rotate(-0 55.44 262.337578)">Geçmiş pencere</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(55.44 302.01375)">32 adım</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(55.44 317.203125)">ölçekli değer + eksik veri maskesi</text>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 15.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6c5ce7" x="307.44" y="262.336367" transform="rotate(-0 307.44 262.336367)">LSTM</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(307.44 300.85125)">64 gizli birim</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(307.44 318.21375)">normal dinamik</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 15.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #27a9c7" x="545.04" y="262.337578" transform="rotate(-0 545.04 262.337578)">Sonraki adım</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(545.04 300.942188)">Kanal başına</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(545.04 317.05125)">ortalama μ + belirsizlik σ</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 15.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #f0a202" x="782.64" y="262.337578" transform="rotate(-0 782.64 262.337578)">Gaussian NLL</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(782.64 302.01375)">Tahmin hatası +</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(782.64 317.203125)">model belirsizliği</text>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 700; font-size: 15.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #d64545" x="977.04" y="262.337578" transform="rotate(-0 977.04 262.337578)">Olay katmanı</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(977.04 301.542188)">Kalıcılık / K-of-N /</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(977.04 318.107813)">CUSUM</text>
+   </g>
+   <g id="text_13">
+    <text style="font-weight: 700; font-size: 19px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #16324f" x="576" y="543.6" transform="rotate(-0 576 543.6)">Çıktı: pencere skoru değil, birleştirilmiş olaylar değerlendirilir.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p4e8d4e74ee">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

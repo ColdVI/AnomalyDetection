@@ -1,0 +1,811 @@
+split,seed,score_source,allocation,decision,budget,system_budget_per_hour,mechanical_budget_per_hour,annotation_category,n_events,detected_events,event_onset_recall,false_alarm_events,normal_hours,false_alarms_per_hour,avg_detection_time_s,max_detection_time_s
+split_00,0,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_00,0,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_00,0,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_00,0,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_00,0,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_00,0,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Position.X,54,0,0.0,0,0.9378571405555555,0.0,,
+split_00,0,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Position.Y,55,0,0.0,0,1.0971975144444444,0.0,,
+split_00,0,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_00,0,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Position.X,54,2,0.037037037037037035,5,0.9378571405555555,5.331302374088836,20.524343499999993,27.02733099999999
+split_00,0,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Position.Y,55,0,0.0,2,1.0971975144444444,1.8228258573960416,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_00,0,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Controls,16,4,0.25,7,0.5049052622222222,13.863987016477388,9.257424749999984,20.962381999999934
+split_00,0,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Outputs,25,3,0.12,10,0.7446180683333333,13.429703663225416,22.339021333333346,49.02531300000001
+split_00,0,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Outputs+Controls,41,7,0.17073170731707318,15,1.206307534722222,12.43464006336831,14.86382328571428,49.02531300000001
+split_00,0,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_00,0,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_00,0,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Position.X,54,16,0.2962962962962963,33,0.9378571405555555,35.186595668986314,23.247569062499977,44.07965100000001
+split_00,0,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Position.Y,55,15,0.2727272727272727,44,1.0971975144444444,40.102168862712915,22.567953999999993,58.916042000000004
+split_00,0,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Position.Z,113,0,0.0,2,1.4244670750000001,1.4040338559597805,,
+split_00,0,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Velocity,2,1,0.5,0,0.0036470161111110933,0.0,27.027106000000003,27.027106000000003
+split_00,0,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_00,0,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Outputs,25,0,0.0,3,0.7446180683333333,4.028911098967625,,
+split_00,0,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Outputs+Controls,41,0,0.0,3,1.206307534722222,2.486928012673662,,
+split_00,0,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_00,0,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_00,0,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Position.X,54,5,0.09259259259259259,11,0.9378571405555555,11.72886522299544,21.912615600000002,33.531859999999995
+split_00,0,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Position.Y,55,0,0.0,10,1.0971975144444444,9.114129286980209,,
+split_00,0,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Position.Z,113,0,0.0,5,1.4244670750000001,3.510084639899451,,
+split_00,0,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Battery,2,0,0.0,1,0.06345890611111113,15.758229400442001,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Position.X,54,3,0.05555555555555555,5,0.9378571405555555,5.331302374088836,14.35645733333333,27.02733099999999
+split_00,0,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Position.Y,55,0,0.0,5,1.0971975144444444,4.557064643490104,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_00,0,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_00,0,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Controls,16,1,0.0625,15,0.5049052622222222,29.708543606737262,1.0198860000000423,1.0198860000000423
+split_00,0,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Outputs,25,9,0.36,17,0.7446180683333333,22.83049622748321,11.215486444444444,27.074017999999995
+split_00,0,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Outputs+Controls,41,10,0.24390243902439024,30,1.206307534722222,24.86928012673662,10.195926400000005,27.074017999999995
+split_00,0,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_00,0,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_00,0,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Position.X,54,27,0.5,77,0.9378571405555555,82.10205656096808,15.46269914814814,39.08921699999996
+split_00,0,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Position.Y,55,31,0.5636363636363636,91,1.0971975144444444,82.9385765115199,12.319544935483872,36.97577600000001
+split_00,0,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Position.Z,113,2,0.017699115044247787,8,1.4244670750000001,5.616135423839122,16.521635500000002,33.043271000000004
+split_00,0,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Velocity,2,2,1.0,1,0.0036470161111110933,274.1967596340949,23.527728499999967,38.001544999999965
+split_00,0,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_00,0,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_00,0,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_00,0,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_00,0,channel_union,dengeli,threshold,critical,1.33,0.67,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_00,0,channel_union,dengeli,threshold,critical,1.33,0.67,Position.X,54,0,0.0,0,0.9378571405555555,0.0,,
+split_00,0,channel_union,dengeli,threshold,critical,1.33,0.67,Position.Y,55,0,0.0,0,1.0971975144444444,0.0,,
+split_00,0,channel_union,dengeli,threshold,critical,1.33,0.67,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_00,0,channel_union,dengeli,threshold,critical,1.33,0.67,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_00,0,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_00,0,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_00,0,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_00,0,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_00,0,channel_union,dengeli,k_of_n,critical,1.33,0.67,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_00,0,channel_union,dengeli,k_of_n,critical,1.33,0.67,Position.X,54,2,0.037037037037037035,5,0.9378571405555555,5.331302374088836,20.524343499999993,27.02733099999999
+split_00,0,channel_union,dengeli,k_of_n,critical,1.33,0.67,Position.Y,55,0,0.0,2,1.0971975144444444,1.8228258573960416,,
+split_00,0,channel_union,dengeli,k_of_n,critical,1.33,0.67,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_00,0,channel_union,dengeli,k_of_n,critical,1.33,0.67,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_00,0,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Controls,16,3,0.1875,9,0.5049052622222222,17.825126164042356,5.327112999999959,13.028856999999903
+split_00,0,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Outputs,25,4,0.16,11,0.7446180683333333,14.772674029547957,15.253435250000003,44.04442399999999
+split_00,0,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Outputs+Controls,41,7,0.17073170731707318,18,1.206307534722222,14.921568076041972,10.999297142857127,44.04442399999999
+split_00,0,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_00,0,channel_union,dengeli,cusum,critical,1.33,0.67,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_00,0,channel_union,dengeli,cusum,critical,1.33,0.67,Position.X,54,14,0.25925925925925924,35,0.9378571405555555,37.319116618621855,28.87922985714284,51.084812
+split_00,0,channel_union,dengeli,cusum,critical,1.33,0.67,Position.Y,55,13,0.23636363636363636,45,1.0971975144444444,41.013581791410935,19.461973999999998,50.97184200000004
+split_00,0,channel_union,dengeli,cusum,critical,1.33,0.67,Position.Z,113,0,0.0,3,1.4244670750000001,2.1060507839396707,,
+split_00,0,channel_union,dengeli,cusum,critical,1.33,0.67,Velocity,2,1,0.5,0,0.0036470161111110933,0.0,33.02471700000001,33.02471700000001
+split_00,0,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_00,0,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Outputs,25,0,0.0,3,0.7446180683333333,4.028911098967625,,
+split_00,0,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Outputs+Controls,41,0,0.0,3,1.206307534722222,2.486928012673662,,
+split_00,0,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_00,0,channel_union,dengeli,threshold,advisory,8.0,4.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_00,0,channel_union,dengeli,threshold,advisory,8.0,4.0,Position.X,54,5,0.09259259259259259,11,0.9378571405555555,11.72886522299544,21.912615600000002,33.531859999999995
+split_00,0,channel_union,dengeli,threshold,advisory,8.0,4.0,Position.Y,55,0,0.0,12,1.0971975144444444,10.936955144376249,,
+split_00,0,channel_union,dengeli,threshold,advisory,8.0,4.0,Position.Z,113,0,0.0,6,1.4244670750000001,4.212101567879341,,
+split_00,0,channel_union,dengeli,threshold,advisory,8.0,4.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_00,0,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Controls,16,8,0.5,10,0.5049052622222222,19.80569573782484,1.2561983749999968,3.042353999999989
+split_00,0,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Outputs,25,13,0.52,15,0.7446180683333333,20.144555494838123,6.166084769230766,37.030945
+split_00,0,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Outputs+Controls,41,21,0.5121951219512195,24,1.206307534722222,19.895424101389295,4.295651857142854,37.030945
+split_00,0,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_00,0,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Battery,2,0,0.0,1,0.06345890611111113,15.758229400442001,,
+split_00,0,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Position.X,54,6,0.1111111111111111,11,0.9378571405555555,11.72886522299544,15.022913833333332,29.95837999999999
+split_00,0,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Position.Y,55,2,0.03636363636363636,15,1.0971975144444444,13.671193930470311,22.973523000000014,37.999277000000035
+split_00,0,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Position.Z,113,1,0.008849557522123894,22,1.4244670750000001,15.444372415557584,3.9614910000000094,3.9614910000000094
+split_00,0,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_00,0,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Controls,16,5,0.3125,18,0.5049052622222222,35.65025232808471,4.581550200000004,10.983381000000008
+split_00,0,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Outputs,25,9,0.36,28,0.7446180683333333,37.60317025703117,9.912981333333342,20.968072000000006
+split_00,0,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Outputs+Controls,41,14,0.34146341463414637,43,1.206307534722222,35.64596818165582,8.008898785714292,20.968072000000006
+split_00,0,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Thrust,2,2,1.0,0,0.06510427361111108,0.0,2.9948454999999967,3.0440260000000308
+split_00,0,channel_union,dengeli,cusum,advisory,8.0,4.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_00,0,channel_union,dengeli,cusum,advisory,8.0,4.0,Position.X,54,25,0.46296296296296297,82,0.9378571405555555,87.43335893505692,15.102347359999992,41.066805999999985
+split_00,0,channel_union,dengeli,cusum,advisory,8.0,4.0,Position.Y,55,31,0.5636363636363636,96,1.0971975144444444,87.49564115500999,11.931592516129031,39.003742999999986
+split_00,0,channel_union,dengeli,cusum,advisory,8.0,4.0,Position.Z,113,3,0.02654867256637168,14,1.4244670750000001,9.828236991718462,13.65479666666666,35.07483500000001
+split_00,0,channel_union,dengeli,cusum,advisory,8.0,4.0,Velocity,2,2,1.0,1,0.0036470161111110933,274.1967596340949,23.527728499999967,38.001544999999965
+split_00,0,channel_union,esit,threshold,critical,1.0,1.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_00,0,channel_union,esit,threshold,critical,1.0,1.0,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_00,0,channel_union,esit,threshold,critical,1.0,1.0,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_00,0,channel_union,esit,threshold,critical,1.0,1.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_00,0,channel_union,esit,threshold,critical,1.0,1.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_00,0,channel_union,esit,threshold,critical,1.0,1.0,Position.X,54,0,0.0,0,0.9378571405555555,0.0,,
+split_00,0,channel_union,esit,threshold,critical,1.0,1.0,Position.Y,55,0,0.0,0,1.0971975144444444,0.0,,
+split_00,0,channel_union,esit,threshold,critical,1.0,1.0,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_00,0,channel_union,esit,threshold,critical,1.0,1.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_00,0,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_00,0,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_00,0,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_00,0,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_00,0,channel_union,esit,k_of_n,critical,1.0,1.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_00,0,channel_union,esit,k_of_n,critical,1.0,1.0,Position.X,54,2,0.037037037037037035,5,0.9378571405555555,5.331302374088836,20.524343499999993,27.02733099999999
+split_00,0,channel_union,esit,k_of_n,critical,1.0,1.0,Position.Y,55,0,0.0,2,1.0971975144444444,1.8228258573960416,,
+split_00,0,channel_union,esit,k_of_n,critical,1.0,1.0,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_00,0,channel_union,esit,k_of_n,critical,1.0,1.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_00,0,channel_union,esit,cusum,critical,1.0,1.0,Actuator Controls,16,3,0.1875,8,0.5049052622222222,15.844556590259872,6.918583999999991,9.967937000000006
+split_00,0,channel_union,esit,cusum,critical,1.0,1.0,Actuator Outputs,25,5,0.2,12,0.7446180683333333,16.1156443958705,16.0282914,40.08121600000001
+split_00,0,channel_union,esit,cusum,critical,1.0,1.0,Actuator Outputs+Controls,41,8,0.1951219512195122,18,1.206307534722222,14.921568076041972,12.612151124999997,40.08121600000001
+split_00,0,channel_union,esit,cusum,critical,1.0,1.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_00,0,channel_union,esit,cusum,critical,1.0,1.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_00,0,channel_union,esit,cusum,critical,1.0,1.0,Position.X,54,15,0.2777777777777778,30,0.9378571405555555,31.987814244533016,37.66638199999999,77.12875600000001
+split_00,0,channel_union,esit,cusum,critical,1.0,1.0,Position.Y,55,19,0.34545454545454546,34,1.0971975144444444,30.988039575732707,14.90610710526316,63.92188300000004
+split_00,0,channel_union,esit,cusum,critical,1.0,1.0,Position.Z,113,0,0.0,3,1.4244670750000001,2.1060507839396707,,
+split_00,0,channel_union,esit,cusum,critical,1.0,1.0,Velocity,2,1,0.5,0,0.0036470161111110933,0.0,41.96792900000003,41.96792900000003
+split_00,0,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_00,0,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Outputs,25,0,0.0,3,0.7446180683333333,4.028911098967625,,
+split_00,0,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Outputs+Controls,41,0,0.0,3,1.206307534722222,2.486928012673662,,
+split_00,0,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_00,0,channel_union,esit,threshold,advisory,6.0,6.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_00,0,channel_union,esit,threshold,advisory,6.0,6.0,Position.X,54,5,0.09259259259259259,11,0.9378571405555555,11.72886522299544,21.912615600000002,33.531859999999995
+split_00,0,channel_union,esit,threshold,advisory,6.0,6.0,Position.Y,55,0,0.0,12,1.0971975144444444,10.936955144376249,,
+split_00,0,channel_union,esit,threshold,advisory,6.0,6.0,Position.Z,113,0,0.0,10,1.4244670750000001,7.020169279798902,,
+split_00,0,channel_union,esit,threshold,advisory,6.0,6.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_00,0,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Controls,16,7,0.4375,14,0.5049052622222222,27.727974032954776,1.2909657142857165,3.042353999999989
+split_00,0,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Outputs,25,12,0.48,24,0.7446180683333333,32.231288791741,3.009148583333335,6.005978999999968
+split_00,0,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Outputs+Controls,41,19,0.4634146341463415,35,1.206307534722222,29.01416014785939,2.376133842105265,6.005978999999968
+split_00,0,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_00,0,channel_union,esit,k_of_n,advisory,6.0,6.0,Battery,2,0,0.0,2,0.06345890611111113,31.516458800884003,,
+split_00,0,channel_union,esit,k_of_n,advisory,6.0,6.0,Position.X,54,6,0.1111111111111111,17,0.9378571405555555,18.126428071902044,14.870732499999995,29.95837999999999
+split_00,0,channel_union,esit,k_of_n,advisory,6.0,6.0,Position.Y,55,3,0.05454545454545454,19,1.0971975144444444,17.316845645262394,12.369171333333336,24.07812800000002
+split_00,0,channel_union,esit,k_of_n,advisory,6.0,6.0,Position.Z,113,2,0.017699115044247787,36,1.4244670750000001,25.272609407276047,1.9807455000000047,3.9614910000000094
+split_00,0,channel_union,esit,k_of_n,advisory,6.0,6.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_00,0,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Controls,16,2,0.125,25,0.5049052622222222,49.5142393445621,1.47649100000001,1.9360510000000204
+split_00,0,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Outputs,25,8,0.32,38,0.7446180683333333,51.032873920256584,8.504400750000007,21.965652000000034
+split_00,0,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Outputs+Controls,41,10,0.24390243902439024,59,1.206307534722222,48.90958424924868,7.098818800000008,21.965652000000034
+split_00,0,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Thrust,2,0,0.0,2,0.06510427361111108,30.719949537362908,,
+split_00,0,channel_union,esit,cusum,advisory,6.0,6.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_00,0,channel_union,esit,cusum,advisory,6.0,6.0,Position.X,54,20,0.37037037037037035,58,0.9378571405555555,61.8431075394305,16.216507649999983,62.099672999999996
+split_00,0,channel_union,esit,cusum,advisory,6.0,6.0,Position.Y,55,24,0.43636363636363634,77,1.0971975144444444,70.1787955097476,21.507689333333335,42.072312999999966
+split_00,0,channel_union,esit,cusum,advisory,6.0,6.0,Position.Z,113,2,0.017699115044247787,27,1.4244670750000001,18.954457055457038,2.486760500000008,3.051936000000012
+split_00,0,channel_union,esit,cusum,advisory,6.0,6.0,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,18.501068000000032,23.99349600000005
+split_01,1,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_01,1,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Outputs,25,0,0.0,1,0.7446180683333333,1.3429703663225416,,
+split_01,1,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Outputs+Controls,41,0,0.0,1,1.206307534722222,0.828976004224554,,
+split_01,1,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_01,1,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_01,1,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Position.X,54,0,0.0,0,0.9378571405555555,0.0,,
+split_01,1,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Position.Y,55,0,0.0,0,1.0971975144444444,0.0,,
+split_01,1,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Position.Z,113,0,0.0,3,1.4244670750000001,2.1060507839396707,,
+split_01,1,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_01,1,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Controls,16,8,0.5,10,0.5049052622222222,19.80569573782484,1.5099381250000015,3.042353999999989
+split_01,1,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Outputs,25,13,0.52,18,0.7446180683333333,24.17346659380575,6.166084769230766,37.030945
+split_01,1,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Outputs+Controls,41,21,0.5121951219512195,27,1.206307534722222,22.382352114062957,4.392314619047617,37.030945
+split_01,1,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_01,1,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Battery,2,0,0.0,2,0.06345890611111113,31.516458800884003,,
+split_01,1,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Position.X,54,6,0.1111111111111111,17,0.9378571405555555,18.126428071902044,15.022913833333332,29.95837999999999
+split_01,1,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Position.Y,55,1,0.01818181818181818,22,1.0971975144444444,20.051084431356458,7.947768999999994,7.947768999999994
+split_01,1,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Position.Z,113,1,0.008849557522123894,29,1.4244670750000001,20.358490911416816,3.9614910000000094,3.9614910000000094
+split_01,1,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_01,1,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Controls,16,6,0.375,21,0.5049052622222222,41.591961049432165,3.832693500000005,7.021542000000011
+split_01,1,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Outputs,25,9,0.36,31,0.7446180683333333,41.63208135599879,7.8872827777777745,18.008713999999998
+split_01,1,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Outputs+Controls,41,15,0.36585365853658536,49,1.206307534722222,40.61982420700314,6.265447066666667,18.008713999999998
+split_01,1,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Thrust,2,0,0.0,2,0.06510427361111108,30.719949537362908,,
+split_01,1,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_01,1,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Position.X,54,19,0.35185185185185186,55,0.9378571405555555,58.6443261149772,20.614529631578947,61.09803299999999
+split_01,1,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Position.Y,55,19,0.34545454545454546,75,1.0971975144444444,68.35596965235156,17.807880631578954,55.87771900000001
+split_01,1,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Position.Z,113,4,0.035398230088495575,27,1.4244670750000001,18.954457055457038,6.528523749999998,22.05043599999999
+split_01,1,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Velocity,2,1,0.5,0,0.0036470161111110933,0.0,26.00880600000005,26.00880600000005
+split_01,1,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_01,1,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Outputs,25,0,0.0,1,0.7446180683333333,1.3429703663225416,,
+split_01,1,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Outputs+Controls,41,0,0.0,1,1.206307534722222,0.828976004224554,,
+split_01,1,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_01,1,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_01,1,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Position.X,54,0,0.0,1,0.9378571405555555,1.066260474817767,,
+split_01,1,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Position.Y,55,0,0.0,3,1.0971975144444444,2.7342387860940622,,
+split_01,1,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Position.Z,113,0,0.0,7,1.4244670750000001,4.914118495859231,,
+split_01,1,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_01,1,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Controls,16,8,0.5,10,0.5049052622222222,19.80569573782484,1.2561983749999968,3.042353999999989
+split_01,1,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Outputs,25,13,0.52,26,0.7446180683333333,34.91722952438608,6.087903076923073,37.030945
+split_01,1,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Outputs+Controls,41,21,0.5121951219512195,34,1.206307534722222,28.185184143634835,4.247253666666663,37.030945
+split_01,1,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_01,1,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Battery,2,0,0.0,2,0.06345890611111113,31.516458800884003,,
+split_01,1,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Position.X,54,6,0.1111111111111111,20,0.9378571405555555,21.325209496355345,15.022913833333332,29.95837999999999
+split_01,1,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Position.Y,55,4,0.07272727272727272,23,1.0971975144444444,20.962497360054478,11.554056749999994,28.12325899999999
+split_01,1,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Position.Z,113,1,0.008849557522123894,40,1.4244670750000001,28.08067711919561,3.9614910000000094,3.9614910000000094
+split_01,1,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_01,1,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Controls,16,3,0.1875,34,0.5049052622222222,67.33936550860446,3.9959406666666646,6.000388999999984
+split_01,1,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Outputs,25,10,0.4,49,0.7446180683333333,65.80554794980453,8.7044517,25.12028700000002
+split_01,1,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Outputs+Controls,41,13,0.3170731707317073,79,1.206307534722222,65.48910433373976,7.617872230769231,25.12028700000002
+split_01,1,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Thrust,2,1,0.5,2,0.06510427361111108,30.719949537362908,0.9133319999999685,0.9133319999999685
+split_01,1,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Battery,2,0,0.0,1,0.06345890611111113,15.758229400442001,,
+split_01,1,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Position.X,54,28,0.5185185185185185,77,0.9378571405555555,82.10205656096808,10.655788535714278,48.939858
+split_01,1,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Position.Y,55,28,0.509090909090909,102,1.0971975144444444,92.96411872719813,18.335640678571433,50.99932000000001
+split_01,1,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Position.Z,113,7,0.061946902654867256,43,1.4244670750000001,30.18672790313528,7.871468857142853,41.07599499999998
+split_01,1,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,15.54867999999999,21.04154600000004
+split_01,1,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_01,1,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Outputs,25,0,0.0,1,0.7446180683333333,1.3429703663225416,,
+split_01,1,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Outputs+Controls,41,0,0.0,1,1.206307534722222,0.828976004224554,,
+split_01,1,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_01,1,channel_union,dengeli,threshold,critical,1.33,0.67,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_01,1,channel_union,dengeli,threshold,critical,1.33,0.67,Position.X,54,0,0.0,0,0.9378571405555555,0.0,,
+split_01,1,channel_union,dengeli,threshold,critical,1.33,0.67,Position.Y,55,0,0.0,0,1.0971975144444444,0.0,,
+split_01,1,channel_union,dengeli,threshold,critical,1.33,0.67,Position.Z,113,0,0.0,3,1.4244670750000001,2.1060507839396707,,
+split_01,1,channel_union,dengeli,threshold,critical,1.33,0.67,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_01,1,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Controls,16,8,0.5,10,0.5049052622222222,19.80569573782484,1.5099381250000015,3.042353999999989
+split_01,1,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Outputs,25,13,0.52,18,0.7446180683333333,24.17346659380575,6.166084769230766,37.030945
+split_01,1,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Outputs+Controls,41,21,0.5121951219512195,27,1.206307534722222,22.382352114062957,4.392314619047617,37.030945
+split_01,1,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_01,1,channel_union,dengeli,k_of_n,critical,1.33,0.67,Battery,2,0,0.0,2,0.06345890611111113,31.516458800884003,,
+split_01,1,channel_union,dengeli,k_of_n,critical,1.33,0.67,Position.X,54,6,0.1111111111111111,17,0.9378571405555555,18.126428071902044,15.022913833333332,29.95837999999999
+split_01,1,channel_union,dengeli,k_of_n,critical,1.33,0.67,Position.Y,55,1,0.01818181818181818,22,1.0971975144444444,20.051084431356458,7.947768999999994,7.947768999999994
+split_01,1,channel_union,dengeli,k_of_n,critical,1.33,0.67,Position.Z,113,1,0.008849557522123894,29,1.4244670750000001,20.358490911416816,3.9614910000000094,3.9614910000000094
+split_01,1,channel_union,dengeli,k_of_n,critical,1.33,0.67,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_01,1,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Controls,16,4,0.25,24,0.5049052622222222,47.53366977077962,3.736247750000004,8.850108999999975
+split_01,1,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Outputs,25,11,0.44,35,0.7446180683333333,47.00396282128896,10.736365999999999,29.00002699999999
+split_01,1,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Outputs+Controls,41,15,0.36585365853658536,56,1.206307534722222,46.42265623657502,8.8696678,29.00002699999999
+split_01,1,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Thrust,2,0,0.0,3,0.06510427361111108,46.07992430604436,,
+split_01,1,channel_union,dengeli,cusum,critical,1.33,0.67,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_01,1,channel_union,dengeli,cusum,critical,1.33,0.67,Position.X,54,20,0.37037037037037035,55,0.9378571405555555,58.6443261149772,21.76368625,67.10841199999999
+split_01,1,channel_union,dengeli,cusum,critical,1.33,0.67,Position.Y,55,22,0.4,74,1.0971975144444444,67.44455672365353,17.996673863636367,61.95455000000004
+split_01,1,channel_union,dengeli,cusum,critical,1.33,0.67,Position.Z,113,7,0.061946902654867256,28,1.4244670750000001,19.656473983436925,5.878893714285717,23.978379000000018
+split_01,1,channel_union,dengeli,cusum,critical,1.33,0.67,Velocity,2,1,0.5,0,0.0036470161111110933,0.0,28.041029999999978,28.041029999999978
+split_01,1,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_01,1,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Outputs,25,0,0.0,2,0.7446180683333333,2.6859407326450833,,
+split_01,1,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Outputs+Controls,41,0,0.0,2,1.206307534722222,1.657952008449108,,
+split_01,1,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_01,1,channel_union,dengeli,threshold,advisory,8.0,4.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_01,1,channel_union,dengeli,threshold,advisory,8.0,4.0,Position.X,54,0,0.0,2,0.9378571405555555,2.132520949635534,,
+split_01,1,channel_union,dengeli,threshold,advisory,8.0,4.0,Position.Y,55,0,0.0,4,1.0971975144444444,3.6456517147920833,,
+split_01,1,channel_union,dengeli,threshold,advisory,8.0,4.0,Position.Z,113,0,0.0,8,1.4244670750000001,5.616135423839122,,
+split_01,1,channel_union,dengeli,threshold,advisory,8.0,4.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_01,1,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Controls,16,7,0.4375,11,0.5049052622222222,21.786265311607323,1.435655285714282,3.042353999999989
+split_01,1,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Outputs,25,13,0.52,25,0.7446180683333333,33.57425915806354,5.930974461538456,37.030945
+split_01,1,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Outputs+Controls,41,20,0.4878048780487805,34,1.206307534722222,28.185184143634835,4.357612749999996,37.030945
+split_01,1,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_01,1,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Battery,2,0,0.0,2,0.06345890611111113,31.516458800884003,,
+split_01,1,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Position.X,54,6,0.1111111111111111,20,0.9378571405555555,21.325209496355345,14.870732499999995,29.95837999999999
+split_01,1,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Position.Y,55,4,0.07272727272727272,24,1.0971975144444444,21.873910288752498,11.554056749999994,28.12325899999999
+split_01,1,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Position.Z,113,1,0.008849557522123894,42,1.4244670750000001,29.48471097515539,3.9614910000000094,3.9614910000000094
+split_01,1,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_01,1,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Controls,16,3,0.1875,37,0.5049052622222222,73.28107422995191,2.3054243333333395,2.9506959999999935
+split_01,1,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Outputs,25,11,0.44,54,0.7446180683333333,72.52039978141725,10.284339636363642,24.001688
+split_01,1,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Outputs+Controls,41,14,0.34146341463414637,87,1.206307534722222,72.12091236753619,8.574572071428577,24.001688
+split_01,1,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Thrust,2,0,0.0,4,0.06510427361111108,61.439899074725815,,
+split_01,1,channel_union,dengeli,cusum,advisory,8.0,4.0,Battery,2,0,0.0,2,0.06345890611111113,31.516458800884003,,
+split_01,1,channel_union,dengeli,cusum,advisory,8.0,4.0,Position.X,54,27,0.5,83,0.9378571405555555,88.49961940987468,12.741853185185178,50.957589
+split_01,1,channel_union,dengeli,cusum,advisory,8.0,4.0,Position.Y,55,27,0.4909090909090909,109,1.0971975144444444,99.34400922808426,18.669198703703707,41.083173
+split_01,1,channel_union,dengeli,cusum,advisory,8.0,4.0,Position.Z,113,7,0.061946902654867256,46,1.4244670750000001,32.29277868707495,2.8424387142857177,7.003358999999989
+split_01,1,channel_union,dengeli,cusum,advisory,8.0,4.0,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,16.515683000000024,22.059698000000026
+split_01,1,channel_union,esit,threshold,critical,1.0,1.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_01,1,channel_union,esit,threshold,critical,1.0,1.0,Actuator Outputs,25,0,0.0,1,0.7446180683333333,1.3429703663225416,,
+split_01,1,channel_union,esit,threshold,critical,1.0,1.0,Actuator Outputs+Controls,41,0,0.0,1,1.206307534722222,0.828976004224554,,
+split_01,1,channel_union,esit,threshold,critical,1.0,1.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_01,1,channel_union,esit,threshold,critical,1.0,1.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_01,1,channel_union,esit,threshold,critical,1.0,1.0,Position.X,54,0,0.0,0,0.9378571405555555,0.0,,
+split_01,1,channel_union,esit,threshold,critical,1.0,1.0,Position.Y,55,0,0.0,0,1.0971975144444444,0.0,,
+split_01,1,channel_union,esit,threshold,critical,1.0,1.0,Position.Z,113,0,0.0,3,1.4244670750000001,2.1060507839396707,,
+split_01,1,channel_union,esit,threshold,critical,1.0,1.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_01,1,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Controls,16,8,0.5,10,0.5049052622222222,19.80569573782484,1.5099381250000015,3.042353999999989
+split_01,1,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Outputs,25,13,0.52,18,0.7446180683333333,24.17346659380575,6.166084769230766,37.030945
+split_01,1,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Outputs+Controls,41,21,0.5121951219512195,27,1.206307534722222,22.382352114062957,4.392314619047617,37.030945
+split_01,1,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_01,1,channel_union,esit,k_of_n,critical,1.0,1.0,Battery,2,0,0.0,2,0.06345890611111113,31.516458800884003,,
+split_01,1,channel_union,esit,k_of_n,critical,1.0,1.0,Position.X,54,6,0.1111111111111111,17,0.9378571405555555,18.126428071902044,15.022913833333332,29.95837999999999
+split_01,1,channel_union,esit,k_of_n,critical,1.0,1.0,Position.Y,55,1,0.01818181818181818,22,1.0971975144444444,20.051084431356458,7.947768999999994,7.947768999999994
+split_01,1,channel_union,esit,k_of_n,critical,1.0,1.0,Position.Z,113,1,0.008849557522123894,29,1.4244670750000001,20.358490911416816,3.9614910000000094,3.9614910000000094
+split_01,1,channel_union,esit,k_of_n,critical,1.0,1.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_01,1,channel_union,esit,cusum,critical,1.0,1.0,Actuator Controls,16,3,0.1875,27,0.5049052622222222,53.47537849212707,3.6585039999999935,4.9832309999999325
+split_01,1,channel_union,esit,cusum,critical,1.0,1.0,Actuator Outputs,25,10,0.4,39,0.7446180683333333,52.375844286579124,9.682057900000006,23.90330700000004
+split_01,1,channel_union,esit,cusum,critical,1.0,1.0,Actuator Outputs+Controls,41,13,0.3170731707317073,62,1.206307534722222,51.39651226192235,8.292007000000002,23.90330700000004
+split_01,1,channel_union,esit,cusum,critical,1.0,1.0,Actuator Thrust,2,1,0.5,2,0.06510427361111108,30.719949537362908,3.9617279999999937,3.9617279999999937
+split_01,1,channel_union,esit,cusum,critical,1.0,1.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_01,1,channel_union,esit,cusum,critical,1.0,1.0,Position.X,54,22,0.4074074074074074,53,0.9378571405555555,56.51180516534166,18.703654636363627,60.070460000000026
+split_01,1,channel_union,esit,cusum,critical,1.0,1.0,Position.Y,55,24,0.43636363636363634,75,1.0971975144444444,68.35596965235156,18.057888624999997,37.999277000000035
+split_01,1,channel_union,esit,cusum,critical,1.0,1.0,Position.Z,113,2,0.017699115044247787,34,1.4244670750000001,23.86857555131627,4.52453899999999,4.980758999999978
+split_01,1,channel_union,esit,cusum,critical,1.0,1.0,Velocity,2,1,0.5,0,0.0036470161111110933,0.0,30.987881000000016,30.987881000000016
+split_01,1,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Controls,16,15,0.9375,5,0.5049052622222222,9.90284786891242,1.4030201333333403,4.9839170000000195
+split_01,1,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Outputs,25,22,0.88,7,0.7446180683333333,9.400792564257792,4.319060545454545,16.997465999999974
+split_01,1,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Outputs+Controls,41,37,0.9024390243902439,9,1.206307534722222,7.460784038020986,3.1368820000000026,16.997465999999974
+split_01,1,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,0.9133319999999685,0.9133319999999685
+split_01,1,channel_union,esit,threshold,advisory,6.0,6.0,Battery,2,0,0.0,3,0.06345890611111113,47.27468820132601,,
+split_01,1,channel_union,esit,threshold,advisory,6.0,6.0,Position.X,54,6,0.1111111111111111,26,0.9378571405555555,27.722772345261948,19.108267,33.531859999999995
+split_01,1,channel_union,esit,threshold,advisory,6.0,6.0,Position.Y,55,1,0.01818181818181818,24,1.0971975144444444,21.873910288752498,1.0152009999999905,1.0152009999999905
+split_01,1,channel_union,esit,threshold,advisory,6.0,6.0,Position.Z,113,0,0.0,20,1.4244670750000001,14.040338559597805,,
+split_01,1,channel_union,esit,threshold,advisory,6.0,6.0,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,45.01921199999998,88.00460499999997
+split_01,1,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Controls,16,7,0.4375,11,0.5049052622222222,21.786265311607323,1.435655285714282,3.042353999999989
+split_01,1,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Outputs,25,13,0.52,26,0.7446180683333333,34.91722952438608,5.930974461538456,37.030945
+split_01,1,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Outputs+Controls,41,20,0.4878048780487805,35,1.206307534722222,29.01416014785939,4.357612749999996,37.030945
+split_01,1,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_01,1,channel_union,esit,k_of_n,advisory,6.0,6.0,Battery,2,0,0.0,2,0.06345890611111113,31.516458800884003,,
+split_01,1,channel_union,esit,k_of_n,advisory,6.0,6.0,Position.X,54,6,0.1111111111111111,20,0.9378571405555555,21.325209496355345,14.870732499999995,29.95837999999999
+split_01,1,channel_union,esit,k_of_n,advisory,6.0,6.0,Position.Y,55,4,0.07272727272727272,24,1.0971975144444444,21.873910288752498,11.554056749999994,28.12325899999999
+split_01,1,channel_union,esit,k_of_n,advisory,6.0,6.0,Position.Z,113,1,0.008849557522123894,43,1.4244670750000001,30.18672790313528,3.9614910000000094,3.9614910000000094
+split_01,1,channel_union,esit,k_of_n,advisory,6.0,6.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_01,1,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Controls,16,6,0.375,41,0.5049052622222222,81.20335252508185,4.8310844999999984,10.988866999999999
+split_01,1,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Outputs,25,14,0.56,61,0.7446180683333333,81.92119234567504,5.719343214285717,28.991223000000048
+split_01,1,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Outputs+Controls,41,20,0.4878048780487805,97,1.206307534722222,80.41067240978172,5.452865600000001,28.991223000000048
+split_01,1,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Thrust,2,1,0.5,4,0.06510427361111108,61.439899074725815,0.0,0.0
+split_01,1,channel_union,esit,cusum,advisory,6.0,6.0,Battery,2,0,0.0,2,0.06345890611111113,31.516458800884003,,
+split_01,1,channel_union,esit,cusum,advisory,6.0,6.0,Position.X,54,23,0.42592592592592593,102,0.9378571405555555,108.75856843141226,14.799905869565222,49.952061000000015
+split_01,1,channel_union,esit,cusum,advisory,6.0,6.0,Position.Y,55,27,0.4909090909090909,117,1.0971975144444444,106.63531265766844,16.658159777777776,44.87795799999999
+split_01,1,channel_union,esit,cusum,advisory,6.0,6.0,Position.Z,113,4,0.035398230088495575,69,1.4244670750000001,48.43916803061243,3.9900417500000014,9.955193000000008
+split_01,1,channel_union,esit,cusum,advisory,6.0,6.0,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,19.51599349999998,25.009048000000007
+split_02,2,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_02,2,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Outputs,25,0,0.0,3,0.7446180683333333,4.028911098967625,,
+split_02,2,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Outputs+Controls,41,0,0.0,3,1.206307534722222,2.486928012673662,,
+split_02,2,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_02,2,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_02,2,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Position.X,54,0,0.0,2,0.9378571405555555,2.132520949635534,,
+split_02,2,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Position.Y,55,0,0.0,3,1.0971975144444444,2.7342387860940622,,
+split_02,2,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Position.Z,113,0,0.0,3,1.4244670750000001,2.1060507839396707,,
+split_02,2,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_02,2,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Controls,16,14,0.875,0,0.5049052622222222,0.0,2.7739189999999945,6.004818
+split_02,2,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Outputs,25,19,0.76,1,0.7446180683333333,1.3429703663225416,6.050070105263156,18.930746
+split_02,2,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Outputs+Controls,41,33,0.8048780487804879,0,1.206307534722222,0.0,4.660187818181815,18.930746
+split_02,2,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,2.9456649999999627,2.9456649999999627
+split_02,2,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_02,2,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Position.X,54,5,0.09259259259259259,8,0.9378571405555555,8.530083798542137,20.513204800000004,34.552909
+split_02,2,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Position.Y,55,0,0.0,5,1.0971975144444444,4.557064643490104,,
+split_02,2,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_02,2,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_02,2,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Controls,16,6,0.375,42,0.5049052622222222,83.18392209886433,3.3553911666666636,7.020643000000007
+split_02,2,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Outputs,25,16,0.64,54,0.7446180683333333,72.52039978141725,4.085716937499999,13.01921299999998
+split_02,2,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Outputs+Controls,41,22,0.5365853658536586,92,1.206307534722222,76.26579238865897,3.88653718181818,13.01921299999998
+split_02,2,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Thrust,2,2,1.0,3,0.06510427361111108,46.07992430604436,1.9786789999999996,3.0440260000000308
+split_02,2,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Battery,2,0,0.0,4,0.06345890611111113,63.032917601768006,,
+split_02,2,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Position.X,54,26,0.48148148148148145,94,0.9378571405555555,100.22848463287012,16.248022730769232,60.003401
+split_02,2,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Position.Y,55,31,0.5636363636363636,105,1.0971975144444444,95.69835751329218,16.55460338709678,39.049182
+split_02,2,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Position.Z,113,6,0.05309734513274336,62,1.4244670750000001,43.525049534753194,7.806721499999998,28.945602000000008
+split_02,2,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,28.506080499999996,30.987881000000016
+split_02,2,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_02,2,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Outputs,25,0,0.0,3,0.7446180683333333,4.028911098967625,,
+split_02,2,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Outputs+Controls,41,0,0.0,3,1.206307534722222,2.486928012673662,,
+split_02,2,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_02,2,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_02,2,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Position.X,54,0,0.0,2,0.9378571405555555,2.132520949635534,,
+split_02,2,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Position.Y,55,0,0.0,3,1.0971975144444444,2.7342387860940622,,
+split_02,2,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Position.Z,113,0,0.0,3,1.4244670750000001,2.1060507839396707,,
+split_02,2,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_02,2,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Controls,16,14,0.875,0,0.5049052622222222,0.0,2.7739189999999945,6.004818
+split_02,2,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Outputs,25,19,0.76,1,0.7446180683333333,1.3429703663225416,6.050070105263156,18.930746
+split_02,2,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Outputs+Controls,41,33,0.8048780487804879,0,1.206307534722222,0.0,4.660187818181815,18.930746
+split_02,2,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,2.9456649999999627,2.9456649999999627
+split_02,2,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_02,2,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Position.X,54,5,0.09259259259259259,8,0.9378571405555555,8.530083798542137,20.513204800000004,34.552909
+split_02,2,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Position.Y,55,0,0.0,5,1.0971975144444444,4.557064643490104,,
+split_02,2,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_02,2,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_02,2,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Controls,16,5,0.3125,53,0.5049052622222222,104.97018741047165,3.5813456000000143,6.011892000000046
+split_02,2,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Outputs,25,12,0.48,79,0.7446180683333333,106.0946589394808,6.093981499999998,28.983925
+split_02,2,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Outputs+Controls,41,17,0.4146341463414634,127,1.206307534722222,105.27995253651835,5.354970941176473,28.983925
+split_02,2,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Thrust,2,0,0.0,6,0.06510427361111108,92.15984861208872,,
+split_02,2,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Battery,2,0,0.0,6,0.06345890611111113,94.54937640265202,,
+split_02,2,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Position.X,54,21,0.3888888888888889,133,0.9378571405555555,141.81264315076302,13.24805309523808,44.077178
+split_02,2,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Position.Y,55,33,0.6,155,1.0971975144444444,141.26900394819322,13.068459060606056,41.08004299999999
+split_02,2,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Position.Z,113,10,0.08849557522123894,93,1.4244670750000001,65.2875743021298,6.920012100000005,35.07483500000001
+split_02,2,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,18.542857000000026,21.027916000000005
+split_02,2,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_02,2,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Outputs,25,0,0.0,3,0.7446180683333333,4.028911098967625,,
+split_02,2,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Outputs+Controls,41,0,0.0,3,1.206307534722222,2.486928012673662,,
+split_02,2,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_02,2,channel_union,dengeli,threshold,critical,1.33,0.67,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_02,2,channel_union,dengeli,threshold,critical,1.33,0.67,Position.X,54,0,0.0,2,0.9378571405555555,2.132520949635534,,
+split_02,2,channel_union,dengeli,threshold,critical,1.33,0.67,Position.Y,55,0,0.0,3,1.0971975144444444,2.7342387860940622,,
+split_02,2,channel_union,dengeli,threshold,critical,1.33,0.67,Position.Z,113,0,0.0,3,1.4244670750000001,2.1060507839396707,,
+split_02,2,channel_union,dengeli,threshold,critical,1.33,0.67,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_02,2,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Controls,16,14,0.875,0,0.5049052622222222,0.0,2.7739189999999945,6.004818
+split_02,2,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Outputs,25,19,0.76,1,0.7446180683333333,1.3429703663225416,6.050070105263156,18.930746
+split_02,2,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Outputs+Controls,41,33,0.8048780487804879,0,1.206307534722222,0.0,4.660187818181815,18.930746
+split_02,2,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,2.9456649999999627,2.9456649999999627
+split_02,2,channel_union,dengeli,k_of_n,critical,1.33,0.67,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_02,2,channel_union,dengeli,k_of_n,critical,1.33,0.67,Position.X,54,5,0.09259259259259259,8,0.9378571405555555,8.530083798542137,20.513204800000004,34.552909
+split_02,2,channel_union,dengeli,k_of_n,critical,1.33,0.67,Position.Y,55,0,0.0,5,1.0971975144444444,4.557064643490104,,
+split_02,2,channel_union,dengeli,k_of_n,critical,1.33,0.67,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_02,2,channel_union,dengeli,k_of_n,critical,1.33,0.67,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_02,2,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Controls,16,6,0.375,41,0.5049052622222222,81.20335252508185,2.508043999999984,4.985899999999958
+split_02,2,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Outputs,25,14,0.56,57,0.7446180683333333,76.54931088038488,6.726966857142855,30.012653
+split_02,2,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Outputs+Controls,41,20,0.4878048780487805,94,1.206307534722222,77.92374439710807,5.461289999999994,30.012653
+split_02,2,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Thrust,2,1,0.5,4,0.06510427361111108,61.439899074725815,0.0,0.0
+split_02,2,channel_union,dengeli,cusum,critical,1.33,0.67,Battery,2,0,0.0,4,0.06345890611111113,63.032917601768006,,
+split_02,2,channel_union,dengeli,cusum,critical,1.33,0.67,Position.X,54,27,0.5,90,0.9378571405555555,95.96344273359905,14.871236333333322,56.02954500000001
+split_02,2,channel_union,dengeli,cusum,critical,1.33,0.67,Position.Y,55,31,0.5636363636363636,115,1.0971975144444444,104.8124868002724,16.073562645161292,44.937543000000005
+split_02,2,channel_union,dengeli,cusum,critical,1.33,0.67,Position.Z,113,6,0.05309734513274336,66,1.4244670750000001,46.33311724667276,8.483165166666659,22.032673999999986
+split_02,2,channel_union,dengeli,cusum,critical,1.33,0.67,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,29.526452500000005,32.006227999999965
+split_02,2,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Controls,16,15,0.9375,0,0.5049052622222222,0.0,2.460887999999996,7.021542000000011
+split_02,2,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Outputs,25,19,0.76,4,0.7446180683333333,5.3718814652901665,4.963193052631579,18.010423000000003
+split_02,2,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Outputs+Controls,41,34,0.8292682926829268,3,1.206307534722222,2.486928012673662,3.859234941176469,18.010423000000003
+split_02,2,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_02,2,channel_union,dengeli,threshold,advisory,8.0,4.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_02,2,channel_union,dengeli,threshold,advisory,8.0,4.0,Position.X,54,1,0.018518518518518517,6,0.9378571405555555,6.397562848906603,5.086523999999997,5.086523999999997
+split_02,2,channel_union,dengeli,threshold,advisory,8.0,4.0,Position.Y,55,0,0.0,6,1.0971975144444444,5.4684775721881245,,
+split_02,2,channel_union,dengeli,threshold,advisory,8.0,4.0,Position.Z,113,0,0.0,7,1.4244670750000001,4.914118495859231,,
+split_02,2,channel_union,dengeli,threshold,advisory,8.0,4.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_02,2,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Controls,16,12,0.75,2,0.5049052622222222,3.961139147564968,2.320839916666666,3.9712860000000205
+split_02,2,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Outputs,25,18,0.72,4,0.7446180683333333,5.3718814652901665,6.007218611111105,18.930746
+split_02,2,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Outputs+Controls,41,30,0.7317073170731707,4,1.206307534722222,3.315904016898216,4.532667133333329,18.930746
+split_02,2,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,2.9456649999999627,2.9456649999999627
+split_02,2,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Battery,2,0,0.0,1,0.06345890611111113,15.758229400442001,,
+split_02,2,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Position.X,54,4,0.07407407407407407,9,0.9378571405555555,9.596344273359906,12.267246,27.02733099999999
+split_02,2,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Position.Y,55,0,0.0,8,1.0971975144444444,7.2913034295841666,,
+split_02,2,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Position.Z,113,0,0.0,1,1.4244670750000001,0.7020169279798902,,
+split_02,2,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_02,2,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Controls,16,6,0.375,51,0.5049052622222222,101.00904826290669,2.3229265000000034,12.00824399999999
+split_02,2,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Outputs,25,10,0.4,78,0.7446180683333333,104.75168857315825,9.9301467,34.08834999999999
+split_02,2,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Outputs+Controls,41,16,0.3902439024390244,124,1.206307534722222,102.7930245238447,7.0774391250000015,34.08834999999999
+split_02,2,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Thrust,2,0,0.0,6,0.06510427361111108,92.15984861208872,,
+split_02,2,channel_union,dengeli,cusum,advisory,8.0,4.0,Battery,2,0,0.0,6,0.06345890611111113,94.54937640265202,,
+split_02,2,channel_union,dengeli,cusum,advisory,8.0,4.0,Position.X,54,27,0.5,129,0.9378571405555555,137.54760125149195,12.709924148148136,45.101512
+split_02,2,channel_union,dengeli,cusum,advisory,8.0,4.0,Position.Y,55,33,0.6,154,1.0971975144444444,140.3575910194952,14.574834606060602,46.94596899999999
+split_02,2,channel_union,dengeli,cusum,advisory,8.0,4.0,Position.Z,113,8,0.07079646017699115,104,1.4244670750000001,73.00976050990859,9.264204124999985,46.060014000000024
+split_02,2,channel_union,dengeli,cusum,advisory,8.0,4.0,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,14.021281999999985,23.975864
+split_02,2,channel_union,esit,threshold,critical,1.0,1.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_02,2,channel_union,esit,threshold,critical,1.0,1.0,Actuator Outputs,25,0,0.0,3,0.7446180683333333,4.028911098967625,,
+split_02,2,channel_union,esit,threshold,critical,1.0,1.0,Actuator Outputs+Controls,41,0,0.0,3,1.206307534722222,2.486928012673662,,
+split_02,2,channel_union,esit,threshold,critical,1.0,1.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_02,2,channel_union,esit,threshold,critical,1.0,1.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_02,2,channel_union,esit,threshold,critical,1.0,1.0,Position.X,54,0,0.0,2,0.9378571405555555,2.132520949635534,,
+split_02,2,channel_union,esit,threshold,critical,1.0,1.0,Position.Y,55,0,0.0,3,1.0971975144444444,2.7342387860940622,,
+split_02,2,channel_union,esit,threshold,critical,1.0,1.0,Position.Z,113,0,0.0,3,1.4244670750000001,2.1060507839396707,,
+split_02,2,channel_union,esit,threshold,critical,1.0,1.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_02,2,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Controls,16,14,0.875,0,0.5049052622222222,0.0,2.7739189999999945,6.004818
+split_02,2,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Outputs,25,19,0.76,1,0.7446180683333333,1.3429703663225416,6.050070105263156,18.930746
+split_02,2,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Outputs+Controls,41,33,0.8048780487804879,0,1.206307534722222,0.0,4.660187818181815,18.930746
+split_02,2,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,2.9456649999999627,2.9456649999999627
+split_02,2,channel_union,esit,k_of_n,critical,1.0,1.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_02,2,channel_union,esit,k_of_n,critical,1.0,1.0,Position.X,54,5,0.09259259259259259,8,0.9378571405555555,8.530083798542137,20.513204800000004,34.552909
+split_02,2,channel_union,esit,k_of_n,critical,1.0,1.0,Position.Y,55,0,0.0,5,1.0971975144444444,4.557064643490104,,
+split_02,2,channel_union,esit,k_of_n,critical,1.0,1.0,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_02,2,channel_union,esit,k_of_n,critical,1.0,1.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_02,2,channel_union,esit,cusum,critical,1.0,1.0,Actuator Controls,16,4,0.25,45,0.5049052622222222,89.12563082021178,6.739288999999985,21.97924499999999
+split_02,2,channel_union,esit,cusum,critical,1.0,1.0,Actuator Outputs,25,13,0.52,59,0.7446180683333333,79.23525161302996,8.990712923076925,29.804061000000047
+split_02,2,channel_union,esit,cusum,critical,1.0,1.0,Actuator Outputs+Controls,41,17,0.4146341463414634,99,1.206307534722222,82.06862441823084,8.460966117647057,29.804061000000047
+split_02,2,channel_union,esit,cusum,critical,1.0,1.0,Actuator Thrust,2,0,0.0,5,0.06510427361111108,76.79987384340727,,
+split_02,2,channel_union,esit,cusum,critical,1.0,1.0,Battery,2,0,0.0,4,0.06345890611111113,63.032917601768006,,
+split_02,2,channel_union,esit,cusum,critical,1.0,1.0,Position.X,54,27,0.5,82,0.9378571405555555,87.43335893505692,14.029061407407406,53.08285900000001
+split_02,2,channel_union,esit,cusum,critical,1.0,1.0,Position.Y,55,31,0.5636363636363636,111,1.0971975144444444,101.1668350854803,16.454076225806453,43.921579000000065
+split_02,2,channel_union,esit,cusum,critical,1.0,1.0,Position.Z,113,7,0.061946902654867256,69,1.4244670750000001,48.43916803061243,5.4141404285714225,18.988068999999996
+split_02,2,channel_union,esit,cusum,critical,1.0,1.0,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,31.559769999999958,34.04000199999996
+split_02,2,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Controls,16,15,0.9375,0,0.5049052622222222,0.0,2.460887999999996,7.021542000000011
+split_02,2,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Outputs,25,19,0.76,4,0.7446180683333333,5.3718814652901665,4.963193052631579,18.010423000000003
+split_02,2,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Outputs+Controls,41,34,0.8292682926829268,3,1.206307534722222,2.486928012673662,3.859234941176469,18.010423000000003
+split_02,2,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_02,2,channel_union,esit,threshold,advisory,6.0,6.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_02,2,channel_union,esit,threshold,advisory,6.0,6.0,Position.X,54,1,0.018518518518518517,6,0.9378571405555555,6.397562848906603,5.086523999999997,5.086523999999997
+split_02,2,channel_union,esit,threshold,advisory,6.0,6.0,Position.Y,55,0,0.0,6,1.0971975144444444,5.4684775721881245,,
+split_02,2,channel_union,esit,threshold,advisory,6.0,6.0,Position.Z,113,0,0.0,7,1.4244670750000001,4.914118495859231,,
+split_02,2,channel_union,esit,threshold,advisory,6.0,6.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_02,2,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Controls,16,12,0.75,2,0.5049052622222222,3.961139147564968,2.320839916666666,3.9712860000000205
+split_02,2,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Outputs,25,18,0.72,4,0.7446180683333333,5.3718814652901665,6.007218611111105,18.930746
+split_02,2,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Outputs+Controls,41,30,0.7317073170731707,4,1.206307534722222,3.315904016898216,4.532667133333329,18.930746
+split_02,2,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,2.9456649999999627,2.9456649999999627
+split_02,2,channel_union,esit,k_of_n,advisory,6.0,6.0,Battery,2,0,0.0,1,0.06345890611111113,15.758229400442001,,
+split_02,2,channel_union,esit,k_of_n,advisory,6.0,6.0,Position.X,54,4,0.07407407407407407,9,0.9378571405555555,9.596344273359906,12.267246,27.02733099999999
+split_02,2,channel_union,esit,k_of_n,advisory,6.0,6.0,Position.Y,55,0,0.0,8,1.0971975144444444,7.2913034295841666,,
+split_02,2,channel_union,esit,k_of_n,advisory,6.0,6.0,Position.Z,113,0,0.0,1,1.4244670750000001,0.7020169279798902,,
+split_02,2,channel_union,esit,k_of_n,advisory,6.0,6.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_02,2,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Controls,16,2,0.125,57,0.5049052622222222,112.8924657056016,1.928855499999969,2.94571899999994
+split_02,2,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Outputs,25,11,0.44,81,0.7446180683333333,108.78059967212587,12.10637436363636,33.06751700000001
+split_02,2,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Outputs+Controls,41,13,0.3170731707317073,133,1.206307534722222,110.25380856186567,10.540602230769224,33.06751700000001
+split_02,2,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Thrust,2,1,0.5,5,0.06510427361111108,76.79987384340727,2.9456649999999627,2.9456649999999627
+split_02,2,channel_union,esit,cusum,advisory,6.0,6.0,Battery,2,0,0.0,5,0.06345890611111113,78.79114700221001,,
+split_02,2,channel_union,esit,cusum,advisory,6.0,6.0,Position.X,54,33,0.6111111111111112,121,0.9378571405555555,129.01751745294982,14.66045578787878,50.957589
+split_02,2,channel_union,esit,cusum,advisory,6.0,6.0,Position.Y,55,29,0.5272727272727272,150,1.0971975144444444,136.71193930470312,15.681071724137935,36.00824899999999
+split_02,2,channel_union,esit,cusum,advisory,6.0,6.0,Position.Z,113,7,0.061946902654867256,102,1.4244670750000001,71.6057266539488,3.310413428571401,8.036707000000007
+split_02,2,channel_union,esit,cusum,advisory,6.0,6.0,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,15.546902999999986,27.027106000000003
+split_03,3,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Controls,16,15,0.9375,4,0.5049052622222222,7.922278295129936,1.0708069333333374,2.942397999999997
+split_03,3,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Outputs,25,22,0.88,7,0.7446180683333333,9.400792564257792,4.000172636363633,16.997465999999974
+split_03,3,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Outputs+Controls,41,37,0.9024390243902439,8,1.206307534722222,6.631808033796432,2.812591945945946,16.997465999999974
+split_03,3,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,0.9133319999999685,0.9133319999999685
+split_03,3,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_03,3,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Position.X,54,6,0.1111111111111111,18,0.9378571405555555,19.19268854671981,19.108267,33.531859999999995
+split_03,3,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Position.Y,55,0,0.0,15,1.0971975144444444,13.671193930470311,,
+split_03,3,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Position.Z,113,0,0.0,11,1.4244670750000001,7.722186207778792,,
+split_03,3,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_03,3,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Controls,16,6,0.375,14,0.5049052622222222,27.727974032954776,1.5061266666666693,3.042353999999989
+split_03,3,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Outputs,25,9,0.36,29,0.7446180683333333,38.946140623353706,3.447051,6.005978999999968
+split_03,3,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Outputs+Controls,41,15,0.36585365853658536,41,1.206307534722222,33.98801617320671,2.670681266666668,6.005978999999968
+split_03,3,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_03,3,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Battery,2,0,0.0,2,0.06345890611111113,31.516458800884003,,
+split_03,3,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Position.X,54,6,0.1111111111111111,21,0.9378571405555555,22.391469971173112,14.870732499999995,29.95837999999999
+split_03,3,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Position.Y,55,4,0.07272727272727272,23,1.0971975144444444,20.962497360054478,10.289690999999998,23.065796000000006
+split_03,3,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Position.Z,113,2,0.017699115044247787,46,1.4244670750000001,32.29277868707495,1.9807455000000047,3.9614910000000094
+split_03,3,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_03,3,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Controls,16,5,0.3125,25,0.5049052622222222,49.5142393445621,3.7845784000000093,6.004886000000056
+split_03,3,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Outputs,25,12,0.48,35,0.7446180683333333,47.00396282128896,7.807278666666664,21.969577999999956
+split_03,3,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Outputs+Controls,41,17,0.4146341463414634,57,1.206307534722222,47.25163224079957,6.624131529411765,21.969577999999956
+split_03,3,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Thrust,2,0,0.0,5,0.06510427361111108,76.79987384340727,,
+split_03,3,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Battery,2,0,0.0,4,0.06345890611111113,63.032917601768006,,
+split_03,3,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Position.X,54,23,0.42592592592592593,56,0.9378571405555555,59.710586589794964,19.73660926086955,50.08316300000001
+split_03,3,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Position.Y,55,22,0.4,76,1.0971975144444444,69.26738258104957,16.747848500000007,55.87771900000001
+split_03,3,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Position.Z,113,9,0.07964601769911504,47,1.4244670750000001,32.99479561505484,8.582863444444452,41.99761000000001
+split_03,3,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Velocity,2,1,0.5,0,0.0036470161111110933,0.0,23.975864,23.975864
+split_03,3,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Controls,16,15,0.9375,4,0.5049052622222222,7.922278295129936,1.0708069333333374,2.942397999999997
+split_03,3,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Outputs,25,22,0.88,7,0.7446180683333333,9.400792564257792,4.000172636363633,16.997465999999974
+split_03,3,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Outputs+Controls,41,37,0.9024390243902439,8,1.206307534722222,6.631808033796432,2.812591945945946,16.997465999999974
+split_03,3,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,0.9133319999999685,0.9133319999999685
+split_03,3,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_03,3,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Position.X,54,6,0.1111111111111111,18,0.9378571405555555,19.19268854671981,19.108267,33.531859999999995
+split_03,3,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Position.Y,55,0,0.0,15,1.0971975144444444,13.671193930470311,,
+split_03,3,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Position.Z,113,0,0.0,11,1.4244670750000001,7.722186207778792,,
+split_03,3,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_03,3,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Controls,16,6,0.375,14,0.5049052622222222,27.727974032954776,1.5061266666666693,3.042353999999989
+split_03,3,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Outputs,25,9,0.36,29,0.7446180683333333,38.946140623353706,3.447051,6.005978999999968
+split_03,3,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Outputs+Controls,41,15,0.36585365853658536,41,1.206307534722222,33.98801617320671,2.670681266666668,6.005978999999968
+split_03,3,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_03,3,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Battery,2,0,0.0,2,0.06345890611111113,31.516458800884003,,
+split_03,3,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Position.X,54,6,0.1111111111111111,21,0.9378571405555555,22.391469971173112,14.870732499999995,29.95837999999999
+split_03,3,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Position.Y,55,4,0.07272727272727272,23,1.0971975144444444,20.962497360054478,10.289690999999998,23.065796000000006
+split_03,3,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Position.Z,113,2,0.017699115044247787,46,1.4244670750000001,32.29277868707495,1.9807455000000047,3.9614910000000094
+split_03,3,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_03,3,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Controls,16,4,0.25,40,0.5049052622222222,79.22278295129937,3.5092044999999956,5.0850169999999935
+split_03,3,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Outputs,25,12,0.48,60,0.7446180683333333,80.57822197935249,6.41729741666667,20.95281700000004
+split_03,3,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Outputs+Controls,41,16,0.3902439024390244,96,1.206307534722222,79.58169640555718,5.690274187500001,20.95281700000004
+split_03,3,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Thrust,2,1,0.5,6,0.06510427361111108,92.15984861208872,2.9456649999999627,2.9456649999999627
+split_03,3,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Battery,2,0,0.0,5,0.06345890611111113,78.79114700221001,,
+split_03,3,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Position.X,54,27,0.5,82,0.9378571405555555,87.43335893505692,10.491826407407407,47.12299499999999
+split_03,3,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Position.Y,55,31,0.5636363636363636,100,1.0971975144444444,91.14129286980207,13.322693161290323,48.97536600000001
+split_03,3,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Position.Z,113,14,0.12389380530973451,66,1.4244670750000001,46.33311724667276,14.218029285714291,47.077721
+split_03,3,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,13.517432999999983,20.026108000000022
+split_03,3,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Controls,16,15,0.9375,4,0.5049052622222222,7.922278295129936,1.0708069333333374,2.942397999999997
+split_03,3,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Outputs,25,22,0.88,7,0.7446180683333333,9.400792564257792,4.000172636363633,16.997465999999974
+split_03,3,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Outputs+Controls,41,37,0.9024390243902439,8,1.206307534722222,6.631808033796432,2.812591945945946,16.997465999999974
+split_03,3,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,0.9133319999999685,0.9133319999999685
+split_03,3,channel_union,dengeli,threshold,critical,1.33,0.67,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_03,3,channel_union,dengeli,threshold,critical,1.33,0.67,Position.X,54,6,0.1111111111111111,18,0.9378571405555555,19.19268854671981,19.108267,33.531859999999995
+split_03,3,channel_union,dengeli,threshold,critical,1.33,0.67,Position.Y,55,0,0.0,15,1.0971975144444444,13.671193930470311,,
+split_03,3,channel_union,dengeli,threshold,critical,1.33,0.67,Position.Z,113,0,0.0,11,1.4244670750000001,7.722186207778792,,
+split_03,3,channel_union,dengeli,threshold,critical,1.33,0.67,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_03,3,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Controls,16,6,0.375,14,0.5049052622222222,27.727974032954776,1.5061266666666693,3.042353999999989
+split_03,3,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Outputs,25,9,0.36,29,0.7446180683333333,38.946140623353706,3.447051,6.005978999999968
+split_03,3,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Outputs+Controls,41,15,0.36585365853658536,41,1.206307534722222,33.98801617320671,2.670681266666668,6.005978999999968
+split_03,3,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_03,3,channel_union,dengeli,k_of_n,critical,1.33,0.67,Battery,2,0,0.0,2,0.06345890611111113,31.516458800884003,,
+split_03,3,channel_union,dengeli,k_of_n,critical,1.33,0.67,Position.X,54,6,0.1111111111111111,21,0.9378571405555555,22.391469971173112,14.870732499999995,29.95837999999999
+split_03,3,channel_union,dengeli,k_of_n,critical,1.33,0.67,Position.Y,55,4,0.07272727272727272,23,1.0971975144444444,20.962497360054478,10.289690999999998,23.065796000000006
+split_03,3,channel_union,dengeli,k_of_n,critical,1.33,0.67,Position.Z,113,2,0.017699115044247787,46,1.4244670750000001,32.29277868707495,1.9807455000000047,3.9614910000000094
+split_03,3,channel_union,dengeli,k_of_n,critical,1.33,0.67,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_03,3,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Controls,16,7,0.4375,26,0.5049052622222222,51.49480891834459,2.7151754285714316,9.966410999999994
+split_03,3,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Outputs,25,14,0.56,41,0.7446180683333333,55.06178501922421,8.849701214285709,31.028773
+split_03,3,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Outputs+Controls,41,21,0.5121951219512195,64,1.206307534722222,53.054464270371454,6.804859285714282,31.028773
+split_03,3,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Thrust,2,0,0.0,6,0.06510427361111108,92.15984861208872,,
+split_03,3,channel_union,dengeli,cusum,critical,1.33,0.67,Battery,2,0,0.0,4,0.06345890611111113,63.032917601768006,,
+split_03,3,channel_union,dengeli,cusum,critical,1.33,0.67,Position.X,54,21,0.3888888888888889,60,0.9378571405555555,63.97562848906603,20.996568428571408,51.084812
+split_03,3,channel_union,dengeli,cusum,critical,1.33,0.67,Position.Y,55,21,0.38181818181818183,81,1.0971975144444444,73.82444722453968,16.8349720952381,55.87771900000001
+split_03,3,channel_union,dengeli,cusum,critical,1.33,0.67,Position.Z,113,9,0.07964601769911504,53,1.4244670750000001,37.206897182934185,7.115647000000002,41.99761000000001
+split_03,3,channel_union,dengeli,cusum,critical,1.33,0.67,Velocity,2,1,0.5,0,0.0036470161111110933,0.0,23.975864,23.975864
+split_03,3,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Controls,16,10,0.625,16,0.5049052622222222,31.689113180519744,0.7113845000000054,2.0335150000000226
+split_03,3,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Outputs,25,21,0.84,30,0.7446180683333333,40.289110989676246,6.185290190476187,36.01833100000002
+split_03,3,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Outputs+Controls,41,31,0.7560975609756098,42,1.206307534722222,34.81699217743127,4.419514161290322,36.01833100000002
+split_03,3,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Thrust,2,1,0.5,2,0.06510427361111108,30.719949537362908,0.0,0.0
+split_03,3,channel_union,dengeli,threshold,advisory,8.0,4.0,Battery,2,1,0.5,4,0.06345890611111113,63.032917601768006,0.0,0.0
+split_03,3,channel_union,dengeli,threshold,advisory,8.0,4.0,Position.X,54,6,0.1111111111111111,30,0.9378571405555555,31.987814244533016,18.93824466666667,33.531859999999995
+split_03,3,channel_union,dengeli,threshold,advisory,8.0,4.0,Position.Y,55,3,0.05454545454545454,34,1.0971975144444444,30.988039575732707,3.9976159999999745,5.914064999999937
+split_03,3,channel_union,dengeli,threshold,advisory,8.0,4.0,Position.Z,113,0,0.0,37,1.4244670750000001,25.974626335255937,,
+split_03,3,channel_union,dengeli,threshold,advisory,8.0,4.0,Velocity,2,2,1.0,1,0.0036470161111110933,274.1967596340949,45.01921199999998,88.00460499999997
+split_03,3,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Controls,16,5,0.3125,15,0.5049052622222222,29.708543606737262,1.6249536000000036,3.042353999999989
+split_03,3,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Outputs,25,8,0.32,34,0.7446180683333333,45.66099245496642,3.368573749999996,5.08007600000002
+split_03,3,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Outputs+Controls,41,13,0.3170731707317073,48,1.206307534722222,39.79084820277859,2.697950615384614,5.08007600000002
+split_03,3,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_03,3,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Battery,2,0,0.0,3,0.06345890611111113,47.27468820132601,,
+split_03,3,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Position.X,54,6,0.1111111111111111,24,0.9378571405555555,25.590251395626414,14.870732499999995,29.95837999999999
+split_03,3,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Position.Y,55,4,0.07272727272727272,29,1.0971975144444444,26.430974932242602,47.20715624999997,162.91602999999986
+split_03,3,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Position.Z,113,3,0.02654867256637168,53,1.4244670750000001,37.206897182934185,2.303474333333341,3.9614910000000094
+split_03,3,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_03,3,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Controls,16,7,0.4375,37,0.5049052622222222,73.28107422995191,2.991818285714292,4.985899999999958
+split_03,3,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Outputs,25,12,0.48,64,0.7446180683333333,85.95010344464266,8.33242741666666,31.941462
+split_03,3,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Outputs+Controls,41,19,0.4634146341463415,97,1.206307534722222,80.41067240978172,6.364834578947366,31.941462
+split_03,3,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Thrust,2,0,0.0,8,0.06510427361111108,122.87979814945163,,
+split_03,3,channel_union,dengeli,cusum,advisory,8.0,4.0,Battery,2,0,0.0,4,0.06345890611111113,63.032917601768006,,
+split_03,3,channel_union,dengeli,cusum,advisory,8.0,4.0,Position.X,54,28,0.5185185185185185,85,0.9378571405555555,90.63214035951022,10.580249785714285,48.939858
+split_03,3,channel_union,dengeli,cusum,advisory,8.0,4.0,Position.Y,55,32,0.5818181818181818,106,1.0971975144444444,96.60977044199021,17.804645437500003,50.99932000000001
+split_03,3,channel_union,dengeli,cusum,advisory,8.0,4.0,Position.Z,113,14,0.12389380530973451,71,1.4244670750000001,49.84320188657221,12.011020928571428,45.02245300000004
+split_03,3,channel_union,dengeli,cusum,advisory,8.0,4.0,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,14.531897500000014,21.04154600000004
+split_03,3,channel_union,esit,threshold,critical,1.0,1.0,Actuator Controls,16,15,0.9375,4,0.5049052622222222,7.922278295129936,1.0708069333333374,2.942397999999997
+split_03,3,channel_union,esit,threshold,critical,1.0,1.0,Actuator Outputs,25,22,0.88,7,0.7446180683333333,9.400792564257792,4.000172636363633,16.997465999999974
+split_03,3,channel_union,esit,threshold,critical,1.0,1.0,Actuator Outputs+Controls,41,37,0.9024390243902439,8,1.206307534722222,6.631808033796432,2.812591945945946,16.997465999999974
+split_03,3,channel_union,esit,threshold,critical,1.0,1.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,0.9133319999999685,0.9133319999999685
+split_03,3,channel_union,esit,threshold,critical,1.0,1.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_03,3,channel_union,esit,threshold,critical,1.0,1.0,Position.X,54,6,0.1111111111111111,18,0.9378571405555555,19.19268854671981,19.108267,33.531859999999995
+split_03,3,channel_union,esit,threshold,critical,1.0,1.0,Position.Y,55,0,0.0,15,1.0971975144444444,13.671193930470311,,
+split_03,3,channel_union,esit,threshold,critical,1.0,1.0,Position.Z,113,0,0.0,11,1.4244670750000001,7.722186207778792,,
+split_03,3,channel_union,esit,threshold,critical,1.0,1.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_03,3,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Controls,16,6,0.375,14,0.5049052622222222,27.727974032954776,1.5061266666666693,3.042353999999989
+split_03,3,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Outputs,25,9,0.36,29,0.7446180683333333,38.946140623353706,3.447051,6.005978999999968
+split_03,3,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Outputs+Controls,41,15,0.36585365853658536,41,1.206307534722222,33.98801617320671,2.670681266666668,6.005978999999968
+split_03,3,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_03,3,channel_union,esit,k_of_n,critical,1.0,1.0,Battery,2,0,0.0,2,0.06345890611111113,31.516458800884003,,
+split_03,3,channel_union,esit,k_of_n,critical,1.0,1.0,Position.X,54,6,0.1111111111111111,21,0.9378571405555555,22.391469971173112,14.870732499999995,29.95837999999999
+split_03,3,channel_union,esit,k_of_n,critical,1.0,1.0,Position.Y,55,4,0.07272727272727272,23,1.0971975144444444,20.962497360054478,10.289690999999998,23.065796000000006
+split_03,3,channel_union,esit,k_of_n,critical,1.0,1.0,Position.Z,113,2,0.017699115044247787,46,1.4244670750000001,32.29277868707495,1.9807455000000047,3.9614910000000094
+split_03,3,channel_union,esit,k_of_n,critical,1.0,1.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_03,3,channel_union,esit,cusum,critical,1.0,1.0,Actuator Controls,16,3,0.1875,30,0.5049052622222222,59.417087213474524,2.6761569999999892,6.000157999999942
+split_03,3,channel_union,esit,cusum,critical,1.0,1.0,Actuator Outputs,25,11,0.44,44,0.7446180683333333,59.09069611819183,10.447927818181814,25.936882000000026
+split_03,3,channel_union,esit,cusum,critical,1.0,1.0,Actuator Outputs+Controls,41,14,0.34146341463414637,71,1.206307534722222,58.85729629994333,8.782548357142852,25.936882000000026
+split_03,3,channel_union,esit,cusum,critical,1.0,1.0,Actuator Thrust,2,0,0.0,5,0.06510427361111108,76.79987384340727,,
+split_03,3,channel_union,esit,cusum,critical,1.0,1.0,Battery,2,0,0.0,4,0.06345890611111113,63.032917601768006,,
+split_03,3,channel_union,esit,cusum,critical,1.0,1.0,Position.X,54,24,0.4444444444444444,58,0.9378571405555555,61.8431075394305,20.85070641666665,60.09712000000002
+split_03,3,channel_union,esit,cusum,critical,1.0,1.0,Position.Y,55,19,0.34545454545454546,82,1.0971975144444444,74.73586015323771,18.120857526315792,40.081999999999994
+split_03,3,channel_union,esit,cusum,critical,1.0,1.0,Position.Z,113,8,0.07079646017699115,52,1.4244670750000001,36.504880254954294,10.85305687500001,47.994821
+split_03,3,channel_union,esit,cusum,critical,1.0,1.0,Velocity,2,1,0.5,0,0.0036470161111110933,0.0,27.027106000000003,27.027106000000003
+split_03,3,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Controls,16,10,0.625,16,0.5049052622222222,31.689113180519744,0.7113845000000054,2.0335150000000226
+split_03,3,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Outputs,25,21,0.84,30,0.7446180683333333,40.289110989676246,6.185290190476187,36.01833100000002
+split_03,3,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Outputs+Controls,41,31,0.7560975609756098,42,1.206307534722222,34.81699217743127,4.419514161290322,36.01833100000002
+split_03,3,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Thrust,2,1,0.5,2,0.06510427361111108,30.719949537362908,0.0,0.0
+split_03,3,channel_union,esit,threshold,advisory,6.0,6.0,Battery,2,1,0.5,4,0.06345890611111113,63.032917601768006,0.0,0.0
+split_03,3,channel_union,esit,threshold,advisory,6.0,6.0,Position.X,54,6,0.1111111111111111,30,0.9378571405555555,31.987814244533016,18.93824466666667,33.531859999999995
+split_03,3,channel_union,esit,threshold,advisory,6.0,6.0,Position.Y,55,3,0.05454545454545454,34,1.0971975144444444,30.988039575732707,3.9976159999999745,5.914064999999937
+split_03,3,channel_union,esit,threshold,advisory,6.0,6.0,Position.Z,113,0,0.0,37,1.4244670750000001,25.974626335255937,,
+split_03,3,channel_union,esit,threshold,advisory,6.0,6.0,Velocity,2,2,1.0,1,0.0036470161111110933,274.1967596340949,45.01921199999998,88.00460499999997
+split_03,3,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Controls,16,5,0.3125,15,0.5049052622222222,29.708543606737262,1.6249536000000036,3.042353999999989
+split_03,3,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Outputs,25,8,0.32,32,0.7446180683333333,42.97505172232133,3.368573749999996,5.08007600000002
+split_03,3,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Outputs+Controls,41,13,0.3170731707317073,46,1.206307534722222,38.13289619432948,2.697950615384614,5.08007600000002
+split_03,3,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_03,3,channel_union,esit,k_of_n,advisory,6.0,6.0,Battery,2,0,0.0,3,0.06345890611111113,47.27468820132601,,
+split_03,3,channel_union,esit,k_of_n,advisory,6.0,6.0,Position.X,54,6,0.1111111111111111,24,0.9378571405555555,25.590251395626414,14.870732499999995,29.95837999999999
+split_03,3,channel_union,esit,k_of_n,advisory,6.0,6.0,Position.Y,55,4,0.07272727272727272,30,1.0971975144444444,27.342387860940622,43.96271250000001,149.93825500000003
+split_03,3,channel_union,esit,k_of_n,advisory,6.0,6.0,Position.Z,113,3,0.02654867256637168,53,1.4244670750000001,37.206897182934185,2.303474333333341,3.9614910000000094
+split_03,3,channel_union,esit,k_of_n,advisory,6.0,6.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_03,3,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Controls,16,5,0.3125,47,0.5049052622222222,93.08676996777675,4.207261199999993,8.032325000000014
+split_03,3,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Outputs,25,16,0.64,61,0.7446180683333333,81.92119234567504,6.764216124999996,24.008658999999994
+split_03,3,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Outputs+Controls,41,21,0.5121951219512195,104,1.206307534722222,86.21350443935361,6.15541733333333,24.008658999999994
+split_03,3,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Thrust,2,0,0.0,8,0.06510427361111108,122.87979814945163,,
+split_03,3,channel_union,esit,cusum,advisory,6.0,6.0,Battery,2,1,0.5,5,0.06345890611111113,78.79114700221001,0.966417999999976,0.966417999999976
+split_03,3,channel_union,esit,cusum,advisory,6.0,6.0,Position.X,54,28,0.5185185185185185,85,0.9378571405555555,90.63214035951022,11.393861321428561,46.917550000000006
+split_03,3,channel_union,esit,cusum,advisory,6.0,6.0,Position.Y,55,28,0.509090909090909,109,1.0971975144444444,99.34400922808426,18.443634142857142,42.072312999999966
+split_03,3,channel_union,esit,cusum,advisory,6.0,6.0,Position.Z,113,10,0.08849557522123894,77,1.4244670750000001,54.05530345445155,17.892103599999995,51.024159000000054
+split_03,3,channel_union,esit,cusum,advisory,6.0,6.0,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,17.482582000000036,23.99349600000005
+split_04,4,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Position.X,54,0,0.0,0,0.9378571405555555,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Position.Y,55,0,0.0,0,1.0971975144444444,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,critical,1.67,0.33,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Position.X,54,4,0.07407407407407407,5,0.9378571405555555,5.331302374088836,24.141603,34.552909
+split_04,4,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Position.Y,55,0,0.0,3,1.0971975144444444,2.7342387860940622,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,critical,1.67,0.33,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_04,4,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Controls,16,3,0.1875,12,0.5049052622222222,23.76683488538981,11.32695633333332,20.962381999999934
+split_04,4,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Outputs,25,9,0.36,18,0.7446180683333333,24.17346659380575,9.450861666666668,21.969577999999956
+split_04,4,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Outputs+Controls,41,12,0.2926829268292683,27,1.206307534722222,22.382352114062957,9.919885333333331,21.969577999999956
+split_04,4,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Actuator Thrust,2,0,0.0,1,0.06510427361111108,15.359974768681454,,
+split_04,4,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Position.X,54,6,0.1111111111111111,14,0.9378571405555555,14.927646647448741,24.364064999999957,52.023120000000006
+split_04,4,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Position.Y,55,1,0.01818181818181818,21,1.0971975144444444,19.139671502658437,31.948799000000037,31.948799000000037
+split_04,4,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Position.Z,113,0,0.0,12,1.4244670750000001,8.424203135758683,,
+split_04,4,channel_union,agirlikli_sistem,cusum,critical,1.67,0.33,Velocity,2,1,0.5,0,0.0036470161111110933,0.0,42.99064999999996,42.99064999999996
+split_04,4,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Position.X,54,0,0.0,0,0.9378571405555555,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Position.Y,55,0,0.0,0,1.0971975144444444,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_04,4,channel_union,agirlikli_sistem,threshold,advisory,10.0,2.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Position.X,54,4,0.07407407407407407,5,0.9378571405555555,5.331302374088836,24.141603,34.552909
+split_04,4,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Position.Y,55,0,0.0,3,1.0971975144444444,2.7342387860940622,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_04,4,channel_union,agirlikli_sistem,k_of_n,advisory,10.0,2.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_04,4,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Controls,16,6,0.375,13,0.5049052622222222,25.747404459172294,5.64293466666668,8.850108999999975
+split_04,4,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Outputs,25,9,0.36,26,0.7446180683333333,34.91722952438608,9.321249111111111,22.986406000000045
+split_04,4,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Outputs+Controls,41,15,0.36585365853658536,35,1.206307534722222,29.01416014785939,7.849923333333339,22.986406000000045
+split_04,4,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Actuator Thrust,2,0,0.0,1,0.06510427361111108,15.359974768681454,,
+split_04,4,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Position.X,54,20,0.37037037037037035,37,0.9378571405555555,39.45163756825739,17.92647684999999,42.10544899999999
+split_04,4,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Position.Y,55,13,0.23636363636363636,45,1.0971975144444444,41.013581791410935,27.34816092307691,162.91602999999986
+split_04,4,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Position.Z,113,0,0.0,19,1.4244670750000001,13.338321631617914,,
+split_04,4,channel_union,agirlikli_sistem,cusum,advisory,10.0,2.0,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,6.504493000000025,11.993873000000008
+split_04,4,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_04,4,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_04,4,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_04,4,channel_union,dengeli,threshold,critical,1.33,0.67,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_04,4,channel_union,dengeli,threshold,critical,1.33,0.67,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,dengeli,threshold,critical,1.33,0.67,Position.X,54,0,0.0,0,0.9378571405555555,0.0,,
+split_04,4,channel_union,dengeli,threshold,critical,1.33,0.67,Position.Y,55,0,0.0,0,1.0971975144444444,0.0,,
+split_04,4,channel_union,dengeli,threshold,critical,1.33,0.67,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_04,4,channel_union,dengeli,threshold,critical,1.33,0.67,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_04,4,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_04,4,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_04,4,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_04,4,channel_union,dengeli,k_of_n,critical,1.33,0.67,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_04,4,channel_union,dengeli,k_of_n,critical,1.33,0.67,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,dengeli,k_of_n,critical,1.33,0.67,Position.X,54,4,0.07407407407407407,5,0.9378571405555555,5.331302374088836,24.141603,34.552909
+split_04,4,channel_union,dengeli,k_of_n,critical,1.33,0.67,Position.Y,55,0,0.0,3,1.0971975144444444,2.7342387860940622,,
+split_04,4,channel_union,dengeli,k_of_n,critical,1.33,0.67,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_04,4,channel_union,dengeli,k_of_n,critical,1.33,0.67,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_04,4,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Controls,16,3,0.1875,13,0.5049052622222222,25.747404459172294,10.00337133333331,19.028987999999913
+split_04,4,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Outputs,25,7,0.28,22,0.7446180683333333,29.545348059095915,9.290133857142848,14.955773999999963
+split_04,4,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Outputs+Controls,41,10,0.24390243902439024,32,1.206307534722222,26.527232135185727,9.504105099999986,19.028987999999913
+split_04,4,channel_union,dengeli,cusum,critical,1.33,0.67,Actuator Thrust,2,0,0.0,1,0.06510427361111108,15.359974768681454,,
+split_04,4,channel_union,dengeli,cusum,critical,1.33,0.67,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,dengeli,cusum,critical,1.33,0.67,Position.X,54,6,0.1111111111111111,15,0.9378571405555555,15.993907122266508,24.174314499999948,49.99851699999999
+split_04,4,channel_union,dengeli,cusum,critical,1.33,0.67,Position.Y,55,1,0.01818181818181818,22,1.0971975144444444,20.051084431356458,28.932611000000037,28.932611000000037
+split_04,4,channel_union,dengeli,cusum,critical,1.33,0.67,Position.Z,113,1,0.008849557522123894,14,1.4244670750000001,9.828236991718462,3.961555999999973,3.961555999999973
+split_04,4,channel_union,dengeli,cusum,critical,1.33,0.67,Velocity,2,1,0.5,0,0.0036470161111110933,0.0,45.018299999999954,45.018299999999954
+split_04,4,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_04,4,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_04,4,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_04,4,channel_union,dengeli,threshold,advisory,8.0,4.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_04,4,channel_union,dengeli,threshold,advisory,8.0,4.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,dengeli,threshold,advisory,8.0,4.0,Position.X,54,5,0.09259259259259259,11,0.9378571405555555,11.72886522299544,21.912615600000002,33.531859999999995
+split_04,4,channel_union,dengeli,threshold,advisory,8.0,4.0,Position.Y,55,0,0.0,10,1.0971975144444444,9.114129286980209,,
+split_04,4,channel_union,dengeli,threshold,advisory,8.0,4.0,Position.Z,113,0,0.0,2,1.4244670750000001,1.4040338559597805,,
+split_04,4,channel_union,dengeli,threshold,advisory,8.0,4.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_04,4,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Controls,16,11,0.6875,5,0.5049052622222222,9.90284786891242,1.9127441818181823,3.9670639999999935
+split_04,4,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Outputs,25,16,0.64,6,0.7446180683333333,8.05782219793525,4.584212062499999,8.046312999999998
+split_04,4,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Outputs+Controls,41,27,0.6585365853658537,10,1.206307534722222,8.28976004224554,3.4958362592592587,8.046312999999998
+split_04,4,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_04,4,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Battery,2,0,0.0,1,0.06345890611111113,15.758229400442001,,
+split_04,4,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Position.X,54,3,0.05555555555555555,10,0.9378571405555555,10.662604748177673,15.682766333333333,27.02733099999999
+split_04,4,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Position.Y,55,1,0.01818181818181818,10,1.0971975144444444,9.114129286980209,7.947768999999994,7.947768999999994
+split_04,4,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Position.Z,113,0,0.0,2,1.4244670750000001,1.4040338559597805,,
+split_04,4,channel_union,dengeli,k_of_n,advisory,8.0,4.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_04,4,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Controls,16,5,0.3125,15,0.5049052622222222,29.708543606737262,4.595512200000013,8.033654999999953
+split_04,4,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Outputs,25,11,0.44,28,0.7446180683333333,37.60317025703117,11.011899818181815,30.012653
+split_04,4,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Outputs+Controls,41,16,0.3902439024390244,39,1.206307534722222,32.3300641647576,9.006778687500002,30.012653
+split_04,4,channel_union,dengeli,cusum,advisory,8.0,4.0,Actuator Thrust,2,0,0.0,1,0.06510427361111108,15.359974768681454,,
+split_04,4,channel_union,dengeli,cusum,advisory,8.0,4.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,dengeli,cusum,advisory,8.0,4.0,Position.X,54,21,0.3888888888888889,34,0.9378571405555555,36.25285614380409,18.80427066666665,44.090149
+split_04,4,channel_union,dengeli,cusum,advisory,8.0,4.0,Position.Y,55,9,0.16363636363636364,44,1.0971975144444444,40.102168862712915,37.793240999999995,158.04163199999994
+split_04,4,channel_union,dengeli,cusum,advisory,8.0,4.0,Position.Z,113,3,0.02654867256637168,18,1.4244670750000001,12.636304703638023,1.6570703333332848,2.9472000000000023
+split_04,4,channel_union,dengeli,cusum,advisory,8.0,4.0,Velocity,2,2,1.0,0,0.0036470161111110933,0.0,8.539062499999943,14.030549999999948
+split_04,4,channel_union,esit,threshold,critical,1.0,1.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_04,4,channel_union,esit,threshold,critical,1.0,1.0,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_04,4,channel_union,esit,threshold,critical,1.0,1.0,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_04,4,channel_union,esit,threshold,critical,1.0,1.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_04,4,channel_union,esit,threshold,critical,1.0,1.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,esit,threshold,critical,1.0,1.0,Position.X,54,0,0.0,0,0.9378571405555555,0.0,,
+split_04,4,channel_union,esit,threshold,critical,1.0,1.0,Position.Y,55,0,0.0,0,1.0971975144444444,0.0,,
+split_04,4,channel_union,esit,threshold,critical,1.0,1.0,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_04,4,channel_union,esit,threshold,critical,1.0,1.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_04,4,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_04,4,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_04,4,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_04,4,channel_union,esit,k_of_n,critical,1.0,1.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_04,4,channel_union,esit,k_of_n,critical,1.0,1.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,esit,k_of_n,critical,1.0,1.0,Position.X,54,4,0.07407407407407407,5,0.9378571405555555,5.331302374088836,24.141603,34.552909
+split_04,4,channel_union,esit,k_of_n,critical,1.0,1.0,Position.Y,55,0,0.0,3,1.0971975144444444,2.7342387860940622,,
+split_04,4,channel_union,esit,k_of_n,critical,1.0,1.0,Position.Z,113,0,0.0,0,1.4244670750000001,0.0,,
+split_04,4,channel_union,esit,k_of_n,critical,1.0,1.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_04,4,channel_union,esit,cusum,critical,1.0,1.0,Actuator Controls,16,3,0.1875,14,0.5049052622222222,27.727974032954776,7.363470666666633,13.028856999999903
+split_04,4,channel_union,esit,cusum,critical,1.0,1.0,Actuator Outputs,25,7,0.28,22,0.7446180683333333,29.545348059095915,6.717265857142853,10.079532
+split_04,4,channel_union,esit,cusum,critical,1.0,1.0,Actuator Outputs+Controls,41,10,0.24390243902439024,33,1.206307534722222,27.35620813941028,6.911127299999987,13.028856999999903
+split_04,4,channel_union,esit,cusum,critical,1.0,1.0,Actuator Thrust,2,0,0.0,1,0.06510427361111108,15.359974768681454,,
+split_04,4,channel_union,esit,cusum,critical,1.0,1.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,esit,cusum,critical,1.0,1.0,Position.X,54,6,0.1111111111111111,16,0.9378571405555555,17.060167597084273,24.662683166666664,53.089595
+split_04,4,channel_union,esit,cusum,critical,1.0,1.0,Position.Y,55,1,0.01818181818181818,21,1.0971975144444444,19.139671502658437,26.094814000000014,26.094814000000014
+split_04,4,channel_union,esit,cusum,critical,1.0,1.0,Position.Z,113,1,0.008849557522123894,15,1.4244670750000001,10.530253919698353,1.9288719999999557,1.9288719999999557
+split_04,4,channel_union,esit,cusum,critical,1.0,1.0,Velocity,2,1,0.5,0,0.0036470161111110933,0.0,48.98828400000002,48.98828400000002
+split_04,4,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Controls,16,0,0.0,0,0.5049052622222222,0.0,,
+split_04,4,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Outputs,25,0,0.0,0,0.7446180683333333,0.0,,
+split_04,4,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Outputs+Controls,41,0,0.0,0,1.206307534722222,0.0,,
+split_04,4,channel_union,esit,threshold,advisory,6.0,6.0,Actuator Thrust,2,0,0.0,0,0.06510427361111108,0.0,,
+split_04,4,channel_union,esit,threshold,advisory,6.0,6.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,esit,threshold,advisory,6.0,6.0,Position.X,54,5,0.09259259259259259,11,0.9378571405555555,11.72886522299544,21.912615600000002,33.531859999999995
+split_04,4,channel_union,esit,threshold,advisory,6.0,6.0,Position.Y,55,0,0.0,10,1.0971975144444444,9.114129286980209,,
+split_04,4,channel_union,esit,threshold,advisory,6.0,6.0,Position.Z,113,0,0.0,2,1.4244670750000001,1.4040338559597805,,
+split_04,4,channel_union,esit,threshold,advisory,6.0,6.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_04,4,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Controls,16,11,0.6875,5,0.5049052622222222,9.90284786891242,1.9127441818181823,3.9670639999999935
+split_04,4,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Outputs,25,16,0.64,6,0.7446180683333333,8.05782219793525,4.584212062499999,8.046312999999998
+split_04,4,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Outputs+Controls,41,27,0.6585365853658537,10,1.206307534722222,8.28976004224554,3.4958362592592587,8.046312999999998
+split_04,4,channel_union,esit,k_of_n,advisory,6.0,6.0,Actuator Thrust,2,1,0.5,0,0.06510427361111108,0.0,1.928959999999961,1.928959999999961
+split_04,4,channel_union,esit,k_of_n,advisory,6.0,6.0,Battery,2,0,0.0,1,0.06345890611111113,15.758229400442001,,
+split_04,4,channel_union,esit,k_of_n,advisory,6.0,6.0,Position.X,54,3,0.05555555555555555,10,0.9378571405555555,10.662604748177673,15.682766333333333,27.02733099999999
+split_04,4,channel_union,esit,k_of_n,advisory,6.0,6.0,Position.Y,55,1,0.01818181818181818,10,1.0971975144444444,9.114129286980209,7.947768999999994,7.947768999999994
+split_04,4,channel_union,esit,k_of_n,advisory,6.0,6.0,Position.Z,113,0,0.0,2,1.4244670750000001,1.4040338559597805,,
+split_04,4,channel_union,esit,k_of_n,advisory,6.0,6.0,Velocity,2,0,0.0,0,0.0036470161111110933,0.0,,
+split_04,4,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Controls,16,6,0.375,15,0.5049052622222222,29.708543606737262,3.3557996666666696,7.020790999999917
+split_04,4,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Outputs,25,12,0.48,27,0.7446180683333333,36.26019989070863,9.64576616666666,25.95426299999997
+split_04,4,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Outputs+Controls,41,18,0.43902439024390244,38,1.206307534722222,31.501088160533047,7.549110666666662,25.95426299999997
+split_04,4,channel_union,esit,cusum,advisory,6.0,6.0,Actuator Thrust,2,0,0.0,2,0.06510427361111108,30.719949537362908,,
+split_04,4,channel_union,esit,cusum,advisory,6.0,6.0,Battery,2,0,0.0,0,0.06345890611111113,0.0,,
+split_04,4,channel_union,esit,cusum,advisory,6.0,6.0,Position.X,54,9,0.16666666666666666,26,0.9378571405555555,27.722772345261948,36.928296444444406,71.986897
+split_04,4,channel_union,esit,cusum,advisory,6.0,6.0,Position.Y,55,4,0.07272727272727272,31,1.0971975144444444,28.253800789638646,54.00689,156.03310699999997
+split_04,4,channel_union,esit,cusum,advisory,6.0,6.0,Position.Z,113,1,0.008849557522123894,21,1.4244670750000001,14.742355487577695,0.9168000000000021,0.9168000000000021
+split_04,4,channel_union,esit,cusum,advisory,6.0,6.0,Velocity,2,1,0.5,0,0.0036470161111110933,0.0,29.055115999999998,29.055115999999998

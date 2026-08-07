@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-03T14:41:43.639903</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 60.84 394.2 
+L 302.76 394.2 
+Q 311.4 394.2 311.4 385.56 
+L 311.4 143.64 
+Q 311.4 135 302.76 135 
+L 60.84 135 
+Q 52.2 135 52.2 143.64 
+L 52.2 385.56 
+Q 52.2 394.2 60.84 394.2 
+z
+" clip-path="url(#p57e22a766f)" style="fill: #f4f7fb; stroke: #16324f; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 334.44 394.2 
+L 576.36 394.2 
+Q 585 394.2 585 385.56 
+L 585 143.64 
+Q 585 135 576.36 135 
+L 334.44 135 
+Q 325.8 135 325.8 143.64 
+L 325.8 385.56 
+Q 325.8 394.2 334.44 394.2 
+z
+" clip-path="url(#p57e22a766f)" style="fill: #f4f7fb; stroke: #16324f; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 608.04 394.2 
+L 849.96 394.2 
+Q 858.6 394.2 858.6 385.56 
+L 858.6 143.64 
+Q 858.6 135 849.96 135 
+L 608.04 135 
+Q 599.4 135 599.4 143.64 
+L 599.4 385.56 
+Q 599.4 394.2 608.04 394.2 
+z
+" clip-path="url(#p57e22a766f)" style="fill: #f4f7fb; stroke: #16324f; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 881.64 394.2 
+L 1123.56 394.2 
+Q 1132.2 394.2 1132.2 385.56 
+L 1132.2 143.64 
+Q 1132.2 135 1123.56 135 
+L 881.64 135 
+Q 873 135 873 143.64 
+L 873 385.56 
+Q 873 394.2 881.64 394.2 
+z
+" clip-path="url(#p57e22a766f)" style="fill: #f4f7fb; stroke: #16324f; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 179.64 574.2 
+L 972.36 574.2 
+Q 981 574.2 981 565.56 
+L 981 460.44 
+Q 981 451.8 972.36 451.8 
+L 179.64 451.8 
+Q 171 451.8 171 460.44 
+L 171 565.56 
+Q 171 574.2 179.64 574.2 
+z
+" clip-path="url(#p57e22a766f)" style="fill: #fceeee; stroke: #d64545; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 104.4 
+L 1101.6 104.4 
+" clip-path="url(#p57e22a766f)" style="fill: none; stroke: #d7dfea; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 27px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #16324f" x="50.4" y="67.973906" transform="rotate(-0 50.4 67.973906)">ALFA'nın son sözü: grup-güvenli çapraz doğrulama</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #617086" x="51.84" y="95.952188" transform="rotate(-0 51.84 95.952188)">Dört bağımsız oturum-ailesi grubu; yalnız biri kontrol eşiğini geçti</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #16324f" x="181.8" y="170.55625" transform="rotate(-0 181.8 170.55625)">Grup 0</text>
+   </g>
+   <g id="text_4">
+    <text style="font-weight: 700; font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="181.8" y="190.8" transform="rotate(-0 181.8 190.8)">Uçuş ROC-AUC 0,444</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="181.8" y="234" transform="rotate(-0 181.8 234)">Yakalama  %0,0</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="181.8" y="266.4" transform="rotate(-0 181.8 266.4)">Normal alarm  %0,0</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #2e8b57" x="181.8" y="320.4" transform="rotate(-0 181.8 320.4)">Kontrol eşiği: GEÇTİ</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #617086" x="181.8" y="356.4" transform="rotate(-0 181.8 356.4)">(ama 0 yakalama / 0 alarm — ayrım yok)</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #16324f" x="455.4" y="170.55625" transform="rotate(-0 455.4 170.55625)">Grup 1</text>
+   </g>
+   <g id="text_10">
+    <text style="font-weight: 700; font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="455.4" y="190.8" transform="rotate(-0 455.4 190.8)">Uçuş ROC-AUC 0,409</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="455.4" y="234" transform="rotate(-0 455.4 234)">Yakalama  %54,5</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="455.4" y="266.4" transform="rotate(-0 455.4 266.4)">Normal alarm  %50,0</text>
+   </g>
+   <g id="text_13">
+    <text style="font-weight: 700; font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #d64545" x="455.4" y="320.4" transform="rotate(-0 455.4 320.4)">Kontrol eşiği: KALDI</text>
+   </g>
+   <g id="text_14">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #16324f" x="729" y="170.55625" transform="rotate(-0 729 170.55625)">Grup 2</text>
+   </g>
+   <g id="text_15">
+    <text style="font-weight: 700; font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="729" y="190.8" transform="rotate(-0 729 190.8)">Uçuş ROC-AUC 0,545</text>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="729" y="234" transform="rotate(-0 729 234)">Yakalama  %18,2</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="729" y="266.4" transform="rotate(-0 729 266.4)">Normal alarm  %25,0</text>
+   </g>
+   <g id="text_18">
+    <text style="font-weight: 700; font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #d64545" x="729" y="320.4" transform="rotate(-0 729 320.4)">Kontrol eşiği: KALDI</text>
+   </g>
+   <g id="text_19">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #16324f" x="1002.6" y="170.55625" transform="rotate(-0 1002.6 170.55625)">Grup 3</text>
+   </g>
+   <g id="text_20">
+    <text style="font-weight: 700; font-size: 13.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="1002.6" y="190.8" transform="rotate(-0 1002.6 190.8)">Uçuş ROC-AUC 0,521</text>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="1002.6" y="234" transform="rotate(-0 1002.6 234)">Yakalama  %100,0</text>
+   </g>
+   <g id="text_22">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #172033" x="1002.6" y="266.4" transform="rotate(-0 1002.6 266.4)">Normal alarm  %83,3</text>
+   </g>
+   <g id="text_23">
+    <text style="font-weight: 700; font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #d64545" x="1002.6" y="320.4" transform="rotate(-0 1002.6 320.4)">Kontrol eşiği: KALDI</text>
+   </g>
+   <g id="text_24">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #d64545" x="576" y="486.596484" transform="rotate(-0 576 486.596484)">Sonuç</text>
+   </g>
+   <g id="text_25">
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(337.922266 523.726719)">Dört gruptan yalnız biri genlik-baskınlığı kontrol eşiğini geçti; o grupta da</text>
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(324.718125 541.276719)">model hiçbir ayrım yapmadı. Diğer üç grup kontrol eşiğinde kaldı. ALFA'da da</text>
+    <text style="font-size: 13px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(445.548047 558.760703)">nihai bilimsel karar: hedef karşılanmadı.</text>
+   </g>
+   <g id="text_26">
+    <text style="font-size: 10.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #617086" x="1101.6" y="622.8" transform="rotate(-0 1101.6 622.8)">Kaynak: artifacts/four_dataset_probabilistic_v31/runs/alfa_fold_*/training_report.json</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p57e22a766f">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

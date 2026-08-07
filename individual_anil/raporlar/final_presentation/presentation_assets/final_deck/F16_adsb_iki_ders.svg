@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-04T18:42:25.454449</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 70.56 383.04 
+L 563.04 383.04 
+Q 570.24 383.04 570.24 375.84 
+L 570.24 142.56 
+Q 570.24 135.36 563.04 135.36 
+L 70.56 135.36 
+Q 63.36 135.36 63.36 142.56 
+L 63.36 375.84 
+Q 63.36 383.04 70.56 383.04 
+z
+" clip-path="url(#p2482e550d3)" style="fill: #fbe4e4; stroke: #d03b3b; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 603.36 383.04 
+L 1095.84 383.04 
+Q 1103.04 383.04 1103.04 375.84 
+L 1103.04 142.56 
+Q 1103.04 135.36 1095.84 135.36 
+L 603.36 135.36 
+Q 596.16 135.36 596.16 142.56 
+L 596.16 375.84 
+Q 596.16 383.04 603.36 383.04 
+z
+" clip-path="url(#p2482e550d3)" style="fill: #ffffff; stroke: #1baf7a; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 792 212.4 
+L 1014 212.4 
+L 1014 189.36 
+L 792 189.36 
+z
+" clip-path="url(#p2482e550d3)" style="fill: #1baf7a"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 792 249.84 
+L 951.84 249.84 
+L 951.84 226.8 
+L 792 226.8 
+z
+" clip-path="url(#p2482e550d3)" style="fill: #898781"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 792 287.28 
+L 942.96 287.28 
+L 942.96 264.24 
+L 792 264.24 
+z
+" clip-path="url(#p2482e550d3)" style="fill: #898781"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 792 324.72 
+L 907.44 324.72 
+L 907.44 301.68 
+L 792 301.68 
+z
+" clip-path="url(#p2482e550d3)" style="fill: #898781"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 70.56 537.84 
+L 1095.84 537.84 
+Q 1103.04 537.84 1103.04 530.64 
+L 1103.04 423.36 
+Q 1103.04 416.16 1095.84 416.16 
+L 70.56 416.16 
+Q 63.36 416.16 63.36 423.36 
+L 63.36 530.64 
+Q 63.36 537.84 70.56 537.84 
+z
+" clip-path="url(#p2482e550d3)" style="fill: #fafafa; stroke: #898781; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 100.8 
+L 1101.6 100.8 
+" clip-path="url(#p2482e550d3)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1c5cab" x="50.4" y="62.955937" transform="rotate(-0 50.4 62.955937)">Etiketsiz devasa trafikte iki ders</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="51.84" y="93.437813" transform="rotate(-0 51.84 93.437813)">256.150.550 satır işlendi  ·  ~497.571 skorlanabilir normal flight-hour</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 16px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #d03b3b" x="80.64" y="169.5075" transform="rotate(-0 80.64 169.5075)">Ders 1 — sentetik başarı tuzağı</text>
+   </g>
+   <g id="text_4">
+    <text style="font-weight: 700; font-size: 40px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #2a78d6" x="183.6" y="244.390625" transform="rotate(-0 183.6 244.390625)">%97,6</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="183.6" y="284.4" transform="rotate(-0 183.6 284.4)">sentetik anomali recall</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="316.8" y="241.496484" transform="rotate(-0 316.8 241.496484)">ama</text>
+   </g>
+   <g id="text_7">
+    <text style="font-weight: 700; font-size: 40px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #d03b3b" x="450" y="244.390625" transform="rotate(-0 450 244.390625)">25,54</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="450" y="284.4" transform="rotate(-0 450 284.4)">doğal trafikte alarm / saat</text>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(82.8 332.911719)">Yaklaşım reddedildi ve arşivlendi. O günden sonra yakalama oranını</text>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(82.8 351.036719)">alarm yükü olmadan raporlamak yasaklandı.</text>
+   </g>
+   <g id="text_10">
+    <text style="font-weight: 700; font-size: 15.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1baf7a" x="613.44" y="169.115391" transform="rotate(-0 613.44 169.115391)">Ders 2 — basit fizik kuralları sinir ağlarını geçti</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #0b0b0b" x="781.2" y="204.847559" transform="rotate(-0 781.2 204.847559)">Fizik kuralları</text>
+   </g>
+   <g id="text_12">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1baf7a" x="1026.24" y="204.976953" transform="rotate(-0 1026.24 204.976953)">0,600</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #0b0b0b" x="781.2" y="242.28707" transform="rotate(-0 781.2 242.28707)">Dense-AE</text>
+   </g>
+   <g id="text_14">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #898781" x="964.08" y="242.416953" transform="rotate(-0 964.08 242.416953)">0,572</text>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #0b0b0b" x="781.2" y="279.72707" transform="rotate(-0 781.2 279.72707)">LSTM-AE</text>
+   </g>
+   <g id="text_16">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #898781" x="955.2" y="279.856953" transform="rotate(-0 955.2 279.856953)">0,568</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #0b0b0b" x="781.2" y="317.167559" transform="rotate(-0 781.2 317.167559)">LSTM-forecaster</text>
+   </g>
+   <g id="text_18">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #898781" x="919.68" y="317.296953" transform="rotate(-0 919.68 317.296953)">0,552</text>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(615.6 348.67125)">Kural: dikey hız ↔ irtifa türevi, yer hızı ↔ konum türevi gibi</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(615.6 365.47125)">5 fiziksel tutarlılık kontrolü (pooled AUC).</text>
+   </g>
+   <g id="text_20">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #898781" x="80.64" y="448.594687" transform="rotate(-0 80.64 448.594687)">Dürüst not</text>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(82.8 477.382422)">Karşılaştırılan üç sinir ağı, birazdan anlatacağım genlik kontrolünde zaten elenmişti ve bu AUC'ler etiket hatalı tarihsel bir</text>
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(82.8 496.132422)">koşudan geliyor. Yani bu, kuralın zaferi kadar sinir ağlarının o turdaki geçersizliğinin de sonucudur.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p2482e550d3">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

@@ -1,0 +1,3818 @@
+{
+  "drift_corrected:existing_fusion:critical:threshold": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 2.0,
+    "effective_budget_per_hour": 2.0,
+    "drift_multiplier": 1.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:existing_fusion:critical:k_of_n": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 2.0,
+    "effective_budget_per_hour": 2.0,
+    "drift_multiplier": 1.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:existing_fusion:critical:cusum": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 2.0,
+    "effective_budget_per_hour": 2.0,
+    "drift_multiplier": 1.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 2.001111728738188,
+        "ratio": 1.000555864369094
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 10.05586592178771,
+        "ratio": 5.027932960893855
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 9.045226130653266,
+        "ratio": 4.522613065326633
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:existing_fusion:advisory:threshold": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 12.0,
+    "effective_budget_per_hour": 12.0,
+    "drift_multiplier": 1.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:existing_fusion:advisory:k_of_n": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 12.0,
+    "effective_budget_per_hour": 12.0,
+    "drift_multiplier": 1.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:existing_fusion:advisory:cusum": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 12.0,
+    "effective_budget_per_hour": 9.295368970729697,
+    "drift_multiplier": 1.2909654299670028,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 26.96629213483146,
+        "ratio": 2.2471910112359548
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 23.920265780730897,
+        "ratio": 1.9933554817275747
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 15.319148936170212,
+        "ratio": 1.276595744680851
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 14.37535653166001,
+        "ratio": 1.1979463776383341
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 16.008893829905503,
+        "ratio": 1.3340744858254585
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 11.772400261608894,
+        "ratio": 0.9810333551340745
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 6.509945750452079,
+        "ratio": 0.5424954792043399
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 9.326424870466322,
+        "ratio": 0.7772020725388602
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 19.40700808625337,
+        "ratio": 1.6172506738544474
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 12.328767123287673,
+        "ratio": 1.0273972602739727
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 14.380825565912117,
+        "ratio": 1.1984021304926764
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 8.430913348946136,
+        "ratio": 0.702576112412178
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 13.980582524271846,
+        "ratio": 1.1650485436893205
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 3.6253776435045317,
+        "ratio": 0.3021148036253776
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 8.716707021791768,
+        "ratio": 0.7263922518159807
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 20.11173184357542,
+        "ratio": 1.675977653631285
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 10.682492581602373,
+        "ratio": 0.8902077151335311
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 18.09045226130653,
+        "ratio": 1.507537688442211
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 23.376623376623378,
+        "ratio": 1.9480519480519483
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:itki_komutu:critical:threshold": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 2.0,
+    "effective_budget_per_hour": 2.0,
+    "drift_multiplier": 1.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 134.83146067415728,
+        "ratio": 67.41573033707864
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 8.430913348946136,
+        "ratio": 4.215456674473068
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 6.990291262135923,
+        "ratio": 3.4951456310679614
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 17.433414043583536,
+        "ratio": 8.716707021791768
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:itki_komutu:critical:k_of_n": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 2.0,
+    "effective_budget_per_hour": 2.0,
+    "drift_multiplier": 1.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 94.3820224719101,
+        "ratio": 47.19101123595505
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:itki_komutu:critical:cusum": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 2.0,
+    "effective_budget_per_hour": 2.0,
+    "drift_multiplier": 1.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 26.96629213483146,
+        "ratio": 13.48314606741573
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 6.990291262135923,
+        "ratio": 3.4951456310679614
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 8.716707021791768,
+        "ratio": 4.358353510895884
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 40.22346368715084,
+        "ratio": 20.11173184357542
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 26.706231454005934,
+        "ratio": 13.353115727002967
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 27.135678391959797,
+        "ratio": 13.567839195979898
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 23.376623376623378,
+        "ratio": 11.688311688311689
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:itki_komutu:advisory:threshold": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 12.0,
+    "effective_budget_per_hour": 12.0,
+    "drift_multiplier": 1.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 50.70422535211268,
+        "ratio": 4.225352112676057
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 134.83146067415728,
+        "ratio": 11.235955056179774
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 8.430913348946136,
+        "ratio": 0.702576112412178
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 6.990291262135923,
+        "ratio": 0.5825242718446603
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 17.433414043583536,
+        "ratio": 1.4527845036319613
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 5.341246290801187,
+        "ratio": 0.44510385756676557
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 18.09045226130653,
+        "ratio": 1.507537688442211
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:itki_komutu:advisory:k_of_n": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 12.0,
+    "effective_budget_per_hour": 12.0,
+    "drift_multiplier": 1.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 94.3820224719101,
+        "ratio": 7.865168539325842
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:itki_komutu:advisory:cusum": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 12.0,
+    "effective_budget_per_hour": 2.4,
+    "drift_multiplier": 5.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 101.40845070422536,
+        "ratio": 8.450704225352114
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 76.59574468085106,
+        "ratio": 6.382978723404254
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 94.3820224719101,
+        "ratio": 7.865168539325842
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 6.605504587155964,
+        "ratio": 0.5504587155963303
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 4.663212435233161,
+        "ratio": 0.3886010362694301
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 10.06993006993007,
+        "ratio": 0.8391608391608392
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 8.430913348946136,
+        "ratio": 0.702576112412178
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 27.96116504854369,
+        "ratio": 2.330097087378641
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 3.084832904884319,
+        "ratio": 0.25706940874035994
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 10.876132930513595,
+        "ratio": 0.9063444108761329
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 12.841854934601665,
+        "ratio": 1.070154577883472
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 34.86682808716707,
+        "ratio": 2.9055690072639226
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 100.55865921787709,
+        "ratio": 8.379888268156424
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 74.77744807121661,
+        "ratio": 6.231454005934718
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 81.4070351758794,
+        "ratio": 6.78391959798995
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 93.50649350649351,
+        "ratio": 7.792207792207793
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 58.53658536585366,
+        "ratio": 4.878048780487805
+      }
+    ]
+  },
+  "drift_corrected:ml14_fusion:critical:threshold": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 2.0,
+    "effective_budget_per_hour": 2.0,
+    "drift_multiplier": 1.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:ml14_fusion:critical:k_of_n": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 2.0,
+    "effective_budget_per_hour": 2.0,
+    "drift_multiplier": 1.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:ml14_fusion:critical:cusum": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 2.0,
+    "effective_budget_per_hour": 2.0,
+    "drift_multiplier": 1.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 2.001111728738188,
+        "ratio": 1.000555864369094
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 10.05586592178771,
+        "ratio": 5.027932960893855
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 9.045226130653266,
+        "ratio": 4.522613065326633
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:ml14_fusion:advisory:threshold": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 12.0,
+    "effective_budget_per_hour": 12.0,
+    "drift_multiplier": 1.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:ml14_fusion:advisory:k_of_n": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 12.0,
+    "effective_budget_per_hour": 12.0,
+    "drift_multiplier": 1.0,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  },
+  "drift_corrected:ml14_fusion:advisory:cusum": {
+    "method": "session_jackknife_drift_corrected_policy",
+    "nominal_budget_per_hour": 12.0,
+    "effective_budget_per_hour": 9.295368970729697,
+    "drift_multiplier": 1.2909654299670028,
+    "quantile": 0.75,
+    "floor": 1.0,
+    "cap": 5.0,
+    "min_sessions": 4,
+    "session_count": 28,
+    "jackknife_n_jobs": 4,
+    "fallback_used": false,
+    "fallback_source": null,
+    "session_ratios": [
+      {
+        "session": "00_02_49",
+        "heldout_streams": 1,
+        "heldout_hours": 0.01972222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "00_14_08",
+        "heldout_streams": 1,
+        "heldout_hours": 0.013055555555555556,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2018-10-27",
+        "heldout_streams": 5,
+        "heldout_hours": 0.07416666666666667,
+        "false_alarms_per_hour": 26.96629213483146,
+        "ratio": 2.2471910112359548
+      },
+      {
+        "session": "2018-12-25",
+        "heldout_streams": 2,
+        "heldout_hours": 0.08361111111111111,
+        "false_alarms_per_hour": 23.920265780730897,
+        "ratio": 1.9933554817275747
+      },
+      {
+        "session": "2019-02-18",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2611111111111111,
+        "false_alarms_per_hour": 15.319148936170212,
+        "ratio": 1.276595744680851
+      },
+      {
+        "session": "2019-02-19",
+        "heldout_streams": 6,
+        "heldout_hours": 0.48694444444444446,
+        "false_alarms_per_hour": 14.37535653166001,
+        "ratio": 1.1979463776383341
+      },
+      {
+        "session": "2019-02-21",
+        "heldout_streams": 8,
+        "heldout_hours": 0.49972222222222223,
+        "false_alarms_per_hour": 16.008893829905503,
+        "ratio": 1.3340744858254585
+      },
+      {
+        "session": "2019-02-28",
+        "heldout_streams": 7,
+        "heldout_hours": 0.4247222222222222,
+        "false_alarms_per_hour": 11.772400261608894,
+        "ratio": 0.9810333551340745
+      },
+      {
+        "session": "2019-03-06",
+        "heldout_streams": 9,
+        "heldout_hours": 0.15138888888888888,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-08",
+        "heldout_streams": 4,
+        "heldout_hours": 0.15361111111111111,
+        "false_alarms_per_hour": 6.509945750452079,
+        "ratio": 0.5424954792043399
+      },
+      {
+        "session": "2019-03-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.07111111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-03-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.21444444444444444,
+        "false_alarms_per_hour": 9.326424870466322,
+        "ratio": 0.7772020725388602
+      },
+      {
+        "session": "2019-03-26",
+        "heldout_streams": 4,
+        "heldout_hours": 0.1986111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-04-02",
+        "heldout_streams": 3,
+        "heldout_hours": 0.10305555555555555,
+        "false_alarms_per_hour": 19.40700808625337,
+        "ratio": 1.6172506738544474
+      },
+      {
+        "session": "2019-05-20",
+        "heldout_streams": 6,
+        "heldout_hours": 0.1622222222222222,
+        "false_alarms_per_hour": 12.328767123287673,
+        "ratio": 1.0273972602739727
+      },
+      {
+        "session": "2019-05-23",
+        "heldout_streams": 5,
+        "heldout_hours": 0.2086111111111111,
+        "false_alarms_per_hour": 14.380825565912117,
+        "ratio": 1.1984021304926764
+      },
+      {
+        "session": "2019-05-24",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11861111111111111,
+        "false_alarms_per_hour": 8.430913348946136,
+        "ratio": 0.702576112412178
+      },
+      {
+        "session": "2019-05-29",
+        "heldout_streams": 4,
+        "heldout_hours": 0.14305555555555555,
+        "false_alarms_per_hour": 13.980582524271846,
+        "ratio": 1.1650485436893205
+      },
+      {
+        "session": "2019-06-05",
+        "heldout_streams": 4,
+        "heldout_hours": 0.32416666666666666,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-06-06",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2758333333333333,
+        "false_alarms_per_hour": 3.6253776435045317,
+        "ratio": 0.3021148036253776
+      },
+      {
+        "session": "2019-06-07",
+        "heldout_streams": 4,
+        "heldout_hours": 0.2336111111111111,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-08-01",
+        "heldout_streams": 4,
+        "heldout_hours": 0.09472222222222222,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      },
+      {
+        "session": "2019-10-09",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11472222222222223,
+        "false_alarms_per_hour": 8.716707021791768,
+        "ratio": 0.7263922518159807
+      },
+      {
+        "session": "2022-09-16",
+        "heldout_streams": 3,
+        "heldout_hours": 0.09944444444444445,
+        "false_alarms_per_hour": 20.11173184357542,
+        "ratio": 1.675977653631285
+      },
+      {
+        "session": "2022-09-26",
+        "heldout_streams": 3,
+        "heldout_hours": 0.18722222222222223,
+        "false_alarms_per_hour": 10.682492581602373,
+        "ratio": 0.8902077151335311
+      },
+      {
+        "session": "2022-10-21",
+        "heldout_streams": 4,
+        "heldout_hours": 0.11055555555555556,
+        "false_alarms_per_hour": 18.09045226130653,
+        "ratio": 1.507537688442211
+      },
+      {
+        "session": "2022-12",
+        "heldout_streams": 2,
+        "heldout_hours": 0.042777777777777776,
+        "false_alarms_per_hour": 23.376623376623378,
+        "ratio": 1.9480519480519483
+      },
+      {
+        "session": "23_36_13",
+        "heldout_streams": 1,
+        "heldout_hours": 0.034166666666666665,
+        "false_alarms_per_hour": 0.0,
+        "ratio": 0.0
+      }
+    ]
+  }
+}

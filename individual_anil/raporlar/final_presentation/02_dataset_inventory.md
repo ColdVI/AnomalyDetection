@@ -1,0 +1,33 @@
+# Veri seti envanteri
+
+## Karşılaştırma tablosu
+
+| Veri seti | Platform / veri | Ölçek ve sürüm | Normal / anomali yapısı | Truth ve gözlenebilirlik | Bağımsızlık / split | Nihai rol | Kaynak |
+|---|---|---|---|---|---|---|---|
+| ALFA | Sabit kanat Carbon-Z; rosbag/işlenmiş uçuş telemetrisi; motor ve kumanda yüzeyi arızaları | Resmî işlenmiş külliyat 47 uçuş; raw genişletmede 54 uçuş, 15 normal. `velocity_mps` %100 null sorunu düzeltilmiş, özellik sayısı 73→85. | Normal havuz küçük; rudder/elevator/aileron-rudder gibi bazı sınıflar çok az örnekli. | Arıza aralıkları mevcut, fakat causal düzeltmeler eski yüksek olay sayılarını ciddi düşürdü. | v2 kaynak split’i; v3.1’de session-family group CV. Yalnız fold-0 magnitude PASS, bilimsel NO-GO. | Küçük-veri ve causal-truth dersinin en temiz örneği; nihai başarı örneği değil. | `docs/final_rapor_ml_fizibilite_2026-07-16.md`; `docs/PROJE_YASAYAN_CALISMA_GUNLUGU.md`; `artifacts/four_dataset_probabilistic_v31/runs/alfa_fold_*/training_report.json` |
+| UAV Attack | PX4 çok-rotorlu; canlı/SITL logları; Ping DoS, GPS spoofing, GPS jamming | 19 üst-düzey log: 6 normal, 6 Ping DoS, 6 spoofing, 1 jamming; kaynak arşiv 683,9 MB ve 767 CSV. | Tek saf-normal campaign; saldırı sınıfları küçük ve platform karışık. | 6 Ping DoS kaydının 4’ünde mevcut telemetride fiziksel iz yok. Event interval truth yok. | v2’de 4 train / 1 val / 4 test kaynak; v3’te campaign/platform/live-sim grup sözleşmesi fakat bağımsız normal roller savunulamaz. | Gözlenebilirlik ve tek-campaign tuzağı örneği; v3.1 için dış stres/keşif, başarı metriği değil. | `docs/final_rapor_ml_fizibilite_2026-07-16.md`; `docs/PROJE_YASAYAN_CALISMA_GUNLUGU.md`; `configs/four_dataset_probabilistic_v31_evaluation_contract.json` |
+| UAV-SEAD | PX4 ULog; GPS spoofing, irtifa/mekanik/konum anomalileri | Development havuzu aşamalarla 60→179→349→611→1.044 uçuş; 899 normal. 200 uçuşluk blind holdout açılmadı. | Uçuş sayısı yüksek görünse de çok sayıda uçuş aynı session/parent kökünden geliyor. | Olay aralıkları var; bazı sensörler donuk/eksik. Gerçek olay evaluator’ında 206 olay. | Session split seed oynaklığını ±0,212→±0,012 düşürdü. v3 strict-parent gruplamada 1.244 ULog→259 grup; mixed gruplardaki 510 normal örnek bağımsız rol sorununa yol açtı. | Veri/split etkisini, genlik baskınlığını ve olay-localizasyon başarısızlığını göstermek için güçlü. | `docs/PROJE_YASAYAN_CALISMA_GUNLUGU.md`; `docs/final_rapor_ml_fizibilite_2026-07-16.md`; `docs/FOUR_DATASET_PROBABILISTIC_GPU_V2_FINAL_REPORT_20260728.md` |
+| RflyMAD Full | PX4 ULog; Real, HIL, SIL domainleri; Motor, Sensor, Environment, Propeller, Voltage aileleri | Truth-schema v2 canonical havuz 6.605 uçuş; eski locked-test 1.225. v3.1 Rfly rol havuzu: train 260, val 90, normal test 91, anomaly development 557, sealed final fault 553. | Normal ve arızalı örnekler çok sayıda, fakat domain/scenario aileleri güçlü akrabalık oluşturuyor. | 2.712 SIL/HIL uçuşu etkileyen sahte t=0 fault parser hatası düzeltildi. v3.1 development’ta gerçek aralık truth kullanıldı; 553 final fault uçuş mühürlü. | v3.1 scenario/domain grup ayrımı: train 7, val 3, normal test 3, anomaly dev 12, final 13 grup. | En güçlü güncel baseline ve başarısızlık analizi; B0 NO-GO’nun ana veri seti. | `gecmis_calismalar/RFLYMAD/raporlar/RFLYMAD_V2_YENI_CHAT_HANDOFF_20260722.md`; `artifacts/four_dataset_probabilistic_v31/split_report.json`; `docs/RFLYMAD_V31_B0_GERCEK_EVENT_DEGERLENDIRME_20260728.md` |
+| ADS-B tarihsel trafik | ADS-B.lol Silver parçaları; gerçek sivil hava trafiği; doğrulanmış doğal anomali etiketi yok | İlk contextual kapsam: 3 gün, 256.150.550 satır, 638 Silver parça, yaklaşık 542 bin segment ve 497.571 scoreable flight-hour. v2’ye 2024-09-01, 2025-02-15, 2025-06-15 günleri eklenerek 1.185 Silver parçaya çıkıldı. | Gerçek trafik normal kabul ediliyor fakat “temiz” olduğu doğrulanmış değil; doğal anomaly ground truth yok. | Beş sentetik tarif yalnız fiziksel etki ve gözlenebilirlik denetimiyle araştırma truth’u olarak kullanıldı. Truth-v2’de 666.739 aktif dropout satırının 570.666’sı gerçekten gözlenebilir değişim taşıyordu. | Gün/segment ayrımı; normal-only train. ADS-B v2 sonuçları recipe-level araştırma değerlendirmesi, operasyonel doğrulama değil. | Gerçek trafik üzerinde problem keşfi ve normal-only model geliştirme; güncel repo kuralları gereği yeni anomaly modeli Stage 0 sözleşmesi olmadan kabul edilmez. | `docs/final_rapor_ml_fizibilite_2026-07-16.md`; `docs/PROJE_YASAYAN_CALISMA_GUNLUGU.md`; `adsb/README.md`; `AGENTS.md` |
+
+## RflyMAD v3.1 rol kartı
+
+| Rol | Uçuş | Grup | Kullanım | Kaynak |
+|---|---:|---:|---|---|
+| Normal train | 260 | 7 | Ölçekleyici ve model fit; 213.567 satır, 5,925 saat, 205.247 aday pencere | `artifacts/four_dataset_probabilistic_v31/rflymad_normal_train_audit.json` |
+| Normal validation | 90 | 3 | Checkpoint ve event policy/bütçe seçimi | `artifacts/four_dataset_probabilistic_v31/split_report.json`; `configs/four_dataset_probabilistic_v31_evaluation_contract.json` |
+| Bağımsız normal test | 91 | 3 | Yanlış olay/saat ve alarm yükü | `artifacts/four_dataset_probabilistic_v31/split_report.json` |
+| Anomali development | 557 | 12 | Uçuş teşhisi ve B0 event değerlendirmesi | `artifacts/four_dataset_probabilistic_v31/split_report.json` |
+| Final fault test | 553 | 13 | Mühürlü; mevcut NO-GO nedeniyle açılmadı | `configs/four_dataset_probabilistic_v31_evaluation_contract.json`; `docs/RFLYMAD_V31_B0_GERCEK_EVENT_DEGERLENDIRME_20260728.md` |
+
+## Sunumda özellikle söylenecek sınırlamalar
+
+- Uçuş sayısı bağımsız örnek sayısı değildir; session/scenario grubu gerçek bağımsızlık birimidir. Kaynak: `docs/PROJE_YASAYAN_CALISMA_GUNLUGU.md`.
+- Etiketlenmiş saldırı, mevcut telemetride ölçülebilir bir fiziksel iz bırakmayabilir. Kaynak: `docs/final_rapor_ml_fizibilite_2026-07-16.md`.
+- Etiketsiz ADS-B trafiğinde doğal alarm, doğrulanmış anomali değildir. Kaynak: `artifacts/adsb/simple_anomaly_20260722/summary.json`.
+- Sentetik enjeksiyon ground truth sayılmadan önce fiziksel anlam ve gözlenebilirlik denetlenmelidir. Kaynak: `AGENTS.md`; `docs/final_rapor_ml_fizibilite_2026-07-16.md`.
+- RflyMAD v3.1’in 553 final fault uçuşu, development NO-GO nedeniyle kapalı kalmıştır. Kaynak: `configs/four_dataset_probabilistic_v31_evaluation_contract.json`.
+
+## Kanıtlanamayan seçim hikâyesi
+
+Repo, bu beş veri setinden önce incelenip elenen tüm haricî veri setlerinin eksiksiz bir aday listesini içermiyor. Dolayısıyla sunum “önce onlarca veri seti tarandı” dememeli; yalnız kanıtlı beş veri kaynağını ve bunların neden farklı araştırma rolleri üstlendiğini göstermelidir. Kaynak: `docs/PROJE_SUREC_VE_SONUC.md`; `docs/PROJE_YASAYAN_CALISMA_GUNLUGU.md`.

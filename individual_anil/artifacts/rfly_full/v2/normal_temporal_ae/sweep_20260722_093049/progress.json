@@ -1,0 +1,26 @@
+{
+  "status": "complete",
+  "completed": [
+    {
+      "rotation": 0,
+      "output": "C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\artifacts\\rfly_full\\v2\\normal_temporal_ae\\run_20260722_093407"
+    },
+    {
+      "rotation": 1,
+      "output": "C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\artifacts\\rfly_full\\v2\\normal_temporal_ae\\run_20260722_094008"
+    },
+    {
+      "rotation": 2,
+      "output": "C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\artifacts\\rfly_full\\v2\\normal_temporal_ae\\run_20260722_094619"
+    },
+    {
+      "rotation": 3,
+      "output": "C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\artifacts\\rfly_full\\v2\\normal_temporal_ae\\run_20260722_095048"
+    },
+    {
+      "rotation": 4,
+      "output": "C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\artifacts\\rfly_full\\v2\\normal_temporal_ae\\run_20260722_095707"
+    }
+  ],
+  "updated_at": "2026-07-22T06:57:07.994506+00:00"
+}

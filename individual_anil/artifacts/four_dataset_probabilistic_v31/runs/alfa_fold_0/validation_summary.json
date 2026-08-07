@@ -1,0 +1,9 @@
+{
+  "normal_validation_windows": 2100,
+  "score_mean": 0.14187665365619717,
+  "score_std": 5.931285000828124,
+  "score_min": -0.9125752449035645,
+  "score_max": 136.59274291992188,
+  "alarm_quantile": 0.995,
+  "alarm_threshold": 27.313358154296996
+}

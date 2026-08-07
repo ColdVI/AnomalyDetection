@@ -1,0 +1,138 @@
+{
+  "status": "development_only_complete",
+  "created_at": "2026-07-22T14:22:27.991455+00:00",
+  "contract": "docs/RFLYMAD_V2_TCN_DEVELOPMENT_SOZLESMESI_20260722.md",
+  "contract_sha256": "1e872b9b763f33b40c7be2bf045672562df3c5fd25995064a2ffac739e0095ea",
+  "outer_folds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "completed_outer_folds": {
+    "0": {
+      "outer_fold": 0,
+      "validation_fold": 4,
+      "epoch_cap": 12,
+      "run_dir": "artifacts/rfly_full/v2/supervised_tcn/run_20260722_161559",
+      "extension_decision": {
+        "cap": 12,
+        "best_epoch": 5,
+        "best_validation_loss": 0.8044972462313515,
+        "best_before_last_two": 0.8044972462313515,
+        "boundary_improvement": 0.0,
+        "extend": false,
+        "next_cap": null,
+        "rule": "best epoch in final two and improvement >= 1e-4"
+      }
+    },
+    "1": {
+      "outer_fold": 1,
+      "validation_fold": 0,
+      "epoch_cap": 12,
+      "run_dir": "artifacts/rfly_full/v2/supervised_tcn/run_20260722_162854",
+      "extension_decision": {
+        "cap": 12,
+        "best_epoch": 5,
+        "best_validation_loss": 0.7492970178524653,
+        "best_before_last_two": 0.7492970178524653,
+        "boundary_improvement": 0.0,
+        "extend": false,
+        "next_cap": null,
+        "rule": "best epoch in final two and improvement >= 1e-4"
+      }
+    },
+    "2": {
+      "outer_fold": 2,
+      "validation_fold": 1,
+      "epoch_cap": 12,
+      "run_dir": "artifacts/rfly_full/v2/supervised_tcn/run_20260722_164132",
+      "extension_decision": {
+        "cap": 12,
+        "best_epoch": 3,
+        "best_validation_loss": 2.650225673403059,
+        "best_before_last_two": 2.650225673403059,
+        "boundary_improvement": 0.0,
+        "extend": false,
+        "next_cap": null,
+        "rule": "best epoch in final two and improvement >= 1e-4"
+      }
+    },
+    "3": {
+      "outer_fold": 3,
+      "validation_fold": 2,
+      "epoch_cap": 12,
+      "run_dir": "artifacts/rfly_full/v2/supervised_tcn/run_20260722_165524",
+      "extension_decision": {
+        "cap": 12,
+        "best_epoch": 2,
+        "best_validation_loss": 2.6503083365304128,
+        "best_before_last_two": 2.6503083365304128,
+        "boundary_improvement": 0.0,
+        "extend": false,
+        "next_cap": null,
+        "rule": "best epoch in final two and improvement >= 1e-4"
+      }
+    },
+    "4": {
+      "outer_fold": 4,
+      "validation_fold": 3,
+      "epoch_cap": 12,
+      "run_dir": "artifacts/rfly_full/v2/supervised_tcn/run_20260722_171024",
+      "extension_decision": {
+        "cap": 12,
+        "best_epoch": 2,
+        "best_validation_loss": 1.2682903110980988,
+        "best_before_last_two": 1.2682903110980988,
+        "boundary_improvement": 0.0,
+        "extend": false,
+        "next_cap": null,
+        "rule": "best epoch in final two and improvement >= 1e-4"
+      }
+    }
+  },
+  "gate_summary": {
+    "critical_development_gate": {
+      "passed": false,
+      "conditions": {
+        "recall_mean_ge_0_50": false,
+        "recall_min_ge_0_40": false,
+        "fa_mean_le_2": false,
+        "fa_max_le_4": false
+      }
+    },
+    "advisory_development_gate": {
+      "passed": false,
+      "conditions": {
+        "recall_mean_ge_0_60": true,
+        "recall_min_ge_0_50": true,
+        "fa_mean_le_12": false,
+        "fa_max_le_15": false
+      }
+    },
+    "real_research_gate": {
+      "passed": false,
+      "conditions": {
+        "macro_mean_ge_0_40": false,
+        "motor_mean_ge_0_30": false,
+        "sensor_mean_ge_0_30": false,
+        "macro_min_ge_0_25": false,
+        "real_fa_mean_le_4": true,
+        "real_fa_max_le_8": true
+      }
+    },
+    "wind_intermediate_gate": {
+      "passed": false,
+      "conditions": {
+        "wind_fa_mean_le_15": true,
+        "wind_fa_max_le_20": true,
+        "critical_recall_mean_ge_0_50": false,
+        "all_nonfault_fa_mean_le_2": false
+      }
+    },
+    "operational_claim_allowed": false
+  },
+  "locked_test_features_read": false,
+  "operational_claim_allowed": false
+}

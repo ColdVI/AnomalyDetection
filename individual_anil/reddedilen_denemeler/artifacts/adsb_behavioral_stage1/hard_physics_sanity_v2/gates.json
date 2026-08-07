@@ -1,0 +1,27 @@
+{
+  "hard_sanity": {
+    "status": "failed",
+    "rule": "each obvious easy anomaly type recall >=0.95",
+    "recall_by_type": {
+      "altitude_bias": 0.9655172413793104,
+      "freeze": 0.9,
+      "position_jump": 0.9642857142857143,
+      "speed_bias": 0.6538461538461539,
+      "track_bias": 0.7428571428571429,
+      "vertical_rate_bias": 0.78125
+    }
+  },
+  "all_easy": {
+    "status": "reported",
+    "event_recall": 0.828
+  },
+  "all_medium": {
+    "status": "reported",
+    "event_recall": 0.808
+  },
+  "natural_alarm_rate": {
+    "status": "reported",
+    "false_events_per_hour_under_injection_ground_truth": 25.53718746345006,
+    "note": "Natural hard violations may be real data-integrity anomalies; manual audit required"
+  }
+}

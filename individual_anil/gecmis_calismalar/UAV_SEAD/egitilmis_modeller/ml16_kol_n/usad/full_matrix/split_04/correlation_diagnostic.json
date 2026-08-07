@@ -1,0 +1,36 @@
+{
+  "split": "split_04",
+  "seed": 4,
+  "architecture": "usad",
+  "n_test_windows": 229554,
+  "correlations": {
+    "relerr": {
+      "trained_vs_untrained_random_init_spearman": {
+        "spearman": 0.45028177475564973,
+        "n_windows": 229554
+      },
+      "trained_vs_magnitude_only_spearman": {
+        "spearman": 0.17072719380136522,
+        "n_windows": 229554
+      },
+      "untrained_vs_magnitude_only_spearman": {
+        "spearman": -0.37812140476767925,
+        "n_windows": 229554
+      }
+    },
+    "rankpct": {
+      "trained_vs_untrained_random_init_spearman": {
+        "spearman": 0.7419665575180895,
+        "n_windows": 229554
+      },
+      "trained_vs_magnitude_only_spearman": {
+        "spearman": 0.7749015743023928,
+        "n_windows": 229554
+      },
+      "untrained_vs_magnitude_only_spearman": {
+        "spearman": 0.885798467033196,
+        "n_windows": 229554
+      }
+    }
+  }
+}

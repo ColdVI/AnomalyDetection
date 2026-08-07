@@ -1,0 +1,200 @@
+{
+  "gate_a": {
+    "status": "passed",
+    "blind_holdout_read": false,
+    "blind_holdout_flights": 200,
+    "decision_layers": "imported unchanged from src/ml/decision/decision_layers.py",
+    "policy_objects": "existing decision layer classes only"
+  },
+  "gate_b": {
+    "status": "smoke_only",
+    "rule": ">=3/4 {existing_fusion,itki_komutu} x {critical,advisory} CUSUM cells meet median FA<=budget and >=4/5 seeds <=1.25x budget",
+    "evaluated_seed_count": 1,
+    "passed_cells": 0,
+    "cells": [
+      {
+        "score_source": "existing_fusion",
+        "budget": "advisory",
+        "median_fa_per_hour": 3.2205819929666255,
+        "seeds_within_1_25_budget": 1,
+        "seed_count": 1,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "budget": "critical",
+        "median_fa_per_hour": 0.0,
+        "seeds_within_1_25_budget": 1,
+        "seed_count": 1,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "budget": "advisory",
+        "median_fa_per_hour": 16.190744019186763,
+        "seeds_within_1_25_budget": 0,
+        "seed_count": 1,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "budget": "critical",
+        "median_fa_per_hour": 9.720302015135633,
+        "seeds_within_1_25_budget": 0,
+        "seed_count": 1,
+        "passed": false
+      }
+    ]
+  },
+  "gate_c": {
+    "status": "smoke_only",
+    "rule": "any drift-corrected row critical recall >=0.30 @ FA<=2 or advisory recall >=0.50 @ FA<=12",
+    "evaluated_seed_count": 1,
+    "candidates": [
+      {
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.005089058524173028,
+        "mean_false_alarms_per_hour": 3.2205819929666255,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "existing_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.022900763358778626,
+        "mean_false_alarms_per_hour": 16.190744019186763,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.007633587786259542,
+        "mean_false_alarms_per_hour": 9.720302015135633,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "itki_komutu",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "cusum",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.005089058524173028,
+        "mean_false_alarms_per_hour": 3.2205819929666255,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "cusum",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "k_of_n",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "k_of_n",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "threshold",
+        "budget": "advisory",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      },
+      {
+        "score_source": "ml14_fusion",
+        "decision": "threshold",
+        "budget": "critical",
+        "mean_event_onset_recall": 0.0,
+        "mean_false_alarms_per_hour": 0.0,
+        "passed": false
+      }
+    ]
+  }
+}

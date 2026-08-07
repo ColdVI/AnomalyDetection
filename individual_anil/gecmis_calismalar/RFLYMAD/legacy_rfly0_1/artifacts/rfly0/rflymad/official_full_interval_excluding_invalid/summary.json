@@ -1,0 +1,91 @@
+{
+  "official_gate": true,
+  "status": "official_gate_evaluated",
+  "best_rows": [
+    {
+      "score_source": "itki_komutu",
+      "decision": "cusum",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.526072607260726,
+      "mean_false_alarms_per_hour": 22.275367515274844,
+      "seed_count": 5
+    },
+    {
+      "score_source": "itki_komutu",
+      "decision": "threshold",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.4607260726072607,
+      "mean_false_alarms_per_hour": 28.739141086144862,
+      "seed_count": 5
+    },
+    {
+      "score_source": "itki_komutu",
+      "decision": "k_of_n",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.45148514851485155,
+      "mean_false_alarms_per_hour": 30.13824350908941,
+      "seed_count": 5
+    },
+    {
+      "score_source": "itki_komutu",
+      "decision": "cusum",
+      "budget": "critical",
+      "mean_event_onset_recall": 0.44158415841584164,
+      "mean_false_alarms_per_hour": 9.227697103396597,
+      "seed_count": 5
+    },
+    {
+      "score_source": "itki_komutu",
+      "decision": "threshold",
+      "budget": "critical",
+      "mean_event_onset_recall": 0.40594059405940597,
+      "mean_false_alarms_per_hour": 17.284969055895537,
+      "seed_count": 5
+    },
+    {
+      "score_source": "itki_komutu",
+      "decision": "k_of_n",
+      "budget": "critical",
+      "mean_event_onset_recall": 0.3940594059405941,
+      "mean_false_alarms_per_hour": 14.0854477633472,
+      "seed_count": 5
+    },
+    {
+      "score_source": "existing_fusion",
+      "decision": "cusum",
+      "budget": "critical",
+      "mean_event_onset_recall": 0.0,
+      "mean_false_alarms_per_hour": 0.0,
+      "seed_count": 5
+    },
+    {
+      "score_source": "existing_fusion",
+      "decision": "k_of_n",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.0,
+      "mean_false_alarms_per_hour": 0.0,
+      "seed_count": 5
+    },
+    {
+      "score_source": "existing_fusion",
+      "decision": "k_of_n",
+      "budget": "critical",
+      "mean_event_onset_recall": 0.0,
+      "mean_false_alarms_per_hour": 0.0,
+      "seed_count": 5
+    },
+    {
+      "score_source": "existing_fusion",
+      "decision": "threshold",
+      "budget": "advisory",
+      "mean_event_onset_recall": 0.0,
+      "mean_false_alarms_per_hour": 0.0,
+      "seed_count": 5
+    }
+  ],
+  "gate_status": {
+    "gate_r_a": "passed",
+    "gate_r_b": "passed",
+    "gate_r_c": "failed"
+  }
+}

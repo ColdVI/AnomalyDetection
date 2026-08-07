@@ -1,0 +1,5 @@
+gate,status
+D1 rebuild,passed
+D2 FA drift,passed
+D3 operating target,failed
+RFLY split readiness,parsed_but_gate_not_ready

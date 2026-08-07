@@ -1,0 +1,53 @@
+{
+  "features": [
+    "roll_error",
+    "pitch_error",
+    "yaw_error",
+    "alt_error",
+    "xtrack_error",
+    "path_dev_mag",
+    "roll_rate",
+    "pitch_rate",
+    "yaw_rate",
+    "altitude_rate",
+    "throttle",
+    "climb_rate_ms",
+    "gps_speed_residual"
+  ],
+  "median": {
+    "roll_error": 16.75922006368637,
+    "pitch_error": 1.722344160079956,
+    "yaw_error": 64.06072998046875,
+    "alt_error": -0.85999995470047,
+    "xtrack_error": -11.247299194335938,
+    "path_dev_mag": 236.6641936349522,
+    "roll_rate": 0.0,
+    "pitch_rate": 0.0,
+    "yaw_rate": 0.0,
+    "altitude_rate": 0.0,
+    "throttle": 0.019999999552965164,
+    "climb_rate_ms": -0.013706774450838566,
+    "gps_speed_residual": -0.17750454124614998
+  },
+  "scale": {
+    "roll_error": 1.077887224137783,
+    "pitch_error": 0.10456185328960418,
+    "yaw_error": 23.50889024505615,
+    "alt_error": 0.4299540318131447,
+    "xtrack_error": 0.4431839698791504,
+    "path_dev_mag": 13.804531180843174,
+    "roll_rate": 0.01581340500727844,
+    "pitch_rate": 0.012850061154972534,
+    "yaw_rate": 0.017156877648564925,
+    "altitude_rate": 0.05875783714239542,
+    "throttle": 0.02965199933722615,
+    "climb_rate_ms": 0.413643478099443,
+    "gps_speed_residual": 0.09397172069352841
+  },
+  "excluded": [
+    "airspeed_error",
+    "wp_dist",
+    "airspeed_rate"
+  ],
+  "clip": 5.0
+}

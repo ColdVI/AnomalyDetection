@@ -1,0 +1,3 @@
+candidate,rotation,policy,event_recall,all_nonfault_fa_per_hour,wind_fa_per_hour,real_motor_recall,real_sensor_recall,real_macro_recall,real_normal_fa_per_hour,real_normal_alarm_flight_rate
+R4,2,critical,0.4702677090736792,0.6937961853254879,29.09231962761831,0.2448979591836734,0.0,0.1224489795918367,0.0,0.0
+R4,2,advisory,0.6029376924899313,2.1030696867678853,36.074476338246704,0.3418367346938775,0.0316455696202531,0.1867411521570653,0.0,0.0

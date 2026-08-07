@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "status": "artifact_measured_training_loop_not_end_to_end_notebook_benchmark",
+  "adsb": {
+    "physical_training_rows": 275468643,
+    "training_windows_per_epoch": 236129563,
+    "epochs": 8,
+    "training_window_epochs": 1889036504,
+    "training_input_gib": 17.6739455,
+    "l4_training_elapsed_seconds_this_reported_session": 2539.8835,
+    "truth_v2_cpu_elapsed_seconds_observed": 7762.0,
+    "truth_v2_rows_audited": 26802690
+  },
+  "four_dataset": [
+    {
+      "dataset": "ALFA",
+      "optimizer_windows_per_epoch": 13026,
+      "epochs": 30,
+      "training_window_epochs": 390780,
+      "input_gib": 0.017494020983576775,
+      "test_windows": 4941,
+      "measured_l4_training_loop_minutes": 0.10509563696666667
+    },
+    {
+      "dataset": "UAV-Attack",
+      "optimizer_windows_per_epoch": 17656,
+      "epochs": 30,
+      "training_window_epochs": 529680,
+      "input_gib": 0.01312259677797556,
+      "test_windows": 18087,
+      "measured_l4_training_loop_minutes": 0.12961187698333335
+    },
+    {
+      "dataset": "UAV-SEAD",
+      "optimizer_windows_per_epoch": 911940,
+      "epochs": 30,
+      "training_window_epochs": 27358200,
+      "input_gib": 0.6109383022412658,
+      "test_windows": 331724,
+      "measured_l4_training_loop_minutes": 7.6286201149499995
+    },
+    {
+      "dataset": "RflyMAD",
+      "optimizer_windows_per_epoch": 234529,
+      "epochs": 30,
+      "training_window_epochs": 7035870,
+      "input_gib": 0.31565591413527727,
+      "test_windows": 114022,
+      "measured_l4_training_loop_minutes": 3.15622189175
+    }
+  ],
+  "sequential_four_dataset_l4_training_loop_minutes": 11.01954952065,
+  "parallel_four_training_loop_lower_bound_minutes": 7.6286201149499995,
+  "measurement_note": "ADS-B elapsed is session-scoped. Four-dataset values are exact sums of per-epoch elapsed_seconds in the accepted L4 histories; end-to-end notebook time is longer because transfer, verification, Parquet load and scoring are excluded."
+}

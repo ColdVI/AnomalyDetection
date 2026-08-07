@@ -1,0 +1,24 @@
+{
+  "created_utc": "2026-07-09T14:15:36.357721+00:00",
+  "stage": "RFLY-1 frozen ML-14 severity sweep preflight",
+  "status": "blocked_no_simulation_testinfo",
+  "frozen_ml14_model_inventory": {
+    "model_dir": "C:\\Users\\PC_5812_YD26\\Desktop\\GitHub\\AnomalyDetection\\artifacts\\ml14\\uav_sead\\full_matrix\\split_00\\models",
+    "exists": true,
+    "model_count": 7,
+    "models": {
+      "ekf_redleri.joblib": "09e0f89b0c363c1f0db3be439fe87c1bc3d853608c01be90efbc6848a9d508bd",
+      "irtifa_tutarliligi.joblib": "dd308214311a9852bf706c1d1d898d37a829a07625d8114851f6ec7a4b619373",
+      "itki_komutu.joblib": "0262f153fb89b2cef1cebc7039958d8976d26e60db7b802d95b3a3e90f5b68c1",
+      "kontrol_cevabi.joblib": "48c51b4cf053d3abb861703328fca61e5de691c5d9bf4a4e0d12430f3ac79955",
+      "nav_butunlugu.joblib": "df07b1cdf58133559ac304cfc17efc0bbc03a921a4bd06527a5af75faba6feae",
+      "sinyal_kalitesi.joblib": "bca934e4e84c0225abc15d224be0cd5c672b1b2c8de6ca364c01e90fa62cf89f",
+      "veri_kalitesi.joblib": "d5f9596b1e563c0231e5f4797d785eb9246d72db346096ff96ade065257ea996"
+    }
+  },
+  "model_files_modified": false,
+  "simulation_testinfo_count": 0,
+  "fault_parameter_count": 0,
+  "fault_parameter_values": {},
+  "severity_bucket_policy": "not frozen until TestInfo Fault Parameter distribution is available"
+}

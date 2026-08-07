@@ -1,0 +1,26 @@
+{
+  "flights": 4633,
+  "features_before_pca": 52,
+  "pca_components": 12,
+  "pca_2_explained_variance": 0.3310585517123398,
+  "tsne_perplexity": 30.0,
+  "knn_fold0_flights": 621,
+  "knn_fold0_accuracy": 0.4492753623188406,
+  "mean_knn_family_agreement": 0.7726742931146126,
+  "mean_knn_domain_agreement": 0.9484135549320095,
+  "development_rows": 486877,
+  "normal_flights_total": 531,
+  "normal_flights_development": 441,
+  "normal_flights_real_total": 51,
+  "normal_fold0_by_domain": {
+    "Real": 0,
+    "HIL": 40,
+    "SIL": 0
+  },
+  "normal_train_by_domain": {
+    "Real": 41,
+    "HIL": 160,
+    "SIL": 200
+  },
+  "development_only_features": true
+}

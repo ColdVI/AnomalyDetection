@@ -1,0 +1,36 @@
+{
+  "split": "split_01",
+  "seed": 1,
+  "architecture": "usad",
+  "n_test_windows": 232324,
+  "correlations": {
+    "relerr": {
+      "trained_vs_untrained_random_init_spearman": {
+        "spearman": 0.18112659728694974,
+        "n_windows": 232324
+      },
+      "trained_vs_magnitude_only_spearman": {
+        "spearman": 0.3822846676728831,
+        "n_windows": 232324
+      },
+      "untrained_vs_magnitude_only_spearman": {
+        "spearman": -0.4776916371069367,
+        "n_windows": 232324
+      }
+    },
+    "rankpct": {
+      "trained_vs_untrained_random_init_spearman": {
+        "spearman": 0.706613080644976,
+        "n_windows": 232324
+      },
+      "trained_vs_magnitude_only_spearman": {
+        "spearman": 0.8039504927470943,
+        "n_windows": 232324
+      },
+      "untrained_vs_magnitude_only_spearman": {
+        "spearman": 0.9052457254765119,
+        "n_windows": 232324
+      }
+    }
+  }
+}

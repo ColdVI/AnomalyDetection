@@ -1,0 +1,19 @@
+# Bu klasörün (individual_anil/) bağımlılıkları -- kök requirements.txt'in bir
+# alt kümesi, aynı sürüm pin'leriyle (o dosya ayrıca takım hattının
+# bağımlılıklarını da içeriyor: confluent-kafka, redis, influxdb, minio, dash,
+# fastapi... bunlar burada gerekmiyor).
+#
+# torch yalnız derin öğrenme modelleri (LSTM-AE, Dense-AE, USAD, TCN vb.) için
+# gerekli. Kurulu değilse bu modelleri kullanan testler toplanma hatası verip
+# atlanır -- bkz. CALISTIRMA.md.
+
+numpy==2.5.0
+pandas==3.0.3
+scipy==1.18.0
+scikit-learn==1.9.0
+pyarrow==24.0.0
+matplotlib==3.11.0
+joblib==1.5.3
+pyulog==1.2.3
+pytest==9.1.1
+torch==2.12.1

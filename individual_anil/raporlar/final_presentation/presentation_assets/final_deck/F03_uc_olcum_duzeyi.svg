@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-04T18:42:21.470033</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 525.6 504 
+L 770.4 504 
+L 770.4 172.8 
+L 525.6 172.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #dce6f1"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 121.04 234 
+L 161.36 234 
+L 161.36 190.8 
+L 121.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #e8e8e8"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 173.04 234 
+L 213.36 234 
+L 213.36 190.8 
+L 173.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #e8e8e8"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 225.04 234 
+L 265.36 234 
+L 265.36 190.8 
+L 225.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #e8e8e8"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 277.04 234 
+L 317.36 234 
+L 317.36 190.8 
+L 277.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #e8e8e8"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 329.04 234 
+L 369.36 234 
+L 369.36 190.8 
+L 329.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #e8e8e8"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 381.04 234 
+L 421.36 234 
+L 421.36 190.8 
+L 381.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #e8e8e8"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 433.04 234 
+L 473.36 234 
+L 473.36 190.8 
+L 433.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #e8e8e8"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 485.04 234 
+L 525.36 234 
+L 525.36 190.8 
+L 485.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #e8e8e8"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 537.04 234 
+L 577.36 234 
+L 577.36 190.8 
+L 537.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #2a78d6"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 589.04 234 
+L 629.36 234 
+L 629.36 190.8 
+L 589.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #2a78d6"/>
+   </g>
+   <g id="patch_13">
+    <path d="M 641.04 234 
+L 681.36 234 
+L 681.36 190.8 
+L 641.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #2a78d6"/>
+   </g>
+   <g id="patch_14">
+    <path d="M 693.04 234 
+L 733.36 234 
+L 733.36 190.8 
+L 693.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #2a78d6"/>
+   </g>
+   <g id="patch_15">
+    <path d="M 745.04 234 
+L 785.36 234 
+L 785.36 190.8 
+L 745.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #2a78d6"/>
+   </g>
+   <g id="patch_16">
+    <path d="M 797.04 234 
+L 837.36 234 
+L 837.36 190.8 
+L 797.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #e8e8e8"/>
+   </g>
+   <g id="patch_17">
+    <path d="M 849.04 234 
+L 889.36 234 
+L 889.36 190.8 
+L 849.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #e8e8e8"/>
+   </g>
+   <g id="patch_18">
+    <path d="M 901.04 234 
+L 941.36 234 
+L 941.36 190.8 
+L 901.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #e8e8e8"/>
+   </g>
+   <g id="patch_19">
+    <path d="M 953.04 234 
+L 993.36 234 
+L 993.36 190.8 
+L 953.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #e8e8e8"/>
+   </g>
+   <g id="patch_20">
+    <path d="M 1005.04 234 
+L 1045.36 234 
+L 1045.36 190.8 
+L 1005.04 190.8 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #e8e8e8"/>
+   </g>
+   <g id="patch_21">
+    <path d="M 543.6 360 
+L 730.8 360 
+L 730.8 315.36 
+L 543.6 315.36 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #1baf7a"/>
+   </g>
+   <g id="patch_22">
+    <path d="M 115.2 482.4 
+L 1051.2 482.4 
+L 1051.2 437.76 
+L 115.2 437.76 
+z
+" clip-path="url(#p3f14feb54b)" style="fill: #898781"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 100.8 
+L 1101.6 100.8 
+" clip-path="url(#p3f14feb54b)" style="fill: none; stroke: #e1e0d9; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 26px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #1c5cab" x="50.4" y="63.321562" transform="rotate(-0 50.4 63.321562)">Aynı veriden üç farklı soru sorulabilir</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="51.84" y="93.437813" transform="rotate(-0 51.84 93.437813)">Bu üçü birbirinin yerine kullanılamaz — proje boyunca en pahalı hatamız buydu</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 13px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #1c5cab" x="648" y="162" transform="rotate(-0 648 162)">gerçek arıza aralığı</text>
+   </g>
+   <g id="text_4">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #0b0b0b" x="61.2" y="216.29707" transform="rotate(-0 61.2 216.29707)">window</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="1062" y="215.669531" transform="rotate(-0 1062 215.669531)">modelin skor ürettiği kısa dilim</text>
+   </g>
+   <g id="text_6">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #1baf7a" x="61.2" y="342.296484" transform="rotate(-0 61.2 342.296484)">event</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(1062 333.61125)">ardışık alarmların birleşip</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(1062 349.81125)">gerçek aralıkla eşleşmesi</text>
+   </g>
+   <g id="text_8">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #0b0b0b" x="61.2" y="464.69707" transform="rotate(-0 61.2 464.69707)">flight</text>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 12.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #ffffff" x="648" y="463.327559" transform="rotate(-0 648 463.327559)">bu uçuşta en az bir alarm var mı?</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(1062 456.01125)">operatöre en az bilgi veren</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; fill: #52514e" transform="translate(1062 472.21125)">düzey</text>
+   </g>
+   <g id="patch_23">
+    <path d="M 117.203082 536.4 
+Q 583.202143 536.4 1047.41235 536.4 
+" style="fill: none; stroke: #52514e; stroke-width: 1.6; stroke-linecap: round"/>
+    <path d="M 1041.41235 533.4 
+L 1047.41235 536.4 
+L 1041.41235 539.4 
+z
+" style="fill: #52514e; stroke: #52514e; stroke-width: 1.6; stroke-linecap: round"/>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52514e" x="648" y="565.2" transform="rotate(-0 648 565.2)">zaman</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="50.4" y="624.96" transform="rotate(-0 50.4 624.96)">Kavramsal gösterim — gerçek bir uçuşun skor kaydı değildir.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p3f14feb54b">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

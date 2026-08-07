@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-07-21T06:37:45.653972+03:00",
+  "model": "frozen_dense_autoencoder",
+  "evaluated_batches": 368,
+  "evaluated_flights": 5295,
+  "confusion_flight": {
+    "tp": 169,
+    "fn": 5054,
+    "fp": 0,
+    "tn": 72
+  },
+  "event_recall": 0.032356883017422934,
+  "false_alarm_events": 322,
+  "normal_exposure_hours": 66.24111111111111,
+  "false_alarms_per_hour": 4.861029572101917
+}

@@ -1,0 +1,75 @@
+{
+  "status": "development_only",
+  "created_at": "2026-07-22T13:44:22.986999+00:00",
+  "model": "supervised_tcn_multitask",
+  "validation_fold": 1,
+  "held_out_family": null,
+  "families": [
+    "Load",
+    "Motor",
+    "Propeller",
+    "Sensor",
+    "Voltage"
+  ],
+  "normal_only_ae": false,
+  "training_contract": "NoFault + wholly fault-active windows; transition/wind excluded",
+  "calibration": "temperature scaling on labeled development validation",
+  "split_contract": "development-only disjoint validation/smoke folds; locked test unread",
+  "development_smoke_fold": 2,
+  "locked_test_features_read": false,
+  "training_flights": 2275,
+  "validation_flights": 1290,
+  "test_flights": 1311,
+  "training_windows": 18453,
+  "validation_training_windows": 10362,
+  "validation_eval_windows": 109100,
+  "test_eval_windows": 113529,
+  "max_train_windows": 50000,
+  "max_val_windows": 20000,
+  "window_memory_contract": "reservoir-sampled train/validation-loss windows capped at max_train_windows/max_val_windows; dense validation/test scoring windows are built and scored one flight at a time, never materialized for a whole split at once",
+  "metrics": [
+    {
+      "policy": "critical",
+      "events": 1192,
+      "detected_events": 358,
+      "event_recall": 0.30033557046979864,
+      "false_alarm_events": 1,
+      "normal_exposure_hours": 11.445833333333333,
+      "false_alarms_per_hour": 0.08736803785948308,
+      "median_detection_delay_s": 21.0,
+      "confusion_flight": {
+        "tp": 358,
+        "fn": 834,
+        "fp": 0,
+        "tn": 50
+      },
+      "flight_tp": 358,
+      "flight_fn": 834,
+      "flight_fp": 0,
+      "flight_tn": 50
+    },
+    {
+      "policy": "advisory",
+      "events": 1192,
+      "detected_events": 778,
+      "event_recall": 0.6526845637583892,
+      "false_alarm_events": 61,
+      "normal_exposure_hours": 11.445833333333333,
+      "false_alarms_per_hour": 5.329450309428467,
+      "median_detection_delay_s": 17.000000000000007,
+      "confusion_flight": {
+        "tp": 778,
+        "fn": 414,
+        "fp": 16,
+        "tn": 34
+      },
+      "flight_tp": 778,
+      "flight_fn": 414,
+      "flight_fp": 16,
+      "flight_tn": 34
+    }
+  ],
+  "evaluation_scope": "development_only",
+  "operational_claim_allowed": false,
+  "protocol": "full"
+}

@@ -1,0 +1,210 @@
+{
+  "itki_komutu:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9980427856167501,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "itki_komutu:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 2,
+    "n": 3,
+    "threshold": 0.9960400546199363,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "itki_komutu:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.09611481149246538,
+    "sigma_normal": 1.767755991784785,
+    "k": 0.5,
+    "h": 7.0,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.985
+  },
+  "itki_komutu:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9943104233045061,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 9.342560553633218
+  },
+  "itki_komutu:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9724624487938097,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 9.342560553633218
+  },
+  "itki_komutu:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.09611481149246538,
+    "sigma_normal": 1.767755991784785,
+    "k": 0.5,
+    "h": 3.7802734375,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 11.63
+  },
+  "itki_kontrol_ince:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.999135184342285,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "itki_kontrol_ince:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9711879836140191,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "itki_kontrol_ince:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.020840889811749887,
+    "sigma_normal": 1.8189396391489494,
+    "k": 0.5,
+    "h": 6.822265625,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 2.0
+  },
+  "itki_kontrol_ince:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.9983158852981339,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 9.342560553633218
+  },
+  "itki_kontrol_ince:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 3,
+    "n": 5,
+    "threshold": 0.9528903049613109,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 9.342560553633218
+  },
+  "itki_kontrol_ince:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 0.020840889811749887,
+    "sigma_normal": 1.8189396391489494,
+    "k": 0.5,
+    "h": 4.67578125,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 12.0
+  },
+  "ml12_fusion_itki:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.999954483386436,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "ml12_fusion_itki:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 2,
+    "n": 3,
+    "threshold": 0.999954483386436,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "ml12_fusion_itki:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 6.303842722637369,
+    "sigma_normal": 2.219813156479778,
+    "k": 0.5,
+    "h": 29.078125,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 2.0
+  },
+  "ml12_fusion_itki:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.999954483386436,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "ml12_fusion_itki:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 2,
+    "n": 3,
+    "threshold": 0.999954483386436,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "ml12_fusion_itki:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 6.303842722637369,
+    "sigma_normal": 2.219813156479778,
+    "k": 0.5,
+    "h": 18.9921875,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 9.88
+  },
+  "ml12_fusion_ince:critical:threshold": {
+    "kind": "threshold",
+    "threshold": 0.999954483386436,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "ml12_fusion_ince:critical:k_of_n": {
+    "kind": "k_of_n",
+    "k": 2,
+    "n": 3,
+    "threshold": 0.999954483386436,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "ml12_fusion_ince:critical:cusum": {
+    "kind": "cusum",
+    "mu_normal": 6.305514823940596,
+    "sigma_normal": 2.2199392718742392,
+    "k": 0.5,
+    "h": 29.09375,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 2.0,
+    "calibration_fa_per_hour": 1.995
+  },
+  "ml12_fusion_ince:advisory:threshold": {
+    "kind": "threshold",
+    "threshold": 0.999954483386436,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "ml12_fusion_ince:advisory:k_of_n": {
+    "kind": "k_of_n",
+    "k": 2,
+    "n": 3,
+    "threshold": 0.999954483386436,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 0.0
+  },
+  "ml12_fusion_ince:advisory:cusum": {
+    "kind": "cusum",
+    "mu_normal": 6.305514823940596,
+    "sigma_normal": 2.2199392718742392,
+    "k": 0.5,
+    "h": 18.96875,
+    "refractory_seconds": 30.0,
+    "stride_seconds": 1.0,
+    "bootstrap_hours": 200.0,
+    "fa_budget_per_hour": 12.0,
+    "calibration_fa_per_hour": 9.95
+  }
+}

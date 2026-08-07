@@ -1,0 +1,14 @@
+{
+  "created_utc": "2026-07-06T07:53:22.517563+00:00",
+  "stage": "split_00_smoke",
+  "blind_holdout_read": false,
+  "scaler_fit": "train_only",
+  "descriptor_schema_sha256": "364cb56ab174540fee53fb991bee85c6811a9a68eeec859bfa84a8cf7bcd2670",
+  "files": {
+    "model.txt": "f8756e9d11dfebd71beed932ebd66005ae670620d66bff730d29411d8206b9e9",
+    "scaler.json": "2753f8c198e761762c845dcd6e688e87a6ca3e45ab9a887d18f26dec787c5c6c",
+    "metrics.json": "ba495754f144e4b11941d71b57747e11359ac3bfc1390620b908505a05022577",
+    "feature_importance.json": "a02b1a4c13001cb6b61d154647fc3a9883d4e49fb39604fff588d43da6f10421",
+    "descriptor_schema_v1.json": "364cb56ab174540fee53fb991bee85c6811a9a68eeec859bfa84a8cf7bcd2670"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "status": "smoke_only",
+  "created_at": "2026-07-21T05:47:53.758534+00:00",
+  "model": "supervised_tcn_multitask",
+  "validation_fold": 1,
+  "held_out_family": null,
+  "families": [
+    "Motor",
+    "Propeller",
+    "Sensor"
+  ],
+  "normal_only_ae": false,
+  "training_contract": "NoFault + wholly fault-active windows; transition/wind excluded",
+  "calibration": "temperature scaling on labeled development validation",
+  "split_contract": "locked grouped test; development grouped five-fold",
+  "training_flights": 57,
+  "validation_flights": 25,
+  "test_flights": 29,
+  "training_windows": 704,
+  "metrics": [
+    {
+      "policy": "critical",
+      "events": 18,
+      "detected_events": 2,
+      "event_recall": 0.1111111111111111,
+      "false_alarm_events": 3,
+      "normal_exposure_hours": 0.3138888888888889,
+      "false_alarms_per_hour": 9.557522123893806,
+      "median_detection_delay_s": 49.0,
+      "confusion_flight": {
+        "tp": 2,
+        "fn": 16,
+        "fp": 0,
+        "tn": 3
+      },
+      "flight_tp": 2,
+      "flight_fn": 16,
+      "flight_fp": 0,
+      "flight_tn": 3
+    },
+    {
+      "policy": "advisory",
+      "events": 18,
+      "detected_events": 5,
+      "event_recall": 0.2777777777777778,
+      "false_alarm_events": 3,
+      "normal_exposure_hours": 0.3138888888888889,
+      "false_alarms_per_hour": 9.557522123893806,
+      "median_detection_delay_s": 23.000000000000007,
+      "confusion_flight": {
+        "tp": 5,
+        "fn": 13,
+        "fp": 0,
+        "tn": 3
+      },
+      "flight_tp": 5,
+      "flight_fn": 13,
+      "flight_fp": 0,
+      "flight_tn": 3
+    }
+  ],
+  "operational_claim_allowed": false,
+  "protocol": "full"
+}

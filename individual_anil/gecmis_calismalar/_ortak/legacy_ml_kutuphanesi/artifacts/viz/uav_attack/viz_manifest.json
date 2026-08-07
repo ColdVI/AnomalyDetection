@@ -1,0 +1,147 @@
+{
+  "artifact_schema_version": 1,
+  "created_utc": "2026-07-06T16:30:16.717909+00:00",
+  "stage": "ML-11 visualization (read-only analysis)",
+  "source": "uav_attack",
+  "seed": 42,
+  "per_flight_cap": 200,
+  "max_points": 50000,
+  "development_flights": 19,
+  "blind_holdout_flights": 0,
+  "blind_holdout_read": false,
+  "development_source_ids_sha256": "ad1b8b7706334945c682acbe8fb86f3548aa92e55c2851eafa902dc1698c43d9",
+  "feature_table_sha256": "b075e2b2e669082919ba4575bfdf0d54320ad47ffa8a87c48e7ac7229d189693",
+  "split_manifest_sha256": "0e3047b3abc11d09bc5b2b94e35cca117efce8fa49fdc37393c146550b8d0f0d",
+  "sections": {
+    "s1_portfolio": {
+      "flight_label_counts": {
+        "ping_dos": 6,
+        "normal": 6,
+        "gps_spoofing": 6,
+        "gps_jamming": 1
+      },
+      "duration_minutes": {
+        "median": 10.532666666666668,
+        "max": 25.771533333333334
+      }
+    },
+    "s3_features": {
+      "top_by_category": {
+        "gps_jamming": [
+          {
+            "feature": "epv",
+            "auc": 1.0,
+            "q99_abs_ratio": 1.05
+          },
+          {
+            "feature": "noise_per_ms",
+            "auc": 0.995,
+            "q99_abs_ratio": 1.61
+          },
+          {
+            "feature": "jamming_indicator",
+            "auc": 0.991,
+            "q99_abs_ratio": 2.28
+          },
+          {
+            "feature": "noise_5s_mean",
+            "auc": 0.987,
+            "q99_abs_ratio": 1.59
+          },
+          {
+            "feature": "raw_gps_eph",
+            "auc": 0.984,
+            "q99_abs_ratio": 2.76
+          }
+        ],
+        "gps_spoofing": [
+          {
+            "feature": "gps_health_missing",
+            "auc": 0.648,
+            "q99_abs_ratio": 1.0
+          },
+          {
+            "feature": "num_missing_groups",
+            "auc": 0.629,
+            "q99_abs_ratio": 2.0
+          },
+          {
+            "feature": "epv",
+            "auc": 0.629,
+            "q99_abs_ratio": 0.94
+          },
+          {
+            "feature": "is_moving",
+            "auc": 0.405,
+            "q99_abs_ratio": 1.0
+          },
+          {
+            "feature": "vel_m_s",
+            "auc": 0.58,
+            "q99_abs_ratio": 1.01
+          }
+        ],
+        "ping_dos": [
+          {
+            "feature": "attitude_missing",
+            "auc": 0.68,
+            "q99_abs_ratio": 4503599627370496.0
+          },
+          {
+            "feature": "attitude_stale_count",
+            "auc": 0.68,
+            "q99_abs_ratio": 3.1854005200387785e+19
+          },
+          {
+            "feature": "attitude_stale_s",
+            "auc": 0.68,
+            "q99_abs_ratio": 6.3708010400781e+18
+          },
+          {
+            "feature": "num_missing_groups",
+            "auc": 0.64,
+            "q99_abs_ratio": 2.0
+          },
+          {
+            "feature": "epv",
+            "auc": 0.387,
+            "q99_abs_ratio": 0.24
+          }
+        ]
+      },
+      "n_redundant_pairs": 103,
+      "n_features_in_corr": 49,
+      "categories": [
+        "gps_jamming",
+        "gps_spoofing",
+        "ping_dos"
+      ]
+    },
+    "s2_embeddings": {
+      "n_points": 3800,
+      "n_flights": 19,
+      "pca_var_2comp": 0.601834774017334
+    },
+    "s4_model": {
+      "skipped": "uav_attack icin plan geregi opsiyonel; uretilmedi"
+    }
+  },
+  "files": {
+    "s1_portfolio/class_counts.png": "1114526a020af33ab0afd3867b02758278e3974271c6f80c83031d7c0e0af5ff",
+    "s1_portfolio/completeness_heatmap.png": "11bb2e51979c17173e75be2078520d66474d7d41f0b36db0680bd9d9ebdee0a7",
+    "s1_portfolio/completeness_matrix.csv": "bf0f778ceca3ea13ba5ad05375817773fab76f55cc00eeebf3eaad0737b8fa0a",
+    "s1_portfolio/flight_duration_hist.png": "2f6005b3925f0365c4a4d33f6fecd126d648a59aff51728cc7129e8d9e356fe9",
+    "s2_embeddings/pca_binary.png": "45a3e995180a43245dd6c57e50de55f792e70b55faf916308dcd2b40b91964a0",
+    "s2_embeddings/pca_fusion.png": "7ca853cadf19541b8e13da96e77fc4518dd9383a15a3bdd2864fa2a17c702e7e",
+    "s2_embeddings/pca_label.png": "831d5fc65c9fc9e6f725637f69a50561dcd9da22cca6f44335323f9727aecddf",
+    "s2_embeddings/pca_variance.png": "7b665ece00eeb58f842247d57eaa49b151b3bdaef9f87b5005b1b0a1a3b15ebf",
+    "s2_embeddings/tsne_binary.png": "f702d740e769a2023b69a079c599e217bd72258cc14ff702942e08c95dc8f7a7",
+    "s2_embeddings/tsne_fusion.png": "6658b556d3f657fc062bf27145d15a5ebba0321846a0568b6ee74454e916967d",
+    "s2_embeddings/tsne_label.png": "06e0eff7414082f87e0be5932da80cd24fb89679238d7a72e84da35c8bfe551d",
+    "s3_features/feature_auc_heatmap.png": "64cedea41c5581bc052ce30b3fd657d8029133cf6f04c2c61f216546d6c3a035",
+    "s3_features/feature_auc_matrix.csv": "f0c1cc8f47f6f875e5458838b9610955b598d07592b40eb95516fca1d57d4c10",
+    "s3_features/feature_q99_heatmap.png": "53ad81d696130bf7cb5e3fedfa2b65dca58b143006df0f4f1e60b097b49b1646",
+    "s3_features/redundant_pairs.csv": "22d5348acd6f98efc1dc4046139aed020e2508cef077e82c0ca97c52cab9beba",
+    "s3_features/spearman_heatmap.png": "af228f7b843175f166e314e6f1c2e77a7859bf1df370c3b52859e78ef260d61c"
+  }
+}

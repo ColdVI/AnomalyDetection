@@ -1,0 +1,36 @@
+{
+  "split": "split_03",
+  "seed": 3,
+  "architecture": "lstm",
+  "n_test_windows": 239680,
+  "correlations": {
+    "relerr": {
+      "trained_vs_untrained_random_init_spearman": {
+        "spearman": 0.4305548951638148,
+        "n_windows": 239680
+      },
+      "trained_vs_magnitude_only_spearman": {
+        "spearman": 0.3257679242329186,
+        "n_windows": 239680
+      },
+      "untrained_vs_magnitude_only_spearman": {
+        "spearman": 0.6840946677768439,
+        "n_windows": 239680
+      }
+    },
+    "rankpct": {
+      "trained_vs_untrained_random_init_spearman": {
+        "spearman": 0.8585108968023719,
+        "n_windows": 239680
+      },
+      "trained_vs_magnitude_only_spearman": {
+        "spearman": 0.8658515587926852,
+        "n_windows": 239680
+      },
+      "untrained_vs_magnitude_only_spearman": {
+        "spearman": 0.9758146624190538,
+        "n_windows": 239680
+      }
+    }
+  }
+}

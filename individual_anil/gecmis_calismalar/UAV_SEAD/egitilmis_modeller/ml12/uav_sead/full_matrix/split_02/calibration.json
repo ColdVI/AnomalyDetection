@@ -1,0 +1,18 @@
+{
+  "itki_komutu": {
+    "feature_columns": [
+      "actuator_thrust_cmd"
+    ],
+    "row_threshold_q99": 0.701108550293123,
+    "flight_threshold_max": 0.7169308293205623
+  },
+  "itki_kontrol_ince": {
+    "feature_columns": [
+      "actuator_thrust_cmd",
+      "attitude_error_mag",
+      "control_strain"
+    ],
+    "row_threshold_q99": 0.6597075370452453,
+    "flight_threshold_max": 0.78152905800965
+  }
+}

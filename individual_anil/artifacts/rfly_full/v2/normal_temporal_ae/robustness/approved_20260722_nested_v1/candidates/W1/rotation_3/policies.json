@@ -1,0 +1,74 @@
+{
+  "Real:critical": {
+    "domain": "Real",
+    "policy": "critical",
+    "budget_fa_per_hour": 2.0,
+    "threshold": 12.82254443168641,
+    "validation_alarm_events": 0,
+    "validation_fa_per_hour": 0.0,
+    "normal_component_fa_per_hour": 0.0,
+    "wind_component_fa_per_hour": null,
+    "environment_aware": false,
+    "alarm": "4-of-6 seconds; 30-second refractory"
+  },
+  "Real:advisory": {
+    "domain": "Real",
+    "policy": "advisory",
+    "budget_fa_per_hour": 12.0,
+    "threshold": 8.603115987777715,
+    "validation_alarm_events": 1,
+    "validation_fa_per_hour": 6.474820143884893,
+    "normal_component_fa_per_hour": 6.474820143884893,
+    "wind_component_fa_per_hour": null,
+    "environment_aware": false,
+    "alarm": "4-of-6 seconds; 30-second refractory"
+  },
+  "HIL:critical": {
+    "domain": "HIL",
+    "policy": "critical",
+    "budget_fa_per_hour": 2.0,
+    "threshold": 18.408598880767826,
+    "validation_alarm_events": 4,
+    "validation_fa_per_hour": 1.1926453536524764,
+    "normal_component_fa_per_hour": 0.0,
+    "wind_component_fa_per_hour": 2.3852907073049527,
+    "environment_aware": true,
+    "alarm": "4-of-6 seconds; 30-second refractory"
+  },
+  "HIL:advisory": {
+    "domain": "HIL",
+    "policy": "advisory",
+    "budget_fa_per_hour": 12.0,
+    "threshold": 7.919245491027833,
+    "validation_alarm_events": 39,
+    "validation_fa_per_hour": 11.628292198111646,
+    "normal_component_fa_per_hour": 0.0,
+    "wind_component_fa_per_hour": 23.256584396223293,
+    "environment_aware": true,
+    "alarm": "4-of-6 seconds; 30-second refractory"
+  },
+  "SIL:critical": {
+    "domain": "SIL",
+    "policy": "critical",
+    "budget_fa_per_hour": 2.0,
+    "threshold": 11.508125451405862,
+    "validation_alarm_events": 7,
+    "validation_fa_per_hour": 1.4035869444135012,
+    "normal_component_fa_per_hour": 0.0,
+    "wind_component_fa_per_hour": 2.8071738888270024,
+    "environment_aware": true,
+    "alarm": "4-of-6 seconds; 30-second refractory"
+  },
+  "SIL:advisory": {
+    "domain": "SIL",
+    "policy": "advisory",
+    "budget_fa_per_hour": 12.0,
+    "threshold": 4.389169214566548,
+    "validation_alarm_events": 58,
+    "validation_fa_per_hour": 11.62972039656901,
+    "normal_component_fa_per_hour": 0.0,
+    "wind_component_fa_per_hour": 23.25944079313802,
+    "environment_aware": true,
+    "alarm": "4-of-6 seconds; 30-second refractory"
+  }
+}

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-29T13:18:39.913271</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 46.44 487.8 
+L 230.76 487.8 
+Q 239.4 487.8 239.4 479.16 
+L 239.4 179.64 
+Q 239.4 171 230.76 171 
+L 46.44 171 
+Q 37.8 171 37.8 179.64 
+L 37.8 479.16 
+Q 37.8 487.8 46.44 487.8 
+z
+" clip-path="url(#p5c15449b16)" style="fill: #f4f7fb; stroke: #2e8b57; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 268.2 487.8 
+L 452.52 487.8 
+Q 461.16 487.8 461.16 479.16 
+L 461.16 179.64 
+Q 461.16 171 452.52 171 
+L 268.2 171 
+Q 259.56 171 259.56 179.64 
+L 259.56 479.16 
+Q 259.56 487.8 268.2 487.8 
+z
+" clip-path="url(#p5c15449b16)" style="fill: #f4f7fb; stroke: #2f6bff; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 489.96 487.8 
+L 674.28 487.8 
+Q 682.92 487.8 682.92 479.16 
+L 682.92 179.64 
+Q 682.92 171 674.28 171 
+L 489.96 171 
+Q 481.32 171 481.32 179.64 
+L 481.32 479.16 
+Q 481.32 487.8 489.96 487.8 
+z
+" clip-path="url(#p5c15449b16)" style="fill: #f4f7fb; stroke: #27a9c7; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 711.72 487.8 
+L 896.04 487.8 
+Q 904.68 487.8 904.68 479.16 
+L 904.68 179.64 
+Q 904.68 171 896.04 171 
+L 711.72 171 
+Q 703.08 171 703.08 179.64 
+L 703.08 479.16 
+Q 703.08 487.8 711.72 487.8 
+z
+" clip-path="url(#p5c15449b16)" style="fill: #f4f7fb; stroke: #6c5ce7; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 933.48 487.8 
+L 1117.8 487.8 
+Q 1126.44 487.8 1126.44 479.16 
+L 1126.44 179.64 
+Q 1126.44 171 1117.8 171 
+L 933.48 171 
+Q 924.84 171 924.84 179.64 
+L 924.84 479.16 
+Q 924.84 487.8 933.48 487.8 
+z
+" clip-path="url(#p5c15449b16)" style="fill: #f4f7fb; stroke: #d64545; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 50.4 104.4 
+L 1101.6 104.4 
+" clip-path="url(#p5c15449b16)" style="fill: none; stroke: #d7dfea; stroke-width: 1.2; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 248.4 500.4 
+L 248.4 158.4 
+" clip-path="url(#p5c15449b16)" style="fill: none; stroke-dasharray: 7.4,3.2; stroke-dashoffset: 0; stroke: #d7dfea; stroke-width: 2"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 470.16 500.4 
+L 470.16 158.4 
+" clip-path="url(#p5c15449b16)" style="fill: none; stroke-dasharray: 7.4,3.2; stroke-dashoffset: 0; stroke: #d7dfea; stroke-width: 2"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 691.92 500.4 
+L 691.92 158.4 
+" clip-path="url(#p5c15449b16)" style="fill: none; stroke-dasharray: 7.4,3.2; stroke-dashoffset: 0; stroke: #d7dfea; stroke-width: 2"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 913.68 500.4 
+L 913.68 158.4 
+" clip-path="url(#p5c15449b16)" style="fill: none; stroke-dasharray: 7.4,3.2; stroke-dashoffset: 0; stroke: #d7dfea; stroke-width: 2"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 29px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #16324f" x="50.4" y="69.243281" transform="rotate(-0 50.4 69.243281)">Benzer uçuş gruplarını ayıran veri bölünmesi</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 14.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #617086" x="51.84" y="95.977734" transform="rotate(-0 51.84 95.977734)">Aynı senaryo / oturum grubu birden fazla role geçmez</text>
+   </g>
+   <g id="text_3">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e8b57" x="55.44" y="204.723281" transform="rotate(-0 55.44 204.723281)">Normal eğitim</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 17px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(55.44 247.984688)">260 uçuş</text>
+    <text style="font-size: 17px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(55.44 271.171094)">7 bağımsız grup</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #617086" x="138.6" y="459.36" transform="rotate(-0 138.6 459.36)">Rol sınırı</text>
+   </g>
+   <g id="text_6">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2f6bff" x="277.2" y="204.723281" transform="rotate(-0 277.2 204.723281)">Normal doğrulama</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 17px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(277.2 247.984688)">90 uçuş</text>
+    <text style="font-size: 17px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(277.2 271.171094)">3 bağımsız grup</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #617086" x="360.36" y="459.36" transform="rotate(-0 360.36 459.36)">Rol sınırı</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #27a9c7" x="498.96" y="204.723281" transform="rotate(-0 498.96 204.723281)">Bağımsız normal test</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 17px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(498.96 247.984688)">91 uçuş</text>
+    <text style="font-size: 17px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(498.96 271.171094)">3 bağımsız grup</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #617086" x="582.12" y="459.36" transform="rotate(-0 582.12 459.36)">Rol sınırı</text>
+   </g>
+   <g id="text_12">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #6c5ce7" x="720.72" y="204.357656" transform="rotate(-0 720.72 204.357656)">Anomali geliştirme</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 17px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(720.72 247.873125)">557 uçuş</text>
+    <text style="font-size: 17px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(720.72 271.171094)">12 bağımsız grup</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #617086" x="803.88" y="459.36" transform="rotate(-0 803.88 459.36)">Rol sınırı</text>
+   </g>
+   <g id="text_15">
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; fill: #d64545" transform="translate(942.48 205.859121)">Kapalı tutulan</text>
+    <text style="font-weight: 700; font-size: 15px; font-family: 'DejaVu Sans'; fill: #d64545" transform="translate(942.48 223.863223)">nihai test verisi</text>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 17px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(942.48 247.984688)">553 uçuş</text>
+    <text style="font-size: 17px; font-family: 'DejaVu Sans'; fill: #172033" transform="translate(942.48 271.171094)">13 bağımsız grup</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #617086" x="1025.64" y="459.36" transform="rotate(-0 1025.64 459.36)">Rol sınırı</text>
+   </g>
+   <g id="text_18">
+    <text style="font-weight: 700; font-size: 21px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #16324f" x="576" y="568.8" transform="rotate(-0 576 568.8)">Kaynak kesişimi: 0   •   Grup kesişimi: 0</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p5c15449b16">
+   <rect x="0" y="0" width="1152" height="648"/>
+  </clipPath>
+ </defs>
+</svg>

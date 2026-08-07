@@ -1,0 +1,90 @@
+{
+  "artifact_schema_version": 1,
+  "created_utc": "2026-07-07T08:10:38.275663+00:00",
+  "stage": "ML-13 development two-channel alarm evaluation",
+  "source": "uav_sead",
+  "plan": "docs/ML13_KANAL_MIMARISI_PLAN.md",
+  "blind_holdout_read": false,
+  "blind_holdout_flights": 131,
+  "development_flights": 480,
+  "development_source_ids_sha256": "d263a4260bfd0ecc7adf258692932281bcc8fe07a8b9ed8430a44c824c4e85aa",
+  "evaluated_splits": [
+    "split_00",
+    "split_01",
+    "split_02",
+    "split_03",
+    "split_04"
+  ],
+  "split_manifest_sha256": "0e3047b3abc11d09bc5b2b94e35cca117efce8fa49fdc37393c146550b8d0f0d",
+  "feature_table_sha256": "14c90f5f9a283982cec9e93e6e0fcf6a4c3811629ac8aff72f0a2bccc4d69b06",
+  "silver_table_sha256": "6a4a9a5daaea9d15b991218f3856ff5a2846e0d02268f3ebda96d13eba82edbb",
+  "ml9_baseline_manifest_sha256": "d8d63965bc1469f75b5c12f90d9b1dfa832088046f18c11d8ec5b6b0cd174007",
+  "ml12_baseline_manifest_sha256": "adc46037f8aaf146d4ee4bfe20a3bea741c3975b8183e97b7a24ea8b4a1a2876",
+  "score_channels": {
+    "sistem": {
+      "score_source": "existing_fusion",
+      "artifact_dir": "artifacts/ml9/uav_sead/full_matrix"
+    },
+    "mekanik": {
+      "score_source": "itki_komutu",
+      "artifact_dir": "artifacts/ml12/uav_sead/full_matrix"
+    }
+  },
+  "budget_allocations": {
+    "agirlikli_sistem": {
+      "advisory": {
+        "sistem": 10.0,
+        "mekanik": 2.0
+      },
+      "critical": {
+        "sistem": 1.67,
+        "mekanik": 0.33
+      }
+    },
+    "dengeli": {
+      "advisory": {
+        "sistem": 8.0,
+        "mekanik": 4.0
+      },
+      "critical": {
+        "sistem": 1.33,
+        "mekanik": 0.67
+      }
+    },
+    "esit": {
+      "advisory": {
+        "sistem": 6.0,
+        "mekanik": 6.0
+      },
+      "critical": {
+        "sistem": 1.0,
+        "mekanik": 1.0
+      }
+    }
+  },
+  "decision_layers": "imported unchanged from src/ml/decision/decision_layers.py",
+  "event_metrics": "imported unchanged from src/ml/evaluation/events.py",
+  "gate_status": {
+    "gate_a": "passed",
+    "gate_b": "failed",
+    "gate_c1": "failed",
+    "gate_c2": "failed"
+  },
+  "files": {
+    "baseline_category_metrics.csv": "3aae76c967f6c4f2e6b5b1b3f1317db149cfc74d92a13c0819bca492edac2f84",
+    "baseline_flight_label_metrics.csv": "1352f64dbc6ca9fa7000cec4f0ac2a32c76261460f28b0c1d566b2f3a68c3b12",
+    "baseline_metrics.csv": "adf3e1fe229f38606a24b9cc19ec94f0827afd78dcbe9711bc2aef5116109307",
+    "category_metrics.csv": "3b82190bb8ca4da052eafe11ff582f6eced9e2fe0c55357eaedbb8f2a6aebef4",
+    "channel_category_metrics.csv": "ffb1328f02949205db36c8c06c853427044ac20f9f4032806bd17e0b27561ccd",
+    "channel_flight_label_metrics.csv": "013c977dad73db012b809678122ac8df13a1dca03a1cd3432615c9e3be62edf2",
+    "channel_metrics.csv": "f50b049374f6e27c2f55bcb5d46b4b3db4cd92ea7d786141fc956526a0d02cc2",
+    "flight_label_metrics.csv": "a2591994bc6147d860fe8aa0bc9a0d7402772f12603cd2852c827db9be057a77",
+    "gates.json": "eb9c408f62a8ce06baee141e1395d93af9fda6b0aace43c2a09a6af63040cf04",
+    "metrics.csv": "fdadbd09e7f7e55a8e429429c498fa9ab4ac6bb1d49ad451db54ed99a503d5d6",
+    "split_00/policies.json": "a25529a721c47e90a88ea6473b9697bb8c1f55269c78665f695f0124ea149367",
+    "split_01/policies.json": "14787f50d7b220e2f2494c4474a4ee229a8039a14584bfe3ae6a58f220d16633",
+    "split_02/policies.json": "f4038ba37e3b4ac26a3d0a0746e88b275e74aa154eeac782834314e1f913f6d8",
+    "split_03/policies.json": "6e36ff83fcfdaf11d974c2eb74bcb798be4e9e40c4943f4fe2e21ce2d6ca2c81",
+    "split_04/policies.json": "dc2e5b2fdf23390ab83e6e02de1f3251263db2981351b8edff394269d0cf039c"
+  }
+}

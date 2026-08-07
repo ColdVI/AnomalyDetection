@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "candidate_namespace": "four_dataset_probabilistic_gpu_v2",
+  "bundle_role": "four_dataset_probabilistic_gpu_v2_colab_transfer",
+  "archives_built": true,
+  "archives": [
+    {
+      "bytes": 375441,
+      "compression": "ZIP_STORED",
+      "member_count": 5,
+      "path": "four_dataset_probabilistic_gpu_v2_code_and_contract.zip",
+      "sha256": "e9b4ff07171d1ceec5343ac93ca735344c328d1a29a3e739c8f6b512312114fa",
+      "source_bytes": 374507
+    },
+    {
+      "bytes": 18784262,
+      "compression": "ZIP_STORED",
+      "member_count": 1,
+      "path": "four_dataset_probabilistic_gpu_v1_alfa_gold.zip",
+      "sha256": "5694d30dacfc178e2dd28b870c4773a4eab0f56e5993d9293ffcbb974e55868d",
+      "source_bytes": 18784062
+    },
+    {
+      "bytes": 14090505,
+      "compression": "ZIP_STORED",
+      "member_count": 1,
+      "path": "four_dataset_probabilistic_gpu_v1_uav_attack_gold.zip",
+      "sha256": "4fb3b2f91739799d587fb2ae3143f3103d82cea5bf264ab8d3af1a07bb331dfb",
+      "source_bytes": 14090281
+    },
+    {
+      "bytes": 655990223,
+      "compression": "ZIP_STORED",
+      "member_count": 1,
+      "path": "four_dataset_probabilistic_gpu_v1_uav_sead_gold.zip",
+      "sha256": "14e43498a8c4a7095276daed97fc3183f16c03409b2ad4d9e9ba8725d75f48b9",
+      "source_bytes": 655990007
+    },
+    {
+      "bytes": 339274845,
+      "compression": "ZIP_STORED",
+      "member_count": 1553,
+      "path": "four_dataset_probabilistic_gpu_v1_rflymad_development_folds_0_4.zip",
+      "sha256": "f1e4cb12a5008de43acfeb2da61559c684d91209a191686dfdb8a1c83e68ef45",
+      "source_bytes": 338932957
+    }
+  ],
+  "bundle_manifest": {
+    "path": "bundle_manifest_v2.json",
+    "bytes": 2730,
+    "sha256": "303c2311f0d912189fdfd80b749b19594845e1c834cb099b8c3cc08d4377b735"
+  }
+}
